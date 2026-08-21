@@ -1,0 +1,12 @@
+.label {
+  margin: 0;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+.mode {
+  font-weight: 600;
+  /* Color viene del inline style con getModeColor() */
+}

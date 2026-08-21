@@ -1,0 +1,39 @@
+/* Área interactiva del resize: su ancho ES el gap entre los paneles flotantes.
+   El área completa es draggable; la pista visual es una cápsula corta y
+   centrada verticalmente que aparece al hover/foco/drag. Sin glow ni
+   degradados, y sin barras rectas: solo la cápsula minimalista. */
+.handle {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  z-index: 5;
+}
+
+.handle:focus-visible {
+  outline: none;
+}
+
+/* Cápsula: corta (no toca arriba ni abajo), centrada verticalmente y delgada.
+   Solo al hover/foco/drag. */
+.capsule {
+  position: relative;
+  z-index: 1;
+  width: 3px;
+  height: 56px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.handle:hover .capsule,
+.handle:focus-visible .capsule,
+.handle[data-dragging='true'] .capsule {
+  opacity: 1;
+}

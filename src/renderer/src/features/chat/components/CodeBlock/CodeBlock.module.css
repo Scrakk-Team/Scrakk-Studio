@@ -1,0 +1,150 @@
+/* Bloque de código — réplica del look de Scrakk (markdown-code-block). */
+
+.cb {
+  /* Sin márgenes: el gap del contenedor flex .md separa los bloques. */
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header de 28px con lang + botón copiar. */
+.cbHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 28px;
+  padding: 0 0 0 12px;
+  background-color: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  flex-shrink: 0;
+}
+
+.cbLang {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cbCopy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 32px;
+  background-color: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+  border-top-right-radius: var(--radius-sm);
+  flex: none;
+}
+
+.cbCopy:hover {
+  background-color: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: var(--color-text);
+}
+
+.cbCopy:active {
+  background-color: color-mix(in srgb, var(--color-text) 16%, transparent);
+}
+
+.cbBody {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* pre interno: transparente para que el fondo del wrapper se vea. */
+.cbPre {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cbPre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  display: block;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-wrap: normal;
+}
+
+/* Scrollbar fina dentro del bloque. */
+.cbPre::-webkit-scrollbar {
+  height: 3px;
+}
+
+.cbPre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cbPre::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 3px;
+}
+
+/* ── Bloques diff: líneas + / - coloreadas ────────────────────────────── */
+.cbDiff {
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.diffLine {
+  display: block;
+  padding: 0 0.5rem;
+  margin: 0 -0.5rem;
+  line-height: 1.35;
+  min-height: 1.35em;
+}
+
+.diffLine + .diffLine {
+  margin-top: -1px;
+}
+
+.diffAdded {
+  background-color: rgba(34, 197, 94, 0.12);
+}
+
+.diffRemoved {
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+.diffSign {
+  color: #22c55e;
+  font-weight: 700;
+  user-select: none;
+}
+
+.diffRemoved .diffSign {
+  color: #ef4444;
+}

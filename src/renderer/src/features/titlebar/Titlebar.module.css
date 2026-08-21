@@ -1,0 +1,30 @@
+.titlebar {
+  display: flex;
+  align-items: center;
+  height: var(--titlebar-height);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  /* Región de drag: se puede mover la ventana desde acá. */
+  -webkit-app-region: drag;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: 100%;
+  /* Área segura: env(titlebar-area-*) deja libre el espacio de los botones
+     nativos (min/max/close) que dibuja el OS con titleBarOverlay. */
+  margin-left: env(titlebar-area-x, 0);
+  width: env(titlebar-area-width, 100%);
+  padding: 0 var(--space-2) 0 7px;
+}
+
+.trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* Controles interactivos fuera de la región de drag. */
+  -webkit-app-region: no-drag;
+}

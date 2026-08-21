@@ -1,0 +1,99 @@
+.bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  /* Ancho estándar de activity bar (VS Code): 48px, botones centrados. */
+  width: 48px;
+  padding: var(--space-2) 0;
+  /* Fondo claro (superficie), sin borde. Pegada al borde de la ventana del
+     lado externo y redondeada del lado interno (hacia los paneles). */
+  background: var(--color-surface);
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Radio solo del lado opuesto al borde de la ventana. */
+.bar[data-side='left'] {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.bar[data-side='right'] {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  /* Inactivo: tono muted (patrón de scrakk). */
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.button svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Íconos SVG string (paneles de extensión). */
+.svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.button:hover {
+  /* Hover: color de texto + fondo sutil. */
+  color: var(--color-text);
+  background: var(--color-hover);
+}
+
+.button.active {
+  /* Activo: acento + tinte del acento de fondo. */
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* Indicador lateral: presente en todos pero invisible; escala al activar
+   (transform: scaleY, patrón de scrakk). */
+.button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 16px;
+  background: var(--color-accent);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.bar[data-side='left'] .button::before {
+  left: 0;
+  border-radius: 0 2px 2px 0;
+}
+
+.bar[data-side='right'] .button::before {
+  right: 0;
+  border-radius: 2px 0 0 2px;
+}
+
+.button.active::before {
+  transform: translateY(-50%) scaleY(1);
+}

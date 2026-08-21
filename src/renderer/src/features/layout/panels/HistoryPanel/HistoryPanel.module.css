@@ -1,0 +1,121 @@
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--space-3);
+}
+
+/* Botón principal: Nuevo chat */
+.newChat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-input);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.newChat:hover {
+  background: var(--color-accent-hover);
+}
+
+.newChat:active {
+  background: var(--color-accent-active);
+  transform: scale(0.98);
+}
+
+/* Buscador: sin borde salvo al enfocar */
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-surface-raised);
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.search:focus-within {
+  border-color: var(--color-border-strong);
+}
+
+.searchIcon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  padding: var(--space-1) 0;
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Lista de chats recientes */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.empty {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-5) var(--space-3);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-input);
+  text-align: left;
+  /* Hover inmediato, sin animación. */
+  transition: none;
+}
+
+.item:hover {
+  background: var(--color-hover);
+}
+
+.itemActive {
+  background: var(--color-active);
+}
+
+.itemActive .itemTitle {
+  color: var(--color-text);
+}
+
+.itemTitle {
+  width: 100%;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,39 @@
+/* Panel del editor — llena el contenido del slot central (bajo las tabs). */
+.panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+}
+
+.host {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Canvas del engine Innerta (ITE): ocupa el host completo. */
+.host canvas.scrakk-innerta-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+  cursor: text;
+}
+
+/* Placeholder cuando el artefacto WASM no está disponible. */
+.host .scrakk-innerta-missing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,278 @@
+/* ============================================================================
+   Prosa markdown — réplica de markdown-visual.css (proyecto Scrakk),
+   con los tokens de Scrakk (negro puro + naranja suave + blanco).
+   ============================================================================ */
+
+.md {
+  /* Flex column + gap: el espaciado entre bloques lo controla el gap (como
+     Scrakk), no los márgenes — los hijos directos NO tienen márgenes (si no,
+     en flex se sumarían al gap y los bloques volverían a separarse). */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  word-break: break-word;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* ── Párrafos (div custom, sin márgenes: el gap del contenedor separa) ── */
+.p {
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* ── Títulos ────────────────────────────────────────────────────────────── */
+.md h1,
+.md h2,
+.md h3,
+.md h4 {
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.md h1 {
+  font-size: 1.3em;
+}
+
+.md h2 {
+  font-size: 1.2em;
+}
+
+.md h3 {
+  font-size: 1.1em;
+}
+
+.md h4 {
+  font-size: 1em;
+}
+
+/* ── Listas ─────────────────────────────────────────────────────────────── */
+.md ul,
+.md ol {
+  padding-left: 1.35rem;
+  margin: 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.md ul {
+  list-style-type: disc;
+}
+
+.md ol {
+  list-style-type: decimal;
+}
+
+.md li {
+  margin: 0 0 0.3em;
+  display: list-item;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Dos párrafos dentro de un mismo item (
+ seguidas) no quedan pegados. */
+.md li .p + .p {
+  margin-top: 0.3em;
+}
+
+/* ── Código inline (un backtick) ────────────────────────────────────────── */
+.inlineCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85em;
+  background-color: color-mix(in srgb, var(--color-text) 8%, transparent);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  display: inline;
+  white-space: nowrap;
+  word-wrap: normal;
+}
+
+/* ── Horizontal rule ────────────────────────────────────────────────────── */
+.md hr {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  margin: 0;
+}
+
+/* ── Blockquote: estilo cápsula con barra naranja ───────────────────────── */
+.md blockquote {
+  position: relative;
+  padding: 0.25em 0 0.25em 1em;
+  color: var(--color-text);
+  opacity: 0.9;
+  font-style: italic;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.md blockquote::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--color-accent);
+  border-radius: 9999px;
+}
+
+.md blockquote .p {
+  margin: 0 0 0.3em;
+}
+
+.md blockquote .p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Tablas: <table> real, redondeada con bordes solo internos ─────────── */
+/* Contenedor con scroll horizontal: si la tabla entra se ve idéntica a la
+   de Scrakk (borde redondeado); si no, scrollea en vez de aplastarse. */
+.tblWrap {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-radius: 8px;
+  overflow-x: auto;
+  background-color: color-mix(in srgb, var(--color-text) 1%, transparent);
+}
+
+.tblWrap::-webkit-scrollbar {
+  height: 3px;
+}
+
+.tblWrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tblWrap::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 3px;
+}
+
+.tbl {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 13px;
+  display: table;
+  table-layout: auto;
+}
+
+.tbl th,
+.tbl td {
+  border-right: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.tbl th {
+  background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tbl th:last-child,
+.tbl td:last-child {
+  border-right: none;
+}
+
+.tbl tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Strong / Bold ──────────────────────────────────────────────────────── */
+.md strong {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* ── Emphasis / Italic ──────────────────────────────────────────────────── */
+.md em {
+  font-style: italic;
+  color: var(--color-text);
+}
+
+/* ── Links ──────────────────────────────────────────────────────────────── */
+.md a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 150ms ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.md a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* ── Badges (shields.io) ────────────────────────────────────────────────── */
+.md img[src*='shields.io'],
+.md img[src*='badge'],
+.md img[alt*='badge'] {
+  border-radius: 6px;
+  vertical-align: middle;
+}
+
+/* ── <details>/<summary> — colapsable con chevron animado ──────────────── */
+.md details {
+  margin: 0;
+}
+
+.md details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  padding: 0.15em 0;
+  border: none;
+  background: none;
+}
+
+.md details summary::-webkit-details-marker {
+  display: none;
+}
+
+.md details summary::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%2380808E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 200ms ease;
+}
+
+.md details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.md details > *:not(summary) {
+  padding: 0 0 0 1.25rem;
+}

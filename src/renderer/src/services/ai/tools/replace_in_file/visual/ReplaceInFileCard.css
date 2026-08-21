@@ -1,0 +1,62 @@
+/* replace_in_file card styles */
+.replace-file-card__diff {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.replace-file-card__removed,
+.replace-file-card__added {
+  display: flex;
+  gap: var(--space-1);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.replace-file-card__removed {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.replace-file-card__added {
+  background: color-mix(in srgb, #3fb950 10%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.replace-file-card__diff-label {
+  color: var(--color-text-muted);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.replace-file-card__diff-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replace-file-card__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  margin-top: var(--space-1);
+}
+
+.replace-file-card__stat-added {
+  color: #3fb950;
+  font-weight: 500;
+}
+
+.replace-file-card__stat-removed {
+  color: var(--color-danger);
+  font-weight: 500;
+}

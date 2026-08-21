@@ -1,0 +1,33 @@
+/* Menú flotante abajo del panel derecho — compacto */
+.menu {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background: var(--color-surface-raised);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  /* Hover inmediato, sin animación. */
+  transition: none;
+}
+
+.item:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,0 +1,18 @@
+{
+  "id": "scrakk-light",
+  "name": "Scrakk Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema claro por defecto: blanco + naranja profundo. Colores idénticos al core (themes.css).",
+  "engine": ">=1.0.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "scrakk-light",
+        "name": "Scrakk Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

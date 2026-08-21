@@ -1,0 +1,81 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  /* Tinta de los puntos (currentColor) — igual que el shimmer del label. */
+  color: #a1a1a1;
+  /* Lo usa orb-wave; el original lo define en tokens. */
+  --orb-ease-in-out: cubic-bezier(0.66, 0, 0.34, 1);
+}
+
+.glyph {
+  position: relative;
+  display: block;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* --- Lattice: puntos discretos sobre una grilla fija 3×3 ------------- */
+
+.lattice {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  transform-origin: 0 0;
+  /* Tres puntos de 3px en un pitch de 6px miden 15px, así que la grilla se
+     corre para centrarse en el stage de 28px. No llena el stage a propósito. */
+  transform: scale(var(--orb-k, 1)) translate(6.5px, 6.5px);
+  /* Tinta de reposo de una celda apagada — la grilla sigue legible entre
+     beats. --orb-dim es para celdas que se saltan la coreografía. */
+  --orb-rest: 0.14;
+  --orb-dim: 0.07;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Tinta clara sobre superficie oscura lee más tenue al mismo alpha. */
+  .lattice {
+    --orb-rest: 0.2;
+    --orb-dim: 0.1;
+  }
+}
+
+.cell {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: var(--orb-rest);
+}
+
+.lattice[data-variant='S2'] .cell {
+  animation: orb-wave 1.7s var(--orb-ease-in-out) infinite both;
+}
+
+/* Crece y decrece en la misma curva simétrica: sin flash ni borde duro,
+   la celda sube de su tinta de reposo y vuelve a hundirse en ella. */
+@keyframes orb-wave {
+  0% {
+    opacity: var(--orb-rest);
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(1.18);
+    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
+  }
+  56% {
+    opacity: var(--orb-rest);
+    transform: scale(1);
+  }
+  100% {
+    opacity: var(--orb-rest);
+    transform: scale(1);
+  }
+}

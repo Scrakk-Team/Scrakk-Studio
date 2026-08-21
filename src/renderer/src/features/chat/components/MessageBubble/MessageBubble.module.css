@@ -1,0 +1,46 @@
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.rowUser {
+  justify-content: flex-end;
+}
+
+.rowAssistant {
+  justify-content: flex-start;
+}
+
+.bubble {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Mensajes del usuario: burbuja con el mismo color que el chat activo del
+   historial (--color-active) y texto blanco, todas las esquinas iguales.
+   pre-wrap solo acá: el texto plano del usuario conserva sus saltos de
+   línea. El markdown de la IA NO (los \n se duplicarían con remark-breaks). */
+.bubbleUser {
+  max-width: 60%;
+  background: var(--color-active);
+  color: var(--color-text);
+  border: 1px solid transparent;
+  white-space: pre-wrap;
+}
+
+/* Mensajes de la IA: texto plano, sin fondo ni borde. El ancho llega hasta
+   la esquina inferior derecha de la burbuja del usuario (borde derecho del
+   contenedor, menos el gutter del scrollbar), así la lectura llega más lejos. */
+.bubbleAssistant {
+  max-width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: var(--text-md);
+  padding: var(--space-1) 0;
+}

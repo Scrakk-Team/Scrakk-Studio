@@ -1,0 +1,155 @@
+{
+  "name": "Scrakk Night",
+  "type": "dark",
+  "colors": {
+    "bg": "#000000",
+    "surface": "#101010",
+    "surfaceRaised": "#161616",
+    "border": "#262626",
+    "borderStrong": "#3a3a3a",
+    "accent": "#fb923c",
+    "accentHover": "#f97316",
+    "accentActive": "#ea580c",
+    "onAccent": "#ffffff",
+    "text": "#ffffff",
+    "textSecondary": "#b8b8b8",
+    "textMuted": "#7a7a7a",
+    "error": "#e5484d",
+    "errorHover": "#d13b40",
+    "onError": "#ffffff",
+    "warning": "#fbbf24",
+    "success": "#34d399",
+    "info": "#fb923c",
+    "hover": "rgba(255, 255, 255, 0.07)",
+    "active": "rgba(255, 255, 255, 0.12)",
+    "scrollbarThumb": "rgba(255, 255, 255, 0.18)",
+    "scrollbarThumbHover": "rgba(255, 255, 255, 0.35)",
+    "indentGuide": "#262626",
+    "panelBorder": "#262626",
+    "panelBorderOpacity": 100,
+    "editorBg": "#101010"
+  },
+  "components": {
+    "tabs": {
+      "activeBg": "#101010"
+    },
+    "editor": {
+      "editorBg": "#101010"
+    },
+    "breadcrumb": {
+      "breadcrumbBg": "#101010"
+    },
+    "welcomePage": {
+      "welcomePageBg": "#101010",
+      "welcomePageButtonBg": "#000000"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#7a7a7a",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#fdba74"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f97316"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#fb923c"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#ea580c"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#f97316"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#ffa94d"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#ffd166"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff8fa3"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#fda4af"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#ffffff"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#ffd8a8"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#ffc078"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#b8b8b8"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#fb923c",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

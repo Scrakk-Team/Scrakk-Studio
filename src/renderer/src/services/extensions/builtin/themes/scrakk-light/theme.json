@@ -1,0 +1,66 @@
+{
+  "name": "Scrakk Light",
+  "type": "light",
+  "colors": {
+    "bg": "#ffffff",
+    "surface": "#f7f7f7",
+    "surfaceRaised": "#ffffff",
+    "border": "#e5e5e5",
+    "borderStrong": "#cccccc",
+    "accent": "#ea580c",
+    "accentHover": "#c2410c",
+    "accentActive": "#9a3412",
+    "onAccent": "#ffffff",
+    "text": "#0a0a0a",
+    "textSecondary": "#555555",
+    "textMuted": "#8f8f8f",
+    "error": "#d92d20",
+    "errorHover": "#b42318",
+    "onError": "#ffffff",
+    "warning": "#b45309",
+    "success": "#15803d",
+    "info": "#ea580c",
+    "hover": "rgba(0, 0, 0, 0.05)",
+    "active": "rgba(0, 0, 0, 0.09)",
+    "scrollbarThumb": "rgba(0, 0, 0, 0.18)",
+    "scrollbarThumbHover": "rgba(0, 0, 0, 0.35)",
+    "indentGuide": "#e5e5e5",
+    "panelBorder": "#e5e5e5",
+    "panelBorderOpacity": 100,
+    "editorBg": "#f7f7f7"
+  },
+  "components": {
+    "tabs": {
+      "activeBg": "#f7f7f7"
+    },
+    "editor": {
+      "editorBg": "#f7f7f7"
+    },
+    "breadcrumb": {
+      "breadcrumbBg": "#f7f7f7"
+    },
+    "welcomePage": {
+      "welcomePageBg": "#f7f7f7",
+      "welcomePageButtonBg": "#ffffff"
+    }
+  },
+  "tokenColors": [
+    { "scope": ["comment", "comment.line", "comment.block"], "foreground": "#8f8f8f", "fontStyle": "italic" },
+    { "scope": ["string", "string.quoted", "string.template"], "foreground": "#c2410c" },
+    { "scope": "constant.numeric", "foreground": "#ea580c" },
+    { "scope": ["constant.language", "constant"], "foreground": "#c2410c" },
+    { "scope": ["keyword", "keyword.control", "keyword.other", "storage.type", "storage.modifier"], "foreground": "#9a3412" },
+    { "scope": "keyword.operator", "foreground": "#c2410c" },
+    { "scope": ["entity.name.function", "support.function"], "foreground": "#b45309" },
+    { "scope": ["entity.name.class", "entity.name.type", "support.class", "support.type"], "foreground": "#a16207" },
+    { "scope": "entity.name.tag", "foreground": "#be185d" },
+    { "scope": "entity.other.attribute-name", "foreground": "#be123c" },
+    { "scope": ["variable", "variable.other"], "foreground": "#0a0a0a" },
+    { "scope": "variable.parameter", "foreground": "#92400e" },
+    { "scope": ["variable.object.property", "meta.object-literal.key", "support.type.property-name"], "foreground": "#b45309" },
+    { "scope": ["punctuation", "punctuation.definition", "punctuation.separator"], "foreground": "#555555" },
+    { "scope": "markup.heading", "foreground": "#ea580c", "fontStyle": "bold" },
+    { "scope": "markup.bold", "fontStyle": "bold" },
+    { "scope": "markup.italic", "fontStyle": "italic" }
+  ]
+}

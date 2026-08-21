@@ -1,0 +1,32 @@
+/* ModeGlow — luz inferior detrás del input, teñida con el color del modo.
+   Solo aparece fugazmente al cambiar de modo (fade-in → fade-out). */
+
+.glow {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -12px;
+  height: 46px;
+  border-radius: 50%;
+  filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* El gradiente radial llega por inline style (color del modo activo). */
+}
+
+.glowVisible {
+  animation: glowPulse 1.5s ease-in-out forwards;
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+  }
+}

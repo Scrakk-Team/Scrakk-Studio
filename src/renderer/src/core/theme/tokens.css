@@ -1,0 +1,44 @@
+/* ==========================================================================
+   TOKENS DE DISEÑO — módulo core/theme
+   Estructura: radios, espaciado, tipografía y motion.
+   Los colores NO viven acá: eso es tema, y está en themes.css.
+   ========================================================================== */
+
+:root {
+  /* Radios — estética cápsula */
+  --radius-capsule: 9999px;
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-input: 10px;
+
+  /* Espaciado */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Tipografía */
+  --font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell,
+    'Noto Sans', sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  /* Motion — transiciones planas, sin glow */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+
+  /* Geometría de ventana (38 debe coincidir con TITLEBAR_HEIGHT en el main) */
+  --titlebar-height: 38px;
+}

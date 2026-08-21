@@ -1,0 +1,88 @@
+/* ==========================================================================
+   ESTILOS GLOBALES — reset mínimo + base
+   Diseño plano: cero sombras, cero glow, cero gradientes.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Workspace: las activity bars van pegadas a los bordes laterales de la
+   ventana (sin padding horizontal) y con el mismo alto de antes (inset
+   vertical). El espaciado interno de los paneles lo aporta PanelLayout. */
+.app-workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-2) 0;
+}
+
+/* Scrollbar plana y delgada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: var(--radius-capsule);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Foco visible: borde plano, sin glow.
+   Los inputs de texto indican foco con el borde de su contenedor
+   (:focus-within), así que acá no se les dibuja anillo extra. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}

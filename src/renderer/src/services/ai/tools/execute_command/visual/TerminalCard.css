@@ -1,0 +1,68 @@
+/* execute_command card styles — injected via displayCss */
+.terminal-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.terminal-card__command {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12px;
+}
+
+.terminal-card__prompt {
+  color: var(--color-accent);
+  font-weight: 600;
+  user-select: none;
+}
+
+.terminal-card__cmd-text {
+  color: var(--color-text);
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.terminal-card__elapsed {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.terminal-card__output {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.terminal-card__exit {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.terminal-card__exit--ok {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+.terminal-card__exit--error {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+}

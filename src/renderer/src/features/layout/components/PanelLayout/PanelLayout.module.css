@@ -1,0 +1,40 @@
+.layout {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  /* Solo padding horizontal: separa los paneles de las activity bars.
+     El inset vertical lo aporta .app-workspace (no duplicar). */
+  padding: 0 var(--space-2);
+  background: var(--color-bg);
+}
+
+/* Cada panel es una tarjeta flotante: esquinas redondeadas, fondo oscuro
+   (mismo que la página de bienvenida) y borde bien definido, separado del
+   fondo de la ventana. Nada de barras de borde a borde. */
+.slot,
+.center {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  overflow: hidden;
+}
+
+.slot {
+  flex-shrink: 0;
+}
+
+.center {
+  flex: 1;
+  /* Columna: el header de tabs arriba + el panel host que llena el resto. */
+  flex-direction: column;
+}
+
+.empty {
+  margin: auto;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

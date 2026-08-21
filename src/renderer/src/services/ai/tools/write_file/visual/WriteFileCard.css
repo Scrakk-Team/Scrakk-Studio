@@ -1,0 +1,22 @@
+/* write_file card styles */
+.write-file-card__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+.write-file-card__lines {
+  color: var(--color-text-muted);
+}
+
+.write-file-card__added {
+  color: #3fb950;
+  font-weight: 500;
+}
+
+.write-file-card__removed {
+  color: var(--color-danger);
+  font-weight: 500;
+}

@@ -1,0 +1,83 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-capsule);
+  border: 1px solid transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.iconButton svg {
+  display: block;
+}
+
+/* Cuadrado con esquinas redondeadas (encaja con el input) */
+.rounded {
+  border-radius: var(--radius-input);
+}
+
+/* Tamaños */
+.sm {
+  width: 28px;
+  height: 28px;
+}
+
+.md {
+  width: 36px;
+  height: 36px;
+}
+
+/* Variantes planas */
+.neutral {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.neutral:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.neutral:active {
+  background: var(--color-active);
+  transform: scale(0.94);
+}
+
+.accent {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.accent:hover {
+  background: var(--color-accent-hover);
+}
+
+.accent:active {
+  background: var(--color-accent-active);
+  transform: scale(0.94);
+}
+
+.danger {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.danger:hover {
+  background: var(--color-danger);
+  color: var(--color-on-danger);
+}
+
+.danger:active {
+  background: var(--color-danger-hover);
+  transform: scale(0.94);
+}
+
+.iconButton:disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}

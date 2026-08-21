@@ -1,0 +1,15 @@
+/* SelectionBox — rubber-band selection rectangle.
+   GPU-accelerated, no animations (direct DOM manipulation). */
+
+.box {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 50%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-radius: 3px;
+  /* GPU acceleration — same pattern as Scrakk */
+  will-change: left, top, width, height;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

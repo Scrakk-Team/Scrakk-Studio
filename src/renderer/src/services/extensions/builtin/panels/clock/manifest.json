@@ -1,0 +1,38 @@
+{
+  "id": "clock",
+  "name": "Clock",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Reloj: panel lateral, botón en la activity bar y tab central. Ejemplo de los tres tipos de contribución del sistema de extensiones SEF.",
+  "engine": ">=1.0.0",
+  "contributes": {
+    "panels": [
+      {
+        "id": "clock",
+        "title": "Reloj",
+        "closable": true,
+        "component": "panels/clock/ClockPanel.tsx"
+      }
+    ],
+    "activityBar": [
+      {
+        "id": "clock-btn",
+        "label": "Reloj",
+        "icon": "activitybar/clock/index.ts",
+        "side": "left",
+        "target": "left",
+        "panelId": "clock",
+        "order": 60
+      }
+    ],
+    "centerTabs": [
+      {
+        "id": "clock-dashboard",
+        "label": "Dashboard",
+        "icon": "centerTabs/dashboard/index.ts",
+        "closable": true,
+        "component": "centerTabs/dashboard/DashboardTab.tsx"
+      }
+    ]
+  }
+}
