@@ -100,11 +100,12 @@ export async function validatePackage(rootDir: string): Promise<ValidationIssue[
   }
 
   // Themes v2: si hay temas sin path explícito → themes/<id>.json.
+  // Convención del paquete: siempre con `/` (en win32 path.join daría `\`).
   const themes = ((manifest.contributes as Record<string, unknown>)?.themes ??
     []) as Array<{ id?: unknown; path?: unknown }>
   for (const theme of themes) {
     if (typeof theme.path === 'string') continue
-    const expected = path.join(SEF.THEMES_DIR, `${String(theme.id)}.json`)
+    const expected = `${SEF.THEMES_DIR}/${String(theme.id)}.json`
     try {
       await fs.access(path.join(rootDir, expected))
     } catch {
@@ -127,7 +128,7 @@ export async function validatePackage(rootDir: string): Promise<ValidationIssue[
       }
       continue
     }
-    const expected = path.join(SEF.ICONS_DIR, `${String(theme.id)}.json`)
+    const expected = `${SEF.ICONS_DIR}/${String(theme.id)}.json`
     try {
       await fs.access(path.join(rootDir, expected))
     } catch {
@@ -150,7 +151,7 @@ export async function validatePackage(rootDir: string): Promise<ValidationIssue[
       }
       continue
     }
-    const expected = path.join(SEF.PRODUCT_ICONS_DIR, `${String(theme.id)}.json`)
+    const expected = `${SEF.PRODUCT_ICONS_DIR}/${String(theme.id)}.json`
     try {
       await fs.access(path.join(rootDir, expected))
     } catch {

@@ -22,12 +22,17 @@ function tempDir(): string {
   return dir
 }
 
+// chmod/symlinks/PATH con `:` son semántica POSIX: en win32 el FS no tiene
+// bit ejecutable ni `:` como separador, así que esos casos se saltan ahí
+// (la implementación sí es cross-platform y se testea en CI linux).
+const posixOnly = it.skipIf(process.platform === 'win32')
+
 afterEach(() => {
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
 describe('augmentedPath', () => {
-  it('deja el PATH del proceso primero y suma los directorios extra que existen', () => {
+  posixOnly('deja el PATH del proceso primero y suma los directorios extra que existen', () => {
     const home = tempDir()
     const extra = join(home, '.local', 'bin')
     mkdirSync(extra, { recursive: true })
@@ -86,7 +91,7 @@ describe('resolveExecutable', () => {
     ).toBeNull()
   })
 
-  it('acepta una ruta absoluta y verifica que sea ejecutable', () => {
+  posixOnly('acepta una ruta absoluta y verifica que sea ejecutable', () => {
     const dir = tempDir()
     const script = join(dir, 'server')
     writeFileSync(script, '#!/bin/sh\n')
@@ -99,7 +104,7 @@ describe('resolveExecutable', () => {
     expect(isExecutableFile(script)).toBe(true)
   })
 
-  it('sigue un symlink del PATH (como hace el propio shell)', () => {
+  posixOnly('sigue un symlink del PATH (como hace el propio shell)', () => {
     const dir = tempDir()
     const real = join(dir, 'node-v22')
     writeFileSync(real, '#!/bin/sh\n')
