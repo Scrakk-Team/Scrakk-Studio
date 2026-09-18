@@ -1,0 +1,96 @@
+{
+  "name": "Miles Dark",
+  "type": "dark",
+  "colors": {
+    "bg": "transparent",
+    "surface": "rgba(7, 13, 29, 0.85)",
+    "surfaceRaised": "rgba(16, 32, 57, 0.9)",
+    "border": "transparent",
+    "borderStrong": "#2a4a6b",
+    "accent": "#e8232a",
+    "accentHover": "#f03a41",
+    "accentActive": "#ff5a5e",
+    "onAccent": "#ffffff",
+    "text": "#d5e2ef",
+    "textSecondary": "#7488a3",
+    "textMuted": "#4c5d76",
+    "error": "#f87171",
+    "errorHover": "#f98282",
+    "onError": "#ffffff",
+    "warning": "#fbbf24",
+    "success": "#4ade80",
+    "info": "#7fd4f7",
+    "scrollbarThumb": "rgba(143, 163, 184, 0.25)",
+    "scrollbarThumbHover": "rgba(143, 163, 184, 0.4)",
+    "indentGuide": "#1b2f4d",
+    "panelBorder": "#7fd4f7",
+    "panelBorderOpacity": 25,
+    "editorBg": "rgba(7, 13, 29, 0.88)",
+    "background": {
+      "type": "image",
+      "image": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.hdwallpapers.in%2Fdownload%2Fmiles_morales_spider_man_4k_8k_hd_spider_man_into_the_spider_verse-5120x2880.jpg&f=1&nofb=1&ipt=e4c97e11a6d45ff17c6ceef08c141f64b8e584e88dbe2c79d55bfca65ccd9cec",
+      "imageOpacity": 0.8,
+      "imageSize": "cover",
+      "imagePosition": "center",
+      "imageBlur": "0px"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#5b6b82",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#7fd4f7"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#ff5a5e",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": [
+        "constant.numeric",
+        "constant.language"
+      ],
+      "foreground": "#60a5fa"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": [
+        "entity.name.type",
+        "support.type",
+        "entity.name.class"
+      ],
+      "foreground": "#ffd166"
+    },
+    {
+      "scope": [
+        "variable.other.property",
+        "entity.other.attribute-name"
+      ],
+      "foreground": "#8fa3b8"
+    }
+  ]
+}

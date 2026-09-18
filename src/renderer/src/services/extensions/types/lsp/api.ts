@@ -30,7 +30,8 @@ export const lspHandler: AnyExtensionTypeHandler = {
     contribution: LspContribution,
     ctx: ExtensionTypeContext
   ): Promise<RegisteredLspRef> {
-    await registerServer(ctx.extensionId, contribution)
+    // `extensionPath` para un server que viaja DENTRO del paquete (`./…`).
+    await registerServer(ctx.extensionId, contribution, ctx.extensionPath)
     return { extensionId: ctx.extensionId, serverId: contribution.id }
   },
 

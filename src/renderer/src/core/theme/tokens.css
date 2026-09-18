@@ -1,7 +1,8 @@
 /* ==========================================================================
    TOKENS DE DISEÑO — módulo core/theme
    Estructura: radios, espaciado, tipografía y motion.
-   Los colores NO viven acá: eso es tema, y está en themes.css.
+   Los colores NO viven acá: son tema, y vienen de los theme.json
+   del sistema de extensiones (services/extensions/builtin/themes).
    ========================================================================== */
 
 :root {

@@ -1,0 +1,6 @@
+{
+  "id": "explorer",
+  "title": "Usa Ctrl+B para mostrar/ocultar el explorador",
+  "description": "Gana más espacio para tu código ocultando el panel lateral cuando no lo necesites.",
+  "order": 60
+}

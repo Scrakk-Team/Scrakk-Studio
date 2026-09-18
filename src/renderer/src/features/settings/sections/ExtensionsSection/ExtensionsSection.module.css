@@ -94,6 +94,26 @@
   color: var(--color-text-secondary);
 }
 
+.rowDisabled {
+  opacity: 0.6;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.badgeDisabled {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+}
+
 .iconButton {
   display: inline-flex;
   align-items: center;

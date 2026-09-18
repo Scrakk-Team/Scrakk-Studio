@@ -5,4 +5,16 @@
 
 export { ActivityBar } from './ActivityBar'
 export { activityBarButtons, getButtonsForSide } from './registry'
+export {
+  allActivityButtons,
+  getOrderedButtons,
+  getToolDockedButtons,
+  buttonPosition,
+  moveButton,
+  resetButtonLayout,
+  snapshotButtonLayout,
+  restoreButtonLayout,
+  subscribeToButtonLayout
+} from './layout'
 export type { ActivityBarButton, ActivityBarSide } from './types'
+export type { ButtonSide } from './layout'

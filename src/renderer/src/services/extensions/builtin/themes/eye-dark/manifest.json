@@ -1,0 +1,18 @@
+{
+  "id": "eye-dark",
+  "name": "Eye Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Eye Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "eye-dark",
+        "name": "Eye Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

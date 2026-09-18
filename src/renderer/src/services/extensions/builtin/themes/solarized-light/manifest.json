@@ -1,0 +1,18 @@
+{
+  "id": "solarized-light",
+  "name": "Solarized Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Solarized Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "solarized-light",
+        "name": "Solarized Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

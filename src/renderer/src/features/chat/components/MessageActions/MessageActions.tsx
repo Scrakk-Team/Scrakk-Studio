@@ -1,4 +1,4 @@
-import { ArrowClockwiseIcon, CheckmarkIcon, CopyIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import styles from './MessageActions.module.css'
 
@@ -41,9 +41,9 @@ export function MessageActions({ content, onRegenerate }: MessageActionsProps): 
         title={copied ? 'Copiado' : 'Copiar'}
       >
         {copied ? (
-          <CheckmarkIcon size={14} className={styles.iconCopied} aria-hidden="true" />
+          <ProductIcon id="check" size={14} className={styles.iconCopied} aria-hidden="true" />
         ) : (
-          <CopyIcon size={14} className={styles.icon} aria-hidden="true" />
+          <ProductIcon id="copy" size={14} className={styles.icon} aria-hidden="true" />
         )}
       </button>
 
@@ -55,7 +55,7 @@ export function MessageActions({ content, onRegenerate }: MessageActionsProps): 
           aria-label="Regenerar respuesta"
           title="Regenerar"
         >
-          <ArrowClockwiseIcon size={14} className={styles.icon} aria-hidden="true" />
+          <ProductIcon id="refresh" size={14} className={styles.icon} aria-hidden="true" />
         </button>
       ) : null}
     </div>

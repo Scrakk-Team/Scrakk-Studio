@@ -5,3 +5,21 @@
   margin-bottom: 2px;
   min-width: 0;
 }
+
+/* Fila de tool: icono + visual. El texto hereda muted para diferenciarlo
+   del chat normal; lo que trae color propio (diffs, previews) lo conserva. */
+.toolRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.toolVisual {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}

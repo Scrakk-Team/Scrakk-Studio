@@ -1,0 +1,18 @@
+{
+  "id": "spotify",
+  "name": "Spotify Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Spotify Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "spotify",
+        "name": "Spotify Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

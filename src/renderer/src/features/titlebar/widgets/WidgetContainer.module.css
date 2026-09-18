@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  /* Los widgets son interactivos: fuera de la región de drag de la titlebar. */
+  -webkit-app-region: no-drag;
+}
+
+.widget {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 240px;
+}
+
+.fallback {
+  width: 60px;
+  height: 24px;
+}

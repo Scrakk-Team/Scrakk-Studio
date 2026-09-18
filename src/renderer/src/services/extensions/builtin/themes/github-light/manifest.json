@@ -1,0 +1,18 @@
+{
+  "id": "github-light",
+  "name": "GitHub Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema GitHub Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "github-light",
+        "name": "GitHub Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

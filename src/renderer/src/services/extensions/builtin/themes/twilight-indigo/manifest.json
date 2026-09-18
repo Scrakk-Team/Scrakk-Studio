@@ -1,0 +1,18 @@
+{
+  "id": "twilight-indigo",
+  "name": "Twilight Indigo",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Twilight Indigo — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "twilight-indigo",
+        "name": "Twilight Indigo",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

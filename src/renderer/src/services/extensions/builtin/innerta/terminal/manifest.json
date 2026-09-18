@@ -1,0 +1,18 @@
+{
+  "id": "innerta-terminal",
+  "name": "Innerta Terminal",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Terminal nativa renderizada por Innerta (mismo renderer que el editor, sin VTE). La extensión solo expone la API (viewFactory); el panel por defecto vive en el slot inferior (bottom) y se toggles desde la statusbar.",
+  "engine": ">=1.0.0",
+  "contributes": {
+    "panels": [
+      {
+        "id": "innerta-terminal",
+        "title": "Terminal",
+        "closable": true,
+        "component": "panels/terminal/InnertaTerminalPanel.tsx"
+      }
+    ]
+  }
+}

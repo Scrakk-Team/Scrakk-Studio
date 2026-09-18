@@ -58,7 +58,12 @@ function getToolScopeSessionId(): string | null {
 
 function getProjectRoot(): string {
   // En Electron, la raíz del proyecto la setea el Explorer (panel de archivos).
-  return localStorage.getItem('scrakk-studio:root-path') ?? ''
+  try {
+    return localStorage.getItem('scrakk-studio:root-path') ?? ''
+  } catch {
+    // Sin storage disponible (tests/SSR): raíz vacía.
+    return ''
+  }
 }
 
 function getCurrentToolSignal(): AbortSignal | undefined {

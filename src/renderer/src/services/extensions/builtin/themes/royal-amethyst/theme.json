@@ -1,0 +1,114 @@
+{
+  "name": "Royal Amethyst",
+  "type": "dark",
+  "colors": {
+    "bg": "#12101a",
+    "surface": "#1a1624",
+    "border": "#2a2438",
+    "accent": "#9966cc",
+    "text": "#e0d8f0",
+    "textSecondary": "#a898c0",
+    "textMuted": "#5a4a70",
+    "error": "#d85a6a",
+    "warning": "#d8a850",
+    "success": "#6ab870",
+    "info": "#6a90d8",
+    "scrollbarThumb": "#3a3048",
+    "scrollbarThumbHover": "#4a4058",
+    "indentGuide": "#221c30",
+    "surfaceRaised": "#282431",
+    "hover": "#35323e",
+    "active": "#43404b",
+    "accentHover": "#a375d1",
+    "accentActive": "#ab82d5",
+    "errorHover": "#dd6e7c",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#443e50",
+    "editorBg": "#1a1624",
+    "panelBorder": "#2a2438"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#5a4a70"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a8d898"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d8a850"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#9966cc"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#b888e0"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#b888e0"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e0d8f0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#9966cc"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#b888e0"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#88b8e8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e8c878"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e8c878"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#a8d898"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e0d8f0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e8a088"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#88b8e8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e8c878"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a898c0"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d85a6a"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#9966cc",
+      "fontStyle": "bold"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Sunset Boulevard",
+  "type": "dark",
+  "colors": {
+    "bg": "#2b1f38",
+    "surface": "#3a2a4a",
+    "border": "#5a4a6a",
+    "accent": "#ff6b35",
+    "text": "#ffecd2",
+    "textSecondary": "#d4a574",
+    "textMuted": "#8a6a5a",
+    "error": "#ff4757",
+    "warning": "#ffa502",
+    "success": "#2ed573",
+    "info": "#70a1ff",
+    "scrollbarThumb": "#5a4a6a",
+    "scrollbarThumbHover": "#6a5a7a",
+    "indentGuide": "#4a3a5a",
+    "surfaceRaised": "#463755",
+    "hover": "#524460",
+    "active": "#5d506b",
+    "accentHover": "#ff7a49",
+    "accentActive": "#ff8659",
+    "errorHover": "#ff5d6b",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#6e607c",
+    "editorBg": "#3a2a4a",
+    "panelBorder": "#5a4a6a"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#8a6a5a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#2ed573"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ffa502"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff6b35"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#70a1ff"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#ff4757"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffa502"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#ffecd2"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff6b35"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#d4a574"
+    }
+  ]
+}

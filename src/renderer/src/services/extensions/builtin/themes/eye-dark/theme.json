@@ -1,0 +1,116 @@
+{
+  "name": "Eye Dark",
+  "type": "dark",
+  "colors": {
+    "bg": "transparent",
+    "surface": "rgba(24, 24, 27, 0.85)",
+    "border": "#27272a",
+    "accent": "#e11d48",
+    "text": "#fafafa",
+    "textSecondary": "#a1a1aa",
+    "textMuted": "#71717a",
+    "error": "#f87171",
+    "warning": "#fbbf24",
+    "success": "#4ade80",
+    "info": "#60a5fa",
+    "scrollbarThumb": "rgba(250, 250, 250, 0.25)",
+    "scrollbarThumbHover": "rgba(250, 250, 250, 0.4)",
+    "indentGuide": "#27272a",
+    "inputBg": "#27272a",
+    "panelBorder": "#ffffff",
+    "panelBorderOpacity": 25,
+    "roundedBorder": "rgba(255, 255, 255, 0.25)",
+    "background": {
+      "type": "image",
+      "image": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.hdwallpapers.in%2Fdownload%2Fmiles_morales_spider_man_4k_8k_hd_spider_man_into_the_spider_verse-5120x2880.jpg&f=1&nofb=1&ipt=e4c97e11a6d45ff17c6ceef08c141f64b8e584e88dbe2c79d55bfca65ccd9cec",
+      "imageOpacity": 0.8,
+      "imageSize": "cover",
+      "imagePosition": "center",
+      "imageBlur": "0px"
+    },
+    "accentHover": "#e4345a",
+    "accentActive": "#e64669",
+    "errorHover": "#f98282",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#414144",
+    "editorBg": "rgba(24, 24, 27, 0.85)"
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#71717a",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#4ade80"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#f87171",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": [
+        "constant.numeric",
+        "constant.language"
+      ],
+      "foreground": "#60a5fa"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#fb923c"
+    },
+    {
+      "scope": [
+        "entity.name.tag"
+      ],
+      "foreground": "#4ade80"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#fafafa"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#fb923c"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#a1a1aa"
+    }
+  ]
+}

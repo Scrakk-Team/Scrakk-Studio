@@ -1,0 +1,18 @@
+{
+  "id": "blood-moon",
+  "name": "Blood Moon",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Blood Moon — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "blood-moon",
+        "name": "Blood Moon",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

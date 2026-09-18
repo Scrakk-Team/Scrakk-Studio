@@ -6,6 +6,11 @@ out/
 dist/
 .vite/
 
+# Rust nativo (scrakk-search)
+native/search/target/
+native/search/npm/
+native/search/*.node
+
 # Logs
 *.log
 npm-debug.log*
@@ -13,3 +18,15 @@ npm-debug.log*
 # Sistema
 .DS_Store
 Thumbs.db
+release/
+
+# Ignorados repo publico
+files-otherapps/
+build-resources/
+.codebase-memory/
+.freebuff/
+.jokit/
+.opencode/
+.jokitignore
+.stfolder/
+.perf/

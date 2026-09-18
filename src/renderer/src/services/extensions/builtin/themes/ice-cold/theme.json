@@ -1,0 +1,73 @@
+{
+  "name": "Ice Cold",
+  "type": "dark",
+  "colors": {
+    "bg": "#0f1a2a",
+    "surface": "#1a2a3a",
+    "border": "#2a4a5a",
+    "accent": "#a8dadc",
+    "text": "#f1faee",
+    "textSecondary": "#a8dadc",
+    "textMuted": "#457b9d",
+    "error": "#e63946",
+    "warning": "#f4a261",
+    "success": "#2a9d8f",
+    "info": "#1d3557",
+    "scrollbarThumb": "#2a4a5a",
+    "scrollbarThumbHover": "#3a5a6a",
+    "indentGuide": "#1f3545",
+    "surfaceRaised": "#283746",
+    "hover": "#354452",
+    "active": "#43505d",
+    "accentHover": "#b1dee0",
+    "accentActive": "#b8e1e2",
+    "errorHover": "#e9515c",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#44606e",
+    "editorBg": "#1a2a3a",
+    "panelBorder": "#2a4a5a"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#457b9d"
+    },
+    {
+      "scope": "string",
+      "foreground": "#2a9d8f"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f4a261"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#a8dadc"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#1d3557"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#e63946"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#f4a261"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f1faee"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#a8dadc"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a8dadc"
+    }
+  ]
+}

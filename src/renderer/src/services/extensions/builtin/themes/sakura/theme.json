@@ -1,0 +1,73 @@
+{
+  "name": "Sakura",
+  "type": "dark",
+  "colors": {
+    "bg": "#2a1f2d",
+    "surface": "#3a2f3d",
+    "border": "#5a4a5d",
+    "accent": "#ffb7c5",
+    "text": "#fce4ec",
+    "textSecondary": "#f8bbd9",
+    "textMuted": "#7a5a6a",
+    "error": "#ff5252",
+    "warning": "#ffab91",
+    "success": "#80cbc4",
+    "info": "#81d4fa",
+    "scrollbarThumb": "#5a4a5d",
+    "scrollbarThumbHover": "#6a5a6d",
+    "indentGuide": "#4a3a4d",
+    "surfaceRaised": "#463b49",
+    "hover": "#524854",
+    "active": "#5d5460",
+    "accentHover": "#ffbecb",
+    "accentActive": "#ffc4cf",
+    "errorHover": "#ff6767",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#6e6070",
+    "editorBg": "#3a2f3d",
+    "panelBorder": "#5a4a5d"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#7a5a6a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#80cbc4"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ffab91"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#f8bbd9"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#81d4fa"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffab91"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#fce4ec"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff5252"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#f8bbd9"
+    }
+  ]
+}

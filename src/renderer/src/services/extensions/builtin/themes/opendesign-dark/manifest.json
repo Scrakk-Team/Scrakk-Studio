@@ -1,0 +1,18 @@
+{
+  "id": "opendesign-dark",
+  "name": "OpenDesign Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema OpenDesign Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "opendesign-dark",
+        "name": "OpenDesign Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

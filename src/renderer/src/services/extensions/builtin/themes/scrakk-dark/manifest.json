@@ -1,0 +1,18 @@
+{
+  "id": "scrakk-dark",
+  "name": "Scrakk Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Scrakk Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "scrakk-dark",
+        "name": "Scrakk Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,7 +1,8 @@
 /* Área interactiva del resize: su ancho ES el gap entre los paneles flotantes.
-   El área completa es draggable; la pista visual es una cápsula corta y
-   centrada verticalmente que aparece al hover/foco/drag. Sin glow ni
-   degradados, y sin barras rectas: solo la cápsula minimalista. */
+   El área completa es draggable.
+   - Hover/foco: 3 puntos (color del tema).
+   - Drag (presionado): cápsula larga centrada.
+   Sin glow ni degradados. */
 .handle {
   position: relative;
   flex-shrink: 0;
@@ -15,12 +16,19 @@
   z-index: 5;
 }
 
-.handle:focus-visible {
+.handle[data-direction='horizontal'] {
+  width: 100%;
+  height: var(--space-2);
+  cursor: row-resize;
+}
+
+.handle:focus-visible,
+.corner:focus-visible {
   outline: none;
 }
 
-/* Cápsula: corta (no toca arriba ni abajo), centrada verticalmente y delgada.
-   Solo al hover/foco/drag. */
+/* Cápsula: corta (no toca arriba ni abajo), centrada y delgada.
+   Solo durante el drag (presionado). */
 .capsule {
   position: relative;
   z-index: 1;
@@ -30,10 +38,97 @@
   background: var(--color-accent);
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-out);
+  pointer-events: none;
 }
 
-.handle:hover .capsule,
-.handle:focus-visible .capsule,
-.handle[data-dragging='true'] .capsule {
+.handle[data-direction='horizontal'] .capsule {
+  width: 56px;
+  height: 3px;
+}
+
+/* 3 puntos del hover/foco: color del tema, sin hardcodear. */
+.dots {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+.handle[data-direction='horizontal'] .dots {
+  flex-direction: row;
+}
+
+.dots > span {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+}
+
+/* Hover/foco → puntos. Drag → cápsula (los puntos se ocultan). */
+.handle:hover .dots,
+.handle:focus-visible .dots,
+.corner:hover .dots,
+.corner:focus-visible .dots {
   opacity: 1;
+}
+
+.handle[data-dragging='true'] .dots,
+.corner[data-dragging='true'] .dots {
+  opacity: 0;
+}
+
+.handle[data-dragging='true'] .capsule,
+.corner[data-dragging='true'] .capsule {
+  opacity: 1;
+}
+
+/* Esquinera diagonal: vive en los extremos de la fila del handle inferior,
+   redimensiona lateral + inferior a la vez. Puntos en fila + mini-cápsula
+   diagonal al presionar. */
+.corner {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: transparent;
+  z-index: 6;
+}
+
+.corner[data-corner='right'] {
+  cursor: nesw-resize;
+}
+
+.corner .dots {
+  flex-direction: row;
+}
+
+.corner .capsule {
+  width: 12px;
+  height: 3px;
+}
+
+.corner[data-corner='left'] .capsule {
+  transform: rotate(-45deg);
+}
+
+.corner[data-corner='right'] .capsule {
+  transform: rotate(45deg);
+}
+
+/* Dentro de un split (SplitView): la cápsula es CUADRADA — la separación
+   es idéntica a la de los paneles exteriores, solo que sin redondeo. */
+.handle[data-square='true'] .capsule {
+  border-radius: 0;
 }

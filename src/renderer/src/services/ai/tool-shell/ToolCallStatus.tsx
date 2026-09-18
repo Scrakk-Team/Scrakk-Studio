@@ -1,5 +1,9 @@
 /**
  * ToolCallStatus — renders the appropriate status indicator.
+ *
+ * Mientras carga (pending/streaming/running) NO dibuja nada: el estado de
+ * carga lo muestra el visual de cada tool (su shimmer de texto vive en la
+ * carpeta visual/ de cada tool, con sus propios estilos).
  */
 
 import type { JSX } from 'react'
@@ -10,15 +14,6 @@ interface ToolCallStatusProps {
   status: ToolCallStatusType
   /** Error message for error status */
   errorMessage?: string
-}
-
-function Spinner(): JSX.Element {
-  return (
-    <svg className="tool-call-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
-      <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
-    </svg>
-  )
 }
 
 function SuccessCheck(): JSX.Element {
@@ -56,12 +51,15 @@ function BlockedIcon(): JSX.Element {
   )
 }
 
-export function ToolCallStatus({ status, errorMessage }: ToolCallStatusProps): JSX.Element {
+export function ToolCallStatus({ status, errorMessage }: ToolCallStatusProps): JSX.Element | null {
+  // Cargando/executando → nada acá: el shimmer lo pinta el visual de cada tool.
+  if (status === 'pending' || status === 'streaming' || status === 'running') {
+    return null
+  }
+
   return (
     <div className="tool-call-status">
-      {status === 'pending' || status === 'streaming' || status === 'running' ? (
-        <Spinner />
-      ) : status === 'success' ? (
+      {status === 'success' ? (
         <SuccessCheck />
       ) : status === 'error' ? (
         <ErrorIcon errorMessage={errorMessage} />

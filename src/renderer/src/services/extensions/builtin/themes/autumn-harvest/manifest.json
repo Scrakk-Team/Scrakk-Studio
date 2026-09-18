@@ -1,0 +1,18 @@
+{
+  "id": "autumn-harvest",
+  "name": "Autumn Harvest",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Autumn Harvest — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "autumn-harvest",
+        "name": "Autumn Harvest",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

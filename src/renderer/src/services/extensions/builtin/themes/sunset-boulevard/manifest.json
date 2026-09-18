@@ -1,0 +1,18 @@
+{
+  "id": "sunset-boulevard",
+  "name": "Sunset Boulevard",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Sunset Boulevard — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "sunset-boulevard",
+        "name": "Sunset Boulevard",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

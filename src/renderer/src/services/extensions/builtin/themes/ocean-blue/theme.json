@@ -1,0 +1,101 @@
+{
+  "name": "Ocean Blue",
+  "type": "dark",
+  "colors": {
+    "bg": "#0a1929",
+    "surface": "#0d2137",
+    "border": "#1e3a5f",
+    "accent": "#5090d3",
+    "text": "#b2ccd6",
+    "textSecondary": "#7a9eb8",
+    "textMuted": "#4a6f8a",
+    "error": "#ff6b6b",
+    "warning": "#ffd93d",
+    "success": "#6bcb77",
+    "info": "#4d96ff",
+    "scrollbarThumb": "#2a4a6a",
+    "scrollbarThumbHover": "#3a5a7a",
+    "indentGuide": "#1a3050",
+    "surfaceRaised": "#1c2e43",
+    "hover": "#2a3c4f",
+    "active": "#39495b",
+    "accentHover": "#629bd7",
+    "accentActive": "#70a4db",
+    "errorHover": "#ff7d7d",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#395272",
+    "editorBg": "#0d2137",
+    "panelBorder": "#1e3a5f"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#546e7a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#80cbc4"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f78c6c"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#c792ea"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c792ea"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#89ddff"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffcb6b"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#ffcb6b"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#eeffff"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#f78c6c"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#f07178"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#89ddff"
+    }
+  ]
+}

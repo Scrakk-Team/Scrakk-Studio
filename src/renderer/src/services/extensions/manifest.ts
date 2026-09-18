@@ -15,10 +15,14 @@ import type { ComponentType } from 'react'
 import type { PanelId } from '@features/layout'
 import type { ThemeContribution } from './types/themes/schema'
 import type { LspContribution } from './types/lsp/schema'
+import type { FileIconContribution } from './types/fileIcons/schema'
+import type { ProductIconContribution } from './types/productIcons/schema'
 import type {
   PanelContribution,
   ActivityBarContribution,
-  CenterTabContribution
+  CenterTabContribution,
+  ViewContribution,
+  LanguageContribution
 } from './types'
 
 // ── Manifest (declarativo) ────────────────────────────────────────────────
@@ -31,8 +35,10 @@ export interface ExtensionManifest {
   version: string
   author?: string
   description?: string
-  /** Versión mínima de la app requerida. */
+  /** Versión mínima de la app requerida (verificada al cargar). */
   engine?: string
+  /** Permisos declarados — deny-by-default (ver shared/permissions). */
+  permissions?: string[]
   /** Punto de entrada del paquete compilado (.sef). Default: dist/index.js. */
   entry?: string
   /** Contribuciones que aporta la extensión. */
@@ -42,6 +48,11 @@ export interface ExtensionManifest {
 export interface ExtensionContributions {
   /** Paneles montables en cualquier slot del layout. */
   panels?: PanelContribution[]
+  /**
+   * Vistas de la activity bar cuyo contenido sirve el Extension Host (caso
+   * de las extensiones VS Code convertidas: paneles tipo chat con IA).
+   */
+  views?: ViewContribution[]
   /** Botones de la activity bar. */
   activityBar?: ActivityBarContribution[]
   /** Tabs del strip central. */
@@ -50,6 +61,17 @@ export interface ExtensionContributions {
   themes?: ThemeContribution[]
   /** Language servers (SEF lspServers): se registran en el runtime main. */
   lspServers?: LspContribution[]
+  /**
+   * Kit de lenguaje (SEF `languages`): identidad + asociación de archivos,
+   * `language-configuration`, gramáticas (tree-sitter o TextMate), snippets,
+   * defaults de editor y mapeo de semantic tokens. Una extensión de lenguaje
+   * es UNA contribución con piezas, no cinco contribuciones sueltas.
+   */
+  languages?: LanguageContribution[]
+  /** Temas de iconos de archivos (SEF fileIcons): van al registry global. */
+  fileIcons?: FileIconContribution[]
+  /** Temas de iconos de producto/UI (SEF productIcons): van al registry global. */
+  productIcons?: ProductIconContribution[]
 }
 
 /**
@@ -57,8 +79,10 @@ export interface ExtensionContributions {
  * (`types/<kind>/schema.ts`); acá se re-exportan por compatibilidad.
  */
 export type { PanelContribution } from './types/panels/schema'
+export type { ViewContribution } from './types/views/schema'
 export type { ActivityBarContribution } from './types/activitybar/schema'
 export type { CenterTabContribution } from './types/centertabs/schema'
+export type { LanguageContribution } from './types/languages/schema'
 
 // ── Registrados (lo que el registry conoce) ───────────────────────────────
 
@@ -84,8 +108,11 @@ export interface RegisteredCenterTab {
 /** Resolución de componentes del manifest → módulos de la app. */
 export interface ComponentResolver {
   /**
-   * Devuelve un factory de módulo lazy para una ruta del paquete.
-   * El registry lo envuelve con React.lazy; el resolver NO toca React.
+   * Devuelve un factory de MÓDULO para una ruta del paquete.
+   *
+   * Ojo: el factory es un `import()` crudo, NO un componente `React.lazy`.
+   * Quien arma un `PanelEntry` lo pasa por `panelComponentLoader()`, que lo
+   * adapta al contrato del layout (`load`) sin tocar React acá.
    */
   resolveComponent: (path: string) => () => Promise<{ default: ComponentType }>
   /** Devuelve el componente de ícono (eager) para una ruta del paquete. */
@@ -96,4 +123,26 @@ export interface ComponentResolver {
    * Opcional: si no está, se asume que todo existe (builtin).
    */
   hasModule?: (path: string) => boolean
+}
+
+/**
+ * `load` de un `PanelEntry` a partir de una ruta del paquete de la extensión.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * POR QUÉ NO `React.lazy` (el bug de "el panel no carga hasta que lo abro de nuevo")
+ *
+ * El `PanelHost` del layout NO tiene Suspense. Un componente `lazy` montado sin
+ * boundary que suspende deja la pantalla COMO ESTABA y React no reintenta
+ * cuando el módulo llega: el panel aparece recién en el próximo montaje (abrir
+ * otro panel y volver) — porque ahí el módulo ya está evaluado y el `lazy`
+ * resuelve en el acto. Es el mismo motivo por el que los paneles built-in y
+ * `ExtensionViewPanelLoader` usan import dinámico a mano.
+ *
+ * Ver `features/layout/components/PanelHost/panelModules.ts` (mediciones).
+ */
+export function panelComponentLoader(
+  resolver: ComponentResolver,
+  path: string
+): () => Promise<ComponentType> {
+  return () => resolver.resolveComponent(path)().then((module) => module.default)
 }

@@ -1,0 +1,89 @@
+{
+  "name": "Rose Pink",
+  "type": "dark",
+  "colors": {
+    "bg": "#1a1018",
+    "surface": "#241820",
+    "border": "#3d2838",
+    "accent": "#e91e63",
+    "text": "#e8d5dc",
+    "textSecondary": "#b8a0a8",
+    "textMuted": "#886878",
+    "error": "#ff5252",
+    "warning": "#ffca28",
+    "success": "#69f0ae",
+    "info": "#40c4ff",
+    "scrollbarThumb": "#4a3848",
+    "scrollbarThumbHover": "#5a4858",
+    "indentGuide": "#3a2030",
+    "surfaceRaised": "#31262d",
+    "hover": "#3e343b",
+    "active": "#4b4248",
+    "accentHover": "#eb3473",
+    "accentActive": "#ed467f",
+    "errorHover": "#ff6767",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#544250",
+    "editorBg": "#241820",
+    "panelBorder": "#3d2838"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#7a5a68"
+    },
+    {
+      "scope": "string",
+      "foreground": "#f48fb1"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ce93d8"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#ba68c8"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#f06292"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#f06292"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e8d5dc"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#ba68c8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#80cbc4"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ce93d8"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e8d5dc"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#80cbc4"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#f48fb1"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#b8a0a8"
+    }
+  ]
+}

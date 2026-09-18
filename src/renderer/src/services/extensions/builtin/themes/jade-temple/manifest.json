@@ -1,0 +1,18 @@
+{
+  "id": "jade-temple",
+  "name": "Jade Temple",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Jade Temple — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "jade-temple",
+        "name": "Jade Temple",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

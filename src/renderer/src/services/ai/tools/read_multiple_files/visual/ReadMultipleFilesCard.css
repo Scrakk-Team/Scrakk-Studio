@@ -1,0 +1,71 @@
+/* read_multiple_files card styles — injected via displayCss */
+.multiread-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.multiread-card__meta {
+  display: flex;
+  align-items: center;
+}
+
+.multiread-card__count {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  background: var(--color-hover);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+}
+
+.multiread-card__preview {
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.multiread-card__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 11px;
+}
+
+.multiread-card__mark {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.multiread-card__mark.ok {
+  color: var(--color-accent);
+}
+
+.multiread-card__mark.err {
+  color: var(--color-danger);
+}
+
+.multiread-card__path {
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.multiread-card__raw {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+}
+

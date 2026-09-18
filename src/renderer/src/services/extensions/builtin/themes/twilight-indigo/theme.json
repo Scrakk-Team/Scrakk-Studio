@@ -1,0 +1,114 @@
+{
+  "name": "Twilight Indigo",
+  "type": "dark",
+  "colors": {
+    "bg": "#10121c",
+    "surface": "#181a28",
+    "border": "#282a40",
+    "accent": "#5c6bc0",
+    "text": "#e0e4f0",
+    "textSecondary": "#9098b8",
+    "textMuted": "#505870",
+    "error": "#d86068",
+    "warning": "#d8a858",
+    "success": "#60b088",
+    "info": "#5c6bc0",
+    "scrollbarThumb": "#383a50",
+    "scrollbarThumbHover": "#484a60",
+    "indentGuide": "#202234",
+    "surfaceRaised": "#262835",
+    "hover": "#343542",
+    "active": "#42434f",
+    "accentHover": "#6c7ac6",
+    "accentActive": "#7986cb",
+    "errorHover": "#dd737a",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#424457",
+    "editorBg": "#181a28",
+    "panelBorder": "#282a40"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#505870"
+    },
+    {
+      "scope": "string",
+      "foreground": "#90d0a0"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d8a858"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#5c6bc0"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#7c8be0"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#7c8be0"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e0e4f0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#5c6bc0"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#7c8be0"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#80b8e8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#90d0a0"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e0e4f0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e8a088"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#80b8e8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#9098b8"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d86068"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#5c6bc0",
+      "fontStyle": "bold"
+    }
+  ]
+}

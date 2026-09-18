@@ -1,29 +1,25 @@
 /**
- * SearchBar — barra de búsqueda en la statusbar.
+ * SearchBar — trigger de la Command Palette en la statusbar.
  *
- * Componente visual por ahora: input con ícono de búsqueda.
- * Se integra en el extremo izquierdo de la StatusBar.
+ * Click (o mod+shift+p) abre la paleta. El input real vive en el overlay.
  */
 
-import { SearchIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import type { JSX } from 'react'
+import { openCommandPalette } from '@services/commands'
 import styles from './SearchBar.module.css'
 
-interface SearchBarProps {
-  placeholder?: string
-}
-
-export function SearchBar({ placeholder = 'Buscar…' }: SearchBarProps): JSX.Element {
+export function SearchBar(): JSX.Element {
   return (
-    <div className={styles.wrapper}>
-      <SearchIcon size={12} className={styles.icon} aria-hidden="true" />
-      <input
-        type="text"
-        className={styles.input}
-        placeholder={placeholder}
-        aria-label="Buscar"
-        disabled
-      />
-    </div>
+    <button
+      type="button"
+      className={styles.wrapper}
+      onClick={() => openCommandPalette()}
+      title="Paleta de comandos (mod+shift+p)"
+      aria-label="Abrir paleta de comandos"
+    >
+      <ProductIcon id="search" size={12} className={styles.icon} aria-hidden="true" />
+      <span className={styles.label}>Comandos…</span>
+    </button>
   )
 }

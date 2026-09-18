@@ -1,0 +1,52 @@
+/* delete_file card styles — injected via displayCss */
+.delfile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.delfile-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+}
+
+.delfile-card__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.delfile-card__badge.ok {
+  background: color-mix(in srgb, var(--color-danger) 20%, transparent);
+  color: var(--color-danger);
+}
+
+.delfile-card__badge.err {
+  background: color-mix(in srgb, var(--color-danger) 20%, transparent);
+  color: var(--color-danger);
+}
+
+.delfile-card__path {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+}
+
+.delfile-card__raw {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: var(--color-danger);
+  white-space: pre-wrap;
+}
+

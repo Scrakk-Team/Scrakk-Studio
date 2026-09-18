@@ -152,18 +152,8 @@
   background-color: color-mix(in srgb, var(--color-text) 1%, transparent);
 }
 
-.tblWrap::-webkit-scrollbar {
-  height: 3px;
-}
-
-.tblWrap::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.tblWrap::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
-  border-radius: 3px;
-}
+/* El scroll horizontal usa el scrollbar universal (oculto hasta hover, 4px
+   de aire, radio 3px). Sin override local. */
 
 .tbl {
   border-collapse: separate;

@@ -1,63 +1,61 @@
 /**
- * Íconos por tipo de archivo para el árbol. Combinación de estilos:
- * carpetas teñidas con el acento de la app, archivos con ícono por
- * extensión (Code/FileText/Terminal/Database) en tono neutro.
+ * Íconos por tipo de archivo para el árbol.
+ *
+ * Dos capas:
+ *  1. Tema activo de `services/fileIcons` (APORTADO por extensiones SEF vía
+ *     `contributes.fileIcons`, o por VSIX convertido). Si resuelve un data
+ *     URI → <img>. Esta es la vía custom que intercepta todo.
+ *  2. Fallback UI por extensión vía `services/productIcons` (IDs, no
+ *     imports directos): Code/FileText/Terminal/Database en tono neutro +
+ *     carpetas con acento.
  */
 
-import type { ComponentType, JSX } from 'react'
-import {
-  CodeIcon,
-  DatabaseIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  FolderOpenIcon,
-  TerminalIcon
-} from '@proicons/react'
+import type { JSX } from 'react'
+import { useFileIconUrl } from '@services/fileIcons'
+import { FileIconImage } from '@services/fileIcons/components'
+import { ProductIcon } from '@services/productIcons/components'
 
-type IconComponent = ComponentType<{ size?: number }>
-
-const EXTENSION_ICONS: Record<string, IconComponent> = {
-  ts: CodeIcon,
-  tsx: CodeIcon,
-  js: CodeIcon,
-  jsx: CodeIcon,
-  mjs: CodeIcon,
-  cjs: CodeIcon,
-  py: CodeIcon,
-  rb: CodeIcon,
-  go: CodeIcon,
-  rs: CodeIcon,
-  java: CodeIcon,
-  c: CodeIcon,
-  cpp: CodeIcon,
-  h: CodeIcon,
-  sh: TerminalIcon,
-  bash: TerminalIcon,
-  zsh: TerminalIcon,
-  fish: TerminalIcon,
-  sql: DatabaseIcon,
-  db: DatabaseIcon,
-  json: FileTextIcon,
-  md: FileTextIcon,
-  markdown: FileTextIcon,
-  txt: FileTextIcon,
-  css: FileTextIcon,
-  scss: FileTextIcon,
-  less: FileTextIcon,
-  html: CodeIcon,
-  yml: FileTextIcon,
-  yaml: FileTextIcon,
-  toml: FileTextIcon,
-  xml: FileTextIcon
+const EXTENSION_ICON_IDS: Record<string, string> = {
+  ts: 'code',
+  tsx: 'code',
+  js: 'code',
+  jsx: 'code',
+  mjs: 'code',
+  cjs: 'code',
+  py: 'code',
+  rb: 'code',
+  go: 'code',
+  rs: 'code',
+  java: 'code',
+  c: 'code',
+  cpp: 'code',
+  h: 'code',
+  sh: 'terminal',
+  bash: 'terminal',
+  zsh: 'terminal',
+  fish: 'terminal',
+  sql: 'database',
+  db: 'database',
+  json: 'file-text',
+  md: 'file-text',
+  markdown: 'file-text',
+  txt: 'file-text',
+  css: 'file-text',
+  scss: 'file-text',
+  less: 'file-text',
+  html: 'code',
+  yml: 'file-text',
+  yaml: 'file-text',
+  toml: 'file-text',
+  xml: 'file-text'
 }
 
-const DOTFILE_ICONS: Record<string, IconComponent> = {
-  gitignore: FileTextIcon,
-  gitattributes: FileTextIcon,
-  editorconfig: FileTextIcon,
-  prettierrc: FileTextIcon,
-  eslintrc: FileTextIcon
+const DOTFILE_ICON_IDS: Record<string, string> = {
+  gitignore: 'file-text',
+  gitattributes: 'file-text',
+  editorconfig: 'file-text',
+  prettierrc: 'file-text',
+  eslintrc: 'file-text'
 }
 
 function extensionOf(name: string): string {
@@ -74,20 +72,29 @@ export function FileTypeIcon({
   name,
   isDirectory,
   isExpanded,
-  size
+  size,
+  isRoot
 }: {
   name: string
   isDirectory: boolean
   isExpanded: boolean
   size: number
+  isRoot?: boolean
 }): JSX.Element {
+  // Capa 1: tema activo (reactivo — re-render al instalar/cambiar tema).
+  const customUrl = useFileIconUrl(name, isDirectory, isExpanded, { isRoot })
+
+  if (customUrl) {
+    return <FileIconImage src={customUrl} size={size} />
+  }
+
+  // Capa 2: fallback UI por ID (temable vía productIcons).
   if (isDirectory) {
-    const Icon = isExpanded ? FolderOpenIcon : FolderIcon
-    return <Icon size={size} />
+    return <ProductIcon id={isExpanded ? 'folder-opened' : 'folder'} size={size} />
   }
 
   const key = dotfileKey(name)
-  const Icon = DOTFILE_ICONS[key] ?? EXTENSION_ICONS[extensionOf(name)] ?? FileIcon
+  const iconId = DOTFILE_ICON_IDS[key] ?? EXTENSION_ICON_IDS[extensionOf(name)] ?? 'file'
 
-  return <Icon size={size} />
+  return <ProductIcon id={iconId} size={size} />
 }

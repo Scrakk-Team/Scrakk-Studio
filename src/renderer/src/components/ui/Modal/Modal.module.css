@@ -15,10 +15,12 @@
   max-width: 480px;
   max-height: min(560px, 80vh);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
   outline: none;
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
 }
 
 /* Tamaño extra-grande: settings y paneles de gestión. */

@@ -1,29 +1,15 @@
 /**
- * Atajos globales del layout — se montan dentro del LayoutProvider.
+ * Atajos globales del layout.
  *
- * Combinaciones comunes (estilo VS Code):
- *   - Ctrl/Cmd+B   → alterna el explorador (slot izquierdo)
- *   - Ctrl/Cmd+J   → alterna el chat (slot derecho)
+ * Los toggles de paneles (explorador mod+b, chat mod+j, historial
+ * mod+alt+h) viven ahora como COMANDOS con keybinding propio en
+ * `CommandsBridge` → el registry los registra en el sistema global de
+ * atajos automáticamente. Este componente queda para futuros atajos que
+ * no sean comandos.
  */
 
 import type { JSX } from 'react'
-import { useShortcut } from '@services/shortcuts'
-import { useLayout } from './state'
 
 export function LayoutShortcuts(): JSX.Element | null {
-  const { toggleSlotPanel } = useLayout()
-
-  useShortcut('mod+b', () => toggleSlotPanel('left', 'explorer'), {
-    id: 'layout:toggle-explorer',
-    description: 'Alternar panel del explorador',
-    preventDefault: true
-  })
-
-  useShortcut('mod+j', () => toggleSlotPanel('right', 'chat'), {
-    id: 'layout:toggle-chat',
-    description: 'Alternar panel de chat',
-    preventDefault: true
-  })
-
   return null
 }

@@ -41,7 +41,9 @@ difunden a todas las ventanas vivas.
 4. **Negociación**: si el server declara `textDocumentSync.change = 2`, el
    cliente activa sync incremental para ese server.
 5. **Uso**: didOpen/didChange(versionado)/didSave en cada sync; requests con
-   timeout (30 s default).
+   timeout (30 s default). Si el `content` es **idéntico** al último sincronizado
+   el `didChange` NO se manda (en LSP un cambio sin `range` reemplaza el
+   documento entero, así que un cambio vacío lo BORRA en el server).
 6. **Shutdown ordenado**: didClose de todos → `shutdown` → `exit` con timeout
    (5 s default) → kill del hijo.
 
@@ -58,11 +60,46 @@ difunden a todas las ventanas vivas.
   `name@root`. El mismo nombre puede correr en dos roots con procesos
   distintos y configs distintas.
 
-## Diagnósticos: push + drain
+## Diagnósticos: PULL (y push como respaldo)
 
-- Cada server publica vía `textDocument/publishDiagnostics` → mapa por ruta
-  absoluta dentro de su cliente + broadcast inmediato al renderer
-  (`onLspProgress`-style stream `lsp:on-diagnostics`).
+- **Pull es el camino normal** (`textDocument/diagnostic`, LSP 3.17): el cliente
+  anuncia `textDocument.diagnostic` en `initialize` y, si el server devuelve
+  `diagnosticProvider`, es él quien pregunta. No es una preferencia de estilo:
+  los servers de **CSS/HTML/JSON** eligen TODO su modo de validación con esa
+  capability — con push usan `validationDelayMs = 500` **fijo** (y cada cambio
+  reinicia el timer, así que una edición dentro de esa ventana CANCELA la
+  validación: el error que acabás de escribir no se marcaba nunca), y con pull
+  `validate(document)` corre **sin espera** (`registerDiagnosticsPullSupport`).
+  Medido en la app compilada (`tools/_probe-lsp-order.mjs`): **+185 ms** de la
+  última tecla al diagnóstico, contra +636 ms del push; y durante el tipeo los
+  errores llegan en streaming (~180 ms) en vez de esperar a que te detengas.
+- El ritmo del pull lo fija `PULL_MIN_INTERVAL_MS` (180 ms por documento, con
+  leading edge): el primer cambio después de una pausa sale YA y una ráfaga se
+  agrupa — no hay un request por tecla. El renderer ya coalesce a 40 ms
+  (`services/lsp/fileSync.ts`).
+- **Push sigue soportado y es el respaldo**: se declara
+  `publishDiagnostics` siempre, y los servers sin `diagnosticProvider`
+  (typescript-language-server viejo, etc.) funcionan igual que antes. Si un
+  server anuncia pull y contesta `MethodNotFound`, el cliente **apaga el pull
+  para esa sesión** y sigue con push (válvula de escape: sin ella, un
+  capability mal puesto dejaría los archivos sin diagnósticos para siempre).
+- Los dos caminos terminan en `applyDiagnostics` → mapa por ruta absoluta
+  dentro del cliente + broadcast al renderer (`lsp:on-diagnostics`), así que el
+  editor no sabe ni le importa por dónde llegó.
+- **Con pull, el server ya no avisa nada al cambiar el documento**: el único
+  aviso que queda es `workspace/diagnostic/refresh` (el server pide
+  re-consultar) y ahí se re-piden los documentos abiertos. Al cerrar un
+  documento, el `[]` lo manda el cliente (con push lo mandaba el server).
+- Diagnóstico de esta cadena: `SCRAKK_LSP_DEBUG=1` en el proceso main imprime
+  cada `notify` (versión, largo, cola) y cada llegada de diagnósticos con su
+  origen (`push`/`pull`). Es la forma rápida de responder "¿esto llegó por dónde
+  y con qué texto?".
+- Tras una edición (`notifyFileChanged`), el manager marca pendientes por
+  `(cliente, lifecycle_id)`.
+- `drainDiagnostics(timeout)` espera hasta que **todos** los servers con
+  pendientes hayan publicado (presencia, no longitud: un "sin errores" cuenta
+  como reportado), agrega ERROR/WARNING multi-server y limpia el estado.
+  Al vencer el deadline devuelve lo que llegó y conserva lo faltante.
 - Tras una edición (`notifyFileChanged`), el manager marca pendientes por
   `(cliente, lifecycle_id)`.
 - `drainDiagnostics(timeout)` espera hasta que **todos** los servers con

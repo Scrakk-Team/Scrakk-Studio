@@ -1,0 +1,18 @@
+{
+  "id": "copper-rust",
+  "name": "Copper Rust",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Copper Rust — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "copper-rust",
+        "name": "Copper Rust",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

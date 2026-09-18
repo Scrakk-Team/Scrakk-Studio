@@ -5,9 +5,14 @@
  * Altura fija (22px) para que la virtualización sea exacta.
  */
 
-import { memo, useEffect, useRef, type JSX } from 'react'
-import { ChevronDownIcon, ChevronRightIcon, MoreHorizontalIcon } from '@proicons/react'
+import { memo, useEffect, useRef, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
 import type { FileNode } from '../hooks/useWorkspaceState'
+import {
+  getFileDecoration,
+  subscribeToDecorations,
+  type FileDecoration
+} from '../decorations'
 import { ROW_FONT_SIZE, ROW_HEIGHT, ROW_ICON_SIZE, ROW_INDENT } from '../constants'
 import { selectBasenameRange } from '../utils/fileUtils'
 import { FileTypeIcon } from './FileTypeIcon'
@@ -33,6 +38,19 @@ interface ExplorerRowProps {
   onDragOver: (event: React.DragEvent, node: FileNode) => void
   onDrop: (event: React.DragEvent, node: FileNode) => void
   onDragEnd: () => void
+  /** Decoración explícita (default: la del registry global). */
+  decoration?: FileDecoration | null
+  /**
+   * Nivel de guía a resaltar en ESTA fila (línea de la carpeta en foco) o
+   * null. Solo una línea por árbol.
+   */
+  activeGuideLevel?: number | null
+  /** Oculta el botón "…" (árboles de solo lectura). */
+  hideDots?: boolean
+  /** Hover de la fila (para guías activas dinámicas). Default: nada. */
+  onHover?: (path: string | null) => void
+  /** false = sin drag nativo (árboles de solo lectura). Default true. */
+  interactive?: boolean
 }
 
 export const ExplorerRow = memo(function ExplorerRow({
@@ -54,10 +72,21 @@ export const ExplorerRow = memo(function ExplorerRow({
   onDragStart,
   onDragOver,
   onDrop,
-  onDragEnd
+  onDragEnd,
+  decoration,
+  activeGuideLevel,
+  hideDots = false,
+  onHover,
+  interactive = true
 }: ExplorerRowProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
   const submittedRef = useRef(false)
+  // Re-render cuando cambian las decoraciones (git, etc.).
+  const [, setDecoTick] = useState(0)
+  useEffect(() => subscribeToDecorations(() => setDecoTick((t) => t + 1)), [])
+
+  const resolvedDecoration: FileDecoration | null =
+    decoration !== undefined ? decoration : getFileDecoration(node.path)
 
   // Al entrar en modo edición: foco + preselección del nombre hasta la extensión.
   useEffect(() => {
@@ -102,12 +131,13 @@ export const ExplorerRow = memo(function ExplorerRow({
       data-row-path={node.path}
       style={{ height: ROW_HEIGHT, paddingLeft: indentPadding, fontSize: ROW_FONT_SIZE }}
       onClick={handleClick}
+      onMouseEnter={() => onHover?.(node.path)}
       onContextMenu={(event) => onContextMenu(event, node)}
       onDoubleClick={() => {
         if (!node.isDirectory) onDoubleClick(node)
       }}
       title={node.path}
-      draggable={!isEditing}
+      draggable={!isEditing && interactive}
       onDragStart={(event) => onDragStart(event, node)}
       onDragOver={(event) => onDragOver(event, node)}
       onDrop={(event) => onDrop(event, node)}
@@ -116,11 +146,13 @@ export const ExplorerRow = memo(function ExplorerRow({
       aria-selected={isSelected}
       aria-expanded={node.isDirectory ? node.isExpanded : undefined}
     >
-      {/* Guías de indentación, una por nivel. */}
+      {/* Guías de indentación, una por nivel (activa = carpeta en foco). */}
       {Array.from({ length: level }, (_, i) => (
         <span
           key={i}
-          className={styles.indentGuide}
+          className={[styles.indentGuide, activeGuideLevel === i ? styles.indentGuideActive : null]
+            .filter(Boolean)
+            .join(' ')}
           style={{ left: 8 + i * ROW_INDENT + 7 }}
         />
       ))}
@@ -128,9 +160,9 @@ export const ExplorerRow = memo(function ExplorerRow({
       {node.isDirectory ? (
         <span className={styles.arrow} style={{ width: ROW_ICON_SIZE, height: ROW_ICON_SIZE }}>
           {node.isExpanded ? (
-            <ChevronDownIcon size={12} />
+            <ProductIcon id="chevron-down" size={12} />
           ) : (
-            <ChevronRightIcon size={12} />
+            <ProductIcon id="chevron-right" size={12} />
           )}
         </span>
       ) : (
@@ -174,7 +206,18 @@ export const ExplorerRow = memo(function ExplorerRow({
         <span className={styles.name}>{node.name}</span>
       )}
 
-      {!isEditing ? (
+      {resolvedDecoration ? (
+        <span
+          className={styles.decoration}
+          style={resolvedDecoration.color ? { color: resolvedDecoration.color } : undefined}
+          title={resolvedDecoration.tooltip ?? resolvedDecoration.badge}
+          aria-label={resolvedDecoration.tooltip ?? resolvedDecoration.badge}
+        >
+          {resolvedDecoration.badge}
+        </span>
+      ) : null}
+
+      {!isEditing && !hideDots ? (
         <button
           type="button"
           className={styles.dots}
@@ -185,7 +228,7 @@ export const ExplorerRow = memo(function ExplorerRow({
             onOpenMenu(event, node)
           }}
         >
-          <MoreHorizontalIcon size={14} />
+          <ProductIcon id="more" size={14} />
         </button>
       ) : null}
     </div>

@@ -1,0 +1,6 @@
+{
+  "id": "comment",
+  "title": "Ctrl+/ comenta código rápidamente",
+  "description": "Comenta o descomenta líneas de código sin escribir los símbolos manualmente.",
+  "order": 40
+}

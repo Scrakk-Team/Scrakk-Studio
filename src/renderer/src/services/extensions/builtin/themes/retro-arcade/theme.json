@@ -1,0 +1,73 @@
+{
+  "name": "Retro Arcade",
+  "type": "dark",
+  "colors": {
+    "bg": "#1a1a2e",
+    "surface": "#25274d",
+    "border": "#464866",
+    "accent": "#ff00ff",
+    "text": "#aaff00",
+    "textSecondary": "#00ffff",
+    "textMuted": "#5a5a8a",
+    "error": "#ff0055",
+    "warning": "#ffff00",
+    "success": "#00ff00",
+    "info": "#00aaff",
+    "scrollbarThumb": "#464866",
+    "scrollbarThumbHover": "#565876",
+    "indentGuide": "#35355a",
+    "surfaceRaised": "#323458",
+    "hover": "#3f4162",
+    "active": "#4c4e6d",
+    "accentHover": "#ff1aff",
+    "accentActive": "#ff2eff",
+    "errorHover": "#ff1f69",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#5c5e78",
+    "editorBg": "#25274d",
+    "panelBorder": "#464866"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#5a5a8a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#00ff00"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ffff00"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff00ff"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#00ffff"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#aaff00"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffff00"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#00ffff"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff0055"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#aaff00"
+    }
+  ]
+}

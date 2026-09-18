@@ -6,7 +6,12 @@
   height: 28px;
   flex-shrink: 0;
   padding: 0 var(--space-2);
-  background: var(--color-surface);
+  background: var(--statusbar-bg, var(--color-surface));
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
+  /* Temas flat: borde superior hacia los slots (--chrome-border solo existe
+     si el tema lo define; si no, transparente como siempre). */
+  border-top: 1px solid var(--chrome-border, transparent);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   user-select: none;
@@ -18,6 +23,26 @@
   align-items: center;
   gap: 2px;
   min-width: 0;
+  /* Estira el grupo a la altura completa de la barra (28px) para que
+     hijos full-bleed (LspChip) lleguen arriba y abajo. */
+  align-self: stretch;
+}
+
+/* Grupo derecho: marca el grupo de la derecha (layouts + campana +
+   ajustes). Los botones quedan con el padding normal de la barra; solo el
+   hover del ÚLTIMO chip se extiende hasta la ventana (ver abajo). */
+.groupRight {
+  /* Sin offsets: posición normal, separada del borde. */
+}
+
+/* Separador vertical entre items del grupo: raya centrada, sin llegar
+   arriba ni abajo de la barra. */
+.separator {
+  width: 1px;
+  height: 14px;
+  flex-shrink: 0;
+  background: var(--color-border);
+  margin: 0 var(--space-1);
 }
 
 .item {
@@ -73,4 +98,64 @@ button.item:active {
 
 .sep {
   color: var(--color-text-muted);
+}
+
+/* Botones de la derecha (campana, ajustes): MISMO bloque que LspChip —
+   full-bleed a 28px, sin radio, fondo transparente que se funde con la
+   barra. Mismo hover (--color-hover) y mismo active. Idénticos entre sí. */
+.chipBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.chipBtn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.chipBtn:active {
+  background: var(--color-active);
+}
+
+.chipBtn[aria-expanded='true'] {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* El último chip queda separado del borde, pero su hover se extiende
+   hasta la ventana (cubre el padding de la barra) y se corta con ella,
+   como el del LspChip del lado izquierdo. */
+.groupRight > .chipBtn:last-child {
+  position: relative;
+}
+
+.groupRight > .chipBtn:last-child:hover::after,
+.groupRight > .chipBtn:last-child[aria-expanded='true']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: var(--space-2);
+  background: var(--color-hover);
+}
+
+.groupRight > .chipBtn:last-child:active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: var(--space-2);
+  background: var(--color-active);
 }

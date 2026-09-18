@@ -9,6 +9,7 @@
  */
 
 export { shortcuts } from './registry'
+export { formatCombo } from './format'
 export { useShortcut } from './useShortcut'
 export { parseCombo, eventToCombo, isEditableTarget, IS_MAC } from './key'
 export type { ShortcutAction, ParsedCombo, ShortcutModifier } from './types'

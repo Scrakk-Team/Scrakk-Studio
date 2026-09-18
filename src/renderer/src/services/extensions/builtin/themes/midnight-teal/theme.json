@@ -1,0 +1,114 @@
+{
+  "name": "Midnight Teal",
+  "type": "dark",
+  "colors": {
+    "bg": "#0a1418",
+    "surface": "#101e22",
+    "border": "#1a3038",
+    "accent": "#20b2aa",
+    "text": "#d8f0f0",
+    "textSecondary": "#90c0c0",
+    "textMuted": "#406868",
+    "error": "#d06060",
+    "warning": "#d0a850",
+    "success": "#50b080",
+    "info": "#5090c0",
+    "scrollbarThumb": "#2a4048",
+    "scrollbarThumbHover": "#3a5058",
+    "indentGuide": "#152428",
+    "surfaceRaised": "#1e2c2f",
+    "hover": "#2d393d",
+    "active": "#3b464a",
+    "accentHover": "#36bab2",
+    "accentActive": "#48c0b9",
+    "errorHover": "#d67373",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#354950",
+    "editorBg": "#101e22",
+    "panelBorder": "#1a3038"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#406868"
+    },
+    {
+      "scope": "string",
+      "foreground": "#80d0a0"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d0a850"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#20b2aa"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#40c8c0"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#40c8c0"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#d8f0f0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#20b2aa"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#40c8c0"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#70b0e0"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#80d0a0"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#d8f0f0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e09878"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#70b0e0"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#90c0c0"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d06060"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#20b2aa",
+      "fontStyle": "bold"
+    }
+  ]
+}

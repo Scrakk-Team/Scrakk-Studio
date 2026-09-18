@@ -1,0 +1,18 @@
+{
+  "id": "charcoal-ember",
+  "name": "Charcoal Ember",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Charcoal Ember — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "charcoal-ember",
+        "name": "Charcoal Ember",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

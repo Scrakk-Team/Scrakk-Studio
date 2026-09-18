@@ -1,0 +1,18 @@
+{
+  "id": "neon-mint",
+  "name": "Neon Mint",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Neon Mint — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "neon-mint",
+        "name": "Neon Mint",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

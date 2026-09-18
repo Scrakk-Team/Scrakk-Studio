@@ -14,6 +14,7 @@
  */
 
 import * as fs from 'fs/promises'
+import { accessSync } from 'node:fs'
 import * as path from 'path'
 import type {
   FileDiagnostics,
@@ -31,9 +32,10 @@ import { LspClient } from './client'
 import {
   BUILTIN_SERVERS,
   discoverBuiltinServers,
+  builtinAvailability,
   commandResolves
 } from './builtinServers'
-import { downloadsDisabled, install, resolveManagedCommand, type InstallRecipe } from './install'
+import { downloadsDisabled, install, resolveManagedCommand, managedNpmDir, type InstallRecipe } from './install'
 import { loadConfiguredServers } from './config'
 import { resolveServers } from './routing'
 
@@ -141,11 +143,17 @@ export class LspManager {
 
   /** Documentos abiertos por cliente (absPath → languageId) para el replay. */
   private openDocs = new Map<string, Map<string, string>>()
+  private availabilityByRoot = new Map<string, Record<string, boolean>>()
+  /** Último error por client-key: visible en status() aunque no haya cliente. */
+  private lastErrorByKey = new Map<string, string>()
 
   private drainWaiters = new Set<() => void>()
   private restartBudget = new Map<string, number>()
   private monitored = new Set<string>()
   private restarting = new Set<string>()
+  /** Circuit breaker: keys con ≥3 muertes súbitas seguidas. */
+  private autoStartBlocked = new Set<string>()
+  private suddenDeaths = new Map<string, number>()
 
   private emitEvent: (payload: LspServerEventPayload) => void
   private emitDiagnostics: (payload: import('@shared/lsp').DiagnosticsChangedPayload) => void
@@ -204,11 +212,20 @@ export class LspManager {
       if (key.endsWith(`@${absolute}`)) {
         this.clients.delete(key)
         this.pendingByClient.delete(key)
+        // Purgar TODO el estado por cliente: si no, cada add/remove de root
+        // deja entradas huérfanas (textos + budgets) que crecen sin cota.
+        this.openDocs.delete(key)
+        this.restartBudget.delete(key)
+        this.monitored.delete(key)
+        this.autoStartBlocked.delete(key)
+        this.suddenDeaths.delete(key)
         await client.shutdown()
       }
     }
     this.serversByRoot.delete(absolute)
     this.sourcesByRoot.delete(absolute)
+    this.availabilityByRoot.delete(absolute)
+    this.extensionsScans.delete(absolute)
     return [...this.roots]
   }
 
@@ -239,6 +256,14 @@ export class LspManager {
       }
     }
 
+    // Un server APAGADO por el usuario sigue en el mapa (así Ajustes lo lista
+    // y se puede volver a encender), pero `startClient` se niega a levantarlo:
+    // el gate vive ahí, que es el único camino por el que un server arranca.
+
+    // Disponibilidad real de binarios para status()/botón Instalar.
+    const availability = await builtinAvailability(root, Object.keys(merged))
+    this.availabilityByRoot.set(root, availability)
+
     this.serversByRoot.set(root, merged)
     this.sourcesByRoot.set(root, mergedSources)
   }
@@ -262,18 +287,101 @@ export class LspManager {
     return this.invalidateAllRoots()
   }
 
-  removeDynamicServers(sourceId: string): string[] {
+  async removeDynamicServers(sourceId: string): Promise<string[]> {
+    const removedIds = new Set((this.dynamicDefs.get(sourceId) ?? []).map((d) => d.id))
     this.dynamicDefs.delete(sourceId)
-    return this.invalidateAllRoots()
+
+    // Apagar clientes corriendo cuyo server SOLO existía como dinámico
+    // (si user/project lo definen, sigue siendo válido sin la extensión).
+    for (const [key, client] of [...this.clients.entries()]) {
+      const atIdx = key.lastIndexOf('@')
+      const name = key.slice(0, atIdx)
+      const root = key.slice(atIdx + 1)
+      const stillDefined =
+        this.sourcesByRoot.get(root)?.[name] === 'user' ||
+        this.sourcesByRoot.get(root)?.[name] === 'project'
+      if (removedIds.has(name) && !stillDefined) {
+        this.clients.delete(key)
+        this.pendingByClient.delete(key)
+        await client.shutdown()
+      }
+    }
+
+    await this.invalidateAllRootsAsync()
+    return [...removedIds]
+  }
+
+  /**
+   * Servers apagados por el usuario (ids).
+   *
+   * Vive en el manager (y no sólo en Ajustes) porque la decisión tiene que
+   * aplicarse ANTES de arrancar nada: un server apagado no debe ofrecerse para
+   * un archivo, ni quedar "disponible" en `status()`, ni consumir su binario.
+   */
+  private disabledServers = new Set<string>()
+
+  /** Ids apagados ahora mismo (la UI los lee para pintar el estado real). */
+  disabledServerIds(): string[] {
+    return [...this.disabledServers].sort()
+  }
+
+  /** Extensión que aportó ese server dinámico (`undefined` si no es dinámico). */
+  private dynamicOwnerOf(id: string): string | undefined {
+    for (const [sourceId, defs] of this.dynamicDefs) {
+      if (defs.some((def) => def.id === id)) return sourceId
+    }
+    return undefined
+  }
+
+  /**
+   * Aplica la lista de servers apagados y recarga los roots.
+   *
+   * Un server que se APAGA y estaba corriendo se apaga de verdad (no se deja
+   * vivo "hasta que se reinicie"): seguir recibiendo diagnósticos de un server
+   * apagado sería justo lo contrario de lo que pidió el usuario.
+   */
+  async setDisabledServers(ids: string[]): Promise<void> {
+    const previous = this.disabledServers
+    const next = new Set(ids.filter((id) => typeof id === 'string' && id.length > 0))
+    const turnedOff = [...next].filter((id) => !previous.has(id))
+    const turnedOn = [...previous].filter((id) => !next.has(id))
+    this.disabledServers = next
+
+    for (const id of turnedOff) {
+      for (const [key, client] of [...this.clients.entries()]) {
+        if (key.slice(0, key.lastIndexOf('@')) !== id) continue
+        this.clients.delete(key)
+        this.pendingByClient.delete(key)
+        this.openDocs.delete(key)
+        this.autoStartBlocked.delete(key)
+        await client.shutdown()
+      }
+    }
+
+    // Reencender limpia el bloqueo por crashes: si no, el server volvería con
+    // el estado 'failed' pegado y no arrancaría igual (un toggle que no hace
+    // nada es peor que no tenerlo).
+    const turnedOnSet = new Set(turnedOn)
+    for (const key of [...this.autoStartBlocked]) {
+      if (!turnedOnSet.has(key.slice(0, key.lastIndexOf('@')))) continue
+      this.autoStartBlocked.delete(key)
+      this.suddenDeaths.delete(key)
+      this.lastErrorByKey.delete(key)
+    }
+
+    await this.invalidateAllRootsAsync()
+  }
+
+  /** Recarga TODOS los roots (awaitable para tests/determinismo). */
+  private async invalidateAllRootsAsync(): Promise<void> {
+    for (const root of [...this.roots]) {
+      await this.loadRoot(root)
+    }
   }
 
   /** Recarga configs por root sin tocar clientes corriendo. */
   private invalidateAllRoots(): string[] {
-    void (async () => {
-      for (const root of [...this.roots]) {
-        await this.loadRoot(root)
-      }
-    })()
+    void this.invalidateAllRootsAsync()
     return [...this.allDynamicDefs().map((d) => d.id)]
   }
 
@@ -299,27 +407,38 @@ export class LspManager {
     return `${serverName}@${root}`
   }
 
-  private async startClient(serverName: string, root: string): Promise<boolean> {
+  private async startClient(serverName: string, root: string, opts: { manual?: boolean } = {}): Promise<boolean> {
     const key = this.clientKey(serverName, root)
     if (this.clients.has(key) || this.shuttingDown) return true
+    // Apagado por el usuario: NI el arranque automático ni un reinicio a mano
+    // lo levantan. Encenderlo es una decisión explícita (Ajustes → Servidores).
+    if (this.disabledServers.has(serverName)) return false
+    if (this.autoStartBlocked.has(key) && !opts.manual) {
+      return false
+    }
     const config = this.serversByRoot.get(root)?.[serverName]
     if (!config) return false
 
     const resolved = await this.resolveOrInstall(serverName, config, root)
     if (!resolved) {
-      this.emitEvent({
-        serverName,
-        state: 'failed',
-        error: config.transport === 'socket' ? undefined : `binario no encontrado: ${config.command}`
-      })
+      const error =
+        config.transport === 'socket' ? undefined : `binario no encontrado: ${config.command}`
+      if (error) this.lastErrorByKey.set(key, error)
+      this.emitEvent({ serverName, state: 'failed', error })
       return false
     }
+    this.lastErrorByKey.delete(key)
     ;(this.serversByRoot.get(root) ?? {})[serverName] = resolved
 
     const lifecycleId = this.nextLifecycleId++
     this.emitEvent({ serverName, state: 'starting' })
 
-    const client = new LspClient(serverName, lifecycleId, resolved, root, {
+    // Server instalado en nuestro dir gestionado de npm: inyectar dónde vive
+    // el SDK de TypeScript (tsserver), que el server NO encuentra solo porque
+    // busca desde el workspace del usuario.
+    const augmented = this.augmentManagedTypeScript(resolved)
+
+    const client = new LspClient(serverName, lifecycleId, augmented, root, {
       onDiagnostics: (payload) => {
         this.notifyDiagnosticsArrived()
         this.emitDiagnostics(payload)
@@ -327,13 +446,14 @@ export class LspManager {
       onState: (state, error) => {
         this.emitEvent({ serverName, state, error })
       },
-      onProcessExit: () => void this.handleCrash(serverName, root),
+      onProcessExit: (_code, stderrTail) => void this.handleCrash(serverName, root, stderrTail),
       onProgress: (payload) => this.emitProgress?.(payload)
     })
 
     try {
       await client.start()
       this.clients.set(key, client)
+      this.lastErrorByKey.delete(key)
       this.armRestartMonitor(serverName, key)
       return true
     } catch (error) {
@@ -676,16 +796,27 @@ export class LspManager {
           .map((key) => key.slice(0, -(root.length + 1)))
       ])
       for (const name of [...names].sort()) {
-        const client = this.clients.get(this.clientKey(name, root))
+        const key = this.clientKey(name, root)
+        const client = this.clients.get(key)
         const config = this.serversByRoot.get(root)?.[name]
+        // Estado REAL: un server bloqueado por crashes fallidos se muestra
+        // 'failed' aunque ya no haya cliente vivo.
+        let state: LspServerStatus['state'] = client?.getState() ?? 'stopped'
+        const error = this.lastErrorByKey.get(key)
+        if (this.autoStartBlocked.has(key)) state = 'failed'
         out.push({
-          id: this.clientKey(name, root),
+          id: key,
           name,
           root,
-          state: client?.getState() ?? 'stopped',
-          available: config?.transport === 'socket' || Boolean(config?.command),
+          state,
+          available:
+            config?.transport === 'socket' ||
+            (this.availabilityByRoot.get(root)?.[name] ?? false),
           source: (this.sourcesByRoot.get(root)?.[name] ?? 'builtin') as LspServerStatus['source'],
-          extensions: Object.keys(config?.extensions ?? {})
+          extensions: Object.keys(config?.extensions ?? {}),
+          ...(this.dynamicOwnerOf(name) ? { extensionId: this.dynamicOwnerOf(name) } : {}),
+          ...(this.disabledServers.has(name) ? { disabled: true } : {}),
+          error
         })
       }
     }
@@ -703,14 +834,41 @@ export class LspManager {
     this.restartBudget.set(clientKey, config.maxRestarts ?? 3)
   }
 
-  private async handleCrash(serverName: string, root: string): Promise<void> {
+  private async handleCrash(
+    serverName: string,
+    root: string,
+    stderrTail?: string
+  ): Promise<void> {
     const clientKey = this.clientKey(serverName, root)
-    const client = this.clients.get(clientKey)
-    if (!client || this.shuttingDown) return
     this.clients.delete(clientKey)
 
+    const hint = crashHint(stderrTail ?? '')
+    const detail = [stderrTail?.split('\n').filter(Boolean).pop(), hint]
+      .filter(Boolean)
+      .join(' · ')
+
+    // Sin restartOnCrash: contar muertes SÚBITAS seguidas y bloquear el
+    // auto-start tras 3 — evita el spam de spawn/muerte por cada archivo.
     const config = this.serversByRoot.get(root)?.[serverName]
-    if (!config?.restartOnCrash) return
+    if (!config?.restartOnCrash) {
+      const deaths = (this.suddenDeaths.get(clientKey) ?? 0) + 1
+      this.suddenDeaths.set(clientKey, deaths)
+      if (deaths >= 3) {
+        this.autoStartBlocked.add(clientKey)
+        this.emitEvent({
+          serverName,
+          state: 'failed',
+          error: `falla persistente (${deaths} intentos)` + (detail ? `: ${detail}` : '')
+        })
+        return
+      }
+      if (!this.clients.has(clientKey)) {
+        this.emitEvent({ serverName, state: 'failed', error: detail || undefined })
+      }
+      return
+    }
+
+    if (!config.restartOnCrash) return
 
     const budgetBefore = this.restartBudget.get(clientKey) ?? 0
     if (budgetBefore <= 0) {
@@ -747,6 +905,94 @@ export class LspManager {
       },
       backoff
     ).unref?.()
+  }
+
+  /**
+   * Si el comando corre desde nuestro dir gestionado de npm y el paquete
+   * `typescript` está instalado al lado, inyecta tsserver.path (init options
+   * + env TSSERVER_PATH) — typescript-language-server no encuentra el SDK
+   * del workspace del usuario.
+   */
+  private augmentManagedTypeScript(config: LspServerConfig): LspServerConfig {
+    if (!config.command.includes('lsp/npm')) return config
+
+    const tsLib = path.join(managedNpmDir(), 'node_modules', 'typescript', 'lib')
+    try {
+      // tsserver.js vive en <tsLib>/tsserver.js
+      accessSync(path.join(tsLib, 'tsserver.js'))
+    } catch {
+      return config
+    }
+
+    const initializationOptions = {
+      ...((config.initializationOptions as Record<string, unknown>) ?? {}),
+      tsserver: { path: tsLib }
+    }
+    const env = { ...(config.env ?? {}), TSSERVER_PATH: tsLib }
+    return { ...config, initializationOptions, env }
+  }
+
+  /** Reinicia todas las instancias `name@*` (shutdown + arranque lazy). */
+  async restartServer(serverName: string): Promise<{ ok: boolean; error?: string }> {
+    // Restart MANUAL: limpia el circuit breaker.
+    for (const key of [...this.autoStartBlocked]) {
+      if (key.startsWith(`${serverName}@`)) {
+        this.autoStartBlocked.delete(key)
+        this.suddenDeaths.delete(key)
+      }
+    }
+    const keys = [...this.clients.keys()].filter((key) =>
+      key.startsWith(`${serverName}@`)
+    )
+    if (keys.length === 0) {
+      // No está corriendo: intentar arrancarlo si la config existe.
+      this.autoStartBlocked.forEach((_, key) => {
+        if (key.startsWith(`${serverName}@`)) this.autoStartBlocked.delete(key)
+      })
+      const started = await this.ensureServerReady(serverName)
+      return started ? { ok: true } : { ok: false, error: 'server no configurado' }
+    }
+    for (const key of keys) {
+      const client = this.clients.get(key)
+      this.clients.delete(key)
+      this.pendingByClient.delete(key)
+      await client?.shutdown()
+    }
+    // El próximo ensureServersForFile lo vuelve a levantar.
+    return { ok: true }
+  }
+
+  /**
+   * Instalación forzada de la receta del server (builtin o dinámico),
+   * ignorando el gate de extensiones del workspace pero NO el opt-out.
+   */
+  async installNow(serverName: string): Promise<{ ok: boolean; error?: string }> {
+    const root = this.roots.find((r) => this.serversByRoot.get(r)?.[serverName])
+    if (!root) return { ok: false, error: 'server no registrado' }
+    const config = this.serversByRoot.get(root)![serverName]
+    if (await commandResolves(config.command)) return { ok: true }
+
+    if (downloadsDisabled()) return { ok: false, error: 'descargas deshabilitadas (SCRAKK_DISABLE_LSP_DOWNLOAD)' }
+
+    const def =
+      BUILTIN_SERVERS.find((candidate) => candidate.id === serverName) ??
+      this.allDynamicDefs().find((candidate) => candidate.id === serverName)
+    if (!def?.install) return { ok: false, error: 'sin receta de instalación' }
+
+    try {
+      const installed = await withTimeout(install(def.install as InstallRecipe, config), INSTALL_TIMEOUT_MS)
+      ;(this.serversByRoot.get(root) ?? {})[serverName] = installed
+      // Disponibilidad REAL actualizada → el badge deja de decir "No instalado".
+      const availability = this.availabilityByRoot.get(root) ?? {}
+      availability[serverName] = true
+      this.availabilityByRoot.set(root, availability)
+      this.lastErrorByKey.delete(this.clientKey(serverName, root))
+      // Arrancar de una: el usuario instaló para usarlo ya.
+      await this.startClient(serverName, root, { manual: true })
+      return { ok: true }
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : String(error) }
+    }
   }
 
   getRunningPid(serverName: string): number | undefined {
@@ -794,6 +1040,18 @@ async function projectDeclaresDependency(root: string, dependency: string): Prom
   } catch {
     return false
   }
+}
+
+/** Pistas accionables para fallos conocidos. */
+function crashHint(stderrTail: string): string | null {
+  const tail = stderrTail.toLowerCase()
+  if (tail.includes('unknown binary') && tail.includes('rust-analyzer')) {
+    return 'corré: rustup component add rust-analyzer'
+  }
+  if (tail.includes('enoent') || tail.includes('spawn')) {
+    return 'binario no encontrado'
+  }
+  return null
 }
 
 function normalizeDiagnostic(diagnostic: {

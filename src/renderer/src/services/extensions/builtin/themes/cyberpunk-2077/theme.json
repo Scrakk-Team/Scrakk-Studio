@@ -1,0 +1,73 @@
+{
+  "name": "Cyberpunk 2077",
+  "type": "dark",
+  "colors": {
+    "bg": "#0c0c1e",
+    "surface": "#12122a",
+    "border": "#2a2a4a",
+    "accent": "#fcee0a",
+    "text": "#00f0ff",
+    "textSecondary": "#7df9ff",
+    "textMuted": "#4a6a7a",
+    "error": "#ff003c",
+    "warning": "#fcee0a",
+    "success": "#00ff9f",
+    "info": "#00f0ff",
+    "scrollbarThumb": "#2a2a4a",
+    "scrollbarThumbHover": "#3a3a5a",
+    "indentGuide": "#1a1a3a",
+    "surfaceRaised": "#202037",
+    "hover": "#2e2e44",
+    "active": "#3d3d50",
+    "accentHover": "#fcf022",
+    "accentActive": "#fdf136",
+    "errorHover": "#ff1f53",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#444460",
+    "editorBg": "#12122a",
+    "panelBorder": "#2a2a4a"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#4a6a7a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#00ff9f"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#fcee0a"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff003c"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#00f0ff"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#fcee0a"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ff003c"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#7df9ff"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#00ff9f"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#00f0ff"
+    }
+  ]
+}

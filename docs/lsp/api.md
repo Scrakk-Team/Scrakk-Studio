@@ -29,6 +29,30 @@ El cliente decide solo: si negoció sync incremental manda el diff mínimo;
 si no, texto completo. `content` es SIEMPRE el contenido completo nuevo —
 el diff lo calcula el runtime.
 
+**Un `content` idéntico al último sincronizado NO manda `didChange`** (sí el
+`didSave`). No es una optimización: en LSP un cambio **sin `range`** significa
+"reemplazá todo el documento por este texto", así que un cambio vacío BORRA el
+documento en el server. Pasaba al guardar (el sync re-manda el mismo contenido),
+y el server publicaba 0 diagnósticos: el subrayado y el chip se vaciaban con el
+archivo todavía roto. Cubierto por `tests/lsp/incremental.test.ts`.
+
+### El ritmo del sync (renderer)
+
+El editor llama a `lspNotifyFileChanged` por **cada** revisión del buffer
+(`services/lsp/fileSync.ts`), con una ventana de **40 ms con leading edge**: la
+primera edición de una ráfaga sale YA y lo que se agrupa es el resto. No es un
+debounce clásico, que esperaría a que dejes de tipear. Medido con
+`tools/_probe-lsp-realtime.mjs` (tipeo real sobre la app compilada).
+
+Después de eso **el cliente LSP no espera a nadie**: pregunta por pull
+(`textDocument/diagnostic`, ver `architecture.md`) con un cap de 180 ms por
+documento. En los servers de CSS/HTML/JSON eso es la diferencia entre su push
+(`validationDelayMs = 500` fijo, que además se reinicia con cada cambio) y
+`validate(document)` sin espera. Medido en la app compilada con
+`tools/_probe-lsp-order.mjs`: **+185 ms** de la última tecla al diagnóstico
+(antes +636 ms con push), **+41 ms** para limpiarlo al deshacer, y errores en
+streaming mientras tipeás en vez de uno solo al final.
+
 ## Diagnósticos
 
 ```ts
@@ -40,15 +64,35 @@ const files = await lspDrainDiagnostics(timeoutMs?)
 const entries = await lspReadDiagnostics(['/ruta/a.ts'])
 ```
 
-### Cache reactiva (store)
+### Cache reactiva (store, MULTI-FUENTE)
+
+Los problemas de un archivo llegan por dos canales: el LSP
+(`publishDiagnostics`) y el Extension Host (una extensión que publica en su
+`DiagnosticCollection`). El store guarda **una entrada por fuente** y la
+lectura agrega, así que un linter de extensión y `tsc` no se pisan.
 
 ```ts
 import { getStoredDiagnostics, getProblems, getAllStoredDiagnostics,
-         subscribeToDiagnostics } from '@services/lsp'
+         countProblems, subscribeToDiagnostics } from '@services/lsp'
 
-getProblems('/ruta/a.ts')      // solo ERROR/WARNING
-subscribeToDiagnostics(fn)     // stream en vivo (publishDiagnostics)
+getProblems('/ruta/a.ts')      // solo ERROR/WARNING (contexto de code actions)
+getAllStoredDiagnostics()      // todo, con `sources` (quién lo publicó)
+countProblems()               // { errors, warnings, infos, total } — el chip
+subscribeToDiagnostics(fn)     // stream en vivo (los dos canales)
 ```
+
+La UI que lo consume es el panel **Problemas** (layout, `problems`; lo abre el
+chip de la barra de estado con los conteos por severidad). Se puede abrir en
+cualquier slot:
+
+```ts
+toggleSlotPanel('bottom', 'problems')
+```
+
+Lo que NO se ve solo en el panel: los mismos problemas se subrayan **dentro
+del texto** (canal de decoraciones del motor, ver `docs/editor/decorations.md`).
+Ondulado rojo = error, ámbar = advertencia, punteado = pista; el color sale del
+tema y al pasar el puntero por encima aparece el mensaje.
 
 ### Bloque `<lsp-diagnostics>`
 

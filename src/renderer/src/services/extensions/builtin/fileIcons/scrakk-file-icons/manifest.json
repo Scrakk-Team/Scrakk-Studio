@@ -1,0 +1,17 @@
+{
+  "id": "scrakk-file-icons",
+  "name": "Scrakk File Icons",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema de iconos de archivos por defecto. Sin iconDefinitions custom: el explorer y las tabs usan el fallback por extensión hasta que se instale un tema.",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "fileIcons": [
+      {
+        "id": "scrakk-default",
+        "name": "Scrakk Default",
+        "path": "./icons.json"
+      }
+    ]
+  }
+}

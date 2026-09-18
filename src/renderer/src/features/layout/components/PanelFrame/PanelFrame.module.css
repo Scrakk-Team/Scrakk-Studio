@@ -38,11 +38,35 @@
   margin-left: auto;
 }
 
-/* Botones de acción: tamaño y hover reducidos. */
+/* Botones de acción: tamaño y hover reducidos. Corridos 2px hacia la
+   derecha (pedido del explorer). */
 .actions button {
   border-radius: var(--radius-sm);
   width: 22px;
   height: 22px;
+  position: relative;
+  left: 2px;
+}
+
+/* Botón de cierre del host (onClose): igual tamaño que las acciones. */
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  position: relative;
+  left: 2px;
+}
+
+.closeBtn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
 }
 
 .content {

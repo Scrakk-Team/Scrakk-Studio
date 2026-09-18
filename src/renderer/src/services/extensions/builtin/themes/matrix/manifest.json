@@ -1,0 +1,18 @@
+{
+  "id": "matrix",
+  "name": "Matrix",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Matrix — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "matrix",
+        "name": "Matrix",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+/* Banda translúcida del color de acento del tema: indica dónde se partiría
+   el panel al soltar (split direccional, estilo VS Code). */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--color-accent) 85%, transparent);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent) inset;
+}
+
+/* Separador del drop: idéntico a la separación entre paneles (la cápsula
+   del ResizeHandle, 3×56) pero SIN redondeo — la línea exacta donde caería
+   la división, clavada en el borde interior de la banda. */
+.separator {
+  position: absolute;
+  background: var(--color-accent);
+  border-radius: 0;
+}
+
+.separator[data-edge='left'],
+.separator[data-edge='right'] {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 56px;
+}
+
+.separator[data-edge='left'] {
+  right: -1.5px;
+}
+
+.separator[data-edge='right'] {
+  left: -1.5px;
+}
+
+.separator[data-edge='top'],
+.separator[data-edge='bottom'] {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 3px;
+}
+
+.separator[data-edge='top'] {
+  bottom: -1.5px;
+}
+
+.separator[data-edge='bottom'] {
+  top: -1.5px;
+}

@@ -1,0 +1,18 @@
+{
+  "id": "deep-ocean",
+  "name": "Deep Ocean",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Deep Ocean — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "deep-ocean",
+        "name": "Deep Ocean",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

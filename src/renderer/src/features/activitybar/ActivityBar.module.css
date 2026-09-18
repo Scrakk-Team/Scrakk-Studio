@@ -8,24 +8,31 @@
   padding: var(--space-2) 0;
   /* Fondo claro (superficie), sin borde. Pegada al borde de la ventana del
      lado externo y redondeada del lado interno (hacia los paneles). */
-  background: var(--color-surface);
+  background: var(--activitybar-bg, var(--color-surface));
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
   flex-shrink: 0;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* Radio solo del lado opuesto al borde de la ventana. */
+/* Radio solo del lado opuesto al borde de la ventana + borde interno hacia
+   los slots (solo temas flat: --chrome-border solo existe si el tema lo
+   define; si no, transparente como siempre). */
 .bar[data-side='left'] {
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-right: 1px solid var(--chrome-border, transparent);
 }
 
 .bar[data-side='right'] {
   border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-left: 1px solid var(--chrome-border, transparent);
 }
 
 .button {
   position: relative;
+  top: -1px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,4 +103,33 @@
 
 .button.active::before {
   transform: translateY(-50%) scaleY(1);
+}
+
+/* Origen del drag: atenuado mientras el fantasma lo sigue. */
+.button.dragging {
+  opacity: 0.35;
+}
+
+/* Fantasma del drag: sigue al cursor, sin interactividad. */
+.ghost {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.95;
+}
+
+.ghost svg {
+  width: 20px;
+  height: 20px;
+  display: block;
 }

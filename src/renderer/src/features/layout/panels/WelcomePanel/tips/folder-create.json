@@ -1,0 +1,6 @@
+{
+  "id": "folder-create",
+  "title": "Haz clic derecho en carpetas para crear archivos",
+  "description": "Crea, renombra o elimina archivos y carpetas directamente desde el explorador.",
+  "order": 80
+}

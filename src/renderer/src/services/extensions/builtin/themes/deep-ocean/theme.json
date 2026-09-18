@@ -1,0 +1,73 @@
+{
+  "name": "Deep Ocean",
+  "type": "dark",
+  "colors": {
+    "bg": "#0a1628",
+    "surface": "#0f2038",
+    "border": "#1a3a5a",
+    "accent": "#00b4d8",
+    "text": "#caf0f8",
+    "textSecondary": "#90e0ef",
+    "textMuted": "#3a5a7a",
+    "error": "#ff6b6b",
+    "warning": "#ffd93d",
+    "success": "#6bcb77",
+    "info": "#4d96ff",
+    "scrollbarThumb": "#1a3a5a",
+    "scrollbarThumbHover": "#2a4a6a",
+    "indentGuide": "#152a48",
+    "surfaceRaised": "#1d2d44",
+    "hover": "#2c3b50",
+    "active": "#3a485c",
+    "accentHover": "#1abcdc",
+    "accentActive": "#2ec2df",
+    "errorHover": "#ff7d7d",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#35526e",
+    "editorBg": "#0f2038",
+    "panelBorder": "#1a3a5a"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#3a5a7a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#6bcb77"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ffd93d"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#00b4d8"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#90e0ef"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#4d96ff"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffd93d"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#caf0f8"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#00b4d8"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#90e0ef"
+    }
+  ]
+}

@@ -2,11 +2,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useState,
   type ReactNode
 } from 'react'
+import { commandRegistry } from '@services/commands'
+import {
+  activateTheme,
+  getActiveThemeId,
+  listThemes,
+  subscribeToThemes
+} from '@services/extensions/types/themes/logic'
 
 export type Theme = 'dark' | 'light'
 
@@ -16,47 +23,74 @@ interface ThemeContextValue {
   toggleTheme: () => void
 }
 
-const STORAGE_KEY = 'scrakk-studio-theme'
-
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark'
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  return stored === 'light' ? 'light' : 'dark'
+/** Temas builtin entre los que alterna el toggle claro/oscuro. */
+const DARK_THEME_ID = 'scrakk-night'
+const LIGHT_THEME_ID = 'scrakk-day'
+
+/** Tipo ('dark'|'light') del tema activo según el registro de extensiones. */
+function getActiveType(): Theme {
+  const activeId = getActiveThemeId()
+  const entry = activeId
+    ? listThemes().find((candidate) => candidate.id === activeId)
+    : null
+  return entry?.type === 'light' ? 'light' : 'dark'
 }
 
 /**
- * Aplica el tema persistido ANTES del primer render (evita flash de color
- * al arrancar la app). Se llama en el entry del renderer.
- */
-export function applyInitialTheme(): void {
-  if (typeof window === 'undefined') return
-  if (getInitialTheme() === 'light') {
-    document.documentElement.dataset.theme = 'light'
-  }
-}
-
-/**
- * Módulo core de tema: aplica `data-theme` en <html> y persiste la elección.
- * Los colores viven en themes.css según el valor de data-theme.
+ * Módulo core de tema: puente del contexto React hacia el sistema de
+ * extensiones de themes (JSON). Los colores los aplica logic.ts; acá solo
+ * se expone el estado reactivo y las acciones (toggle/comandos).
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme)
+  const [theme, setThemeState] = useState<Theme>(getActiveType)
 
-  useLayoutEffect(() => {
-    document.documentElement.dataset.theme = theme
-    window.localStorage.setItem(STORAGE_KEY, theme)
-  }, [theme])
+  // Reactivo a activaciones desde cualquier origen (picker, bootstrap…).
+  useEffect(() => subscribeToThemes(() => setThemeState(getActiveType())), [])
 
-  const toggleTheme = useCallback(() => {
-    setThemeState((current) => (current === 'dark' ? 'light' : 'dark'))
+  const setTheme = useCallback((next: Theme): void => {
+    activateTheme(next === 'light' ? LIGHT_THEME_ID : DARK_THEME_ID)
+  }, [])
+
+  const toggleTheme = useCallback((): void => {
+    activateTheme(getActiveType() === 'light' ? DARK_THEME_ID : LIGHT_THEME_ID)
   }, [])
 
   const value = useMemo(
-    () => ({ theme, setTheme: setThemeState, toggleTheme }),
-    [theme, toggleTheme]
+    () => ({ theme, setTheme, toggleTheme }),
+    [theme, setTheme, toggleTheme]
   )
+
+  // Comandos de tema en el registry central.
+  useEffect(() => {
+    const unsubs = [
+      commandRegistry.register({
+        id: 'theme.cycle',
+        title: 'Cambiar tema claro/oscuro',
+        category: 'Apariencia',
+        keybinding: 'mod+alt+t',
+        run: toggleTheme
+      }),
+      commandRegistry.register({
+        id: 'theme.set.dark',
+        title: 'Tema oscuro',
+        category: 'Apariencia',
+        run: () => {
+          activateTheme(DARK_THEME_ID)
+        }
+      }),
+      commandRegistry.register({
+        id: 'theme.set.light',
+        title: 'Tema claro',
+        category: 'Apariencia',
+        run: () => {
+          activateTheme(LIGHT_THEME_ID)
+        }
+      })
+    ]
+    return () => unsubs.forEach((unsub) => unsub())
+  }, [toggleTheme])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

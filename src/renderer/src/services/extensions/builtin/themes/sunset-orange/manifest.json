@@ -1,0 +1,18 @@
+{
+  "id": "sunset-orange",
+  "name": "Sunset Orange",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Sunset Orange — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "sunset-orange",
+        "name": "Sunset Orange",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "name": "Cyber Purple",
+  "type": "dark",
+  "colors": {
+    "bg": "#13111c",
+    "surface": "#1a1726",
+    "border": "#2d2640",
+    "accent": "#a855f7",
+    "text": "#e2ddf5",
+    "textSecondary": "#a8a0c0",
+    "textMuted": "#6e6890",
+    "error": "#f87171",
+    "warning": "#fbbf24",
+    "success": "#4ade80",
+    "info": "#60a5fa",
+    "scrollbarThumb": "#3d3660",
+    "scrollbarThumbHover": "#4d4670",
+    "indentGuide": "#352e50",
+    "surfaceRaised": "#282533",
+    "hover": "#353340",
+    "active": "#43414d",
+    "accentHover": "#b166f8",
+    "accentActive": "#b874f8",
+    "errorHover": "#f98282",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#464057",
+    "editorBg": "#1a1726",
+    "panelBorder": "#2d2640"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6366f1"
+    },
+    {
+      "scope": "string",
+      "foreground": "#c4b5fd"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f472b6"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#818cf8"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#a855f7"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e2ddf5"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#818cf8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#22d3ee"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#f472b6"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e2ddf5"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#22d3ee"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#c4b5fd"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a8a0c0"
+    }
+  ]
+}

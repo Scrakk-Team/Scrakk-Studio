@@ -1,0 +1,36 @@
+/* ProblemsChip — conteos de errores/advertencias en la barra de estado.
+   Mismo lenguaje visual que el resto de los chips (fondo de la statusbar,
+   hover --color-hover, sin radio). Los iconos heredan el color del chip: no
+   hay rojo/ámbar propio en la barra (eso vive en el panel de Problemas). */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: stretch;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.chip:active {
+  background: var(--color-active);
+}
+
+/* Sin problemas: el chip se apaga pero sigue estando (su click abre el panel). */
+.clean {
+  opacity: 0.6;
+}
+
+.count {
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}

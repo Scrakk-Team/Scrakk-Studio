@@ -1,0 +1,18 @@
+{
+  "id": "ocean-light",
+  "name": "Ocean Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Ocean Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "ocean-light",
+        "name": "Ocean Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

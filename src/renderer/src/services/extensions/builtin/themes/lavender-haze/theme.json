@@ -1,0 +1,114 @@
+{
+  "name": "Lavender Haze",
+  "type": "dark",
+  "colors": {
+    "bg": "#161420",
+    "surface": "#1e1a2a",
+    "border": "#302840",
+    "accent": "#b57edc",
+    "text": "#e8e0f8",
+    "textSecondary": "#b0a0c8",
+    "textMuted": "#605070",
+    "error": "#d86068",
+    "warning": "#d8a858",
+    "success": "#68b088",
+    "info": "#6898d0",
+    "scrollbarThumb": "#403850",
+    "scrollbarThumbHover": "#504860",
+    "indentGuide": "#261e34",
+    "surfaceRaised": "#2c2837",
+    "hover": "#393544",
+    "active": "#464350",
+    "accentHover": "#bc8be0",
+    "accentActive": "#c295e2",
+    "errorHover": "#dd737a",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#494257",
+    "editorBg": "#1e1a2a",
+    "panelBorder": "#302840"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#605070"
+    },
+    {
+      "scope": "string",
+      "foreground": "#98d8a8"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d8a858"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#b57edc"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#c898e8"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c898e8"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e8e0f8"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#b57edc"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#c898e8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#88b8e8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#98d8a8"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e8e0f8"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e8a090"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#88b8e8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#b0a0c8"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d86068"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#b57edc",
+      "fontStyle": "bold"
+    }
+  ]
+}

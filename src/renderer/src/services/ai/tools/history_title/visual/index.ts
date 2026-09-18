@@ -1,0 +1,1 @@
+export { HistoryTitleCard } from './HistoryTitleCard'

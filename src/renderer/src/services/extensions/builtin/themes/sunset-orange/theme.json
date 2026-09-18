@@ -1,0 +1,89 @@
+{
+  "name": "Sunset Orange",
+  "type": "dark",
+  "colors": {
+    "bg": "#1f1410",
+    "surface": "#2a1c16",
+    "border": "#4a3228",
+    "accent": "#ff7043",
+    "text": "#e0cfc7",
+    "textSecondary": "#b09a8f",
+    "textMuted": "#7a6a60",
+    "error": "#ff5252",
+    "warning": "#ffca28",
+    "success": "#69f0ae",
+    "info": "#40c4ff",
+    "scrollbarThumb": "#5a4a40",
+    "scrollbarThumbHover": "#6a5a50",
+    "indentGuide": "#3a2a20",
+    "surfaceRaised": "#372a24",
+    "hover": "#443732",
+    "active": "#504540",
+    "accentHover": "#ff7e56",
+    "accentActive": "#ff8a65",
+    "errorHover": "#ff6767",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#604b42",
+    "editorBg": "#2a1c16",
+    "panelBorder": "#4a3228"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#8a7060"
+    },
+    {
+      "scope": "string",
+      "foreground": "#f9a825"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ff8a65"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#ffab40"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff7043"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#ff7043"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e0cfc7"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#ffab40"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#ffd54f"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffcc80"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e0cfc7"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#ffd54f"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff8a65"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#bcaaa4"
+    }
+  ]
+}

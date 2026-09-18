@@ -1,5 +1,5 @@
-import { ChevronDownIcon } from '@proicons/react'
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
+import { memo, useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { ThinkingState } from '../ThinkingState/ThinkingState'
 import styles from './ThoughtBlock.module.css'
 
@@ -23,7 +23,7 @@ function splitSentences(text: string): string[] {
  * termina de pensar el header muestra "Thought for Ns" con el tiempo real.
  * Viewport con auto-scroll mientras piensa y oraciones con fade-in.
  */
-export function ThoughtBlock({ reasoning, thinking }: ThoughtBlockProps): JSX.Element {
+export const ThoughtBlock = memo(function ThoughtBlock({ reasoning, thinking }: ThoughtBlockProps): JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const [seconds, setSeconds] = useState(0)
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -58,7 +58,7 @@ export function ThoughtBlock({ reasoning, thinking }: ThoughtBlockProps): JSX.El
         ) : (
           <span className={styles.trLabel}>Thought for {seconds}s</span>
         )}
-        <ChevronDownIcon size={14} className={styles.trChevron} aria-hidden="true" />
+        <ProductIcon id="chevron-down" size={14} className={styles.trChevron} aria-hidden="true" />
       </button>
 
       <div className={`${styles.trCollapsible} ${isExpanded ? '' : styles.isCollapsed}`}>
@@ -81,4 +81,4 @@ export function ThoughtBlock({ reasoning, thinking }: ThoughtBlockProps): JSX.El
       </div>
     </div>
   )
-}
+})

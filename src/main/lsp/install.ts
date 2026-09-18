@@ -17,6 +17,7 @@ import * as path from 'path'
 import { unzipSync } from 'fflate'
 import type { LspServerConfig } from '@shared/lsp'
 import { scrakkHome } from '../scrakkFolder'
+import { resolveExecutable } from '../binaries'
 
 export type InstallRecipe =
   | { kind: 'npm'; package: string }
@@ -39,12 +40,38 @@ export function managedNpmDir(): string {
   return path.join(scrakkHome(), 'lsp', 'npm')
 }
 
+/** Layout legacy roto (npm -g --prefix): se limpia una vez. */
+async function removeLegacyNpmLayout(dir: string): Promise<void> {
+  const legacyLib = path.join(dir, 'lib', 'node_modules')
+  try {
+    await fs.access(legacyLib)
+    await fs.rm(dir, { recursive: true, force: true })
+  } catch {
+    // no existía: nada que limpiar
+  }
+}
+
+/** Garantiza package.json mínimo en el dir gestionado (npm install sin -g). */
+async function ensureManagedPackageJson(dir: string): Promise<void> {
+  await fs.mkdir(dir, { recursive: true })
+  const pkgPath = path.join(dir, 'package.json')
+  try {
+    await fs.access(pkgPath)
+  } catch {
+    await fs.writeFile(
+      pkgPath,
+      JSON.stringify({ name: 'scrakk-lsp-managed', private: true, version: '1.0.0' }, null, 2)
+    )
+  }
+}
+
 /** ¿El comando vive en los dirs gestionados? Devuelve la ruta absoluta. */
 export async function resolveManagedCommand(command: string): Promise<string | null> {
   if (path.isAbsolute(command)) return null
   const candidates = [
     path.join(managedBinDir(), command),
-    path.join(managedNpmDir(), 'bin', command)
+    // npm sin -g --prefix DIR: bins en DIR/node_modules/.bin
+    path.join(managedNpmDir(), 'node_modules', '.bin', command)
   ]
   for (const candidate of candidates) {
     try {
@@ -65,9 +92,17 @@ export function buildInstallCommand(recipe: InstallRecipe): {
 } {
   switch (recipe.kind) {
     case 'npm':
+      // Sin -g ni --prefix: package.json mínimo en el dir gestionado +
+      // install local → bins en <dir>/node_modules/.bin. (npm -g --prefix
+      // está roto en npm moderno: tar corrupto hacia lib/node_modules.)
       return {
         cmd: 'npm',
-        args: ['install', '-g', '--prefix', managedNpmDir(), recipe.package]
+        args: [
+          'install',
+          '--prefix',
+          managedNpmDir(),
+          ...recipe.package.split(/\s+/).filter(Boolean)
+        ]
       }
     case 'go':
       return {
@@ -85,6 +120,23 @@ export function buildInstallCommand(recipe: InstallRecipe): {
       // La descarga de releases no es un argv: la maneja install() directo.
       return { cmd: 'curl', args: [`https://api.github.com/repos/${recipe.repo}/releases/latest`] }
   }
+}
+
+/**
+ * Resuelve el ejecutable de una receta contra el PATH AUMENTADO.
+ *
+ * Sin esto, una app abierta desde el menú no encuentra `npm` (vive en
+ * `~/.nvm/…` o `~/.local/bin`, no en `/usr/bin`) y la instalación fallaba con un
+ * ENOENT que se reportaba como "npm exit -1" — un mensaje que manda a buscar el
+ * problema al server en vez de al PATH. Ahora se dice qué falta y dónde se buscó.
+ */
+function resolveCommand(cmd: string): string {
+  const resolved = resolveExecutable(cmd)
+  if (resolved) return resolved
+  throw new Error(
+    `No encontré «${cmd}» en el PATH. Instalalo, o abrí la app desde una terminal, ` +
+      `o poné su directorio en el PATH (se buscan también ~/.local/bin, nvm, fnm, volta, snap y linuxbrew).`
+  )
 }
 
 function run(
@@ -140,7 +192,12 @@ async function extractBinary(archivePath: string, binaryPathInArchive: string, d
     // tar/tar.gz vía tar del sistema (disponible en linux/mac; win10+ tiene bsdtar).
     const tmpDir = path.join(path.dirname(archivePath), 'extracted')
     await fs.mkdir(tmpDir, { recursive: true })
-    const { code, stderr } = await run('tar', ['-xf', archivePath, '-C', tmpDir])
+    const { code, stderr } = await run(resolveExecutable('tar') ?? 'tar', [
+      '-xf',
+      archivePath,
+      '-C',
+      tmpDir
+    ])
     if (code !== 0) throw new Error(`tar falló: ${stderr.slice(0, 300)}`)
     const source = path.join(tmpDir, binaryPathInArchive)
     await fs.copyFile(source, destination)
@@ -156,13 +213,19 @@ async function extractBinary(archivePath: string, binaryPathInArchive: string, d
  * binario gestionado cuando corresponde).
  */
 export async function install(recipe: InstallRecipe, config: LspServerConfig): Promise<LspServerConfig> {
+  // Layout legacy corrupto de npm -g --prefix: limpieza única antes de tocar npm.
+  if (recipe.kind === 'npm') {
+    await removeLegacyNpmLayout(managedNpmDir())
+    await ensureManagedPackageJson(managedNpmDir())
+  }
+
   switch (recipe.kind) {
     case 'npm':
     case 'gem':
     case 'dotnet':
     case 'go': {
       const { cmd, args, env } = buildInstallCommand(recipe)
-      const { code, stderr } = await run(cmd, args, env)
+      const { code, stderr } = await run(resolveCommand(cmd), args, env)
       if (code !== 0) throw new Error(`${cmd} exit ${code}: ${stderr.slice(0, 500)}`)
       const managed = await resolveManagedCommand(config.command)
       return managed ? { ...config, command: managed } : config
@@ -170,7 +233,7 @@ export async function install(recipe: InstallRecipe, config: LspServerConfig): P
 
     case 'custom': {
       const { cmd, args } = buildInstallCommand(recipe)
-      const { code, stderr } = await run(cmd, args)
+      const { code, stderr } = await run(resolveCommand(cmd), args)
       if (code !== 0) throw new Error(`custom installer exit ${code}: ${stderr.slice(0, 500)}`)
       const managed = await resolveManagedCommand(config.command)
       return managed ? { ...config, command: managed } : config

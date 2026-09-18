@@ -1,0 +1,18 @@
+{
+  "id": "obsidian-night",
+  "name": "Obsidian Night",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Obsidian Night — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "obsidian-night",
+        "name": "Obsidian Night",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

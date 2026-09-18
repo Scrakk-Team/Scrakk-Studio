@@ -1,0 +1,18 @@
+{
+  "id": "midnight-purple",
+  "name": "Midnight Purple",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Midnight Purple — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "midnight-purple",
+        "name": "Midnight Purple",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

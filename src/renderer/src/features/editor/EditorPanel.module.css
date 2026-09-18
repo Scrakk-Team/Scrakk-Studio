@@ -14,6 +14,9 @@
   min-height: 0;
   position: relative;
   overflow: hidden;
+  /* Glassmorphism automático (solo temas con imagen): el canvas del engine
+     limpia con el alpha del tema y compone sobre el fondo. */
+  backdrop-filter: var(--glass-blur, none);
 }
 
 /* Canvas del engine Innerta (ITE): ocupa el host completo. */

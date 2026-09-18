@@ -1,0 +1,18 @@
+{
+  "id": "monokai",
+  "name": "Monokai",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Monokai — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "monokai",
+        "name": "Monokai",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

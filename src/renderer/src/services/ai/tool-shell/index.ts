@@ -1,4 +1,5 @@
 export { ToolCallShell } from './ToolCallShell'
 export { ToolCallIcon } from './ToolCallIcon'
 export { ToolCallStatus } from './ToolCallStatus'
+export { ToolShimmerText } from './ToolShimmerText'
 export type { ToolCallExecution, ToolCallStatusType } from './ToolCallShell'

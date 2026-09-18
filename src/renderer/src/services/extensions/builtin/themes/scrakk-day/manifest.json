@@ -1,0 +1,18 @@
+{
+  "id": "scrakk-day",
+  "name": "Scrakk Day",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema claro por defecto: blanco + naranja profundo. Capas diferenciadas (bg / surface / raised) al igual que Scrakk Night.",
+  "engine": ">=1.0.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "scrakk-day",
+        "name": "Scrakk Day",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

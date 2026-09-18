@@ -1,10 +1,10 @@
 import { useEffect, useRef, type JSX, type ReactNode } from 'react'
-import { CloseIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import { IconButton } from '../IconButton/IconButton'
 import styles from './Modal.module.css'
 
 /** Tamaños del panel: md (default) y xl para settings/paneles grandes. */
-export type ModalSize = 'md' | 'xl'
+export type ModalSize = 'sm' | 'md' | 'xl'
 
 interface ModalProps {
   open: boolean
@@ -84,7 +84,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
         <header className={styles.header}>
           <h2 className={styles.title}>{title}</h2>
           <IconButton label="Cerrar" size="sm" onClick={onClose}>
-            <CloseIcon size={14} />
+            <ProductIcon id="close" size={14} />
           </IconButton>
         </header>
         <div className={styles.body}>{children}</div>

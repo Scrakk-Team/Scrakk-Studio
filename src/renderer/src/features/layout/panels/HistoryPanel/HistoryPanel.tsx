@@ -1,17 +1,23 @@
-import { PlusIcon, SearchIcon } from '@proicons/react'
-import { useMemo, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
+import { useMemo, useState, type JSX, type MouseEvent } from 'react'
 import { ProvidersMenu, useProviders } from '@features/providers'
 import { useChats } from '@features/chat'
+import { showModal } from '@services/modals'
+import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
+import { ExportChatDialog } from '@features/chat/components/ChatExport/ExportChatDialog'
 import styles from './HistoryPanel.module.css'
 
 /**
- * Panel de historial — sesiones REALES del ChatsProvider (nada hardcodeado):
+ * Historial de chats — sesiones REALES del ChatsProvider (nada hardcodeado):
  * Nuevo chat → búsqueda → sesiones recientes.
- * El redimensionado ya NO vive acá: lo maneja el sistema de layouts
- * (ResizeHandle + PanelFrame), este panel solo aporta su contenido.
+ *
+ * Ya NO es un panel suelto: es la vista que el ChatPanel monta adentro suyo
+ * cuando se toca el botón de historial de su header (ver `viewState.ts`).
+ * `onPick` es el aviso de "el usuario eligió una conversación" — el chat lo
+ * usa para cerrar la vista y volver a mostrar el chat elegido.
  */
-export function HistoryPanel(): JSX.Element {
-  const { sessions, activeSessionId, createSession, selectSession } = useChats()
+export function HistoryPanel({ onPick }: { onPick?: () => void } = {}): JSX.Element {
+  const { sessions, activeSessionId, createSession, selectSession, deleteSession } = useChats()
   const { openProvidersModal } = useProviders()
   const [query, setQuery] = useState('')
 
@@ -25,17 +31,43 @@ export function HistoryPanel(): JSX.Element {
   const handleNewChat = (): void => {
     createSession()
     setQuery('')
+    onPick?.()
+  }
+
+  const openSessionMenu = (event: MouseEvent<HTMLButtonElement>, sessionId: string): void => {
+    event.stopPropagation()
+    const session = sessions.find((candidate) => candidate.id === sessionId)
+    if (!session) return
+    showContextMenu(event.clientX, event.clientY, [
+      {
+        label: 'Exportar chat',
+        icon: <ProductIcon id="download" size={13} />,
+        onClick: () => {
+          showModal({
+            title: `Exportar "${session.title}"`,
+            render: ({ close }) => <ExportChatDialog session={session} onDone={close} />
+          })
+        }
+      },
+      {
+        label: 'Eliminar',
+        icon: <ProductIcon id="trash" size={13} />,
+        danger: true,
+        separatorBefore: true,
+        onClick: () => deleteSession(sessionId)
+      }
+    ])
   }
 
   return (
     <div className={styles.history}>
       <button type="button" className={styles.newChat} onClick={handleNewChat}>
-        <PlusIcon size={15} />
+        <ProductIcon id="plus" size={15} />
         Nuevo chat
       </button>
 
       <div className={styles.search}>
-        <SearchIcon size={14} className={styles.searchIcon} aria-hidden="true" />
+        <ProductIcon id="search" size={14} className={styles.searchIcon} aria-hidden="true" />
         <input
           className={styles.searchInput}
           value={query}
@@ -53,19 +85,32 @@ export function HistoryPanel(): JSX.Element {
         ) : (
           filteredSessions.map((session) => {
             const isActive = session.id === activeSessionId
-            const classes = [styles.item, isActive ? styles.itemActive : null]
+            const classes = [styles.itemRow, isActive ? styles.itemActive : null]
               .filter(Boolean)
               .join(' ')
             return (
-              <button
-                key={session.id}
-                type="button"
-                className={classes}
-                aria-current={isActive ? 'true' : undefined}
-                onClick={() => selectSession(session.id)}
-              >
-                <span className={styles.itemTitle}>{session.title}</span>
-              </button>
+              <div key={session.id} className={classes}>
+                <button
+                  type="button"
+                  className={styles.item}
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={() => {
+                    selectSession(session.id)
+                    onPick?.()
+                  }}
+                >
+                  <span className={styles.itemTitle}>{session.title}</span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.itemMenu}
+                  title="Más acciones"
+                  aria-label={`Más acciones para ${session.title}`}
+                  onClick={(event) => openSessionMenu(event, session.id)}
+                >
+                  <ProductIcon id="more" size={14} />
+                </button>
+              </div>
             )
           })
         )}

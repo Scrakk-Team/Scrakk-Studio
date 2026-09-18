@@ -1,0 +1,18 @@
+{
+  "id": "ocean-blue",
+  "name": "Ocean Blue",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Ocean Blue — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "ocean-blue",
+        "name": "Ocean Blue",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "glass-dark",
+  "name": "Glass Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Glass Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "glass-dark",
+        "name": "Glass Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

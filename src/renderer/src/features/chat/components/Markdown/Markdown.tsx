@@ -1,4 +1,4 @@
-import { type JSX, type ReactNode } from 'react'
+import { memo, type JSX, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { Components, ExtraProps } from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
@@ -87,8 +87,13 @@ interface MarkdownProps {
  * (los saltos de línea simples se respetan) + rehype-raw sanitizado
  * (permite HTML crudo como <details>, limpiado por rehype-sanitize).
  * Las tablas son <table> reales, los codeblocks usan Prism.
+ *
+ * memo por `content` (string): con el historial largo, los mensajes viejos
+ * no se re-parsean por cada token del stream (el parse + Prism es lo más
+ * caro del chat). Esto además estabiliza las props de CodeBlock y su memo
+ * sí evita re-resaltados.
  */
-export function Markdown({ content }: MarkdownProps): JSX.Element {
+export const Markdown = memo(function Markdown({ content }: MarkdownProps): JSX.Element {
   return (
     <div className={styles.md}>
       <ReactMarkdown
@@ -100,4 +105,4 @@ export function Markdown({ content }: MarkdownProps): JSX.Element {
       </ReactMarkdown>
     </div>
   )
-}
+})

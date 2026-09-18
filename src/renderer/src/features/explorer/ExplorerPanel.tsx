@@ -9,35 +9,32 @@
  *  - Metadata mínima en readdir (sin stat por entrada).
  *
  * Combinación de estilos: estructura del Explorer de Scrakk Code Editor
- * (indent guiado, chevrons, filas "…") con tokens de BorealChat.
+ * (indent guiado, chevrons, filas "…") con tokens de Scrakk Studio.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
+import { ContextMenu, type ContextMenuItem } from '@ui'
+import { HeaderActionButton, usePanelTitle } from '@features/layout'
 import {
-  ArrowClockwiseIcon,
-  CopyIcon,
-  DeleteIcon,
-  ExternalLinkIcon,
-  FileAddIcon,
-  FolderAddIcon,
-  FolderIcon,
-  PencilIcon,
-  SearchIcon,
-  SubtractSquareMultipleIcon
-} from '@proicons/react'
-import { IconButton, ContextMenu, type ContextMenuItem } from '@ui'
-import { usePanelTitle } from '@features/layout'
+  isGitDecorationsVisible,
+  setGitDecorationsVisible,
+  subscribeToDecorations
+} from './decorations'
 import { openFileInEditor } from '@features/editor'
 import { useWorkspaceState, type FileNode } from './hooks/useWorkspaceState'
 import { useFileSelection } from './hooks/useFileSelection'
 import { useWindowedRows } from './hooks/useWindowedRows'
 import { useSelectionBox } from './hooks/useSelectionBox'
 import { ExplorerRow } from './components/ExplorerRow'
+import { focusGuideLevel, rowActiveGuideLevel } from './utils/indentGuides'
 import { SelectionBox } from './components/SelectionBox/SelectionBox'
 import { DeleteModal, type DeleteTarget } from './components/DeleteModal'
 import { ROW_HEIGHT, VIRTUAL_BUFFER } from './constants'
 import { baseNameOf, isWithin, isValidName } from './utils/fileUtils'
+import { ancestorDirs, filterRowsByPaths } from './filter'
 import styles from './Explorer.module.css'
+import { ToolDock, ToolDockHostProvider } from '@features/tooldock'
 
 /** Fila fantasma mientras se crea un archivo/carpeta. */
 interface CreatingState {
@@ -79,8 +76,25 @@ const LOADING_NODE: FileNode = {
   level: 0
 }
 
-export function ExplorerPanel(): JSX.Element {
-  const workspace = useWorkspaceState()
+export function ExplorerPanel({
+  rootOverride,
+  interactive = true,
+  visiblePaths = null,
+  onSelectionChange,
+  onOpenFile
+}: {
+  /** Raíz arbitraria a mostrar (default: workspace global). */
+  rootOverride?: string
+  /** false = solo lectura (sin menús, dnd ni crear/renombrar/eliminar). */
+  interactive?: boolean
+  /** Subset a mostrar (default: todo). Los ancestros se auto-expanden. */
+  visiblePaths?: Set<string> | null
+  /** Selección actual (para acciones bulk externas). */
+  onSelectionChange?: (paths: string[]) => void
+  /** Hook extra al abrir un archivo (default: nada). */
+  onOpenFile?: (path: string, name: string) => void
+}): JSX.Element {
+  const workspace = useWorkspaceState(rootOverride)
   const selection = useFileSelection()
   const { setTitle, setActions } = usePanelTitle()
 
@@ -95,6 +109,12 @@ export function ExplorerPanel(): JSX.Element {
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
   const draggedPathsRef = useRef<string[]>([])
   const [dropTarget, setDropTarget] = useState<string | null>(null)
+  // Fila bajo el cursor: las guías ACTIVAS la siguen en vivo (hover) y caen
+  // a la selección al salir del árbol.
+  const [hoverPath, setHoverPath] = useState<string | null>(null)
+  const handleRowHover = useCallback((path: string | null): void => {
+    setHoverPath(path)
+  }, [])
 
   // El header del panel muestra el nombre de la carpeta abierta.
   useEffect(() => {
@@ -131,13 +151,38 @@ export function ExplorerPanel(): JSX.Element {
     return out
   }, [workspace.tree, workspace.rootPath, creating])
 
+
+  // Vista filtrada (Cambios de git): subset + ancestros auto-expandidos.
+  const ancestors = useMemo(
+    () =>
+      visiblePaths && workspace.rootPath
+        ? ancestorDirs(workspace.rootPath, visiblePaths)
+        : new Set<string>(),
+    [visiblePaths, workspace.rootPath]
+  )
+
+  useEffect(() => {
+    if (!visiblePaths) return
+    for (const dir of ancestors) workspace.ensureExpanded(dir)
+  }, [visiblePaths, ancestors, workspace])
+  // Selección hacia afuera (acciones bulk externas).
+  useEffect(() => {
+    onSelectionChange?.([...selection.selected])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selection.selected])
+
+  const visibleFlat = useMemo(
+    () => (visiblePaths ? filterRowsByPaths(flat, visiblePaths, ancestors) : flat),
+    [flat, visiblePaths, ancestors]
+  )
+
   const flatPaths = useMemo(
-    () => flat.filter((row) => row.kind === 'node').map((row) => row.node.path),
-    [flat]
+    () => visibleFlat.filter((row) => row.kind === 'node').map((row) => row.node.path),
+    [visibleFlat]
   )
 
   // ── Virtualización: solo filas visibles (± buffer) ─────────────────────
-  const windowed = useWindowedRows(flat.length, ROW_HEIGHT, VIRTUAL_BUFFER)
+  const windowed = useWindowedRows(visibleFlat.length, ROW_HEIGHT, VIRTUAL_BUFFER)
 
   // ── Caja de selección (lasso) — DOM directo, sin React state ──────────
   const selectionBoxRef = useRef<HTMLDivElement>(null)
@@ -155,19 +200,29 @@ export function ExplorerPanel(): JSX.Element {
   })
 
   // ── Selección ──────────────────────────────────────────────────────────
+  // Apertura centralizada (single-click y doble-click pasan por acá para
+  // avisar a onOpenFile: dropdowns que se cierran al abrir, etc.).
+  const openFile = useCallback(
+    (path: string, name: string): void => {
+      openFileInEditor(path, name)
+      onOpenFile?.(path, name)
+    },
+    [onOpenFile]
+  )
+
   const handleSelect = useCallback(
     (path: string, mode?: 'single' | 'multi' | 'range'): void => {
       selection.select(path, flatPaths, mode)
       windowed.containerRef.current?.focus()
       // Single-click en un archivo → pedir su contenido y abrirlo en Innerta.
       if (!mode) {
-        const row = flat.find((r) => r.kind === 'node' && r.node.path === path)
+        const row = visibleFlat.find((r) => r.kind === 'node' && r.node.path === path)
         if (row && !row.node.isDirectory) {
-          openFileInEditor(row.node.path, row.node.name)
+          openFile(row.node.path, row.node.name)
         }
       }
     },
-    [selection, flatPaths, windowed.containerRef, flat]
+    [selection, flatPaths, windowed.containerRef, visibleFlat, openFile]
   )
 
   // ── Crear / renombrar ──────────────────────────────────────────────────
@@ -194,40 +249,66 @@ export function ExplorerPanel(): JSX.Element {
   // Los botones de acción viven en el header del panel, no en una barra
   // aparte (el título ya muestra el nombre de la carpeta). Íconos y orden
   // replicados del header del Explorer de Scrakk Code Editor.
+  // En modo solo lectura no hay acciones de mutación.
+  // El botón git alterna los badges de estado (A/M/??/D/R) en las filas.
+  //
+  // Van con HeaderActionButton (no IconButton) para que el usuario pueda
+  // ARRASTRARLOS y cambiar su orden: el `id` namespaced es lo que el store
+  // del layout persiste, y el orden del JSX es el default.
+  const [gitBadges, setGitBadges] = useState(() => isGitDecorationsVisible())
+  useEffect(() => subscribeToDecorations(() => setGitBadges(isGitDecorationsVisible())), [])
   useEffect(() => {
+    if (!interactive) {
+      setActions(null)
+      return
+    }
     setActions(() => (
       <>
-        <IconButton
+        <HeaderActionButton
+          id="explorer.new-file"
           label="Nuevo archivo"
+          icon="new-file"
           size="sm"
           shape="rounded"
           onClick={() => startCreate(workspace.rootPath ?? '', false)}
-        >
-          <FileAddIcon size={16} />
-        </IconButton>
-        <IconButton
+        />
+        <HeaderActionButton
+          id="explorer.new-folder"
           label="Nueva carpeta"
+          icon="new-folder"
           size="sm"
           shape="rounded"
           onClick={() => startCreate(workspace.rootPath ?? '', true)}
-        >
-          <FolderAddIcon size={16} />
-        </IconButton>
-        <IconButton
+        />
+        <HeaderActionButton
+          id="explorer.git-badges"
+          label={gitBadges ? 'Git: ocultar estados' : 'Git: mostrar estados'}
+          icon="source-control"
+          size="sm"
+          shape="rounded"
+          variant={gitBadges ? 'accent' : 'neutral'}
+          onClick={() => setGitDecorationsVisible(!gitBadges)}
+        />
+        <HeaderActionButton
+          id="explorer.collapse-all"
           label="Colapsar todas las carpetas"
+          icon="collapse-all"
           size="sm"
           shape="rounded"
           onClick={() => workspace.collapseAll()}
-        >
-          <SubtractSquareMultipleIcon size={16} />
-        </IconButton>
-        <IconButton label="Actualizar explorador" size="sm" shape="rounded" onClick={() => workspace.refresh()}>
-          <ArrowClockwiseIcon size={16} />
-        </IconButton>
+        />
+        <HeaderActionButton
+          id="explorer.refresh"
+          label="Actualizar explorador"
+          icon="refresh"
+          size="sm"
+          shape="rounded"
+          onClick={() => workspace.refresh()}
+        />
       </>
     ))
     return () => setActions(null)
-  }, [setActions, workspace.rootPath, startCreate, workspace.refresh, workspace.collapseAll])
+  }, [setActions, interactive, gitBadges, workspace.rootPath, startCreate, workspace.refresh, workspace.collapseAll])
 
   const commitCreate = useCallback(async (): Promise<void> => {
     if (!creating) return
@@ -366,22 +447,18 @@ export function ExplorerPanel(): JSX.Element {
       items.push(
         {
           label: 'Actualizar',
-          icon: <SearchIcon size={13} />,
           onClick: () => workspace.refresh()
         },
         {
           label: 'Nuevo archivo',
-          icon: <FileAddIcon size={13} />,
           onClick: () => startCreate(root, false)
         },
         {
           label: 'Nueva carpeta',
-          icon: <FolderAddIcon size={13} />,
           onClick: () => startCreate(root, true)
         },
         {
           label: 'Copiar ruta raíz',
-          icon: <CopyIcon size={13} />,
           separatorBefore: true,
           onClick: () => void copyPath(root)
         }
@@ -389,7 +466,6 @@ export function ExplorerPanel(): JSX.Element {
       if (root) {
         items.push({
           label: 'Abrir en explorador',
-          icon: <ExternalLinkIcon size={13} />,
           onClick: () => void window.api.fs.openInFolder(root)
         })
       }
@@ -400,13 +476,11 @@ export function ExplorerPanel(): JSX.Element {
       items.push(
         {
           label: `Eliminar ${selection.selected.size} elementos`,
-          icon: <DeleteIcon size={13} />,
           danger: true,
           onClick: () => setDeleteTarget({ label: 'elementos', paths: [...selection.selected] })
         },
         {
           label: 'Copiar rutas',
-          icon: <CopyIcon size={13} />,
           separatorBefore: true,
           onClick: () => void copyPath([...selection.selected].join('\n'))
         }
@@ -419,19 +493,16 @@ export function ExplorerPanel(): JSX.Element {
       items.push(
         {
           label: 'Nuevo archivo',
-          icon: <FileAddIcon size={13} />,
           onClick: () => startCreate(node.path, false)
         },
         {
           label: 'Nueva carpeta',
-          icon: <FolderAddIcon size={13} />,
           onClick: () => startCreate(node.path, true)
         }
       )
     } else {
       items.push({
         label: 'Abrir',
-        icon: <SearchIcon size={13} />,
         onClick: () => openFileInEditor(node.path, node.name)
       })
     }
@@ -439,25 +510,21 @@ export function ExplorerPanel(): JSX.Element {
     items.push(
       {
         label: 'Renombrar',
-        icon: <PencilIcon size={13} />,
         separatorBefore: true,
         onClick: () => startRename(node)
       },
       {
         label: 'Eliminar',
-        icon: <DeleteIcon size={13} />,
         danger: true,
         onClick: () => requestDelete(node)
       },
       {
         label: 'Mostrar en explorador',
-        icon: <ExternalLinkIcon size={13} />,
         separatorBefore: true,
         onClick: () => void window.api.fs.openInFolder(node.path)
       },
       {
         label: 'Copiar ruta',
-        icon: <CopyIcon size={13} />,
         onClick: () => void copyPath(node.path)
       }
     )
@@ -467,21 +534,23 @@ export function ExplorerPanel(): JSX.Element {
   // ── Atajos de teclado del árbol ────────────────────────────────────────
   const handleTreeKeyDown = useCallback(
     (event: React.KeyboardEvent): void => {
+      // Solo lectura: sin atajos de mutación.
+      if (!interactive) return
       if (event.key === 'F2') {
         const first = [...selection.selected][0]
         if (first) {
-          const node = flat.find((row) => row.kind === 'node' && row.node.path === first)?.node
+          const node = visibleFlat.find((row) => row.kind === 'node' && row.node.path === first)?.node
           if (node) startRename(node)
         }
       } else if (event.key === 'Delete') {
         const paths = [...selection.selected]
         if (paths.length > 0) {
-          const firstNode = flat.find((row) => row.kind === 'node' && row.node.path === paths[0])?.node
+          const firstNode = visibleFlat.find((row) => row.kind === 'node' && row.node.path === paths[0])?.node
           if (firstNode) requestDelete(firstNode)
         }
       }
     },
-    [selection.selected, flat, startRename, requestDelete]
+    [selection.selected, visibleFlat, startRename, requestDelete, interactive]
   )
 
   // ── Render ─────────────────────────────────────────────────────────────
@@ -497,9 +566,9 @@ export function ExplorerPanel(): JSX.Element {
           <span className={styles.arrowPlaceholder} style={{ width: 16, height: 16 }} />
           <span className={[styles.icon, creating?.isDirectory ? styles.iconFolder : styles.iconFile].join(' ')}>
             {creating?.isDirectory ? (
-              <FolderIcon size={16} />
+              <ProductIcon id="folder" size={16} />
             ) : (
-              <FileAddIcon size={16} />
+              <ProductIcon id="new-file" size={16} />
             )}
           </span>
           <input
@@ -548,34 +617,50 @@ export function ExplorerPanel(): JSX.Element {
         node={node}
         level={level}
         isSelected={selection.selected.has(node.path)}
+        activeGuideLevel={rowActiveGuideLevel(node.path, guideFocus)}
+        onHover={handleRowHover}
         isEditing={isEditing}
         isDragging={draggedPathsRef.current.includes(node.path)}
         isDropTarget={dropTarget === node.path}
         editValue={editValue}
+        interactive={interactive}
+        hideDots={!interactive}
         onEditValueChange={(value) => {
           setEditValue(value)
           setEditError(null)
         }}
         onSelect={handleSelect}
         onToggle={workspace.toggleFolder}
-        onContextMenu={(event, n) => openMenuFor(event, n, false)}
-        onOpenMenu={(event, n) => openMenuFor(event, n, false)}
+        onContextMenu={interactive ? (event, n) => openMenuFor(event, n, false) : noopRowEvent}
+        onOpenMenu={interactive ? (event, n) => openMenuFor(event, n, false) : noopRowEvent}
         onDoubleClick={(n) => {
-          if (!n.isDirectory) openFileInEditor(n.path, n.name)
+          if (!n.isDirectory) openFile(n.path, n.name)
         }}
         onCommitEdit={() => {
           if (isEditing) void commitRename()
         }}
         onCancelEdit={cancelEdit}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onDragStart={interactive ? handleDragStart : noopDragEvent}
+        onDragOver={interactive ? handleDragOver : noopDragEvent}
+        onDrop={interactive ? handleDrop : noopDragEvent}
         onDragEnd={handleDragEnd}
       />
     )
   }
 
-  const visibleRows = flat.slice(windowed.start, windowed.end)
+  const visibleRows = visibleFlat.slice(windowed.start, windowed.end)
+
+  // Foco para la guía ACTIVA (hover en vivo, selección al salir): UNA sola
+  // línea — la de la carpeta en foco — en su subárbol. Memoizado, no por fila.
+  const guideFocus = useMemo(() => {
+    const path = hoverPath ?? selection.lastSelected
+    const level = focusGuideLevel(workspace.rootPath, path)
+    return path !== null && level !== null ? { path, level } : null
+  }, [workspace.rootPath, hoverPath, selection.lastSelected])
+
+  // No-ops tipados para modo solo lectura (las filas exigen handlers).
+  const noopRowEvent = (_event: React.MouseEvent, _node: FileNode): void => {}
+  const noopDragEvent = (_event: React.DragEvent, _node: FileNode): void => {}
 
   // Sin workspace: estado vacío con acción de abrir carpeta.
   if (!workspace.rootPath) {
@@ -583,7 +668,7 @@ export function ExplorerPanel(): JSX.Element {
       <div className={styles.explorer}>
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>
-            <FolderIcon size={40} />
+            <ProductIcon id="folder" size={40} />
           </div>
           <h3 className={styles.emptyTitle}>Sin workspace</h3>
           <p className={styles.emptyText}>
@@ -595,7 +680,7 @@ export function ExplorerPanel(): JSX.Element {
               className={`${styles.emptyBtn} ${styles.emptyBtnPrimary}`}
               onClick={() => void workspace.openFolder()}
             >
-              <FolderIcon size={14} />
+              <ProductIcon id="folder" size={14} />
               Abrir carpeta
             </button>
           </div>
@@ -611,6 +696,7 @@ export function ExplorerPanel(): JSX.Element {
         className={styles.tree}
         tabIndex={0}
         onKeyDown={handleTreeKeyDown}
+        onMouseLeave={() => setHoverPath(null)}
         onMouseDown={(event) => {
           if (event.target === event.currentTarget) {
             selection.clear()
@@ -626,12 +712,14 @@ export function ExplorerPanel(): JSX.Element {
         }}
         onDragOver={(event) => {
           // Solo el fondo del árbol (no filas): mover al root.
+          if (!interactive) return
           if (event.target !== event.currentTarget) return
           event.preventDefault()
           setDropTarget(workspace.rootPath ?? null)
         }}
         onDragLeave={() => setDropTarget(null)}
         onDrop={(event) => {
+          if (!interactive) return
           if (event.target !== event.currentTarget) return
           event.preventDefault()
           if (workspace.rootPath) void moveDropped(workspace.rootPath)
@@ -639,7 +727,7 @@ export function ExplorerPanel(): JSX.Element {
         role="tree"
         aria-label="Explorador de archivos"
       >
-        {workspace.isLoadingRoot && flat.length === 0 ? (
+        {workspace.isLoadingRoot && visibleFlat.length === 0 ? (
           <div className={styles.loadingRoot}>
             <span className={styles.spinner} />
             Cargando…
@@ -648,21 +736,36 @@ export function ExplorerPanel(): JSX.Element {
 
         <SelectionBox ref={selectionBoxRef} />
 
-        {flat.length > 0 ? (
+        {visibleFlat.length > 0 ? (
           <div className={styles.window} style={{ height: windowed.totalHeight }}>
-            {visibleRows.map((row, index) => (
-              <div
-                key={row.node.path}
-                className={styles.rowSlot}
-                style={{ transform: `translateY(${(windowed.start + index) * ROW_HEIGHT}px)` }}
-              >
-                {renderRow(row)}
-              </div>
-            ))}
+            {visibleRows.map((row, index) => {
+              // Merge visual de seleccionadas contiguas (sin :has: cada fila
+              // vive en su wrapper y el scope de CSS Modules no lo resuelve).
+              const isSel = (r: (typeof visibleRows)[number]): boolean =>
+                r.kind === 'node' && selection.selected.has(r.node.path)
+              const mergeTop = isSel(row) && index > 0 && isSel(visibleRows[index - 1])
+              const mergeBottom =
+                isSel(row) && index < visibleRows.length - 1 && isSel(visibleRows[index + 1])
+              return (
+                <div
+                  key={row.node.path}
+                  className={[
+                    styles.rowSlot,
+                    mergeTop ? styles.rowSlotMergeTop : null,
+                    mergeBottom ? styles.rowSlotMergeBottom : null
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  style={{ transform: `translateY(${(windowed.start + index) * ROW_HEIGHT}px)` }}
+                >
+                  {renderRow(row)}
+                </div>
+              )
+            })}
           </div>
         ) : null}
 
-        {!workspace.isLoadingRoot && flat.length === 0 ? (
+        {!workspace.isLoadingRoot && visibleFlat.length === 0 ? (
           <div className={styles.empty}>
             <p className={styles.emptyText}>Carpeta vacía</p>
           </div>
@@ -683,6 +786,10 @@ export function ExplorerPanel(): JSX.Element {
         onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
       />
+
+      <ToolDockHostProvider hostId="explorer">
+        <ToolDock />
+      </ToolDockHostProvider>
     </div>
   )
 }

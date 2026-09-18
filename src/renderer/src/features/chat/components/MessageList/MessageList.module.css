@@ -1,68 +1,14 @@
-/* Contenedor del scroll custom: el rail es hermano de la lista (no hijo),
-   así no se desplaza con el contenido al scrollear. */
-.scrollWrap {
-  position: relative;
-  height: 100%;
-  min-height: 0;
-}
-
+/* Lista de mensajes del chat. El scroll es el global (réplica de Innerta):
+   12px, radio 3px, track tenue y pulgar con hover. Sin rail custom. */
 .list {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   height: 100%;
+  min-height: 0;
   overflow-y: auto;
-  /* Padding derecho extra: reserva un gutter para el scrollbar custom, así el
-     pulgar nunca se dibuja encima de los mensajes (los del usuario van
-     pegados a la derecha). El rail vive en x = ancho-8..ancho-2; el contenido
-     termina en ancho-12, dejando 4px de aire. */
-  padding: var(--space-1) 12px var(--space-1) var(--space-1);
-  /* Barra nativa oculta por completo: el scrollbar es custom (rail + pulgar). */
-  scrollbar-width: none;
-}
-
-.list::-webkit-scrollbar {
-  display: none;
-}
-
-/* Rail + pulgar overlay: invisibles por defecto; aparecen solo al pasar el
-   cursor por el lado derecho de la lista (clase toggleada por MessageList).
-   El rail deja pasar los eventos (pointer-events: none) para no bloquear el
-   hover/scroll de la lista. */
-.rail {
-  position: absolute;
-  top: var(--space-1);
-  bottom: var(--space-1);
-  right: 2px;
-  width: 6px;
-  pointer-events: none;
-  /* Aparición inmediata, sin animación (estética de la app). */
-  opacity: 0;
-}
-
-.railVisible {
-  opacity: 1;
-}
-
-.thumb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  border-radius: var(--radius-capsule);
-  background: var(--color-scrollbar);
-  cursor: grab;
-  /* Inactivo: no bloquea clics sobre el contenido del borde derecho. */
-  pointer-events: none;
-}
-
-/* Solo al estar visible se puede agarrar el pulgar. */
-.railVisible .thumb {
-  pointer-events: auto;
-}
-
-.thumb:active {
-  cursor: grabbing;
+  /* Padding izquierdo/inferior chico; el derecho lo aporta el scrollbar. */
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
 }
 
 /* Apila razonamiento + contenido de un mismo mensaje. */

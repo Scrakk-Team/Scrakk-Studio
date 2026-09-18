@@ -1,0 +1,18 @@
+{
+  "id": "catppuccin-latte",
+  "name": "Catppuccin Latte",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Catppuccin Latte — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "catppuccin-latte",
+        "name": "Catppuccin Latte",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

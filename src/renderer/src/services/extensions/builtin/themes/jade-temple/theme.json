@@ -1,0 +1,114 @@
+{
+  "name": "Jade Temple",
+  "type": "dark",
+  "colors": {
+    "bg": "#0e1612",
+    "surface": "#141e1a",
+    "border": "#223028",
+    "accent": "#00a86b",
+    "text": "#d8f0e0",
+    "textSecondary": "#98c0a8",
+    "textMuted": "#486858",
+    "error": "#d06058",
+    "warning": "#d0a048",
+    "success": "#00a86b",
+    "info": "#5898c0",
+    "scrollbarThumb": "#324038",
+    "scrollbarThumbHover": "#425048",
+    "indentGuide": "#1a2820",
+    "surfaceRaised": "#222c28",
+    "hover": "#303935",
+    "active": "#3e4643",
+    "accentHover": "#1ab17a",
+    "accentActive": "#2eb886",
+    "errorHover": "#d6736c",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#3d4942",
+    "editorBg": "#141e1a",
+    "panelBorder": "#223028"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#486858"
+    },
+    {
+      "scope": "string",
+      "foreground": "#80d8a0"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d0a048"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#00a86b"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#30c088"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#30c088"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#d8f0e0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#00a86b"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#30c088"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#78b8d8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#d8c078"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#d8c078"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#80d8a0"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#d8f0e0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#d89878"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#78b8d8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#d8c078"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#98c0a8"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d06058"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#00a86b",
+      "fontStyle": "bold"
+    }
+  ]
+}

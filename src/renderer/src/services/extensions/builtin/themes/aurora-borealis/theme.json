@@ -1,0 +1,73 @@
+{
+  "name": "Aurora Borealis",
+  "type": "dark",
+  "colors": {
+    "bg": "#0b132b",
+    "surface": "#1c2541",
+    "border": "#3a506b",
+    "accent": "#5bc0be",
+    "text": "#c5f9d7",
+    "textSecondary": "#6fffe9",
+    "textMuted": "#3a506b",
+    "error": "#ff6b6b",
+    "warning": "#feca57",
+    "success": "#1dd1a1",
+    "info": "#54a0ff",
+    "scrollbarThumb": "#3a506b",
+    "scrollbarThumbHover": "#4a607b",
+    "indentGuide": "#2a4050",
+    "surfaceRaised": "#2a324c",
+    "hover": "#373f58",
+    "active": "#454c63",
+    "accentHover": "#6bc6c4",
+    "accentActive": "#79cbca",
+    "errorHover": "#ff7d7d",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#52657d",
+    "editorBg": "#1c2541",
+    "panelBorder": "#3a506b"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#3a506b"
+    },
+    {
+      "scope": "string",
+      "foreground": "#1dd1a1"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#feca57"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#5bc0be"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#6fffe9"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#54a0ff"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#feca57"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#c5f9d7"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#5bc0be"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#6fffe9"
+    }
+  ]
+}

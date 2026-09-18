@@ -1,0 +1,18 @@
+{
+  "id": "sakura",
+  "name": "Sakura",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Sakura — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "sakura",
+        "name": "Sakura",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

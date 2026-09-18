@@ -1,0 +1,18 @@
+{
+  "id": "cyber-purple",
+  "name": "Cyber Purple",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Cyber Purple — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "cyber-purple",
+        "name": "Cyber Purple",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

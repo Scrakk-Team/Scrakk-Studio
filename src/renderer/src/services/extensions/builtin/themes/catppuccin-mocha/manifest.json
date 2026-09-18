@@ -1,0 +1,18 @@
+{
+  "id": "catppuccin-mocha",
+  "name": "Catppuccin Mocha",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Catppuccin Mocha — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "catppuccin-mocha",
+        "name": "Catppuccin Mocha",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

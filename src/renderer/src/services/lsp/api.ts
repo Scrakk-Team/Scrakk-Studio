@@ -13,6 +13,7 @@ import type {
   FileDiagnostics,
   LspDiagnostic,
   LspRequestResponse,
+  LspServerActionResult,
   LspServerStatus
 } from '@shared/lsp'
 import { getProblems } from './diagnosticsStore'
@@ -607,4 +608,16 @@ function flattenLocations(res: LspRequestResponse): Array<{ uri: string; range: 
     }
   }
   return out
+}
+
+// ── Acciones por server (modal LSP) ────────────────────────────────────────
+
+export async function lspRestartServer(serverName: string): Promise<LspServerActionResult> {
+  if (!window.api?.lsp) return { ok: false, error: 'sin puente LSP' }
+  return window.api.lsp.restartServer(serverName)
+}
+
+export async function lspInstallServer(serverName: string): Promise<LspServerActionResult> {
+  if (!window.api?.lsp) return { ok: false, error: 'sin puente LSP' }
+  return window.api.lsp.installServer(serverName)
 }

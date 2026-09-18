@@ -1,0 +1,18 @@
+{
+  "id": "opencode-ai",
+  "name": "OpenCode AI",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema OpenCode AI — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "opencode-ai",
+        "name": "OpenCode AI",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

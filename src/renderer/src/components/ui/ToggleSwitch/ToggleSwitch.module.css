@@ -1,0 +1,55 @@
+.track {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong, var(--color-border));
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised, var(--color-surface));
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.track:hover {
+  border-color: var(--color-accent);
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.track:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.track:disabled:hover {
+  border-color: var(--color-border-strong, var(--color-border));
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--color-text-muted);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.track.on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.track.on .thumb {
+  transform: translateX(16px);
+  background: var(--color-on-accent, #fff);
+}

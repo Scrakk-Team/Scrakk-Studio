@@ -1,0 +1,11 @@
+{
+  "binaryName": "scrakk-search",
+  "packageName": "scrakk-search-native",
+  "targets": ["x86_64-unknown-linux-gnu"],
+  "npmDir": "./native/search/npm",
+  "buildOutputDir": "./native/search",
+  "packageJson": {
+    "name": "scrakk-search-native",
+    "version": "0.1.0"
+  }
+}

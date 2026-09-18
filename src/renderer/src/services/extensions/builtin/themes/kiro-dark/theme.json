@@ -1,0 +1,130 @@
+{
+  "name": "Kiro Dark",
+  "type": "dark",
+  "colors": {
+    "bg": "#110d1a",
+    "surface": "#1a1525",
+    "border": "#2d2640",
+    "accent": "#a855f7",
+    "text": "#e8e4f0",
+    "textSecondary": "#9890a8",
+    "textMuted": "#6b6280",
+    "error": "#f85149",
+    "warning": "#d29922",
+    "success": "#3fb950",
+    "info": "#a78bfa",
+    "scrollbarThumb": "#3d3555",
+    "scrollbarThumbHover": "#524a6a",
+    "indentGuide": "#251f35",
+    "surfaceRaised": "#282332",
+    "hover": "#35313f",
+    "active": "#433f4c",
+    "accentHover": "#b166f8",
+    "accentActive": "#b874f8",
+    "errorHover": "#f9665f",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#464057",
+    "editorBg": "#1a1525",
+    "panelBorder": "#2d2640"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#7c7291"
+    },
+    {
+      "scope": "string",
+      "foreground": "#c4b5fd"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#a78bfa"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#e879f9"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e8e4f0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#c084fc"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#d8b4fe"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e879f9"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e879f9"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#a78bfa"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e8e4f0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#f0abfc"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#d8b4fe"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e879f9"
+    },
+    {
+      "scope": "support.type",
+      "foreground": "#e879f9"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#9890a8"
+    },
+    {
+      "scope": "meta.tag",
+      "foreground": "#6b6280"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#a78bfa"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#c084fc",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

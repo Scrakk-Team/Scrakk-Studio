@@ -1,0 +1,18 @@
+{
+  "id": "nebula-pink",
+  "name": "Nebula Pink",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Nebula Pink — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "nebula-pink",
+        "name": "Nebula Pink",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -2,10 +2,11 @@
    Explorer — combinación de estilos:
    estructura del Explorer de Scrakk Code Editor (filas 22px, indent guiado,
    chevrons, botón "…" en hover, zoom con Ctrl+wheel) + tokens y estética
-   de BorealChat (plano, cápsula, sin sombras ni glow).
+   de Scrakk Studio (plano, cápsula, sin sombras ni glow).
    ========================================================================== */
 
 .explorer {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -46,24 +47,8 @@
   backface-visibility: hidden;
 }
 
-/* Scrollbar fina, visible solo al hover del panel (patrón del Explorer fuente). */
-.tree::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.tree::-webkit-scrollbar-track {
-  background: transparent;
-}
-.tree::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 3px;
-}
-.explorer:hover .tree::-webkit-scrollbar-thumb {
-  background: var(--color-border-strong);
-}
-.explorer:hover .tree::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
+/* El scrollbar del árbol usa el estilo global (réplica de Innerta): 12px,
+   radio 3px, track al 6% y pulgar con hover. Acá no se sobreescribe. */
 
 /* ── Fila ─────────────────────────────────────────────────────────────── */
 
@@ -95,14 +80,16 @@
   background: color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
-/* Sin radios donde dos filas seleccionadas se tocan. */
-.row.selected:has(+ .row.selected) {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.row.selected + .row.selected {
+/* Sin radios donde dos filas seleccionadas se tocan. Cada .row vive en su
+   propio .rowSlot (virtualización): el panel marca mergeTop/mergeBottom en
+   el wrapper (ver ExplorerPanel), sin :has. */
+.rowSlotMergeTop > .row {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+.rowSlotMergeBottom > .row {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .row.dragging {
@@ -118,6 +105,17 @@
 /* Selección por lasso — clase aplicada via DOM directo (classList). */
 :global(.row-selected-lasso) {
   background: color-mix(in srgb, var(--color-accent) 14%, transparent) !important;
+}
+
+/* Merge del lasso durante el drag (contiguas): mismas reglas que el
+   post-commit, por classList directa. */
+:global(.row-selected-lasso.row-lasso-merge-top) {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+:global(.row-selected-lasso.row-lasso-merge-bottom) {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 .row.special {
@@ -146,6 +144,13 @@
 .row:hover .indentGuide,
 .row.selected .indentGuide {
   opacity: 0.85;
+}
+
+/* Guía ACTIVA: pertenece a la cadena del foco (hover o selección, estilo
+   VS Code). Neutra brillante — no accent — y solo mientras hay foco. */
+.indentGuideActive {
+  background: var(--color-text-muted);
+  opacity: 1;
 }
 
 /* Chevron de expandir. */
@@ -185,6 +190,18 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 400;
+}
+
+/* Badge de decoración (git, etc.): letra corta a la derecha del nombre. */
+.decoration {
+  flex-shrink: 0;
+  min-width: 14px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--color-text-muted);
+  user-select: none;
 }
 
 /* Botón "…" por fila: visible en hover o selección. */

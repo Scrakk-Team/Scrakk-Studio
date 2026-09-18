@@ -50,6 +50,14 @@ class ShortcutRegistry {
     }
   }
 
+  /** ¿Existe alguna acción registrada con este id? (tests/diagnostics). */
+  hasActionId(actionId: string): boolean {
+    for (const actions of this.actions.values()) {
+      if (actions.some((action) => action.id === actionId)) return true
+    }
+    return false
+  }
+
   getAll(): Array<{ combo: string; actions: ShortcutAction[] }> {
     return [...this.actions.entries()]
       .map(([combo, actions]) => ({ combo, actions }))
@@ -58,6 +66,9 @@ class ShortcutRegistry {
 
   private ensureListener(): void {
     if (this.keydownHandler) return
+    // Sin DOM (tests en node): registrar acciones funciona, el listener
+    // se conectará cuando exista window.
+    if (typeof window === 'undefined') return
     this.keydownHandler = (event: KeyboardEvent): void => {
       if (event.repeat) return
       const combo = eventToCombo(event)

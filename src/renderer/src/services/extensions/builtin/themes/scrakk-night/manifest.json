@@ -3,7 +3,7 @@
   "name": "Scrakk Night",
   "version": "0.1.0",
   "author": "Scrakk Studio",
-  "description": "Tema oscuro por defecto: negro puro + naranja suave. Colores idénticos al core (themes.css).",
+  "description": "Tema oscuro por defecto: negro puro + naranja suave. Se aplica vía el sistema de extensiones (sin CSS base hardcodeado).",
   "engine": ">=1.0.0",
   "contributes": {
     "themes": [

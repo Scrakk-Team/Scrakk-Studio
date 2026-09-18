@@ -1,0 +1,95 @@
+{
+  "name": "Catppuccin Mocha",
+  "type": "dark",
+  "colors": {
+    "bg": "#1e1e2e",
+    "surface": "#181825",
+    "border": "#313244",
+    "accent": "#cba6f7",
+    "text": "#cdd6f4",
+    "textSecondary": "#a6adc8",
+    "textMuted": "#6c7086",
+    "error": "#f38ba8",
+    "warning": "#fab387",
+    "success": "#a6e3a1",
+    "info": "#89b4fa",
+    "scrollbarThumb": "#45475a",
+    "scrollbarThumbHover": "#585b70",
+    "indentGuide": "#313244",
+    "iconColor": "var(--text-color)",
+    "surfaceRaised": "#262632",
+    "hover": "#34343f",
+    "active": "#42424c",
+    "accentHover": "#d0aff8",
+    "accentActive": "#d4b6f8",
+    "errorHover": "#f499b2",
+    "onAccent": "#000000",
+    "onError": "#000000",
+    "borderStrong": "#4a4b5a",
+    "editorBg": "#181825",
+    "panelBorder": "#313244"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6c7086",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a6e3a1"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#fab387"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#fab387"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#cba6f7"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#cba6f7"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#f9e2af"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#89b4fa"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#f9e2af"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#f9e2af"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#cdd6f4"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#89b4fa"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#cba6f7"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#f9e2af"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#94e2d5"
+    }
+  ]
+}

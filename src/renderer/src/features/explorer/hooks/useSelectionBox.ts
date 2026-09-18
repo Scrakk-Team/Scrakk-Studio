@@ -12,8 +12,41 @@
  *  - En mouseUp se commitea la selección final al state de React.
  */
 
-import { useCallback, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import { ROW_HEIGHT } from '../constants'
+
+/**
+ * Índices de filas que intersectan el rectángulo (matemática pura por
+ * altura fija, sin DOM). Exportada para tests.
+ */
+export function lassoRowRange(
+  rowCount: number,
+  y: number,
+  h: number
+): { firstRow: number; lastRow: number } {
+  return {
+    firstRow: Math.max(0, Math.floor(y / ROW_HEIGHT) - 2),
+    lastRow: Math.min(rowCount - 1, Math.ceil((y + h) / ROW_HEIGHT) + 2)
+  }
+}
+
+/**
+ * Paths intersectados por el rectángulo (matemática pura). Exportada para tests.
+ */
+export function lassoPaths(flatPaths: string[], rowCount: number, y: number, h: number): string[] {
+  const { firstRow, lastRow } = lassoRowRange(rowCount, y, h)
+  const sel: string[] = []
+  for (let i = firstRow; i <= lastRow; i++) {
+    if (i < flatPaths.length) {
+      const path = flatPaths[i]
+      const top = i * ROW_HEIGHT
+      if (top + ROW_HEIGHT >= y && top <= y + h) {
+        sel.push(path)
+      }
+    }
+  }
+  return sel
+}
 
 interface UseSelectionBoxOptions {
   /** Ref del contenedor scrolleable del árbol. */
@@ -44,6 +77,19 @@ export function useSelectionBox({
   const lastMousePos = useRef<{ x: number; y: number } | null>(null)
   const pendingPaths = useRef<string[]>([])
 
+  // Refs "latest": los listeners de window se enganchan UNA vez (estables),
+  // pero siempre leen los datos frescos del render actual. Sin esto, el
+  // drag usaría flatPaths/rowCount/onCommit del primer render (rancios tras
+  // cargar/expandir el árbol) y el commit seleccionaría mal o nada.
+  const flatPathsRef = useRef(flatPaths)
+  flatPathsRef.current = flatPaths
+  const rowCountRef = useRef(rowCount)
+  rowCountRef.current = rowCount
+  const onCommitRef = useRef(onCommit)
+  onCommitRef.current = onCommit
+  const onClearRef = useRef(onClear)
+  onClearRef.current = onClear
+
   const getRelativePos = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
       const el = containerRef.current
@@ -64,42 +110,56 @@ export function useSelectionBox({
       if (!el) return
 
       const { y, h } = boxState
+      const paths = lassoPaths(flatPathsRef.current, rowCountRef.current, y, h)
+      const sel = new Set(paths)
 
-      // Calcular paths que intersectan.
-      const sel = new Set<string>()
-      const firstRow = Math.max(0, Math.floor(y / ROW_HEIGHT) - 2)
-      const lastRow = Math.min(rowCount - 1, Math.ceil((y + h) / ROW_HEIGHT) + 2)
+      pendingPaths.current = paths
 
-      for (let i = firstRow; i <= lastRow; i++) {
-        if (i < flatPaths.length) {
-          const path = flatPaths[i]
-          const top = i * ROW_HEIGHT
-          if (top + ROW_HEIGHT >= y && top <= y + h) {
-            sel.add(path)
-          }
-        }
-      }
-
-      pendingPaths.current = [...sel]
+      // Merge visual DURANTE el drag (contiguas por índice): igual que el
+      // post-commit, pero por classList directa (cero React state).
+      const order = new Map<string, number>()
+      flatPathsRef.current.forEach((path, index) => {
+        if (!order.has(path)) order.set(path, index)
+      })
 
       // Actualizar clases directamente en el DOM (sin React state).
       const visibleRows = el.querySelectorAll('[data-row-path]')
       for (const row of visibleRows) {
         const path = (row as HTMLElement).dataset.rowPath
         if (path && sel.has(path)) {
+          const index = order.get(path) ?? -1
+          const list = flatPathsRef.current
           row.classList.add('row-selected-lasso')
+          row.classList.toggle(
+            'row-lasso-merge-top',
+            index > 0 && sel.has(list[index - 1])
+          )
+          row.classList.toggle(
+            'row-lasso-merge-bottom',
+            index >= 0 && sel.has(list[index + 1])
+          )
         } else {
           row.classList.remove('row-selected-lasso')
+          row.classList.remove('row-lasso-merge-top')
+          row.classList.remove('row-lasso-merge-bottom')
         }
       }
     },
-    [containerRef, rowCount, flatPaths]
+    [containerRef]
   )
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent): void => {
-      // Solo activar en mousedown directo del contenedor (fondo del árbol).
-      if (event.target !== event.currentTarget) return
+      // Lasso en CUALQUIER fondo del árbol (laterales, huecos, bajo las
+      // filas): solo se excluyen las filas (click/drag nativo propio) y los
+      // controles interactivos (botones, inputs).
+      const target = event.target instanceof Element ? event.target : null
+      if (!target) return
+      if (
+        target.closest('[data-row-path], button, input, textarea, select, a, [data-drag-ignore]')
+      ) {
+        return
+      }
       if (event.button !== 0) return
 
       event.preventDefault()
@@ -108,7 +168,7 @@ export function useSelectionBox({
       isDragging.current = true
 
       // Limpiar selección previa.
-      onClear()
+      onClearRef.current()
 
       // Mostrar y resetear el box via DOM directo.
       const box = boxRef.current
@@ -120,7 +180,7 @@ export function useSelectionBox({
         box.style.height = '0px'
       }
     },
-    [getRelativePos, boxRef, onClear]
+    [getRelativePos, boxRef]
   )
 
   const handleMouseMove = useCallback(
@@ -186,12 +246,14 @@ export function useSelectionBox({
     if (el) {
       el.querySelectorAll('.row-selected-lasso').forEach((row) => {
         row.classList.remove('row-selected-lasso')
+        row.classList.remove('row-lasso-merge-top')
+        row.classList.remove('row-lasso-merge-bottom')
       })
     }
 
     // Commitear selección final al state de React.
     if (pendingPaths.current.length > 0) {
-      onCommit(pendingPaths.current)
+      onCommitRef.current(pendingPaths.current)
       pendingPaths.current = []
     }
 
@@ -199,15 +261,18 @@ export function useSelectionBox({
       cancelAnimationFrame(rafRef.current)
       rafRef.current = null
     }
-  }, [boxRef, containerRef, onCommit])
+  }, [boxRef, containerRef])
 
-  // Listeners globales (solo se registran una vez).
-  const attachedRef = useRef(false)
-  if (!attachedRef.current) {
-    attachedRef.current = true
+  // Listeners globales estables (con cleanup: StrictMode-safe). Leen los
+  // refs latest, así el drag siempre usa el árbol actual.
+  useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
-  }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [handleMouseMove, handleMouseUp])
 
   return { handleMouseDown }
 }

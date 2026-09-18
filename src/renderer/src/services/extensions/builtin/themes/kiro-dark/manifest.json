@@ -1,0 +1,18 @@
+{
+  "id": "kiro-dark",
+  "name": "Kiro Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Kiro Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "kiro-dark",
+        "name": "Kiro Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+.tooldock {
+  /* Flotante sobre el contenido: NO reserva franja (nada de fondo atrás).
+     Los files pasan por debajo de la píldora, como el Scrakk viejo. */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  background: transparent;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Zona de drop del drag de la ActivityBar (detectada por closest()). */
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1px;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 4px 4px;
+  border: none;
+  /* Píldora pegada al fondo: solo las esquinas de ARRIBA redondeadas.
+     Mismo fondo que la statusbar (chrome, no surface-raised) y OPACO: antes
+     era un color-mix al 80% con transparent, así que el contenido se veía
+     a través de la píldora. */
+  border-radius: 8px 8px 0 0;
+  background: var(--statusbar-bg, var(--color-surface));
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.buttons.dropHover {
+  border-color: var(--color-accent, var(--color-text));
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.button:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+
+.button.active {
+  color: var(--color-accent, var(--color-text));
+  background: color-mix(in srgb, var(--color-accent, var(--color-text)) 14%, transparent);
+}
+
+.button.dragging {
+  opacity: 0.5;
+}
+
+.buttonSvg {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+}
+
+.panel {
+  /* Portal a document.body: fixed, ancla a la píldora via left/bottom inline,
+     centrado con translate. Ancho afectado por el panel host pero con aire
+     a los lados (no full-width). Sin sombra. */
+  position: fixed;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-bg);
+  overflow: hidden;
+  z-index: 99; /* sobre contenido de paneles, DEBAJO de Modal (100) y ContextMenu (9999) */
+  pointer-events: auto;
+}
+
+.panel.closing {
+  opacity: 0;
+  transform: translateX(-50%) translateY(6px);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  z-index: 2;
+  touch-action: none;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

@@ -1,0 +1,70 @@
+/* append_file card styles — injected via displayCss */
+.appfile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.appfile-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+}
+
+.appfile-card__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.appfile-card__badge.ok {
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  color: var(--color-accent);
+}
+
+.appfile-card__badge.err {
+  background: color-mix(in srgb, var(--color-danger) 20%, transparent);
+  color: var(--color-danger);
+}
+
+.appfile-card__path {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+}
+
+.appfile-card__lines {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  background: var(--color-hover);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+}
+
+.appfile-card__preview,
+.appfile-card__raw {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.appfile-card__raw {
+  color: var(--color-danger);
+  white-space: pre-wrap;
+}
+

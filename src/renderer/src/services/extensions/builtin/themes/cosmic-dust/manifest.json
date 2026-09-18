@@ -1,0 +1,18 @@
+{
+  "id": "cosmic-dust",
+  "name": "Cosmic Dust",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Cosmic Dust — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "cosmic-dust",
+        "name": "Cosmic Dust",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

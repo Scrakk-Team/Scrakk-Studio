@@ -1,0 +1,18 @@
+{
+  "id": "moonlit-silver",
+  "name": "Moonlit Silver",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Moonlit Silver — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "moonlit-silver",
+        "name": "Moonlit Silver",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

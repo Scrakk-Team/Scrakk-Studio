@@ -1,0 +1,18 @@
+{
+  "id": "pinterest-dark",
+  "name": "Pinterest Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Pinterest Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "pinterest-dark",
+        "name": "Pinterest Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

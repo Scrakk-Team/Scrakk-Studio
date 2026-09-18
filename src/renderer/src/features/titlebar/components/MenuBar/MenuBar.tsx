@@ -1,15 +1,15 @@
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type JSX,
   type KeyboardEvent
 } from 'react'
-import { Modal } from '@ui/Modal'
-import { ContextMenu, type ContextMenuItem } from '@ui'
-import { useLayout } from '@features/layout'
-import { closeFile, getEditorFiles, openFileInEditor } from '@features/editor'
+import { Modal, ContextMenu, type ContextMenuItem } from '@ui'
+import { isHistoryViewOpen, subscribeToHistoryView, toggleHistoryView, useLayout } from '@features/layout'
+import { getEditorFiles, openFileInEditor, requestCloseFile } from '@features/editor'
 import { setWorkspaceRoot } from '@features/explorer'
 import { useTheme } from '@core/theme/ThemeProvider'
 import styles from './MenuBar.module.css'
@@ -37,7 +37,12 @@ function baseNameOf(filePath: string): string {
  */
 export function MenuBar(): JSX.Element {
   const { theme, toggleTheme } = useTheme()
-  const { slots, toggleSlotPanel } = useLayout()
+  const { slots, toggleSlotPanel, openPanelTab } = useLayout()
+
+  // El historial ya no es un panel: es una vista dentro del chat. El menú
+  // Ver necesita su estado para el check, así que se suscribe al store.
+  const [historyOpen, setHistoryOpen] = useState(() => isHistoryViewOpen())
+  useEffect(() => subscribeToHistoryView(() => setHistoryOpen(isHistoryViewOpen())), [])
 
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null)
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null)
@@ -77,7 +82,8 @@ export function MenuBar(): JSX.Element {
 
   const closeActiveFile = useCallback((): void => {
     const { activePath } = getEditorFiles()
-    if (activePath) closeFile(activePath)
+    // Guardia dirty: ofrece Guardar/Cerrar sin guardar antes de tirar el buffer.
+    if (activePath) requestCloseFile(activePath)
   }, [])
 
   const menuDefinitions = useMemo<Record<MenuId, { label: string; items: ContextMenuItem[] }>>(() => {
@@ -144,9 +150,12 @@ export function MenuBar(): JSX.Element {
             onClick: () => toggleSlotPanel('right', 'chat')
           },
           {
-            label: 'Panel de historial',
-            checked: slots.right === 'history',
-            onClick: () => toggleSlotPanel('right', 'history')
+            label: 'Historial de chats',
+            checked: historyOpen,
+            onClick: () => {
+              openPanelTab('right', 'chat')
+              toggleHistoryView()
+            }
           },
           {
             label: 'Panel de explorador',
@@ -165,7 +174,17 @@ export function MenuBar(): JSX.Element {
         ]
       }
     }
-  }, [theme, toggleTheme, slots, toggleSlotPanel, openFilesViaDialog, openFolderViaDialog, closeActiveFile])
+  }, [
+    theme,
+    toggleTheme,
+    slots,
+    toggleSlotPanel,
+    openPanelTab,
+    historyOpen,
+    openFilesViaDialog,
+    openFolderViaDialog,
+    closeActiveFile
+  ])
 
   const handleButtonClick = (menuId: MenuId): void => {
     if (openMenu === menuId) {
@@ -239,6 +258,16 @@ export function MenuBar(): JSX.Element {
           </div>
         )
       })}
+      <div className={styles.menu}>
+        <button
+          type="button"
+          role="menuitem"
+          className={styles.button}
+          onClick={() => toggleSlotPanel('bottom', 'innerta-terminal')}
+        >
+          Terminal
+        </button>
+      </div>
 
       {openMenu && anchor ? (
         <ContextMenu

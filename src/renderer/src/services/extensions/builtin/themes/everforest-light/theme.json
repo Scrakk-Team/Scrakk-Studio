@@ -1,0 +1,78 @@
+{
+  "name": "Everforest Light",
+  "type": "light",
+  "colors": {
+    "bg": "#fdf6e3",
+    "surface": "#f4f0d9",
+    "border": "#d8d3ba",
+    "accent": "#8da101",
+    "text": "#5c6a72",
+    "textSecondary": "#708089",
+    "textMuted": "#939f91",
+    "error": "#f85552",
+    "warning": "#dfa000",
+    "success": "#8da101",
+    "info": "#3a94c5",
+    "scrollbarThumb": "#c4c8b0",
+    "scrollbarThumbHover": "#a4a890",
+    "indentGuide": "#e0dcc8",
+    "surfaceRaised": "#f5f1db",
+    "hover": "#f5f2de",
+    "active": "#f6f3e0",
+    "accentHover": "#98aa1a",
+    "accentActive": "#a2b22f",
+    "errorHover": "#f96967",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#ddd8c2",
+    "editorBg": "#f4f0d9",
+    "panelBorder": "#d8d3ba"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#939f91",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#8da101"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#df69ba"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#df69ba"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#f85552"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#35a77c"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#3a94c5"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#dfa000"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#5c6a72"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#e66868"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#708089"
+    }
+  ]
+}

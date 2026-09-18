@@ -1,0 +1,6 @@
+{
+  "id": "save",
+  "title": "Usa Ctrl+S para guardar",
+  "description": "Guarda el archivo activo del editor al instante sin ir al menú.",
+  "order": 10
+}

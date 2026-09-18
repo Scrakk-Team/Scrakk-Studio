@@ -8,6 +8,9 @@ import type { LlmApi } from './llm'
 import type { FsApi } from './fs'
 import type { ExtensionsApi } from './extensions'
 import type { LspApi } from './lsp'
+import type { UpdatesApi } from './updates'
+import type { AccountApi } from './account'
+import type { SocialApi } from './social'
 
 export const WINDOW_CONTROLS_IPC = {
   minimize: 'window-controls:minimize',
@@ -42,9 +45,27 @@ export interface WindowControlsApi {
   setTitleBarOverlay: (options: TitleBarOverlayOptions) => void
 }
 
+/** API de codificaciones expuesta al renderer. */
+export interface EncodingsApi {
+  readEncoded: (path: string) => Promise<
+    import('./encodings').ReadEncodedResponse
+  >
+  writeEncoded: (request: import('./encodings').WriteEncodedRequest) => Promise<
+    import('./encodings').WriteEncodedResult
+  >
+  list: () => Promise<import('./encodings').ListEncodingsResponse>
+  registerDynamic: (
+    extensionId: string,
+    codecs: import('./encodings').DynamicCodecPayload['codecs']
+  ) => Promise<import('./encodings').RegisterDynamicCodecsResponse>
+  removeDynamic: (extensionId: string) => Promise<{ success: boolean; removed?: string[] }>
+}
+
 /** API global que el preload expone en `window.api`. */
 export interface WindowApi {
   windowControls: WindowControlsApi
+  /** Capturas de pantalla (las hace el main: el canvas es WebGL). */
+  screenshot: import('./screenshot').ScreenshotApi
   /** Chat LLM por IPC: el fetch corre en el proceso main (sin CORS). */
   llm: LlmApi
   /** Filesystem: operaciones de archivo, proceso y búsqueda vía IPC. */
@@ -53,4 +74,16 @@ export interface WindowApi {
   extensions: ExtensionsApi
   /** LSP: servers, requests y diagnósticos (runtime en el proceso main). */
   lsp: LspApi
+  /** Actualizaciones del IDE vía GitHub Releases. */
+  updates: UpdatesApi
+  /** Codificaciones: leer/escribir con encoding + registro de codecs de extensiones. */
+  encodings: EncodingsApi
+  /** Terminal PTY: creado por la extensión innerta-bridge, renderizado por Innerta view. */
+  terminal: import('./terminal').TerminalApi
+  /** Git real: comandos capados en main, parsers compartidos. */
+  git: import('./git').GitApi
+  /** Cuenta Scrakk (login compartido con el CLI): email+password vía IPC. */
+  account: AccountApi
+  /** Social real: amigos + mensajes directos con Realtime. */
+  social: SocialApi
 }

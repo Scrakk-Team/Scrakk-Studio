@@ -1,0 +1,6 @@
+{
+  "id": "split",
+  "title": "Arrastra archivos para dividir el editor",
+  "description": "Trabaja con múltiples archivos lado a lado arrastrando pestañas a los bordes.",
+  "order": 30
+}

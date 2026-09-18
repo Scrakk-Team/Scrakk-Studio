@@ -1,0 +1,18 @@
+{
+  "id": "crimson-shadow",
+  "name": "Crimson Shadow",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Crimson Shadow — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "crimson-shadow",
+        "name": "Crimson Shadow",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

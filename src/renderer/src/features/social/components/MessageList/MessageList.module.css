@@ -1,0 +1,99 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  /* El aire va adentro (el scroller llega al borde del panel: ver SocialPanel
+     .messages full-bleed), y el gutter queda simétrico con el padding. */
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  scrollbar-gutter: stable;
+  contain: layout style;
+  will-change: scroll-position;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  contain: layout style;
+}
+
+/* Separador de día: píldora centrada. */
+.day {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-1) 0;
+}
+
+.dayPill {
+  padding: 2px 10px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.typing {
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.placeholder {
+  display: flex;
+  gap: 12px;
+  padding: 8px 12px;
+  opacity: 0.7;
+}
+
+.phAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-hover);
+  flex-shrink: 0;
+  animation: shimmer 1.2s infinite;
+}
+
+.phContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.phLine {
+  height: 10px;
+  background: var(--color-hover);
+  border-radius: 4px;
+  animation: shimmer 1.2s infinite;
+}
+
+.phLine:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.empty {
+  margin: auto;
+  padding: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}

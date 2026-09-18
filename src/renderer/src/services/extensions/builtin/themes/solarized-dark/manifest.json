@@ -1,0 +1,18 @@
+{
+  "id": "solarized-dark",
+  "name": "Solarized Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Solarized Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "solarized-dark",
+        "name": "Solarized Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

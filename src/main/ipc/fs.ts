@@ -5,6 +5,7 @@ import * as path from 'path'
 import { exec as execCb } from 'child_process'
 import { promisify } from 'util'
 import * as os from 'node:os'
+import { tryNativeSearchFiles, tryNativeGrep, ensureWatch } from '../search/nativeSearch'
 import {
   FS_IPC,
   type ReadFileRequest,
@@ -308,6 +309,14 @@ export function registerFsIpc(): void {
   // ── Search Files ───────────────────────────────────────────────────────
   ipcMain.handle(FS_IPC.searchFiles, async (_event, request: unknown): Promise<SearchFilesResponse> => {
     const req = request as SearchFilesRequest
+    ensureWatch(req.root)
+    // Vía nativa (Rust ignore-walk) si disponible; fallback al scan TS.
+    try {
+      const native = tryNativeSearchFiles(req.root, req.query, req.maxResults ?? 20)
+      if (native) return { success: true, results: native }
+    } catch {
+      // Fallback abajo.
+    }
     try {
       const maxResults = req.maxResults ?? 20
       const results: Array<{ path: string; name: string; isDirectory: boolean }> = []
@@ -360,6 +369,14 @@ export function registerFsIpc(): void {
   // ── Search In Files (grep) ────────────────────────────────────────────
   ipcMain.handle(FS_IPC.searchInFiles, async (_event, request: unknown): Promise<SearchInFilesResponse> => {
     const req = request as SearchInFilesRequest
+    ensureWatch(req.root)
+    // Vía nativa (tgrep trigram + rayon) si disponible; fallback al scan TS.
+    try {
+      const native = tryNativeGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)
+      if (native) return { success: true, matches: native }
+    } catch {
+      // Fallback abajo.
+    }
     try {
       const maxResults = req.maxResults ?? 50
       const matches: GrepMatch[] = []

@@ -1,0 +1,234 @@
+/* Barra del strip: tabs con scroll + botón ⋯ fijo a la derecha. */
+.strip {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  flex-shrink: 0;
+}
+
+.tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--space-2) 0 calc(var(--space-2) - 4px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  touch-action: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.tab:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.tab svg {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Botón de cerrar de las tabs: cuadrado con esquinas levemente
+   redondeadas, centrado y contenido dentro del alto de la tab. */
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  margin-right: -7px;
+  border-radius: 5px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.close:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Punto dirty (archivo con cambios sin guardar): ocupa el lugar de la X y
+   revela la X al hover — convención VS Code. El punto SOLO existe dentro de
+   .closeDirty (el span SIEMPRE se renderiza: oculto por acá, no por React). */
+.dirtyDot {
+  display: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text);
+  flex-shrink: 0;
+}
+
+.closeDirty .dirtyDot {
+  display: block;
+}
+
+.closeDirty svg {
+  display: none;
+}
+
+.closeDirty:hover svg {
+  display: block;
+}
+
+.closeDirty:hover .dirtyDot {
+  display: none;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cadena de la tab dueña (índice 0): los íconos del resto de las tabs del
+   strip unidos por ⇄. Decorativo: muteado, más chico, sin interacción. */
+.chainSep {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  opacity: 0.65;
+  margin: 0 1px;
+  flex-shrink: 0;
+}
+
+.chainItem {
+  color: var(--color-text-muted);
+  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tab activa: mismo fondo del hover + texto pleno + indicador de acento. */
+.tabActive {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: -4px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* Tab siendo arrastrada: fondo opaco para no dejar ver la tab de atrás. */
+.tabDragging {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Botón ⋯ de opciones de la tab activa: fijo a la derecha del strip,
+   mismo lenguaje que el cerrar de tabs. Solo aparece si la tab activa
+   publicó acciones de header. */
+.overflow,
+.addTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: var(--space-1);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.overflow:hover,
+.addTab:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Contenedor derecho de acciones custom (máx 4): fijo al final del strip,
+   mismo lenguaje que ⋯ y +. Solo existe si el caller pasa `actions`. */
+.stripActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-right: var(--space-1);
+  padding-left: 2px;
+  border-left: 1px solid var(--color-border);
+}
+
+.stripAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.stripAction:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.stripAction:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Indicador de inserción del drag & drop entre tabs. */
+.gap {
+  width: 3px;
+  min-width: 3px;
+  align-self: stretch;
+  margin: 4px 0;
+  border-radius: 2px;
+  background: var(--color-accent);
+  pointer-events: none;
+  flex-shrink: 0;
+}

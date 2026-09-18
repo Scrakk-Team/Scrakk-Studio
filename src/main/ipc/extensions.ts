@@ -15,10 +15,21 @@ import {
   type InstallSefRequest,
   type InstallSefResponse,
   type InstalledExtensionInfo,
+  type InstallVsixRequest,
+  type InstallVsixResponse,
+  type PickVsixResponse,
   type UninstallRequest,
   type UninstallResponse,
-  type PickSefResponse
+  type PickSefResponse,
+  type DynamicTokenizeRequest,
+  type DynamicTokenizeResult,
+  type TokenizeRequest,
+  type TokenizeResult,
+  type ExtensionSource
 } from '@shared/extensions'
+import { convertVsix } from '@shared/compatibility'
+import { tokenizeText } from '../extensions/tokenize'
+import { treeSitterManager } from '../extensions/treeSitter/manager'
 
 const EXTENSION_ID_RE = /^[a-z0-9][a-z0-9._-]*$/i
 
@@ -71,14 +82,41 @@ function parseSef(buffer: Uint8Array): ParsedSef {
   return { manifest, id, files }
 }
 
-function manifestInfo(dir: string, manifest: Record<string, unknown>): InstalledExtensionInfo {
+function manifestInfo(
+  dir: string,
+  manifest: Record<string, unknown>,
+  extra?: { source?: ExtensionSource; coverage?: number }
+): InstalledExtensionInfo {
   return {
     id: String(manifest.id),
     name: String(manifest.name ?? manifest.id),
     version: String(manifest.version ?? '0.0.0'),
     author: typeof manifest.author === 'string' ? manifest.author : undefined,
-    dir
+    dir,
+    source: extra?.source ?? 'sef',
+    coverage: extra?.coverage
   }
+}
+
+/** Versión del traductor — bump al mejorar conversiones; fuerza re-instalación. */
+const COMPAT_TRANSLATOR_VERSION = 3
+
+/** Lee el sidecar .source.json (procedencia del traductor) si existe. */
+async function readSourceSidecar(dir: string): Promise<{ source?: ExtensionSource; coverage?: number; translator?: number }> {
+  try {
+    const raw = await fs.readFile(path.join(dir, '.source.json'), 'utf-8')
+    const parsed = JSON.parse(raw) as { source?: ExtensionSource; coverage?: number; translator?: number }
+    if (parsed.source === 'vscode' || parsed.source === 'zed' || parsed.source === 'sef') {
+      return {
+        source: parsed.source,
+        coverage: typeof parsed.coverage === 'number' ? parsed.coverage : undefined,
+        translator: typeof parsed.translator === 'number' ? parsed.translator : undefined
+      }
+    }
+  } catch {
+    // Sin sidecar: es un .sef nativo.
+  }
+  return { source: 'sef' }
 }
 
 export function registerExtensionsIpc(): void {
@@ -103,6 +141,61 @@ export function registerExtensionsIpc(): void {
         }
 
         return { success: true, extension: manifestInfo(targetDir, parsed.manifest) }
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) }
+      }
+    }
+  )
+
+  ipcMain.handle(
+    EXTENSIONS_IPC.installVsix,
+    async (_event, request: InstallVsixRequest): Promise<InstallVsixResponse> => {
+      try {
+        const buffer = await fs.readFile(request.path)
+        const converted = convertVsix(new Uint8Array(buffer))
+
+        const root = await extensionsRoot()
+        const targetDir = path.join(root, converted.id)
+        await fs.rm(targetDir, { recursive: true, force: true })
+        await fs.mkdir(targetDir, { recursive: true })
+
+        for (const [relative, data] of converted.files) {
+          const normalized = path.normalize(relative)
+          if (normalized.includes('..') || path.isAbsolute(normalized)) continue
+          const target = path.join(targetDir, relative)
+          await fs.mkdir(path.dirname(target), { recursive: true })
+          await fs.writeFile(target, data as Uint8Array | string)
+        }
+        await fs.writeFile(
+          path.join(targetDir, '.source.json'),
+          JSON.stringify({
+            source: 'vscode',
+            coverage: converted.report.coverage,
+            translator: COMPAT_TRANSLATOR_VERSION,
+            // Para re-traducir sin el .vsix original guardado.
+            originalPath: request.path
+          })
+        )
+
+        const manifest = converted.manifest as Record<string, unknown>
+        const contributes = manifest.contributes as Record<string, unknown> | undefined
+        const countOf = (key: string): number =>
+          Array.isArray(contributes?.[key]) ? (contributes?.[key] as unknown[]).length : 0
+        return {
+          success: true,
+          extension: manifestInfo(targetDir, manifest, {
+            source: 'vscode',
+            coverage: converted.report.coverage
+          }),
+          compat: {
+            coverage: converted.report.coverage,
+            warning: converted.report.warning,
+            translatedFileIcons: countOf('fileIcons'),
+            translatedThemes: countOf('themes'),
+            translatedProductIcons: countOf('productIcons'),
+            requiresNode: converted.report.requiresNode
+          }
+        }
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) }
       }
@@ -135,7 +228,7 @@ export function registerExtensionsIpc(): void {
           await fs.readFile(path.join(dir, 'manifest.json'), 'utf-8')
         ) as Record<string, unknown>
         if (typeof manifest.id !== 'string') continue
-        installed.push(manifestInfo(dir, manifest))
+        installed.push(manifestInfo(dir, manifest, await readSourceSidecar(dir)))
       } catch {
         // Carpeta sin manifest válido: se ignora.
       }
@@ -156,4 +249,114 @@ export function registerExtensionsIpc(): void {
     }
     return { success: true, path: result.filePaths[0] }
   })
+
+  ipcMain.handle(EXTENSIONS_IPC.pickVsix, async (): Promise<PickVsixResponse> => {
+    const result = await dialog.showOpenDialog({
+      title: 'Instalar extensión VS Code (.vsix)',
+      properties: ['openFile'],
+      filters: [{ name: 'VS Code Extension', extensions: ['vsix', 'zip'] }]
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return { success: false }
+    }
+    return { success: true, path: result.filePaths[0] }
+  })
+
+  /**
+   * Re-traduce las extensiones VSIX viejas cuyo traductor cambió (misma
+   * API que installVsix, pero recorre userData). Requiere el .vsix original
+   * en su path guardado; si ya no existe, se salta (la versión materializada
+   * sigue funcionando con el convertidor con el que nació).
+   */
+  ipcMain.handle(
+    EXTENSIONS_IPC.retranslateVsix,
+    async (): Promise<{ success: boolean; updated: string[]; skipped: string[] }> => {
+      const root = await extensionsRoot()
+      const entries = await fs.readdir(root, { withFileTypes: true })
+      const updated: string[] = []
+      const skipped: string[] = []
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        const dir = path.join(root, entry.name)
+        const meta = await readSourceSidecar(dir)
+        if (meta.source !== 'vscode' || meta.translator === COMPAT_TRANSLATOR_VERSION) continue
+        try {
+          const sidecar = JSON.parse(
+            await fs.readFile(path.join(dir, '.source.json'), 'utf-8')
+          ) as { originalPath?: string }
+          if (!sidecar.originalPath) {
+            skipped.push(entry.name)
+            continue
+          }
+          await fs.access(sidecar.originalPath)
+          const buffer = await fs.readFile(sidecar.originalPath)
+          const converted = convertVsix(new Uint8Array(buffer))
+          if (converted.id !== entry.name) {
+            skipped.push(entry.name)
+            continue
+          }
+          await fs.rm(dir, { recursive: true, force: true })
+          await fs.mkdir(dir, { recursive: true })
+          for (const [relative, data] of converted.files) {
+            const normalized = path.normalize(relative)
+            if (normalized.includes('..') || path.isAbsolute(normalized)) continue
+            const target = path.join(dir, relative)
+            await fs.mkdir(path.dirname(target), { recursive: true })
+            await fs.writeFile(target, data as Uint8Array | string)
+          }
+          await fs.writeFile(
+            path.join(dir, '.source.json'),
+            JSON.stringify({
+              source: 'vscode',
+              coverage: converted.report.coverage,
+              translator: COMPAT_TRANSLATOR_VERSION,
+              originalPath: sidecar.originalPath
+            })
+          )
+          updated.push(entry.name)
+        } catch {
+          skipped.push(entry.name)
+        }
+      }
+      return { success: true, updated, skipped }
+    }
+  )
+
+  /**
+   * Tokenizado con la gramática TextMate de una extensión de lenguaje.
+   *
+   * El renderer manda las rutas; el main verifica que estén dentro del
+   * directorio de extensiones antes de leerlas (una ruta que viene de un
+   * manifest es dato de terceros) y cachea gramática + registry.
+   */
+  ipcMain.handle(
+    EXTENSIONS_IPC.tokenize,
+    async (_event, request: TokenizeRequest): Promise<TokenizeResult> =>
+      tokenizeText(request)
+  )
+
+  /**
+   * Tokenizado con el parser tree-sitter del PAQUETE (proceso aparte).
+   *
+   * El manager verifica rutas y sha256 antes de mandar nada al worker, así que
+   * acá no hay nada que validar: si el pedido es inválido, el error sale del
+   * manager y el renderer lo reporta como "este lenguaje no resalta".
+   */
+  ipcMain.handle(
+    EXTENSIONS_IPC.tokenizeDynamic,
+    async (_event, request: DynamicTokenizeRequest): Promise<DynamicTokenizeResult> => {
+      try {
+        return await treeSitterManager.tokenize(request)
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : String(error),
+          scopeSets: [],
+          tokens: [],
+          applied: [],
+          failed: []
+        }
+      }
+    }
+  )
 }

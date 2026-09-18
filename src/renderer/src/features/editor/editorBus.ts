@@ -99,6 +99,26 @@ export function moveFileTab(from: number, to: number): void {
   emit()
 }
 
+/**
+ * Reordena openFiles a un orden dado (drag de tabs en el strip central):
+ * las rutas dadas quedan en ese orden y el resto (archivos abiertos en
+ * otros strips) se mantiene al final conservando su orden relativo.
+ */
+export function reorderOpenFilesTo(pathsInOrder: string[]): void {
+  const remaining = state.openFiles.filter((file) => !pathsInOrder.includes(file.path))
+  const ordered: EditorFileTab[] = []
+  for (const path of pathsInOrder) {
+    const file = state.openFiles.find((f) => f.path === path)
+    if (file) ordered.push(file)
+  }
+  const next = [...ordered, ...remaining]
+  if (next.length !== state.openFiles.length) return
+  const same = next.every((file, index) => state.openFiles[index]?.path === file.path)
+  if (same) return
+  state.openFiles = next
+  emit()
+}
+
 /** Snapshot actual. */
 export function getEditorFiles(): EditorFilesState {
   return { openFiles: [...state.openFiles], activePath: state.activePath }

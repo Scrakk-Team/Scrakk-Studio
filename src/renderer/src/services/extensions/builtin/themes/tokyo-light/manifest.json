@@ -1,0 +1,18 @@
+{
+  "id": "tokyo-light",
+  "name": "Tokyo Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Tokyo Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "tokyo-light",
+        "name": "Tokyo Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

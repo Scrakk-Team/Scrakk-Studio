@@ -2,8 +2,13 @@
   display: flex;
   align-items: center;
   height: var(--titlebar-height);
-  background: var(--color-surface);
+  background: var(--titlebar-bg, var(--color-surface));
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
   flex-shrink: 0;
+  /* Temas flat (chrome monocromo): borde inferior hacia los slots. Solo
+     existe cuando el tema lo define (--chrome-border); si no, transparente. */
+  border-bottom: 1px solid var(--chrome-border, transparent);
   /* Región de drag: se puede mover la ventana desde acá. */
   -webkit-app-region: drag;
 }
@@ -24,7 +29,33 @@
 .trailing {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-1);
+  flex: 0 0 auto;
+  min-width: 0;
   /* Controles interactivos fuera de la región de drag. */
   -webkit-app-region: no-drag;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 100%;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+/* Zona central: ocupa TODO el espacio libre entre los menús (izq) y los
+   botones nativos de ventana (der, ya excluidos del ancho por
+   titlebar-area-width). El widget se centra en ese espacio, con gaps
+   simétricos a ambos lados. */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }

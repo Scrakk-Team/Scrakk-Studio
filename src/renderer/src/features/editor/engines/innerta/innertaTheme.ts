@@ -18,7 +18,9 @@ export interface ThemeToken {
   fontStyle?: string
 }
 
-/** #rrggbb | #rrggbbaa | #rgb | rgb()/rgba() → 0xRRGGBBFF (innerta ColorFromRGBA). */
+/** #rrggbb | #rrggbbaa | #rgb | rgb()/rgba() → 0xRRGGBBAA (innerta ColorFromRGBA).
+ * El alpha SE CONSERVA (float 0-1 o %): el engine limpia con ese alpha y el
+ * canvas compone sobre el fondo (glassmorphism). Antes se forzaba 0xff. */
 export function colorToRgba(color: string | undefined): number {
   if (!color) return 0x000000ff
   const s = color.trim().toLowerCase()
@@ -39,9 +41,31 @@ export function colorToRgba(color: string | undefined): number {
     const r = Math.round(Number(m[1]))
     const g = Math.round(Number(m[2]))
     const b = Math.round(Number(m[3]))
-    return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) | 0xff
+    let a = 255
+    if (m[4] !== undefined) {
+      const raw = m[4]
+      const parsed = raw.endsWith('%') ? (parseFloat(raw) / 100) * 255 : parseFloat(raw) * 255
+      a = Number.isFinite(parsed) ? Math.max(0, Math.min(255, Math.round(parsed))) : 255
+    }
+    return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) | (a & 0xff)
   }
   return 0xffffffff
+}
+
+/**
+ * 0xRRGGBBAA → `rgba(r, g, b, a)`.
+ *
+ * La vuelta de `colorToRgba`, para la UI que necesita MOSTRAR el color que el
+ * motor va a pintar (panel de inspección de tokens): sin esto habría dos
+ * conversiones distintas viviendo en paralelo y la UI podría mostrar un color
+ * que no es el del canvas.
+ */
+export function rgbaToCss(value: number): string {
+  const r = (value >>> 24) & 0xff
+  const g = (value >>> 16) & 0xff
+  const b = (value >>> 8) & 0xff
+  const a = (value & 0xff) / 255
+  return `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`
 }
 
 function cssVar(root: CSSStyleDeclaration, name: string): string | undefined {
@@ -98,7 +122,15 @@ export function resolveTokenSlots(tokens: ThemeToken[] | undefined): Array<[numb
   return Array.from(out.entries())
 }
 
-function readStoredTokens(): ThemeToken[] | undefined {
+/**
+ * tokenColors del tema ACTIVO (los persiste el theme-applier).
+ *
+ * Público porque además de pintar los 15 campos del motor, el tema tiene que
+ * entrar como REGLAS al resolutor de scopes de las gramáticas de extensión
+ * (ver `themeTokenRules.ts`): un tema que distingue `comment.line` de
+ * `comment.block` merece que la gramática respete esa distinción.
+ */
+export function readActiveThemeTokens(): ThemeToken[] | undefined {
   try {
     const raw = localStorage.getItem(TOKEN_STORAGE_KEY)
     if (!raw) return undefined
@@ -113,7 +145,7 @@ function readStoredTokens(): ThemeToken[] | undefined {
  * Aplica el theme activo de Scrakk al módulo Innerta ya listo.
  * Se llama al conectar el engine y ante cada evento 'theme-changed'.
  *
- * Prioridad de vars: primero el sistema core de BorealChat (--color-*,
+ * Prioridad de vars: primero el sistema core de Scrakk Studio (--color-*,
  * aplicado por ThemeProvider via data-theme), luego el legacy de Scrakk
  * (--tree-color/--bg-color/… aplicado por theme-applier si está activo).
  */
@@ -158,7 +190,7 @@ export function applyInnertaTheme(module: InnertaModule): void {
   module.setTextMutedColor(colorToRgba(muted))
   module.setIndentGuideColor(colorToRgba(indentGuide))
 
-  for (const [slot, color] of resolveTokenSlots(readStoredTokens())) {
+  for (const [slot, color] of resolveTokenSlots(readActiveThemeTokens())) {
     module.setTokenColor(slot, color)
   }
 }

@@ -1,0 +1,18 @@
+{
+  "id": "sepia-light",
+  "name": "Sepia",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Sepia — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "sepia-light",
+        "name": "Sepia",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

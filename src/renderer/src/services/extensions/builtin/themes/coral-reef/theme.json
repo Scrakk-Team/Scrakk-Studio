@@ -1,0 +1,114 @@
+{
+  "name": "Coral Reef",
+  "type": "dark",
+  "colors": {
+    "bg": "#141618",
+    "surface": "#1c1e22",
+    "border": "#2c3038",
+    "accent": "#ff7f50",
+    "text": "#f0e8e0",
+    "textSecondary": "#b8a8a0",
+    "textMuted": "#606058",
+    "error": "#e05858",
+    "warning": "#e0a048",
+    "success": "#58b888",
+    "info": "#58a0c8",
+    "scrollbarThumb": "#3c4048",
+    "scrollbarThumbHover": "#4c5058",
+    "indentGuide": "#242830",
+    "surfaceRaised": "#2a2c2f",
+    "hover": "#37393d",
+    "active": "#45464a",
+    "accentHover": "#ff8c62",
+    "accentActive": "#ff9670",
+    "errorHover": "#e46c6c",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#454950",
+    "editorBg": "#1c1e22",
+    "panelBorder": "#2c3038"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#606058"
+    },
+    {
+      "scope": "string",
+      "foreground": "#88d0a8"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#e0a048"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#ff7f50"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff9870"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#ff9870"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#f0e8e0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#ff7f50"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#ff9870"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#78b8e0"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#88d0a8"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f0e8e0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e8a080"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#78b8e0"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e8c880"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#b8a8a0"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#e05858"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#ff7f50",
+      "fontStyle": "bold"
+    }
+  ]
+}

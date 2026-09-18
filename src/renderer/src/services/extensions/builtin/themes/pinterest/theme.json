@@ -1,0 +1,165 @@
+{
+  "name": "Pinterest",
+  "type": "light",
+  "colors": {
+    "bg": "#ffffff",
+    "surface": "#faf9f6",
+    "border": "#e5e5e0",
+    "accent": "#e60023",
+    "text": "#211922",
+    "textSecondary": "#62625b",
+    "textMuted": "#91918c",
+    "error": "#9e0a0a",
+    "warning": "#7e238b",
+    "success": "#103c25",
+    "info": "#2b48d4",
+    "scrollbarThumb": "#e5e5e0",
+    "scrollbarThumbHover": "#bcbcb3",
+    "indentGuide": "#e5e5e0",
+    "surfaceRaised": "#faf9f7",
+    "hover": "#fbfaf7",
+    "active": "#fbfaf8",
+    "accentHover": "#e81a39",
+    "accentActive": "#ea2e4b",
+    "errorHover": "#aa2727",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#e8e8e4",
+    "editorBg": "#faf9f6",
+    "panelBorder": "#e5e5e0"
+  },
+  "fonts": {
+    "ui": {
+      "family": "Plus Jakarta Sans",
+      "source": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
+      "size": "13px",
+      "weight": "500",
+      "lineHeight": "1.4"
+    },
+    "editor": {
+      "family": "JetBrains Mono",
+      "source": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+      "size": "13px",
+      "lineHeight": "1.5"
+    },
+    "terminal": {
+      "family": "JetBrains Mono, monospace",
+      "size": "12.5px"
+    },
+    "heading": {
+      "family": "Plus Jakarta Sans",
+      "weight": "700",
+      "size": "15px"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#91918c",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#103c25"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#7e238b"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#7e238b"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#e60023",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#211922"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#6845ab",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#2b48d4"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#e60023"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#6845ab"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#211922"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#62625b"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#211922"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#62625b"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#e60023",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

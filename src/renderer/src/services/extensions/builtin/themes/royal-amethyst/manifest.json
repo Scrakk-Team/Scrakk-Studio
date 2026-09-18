@@ -1,0 +1,18 @@
+{
+  "id": "royal-amethyst",
+  "name": "Royal Amethyst",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Royal Amethyst — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "royal-amethyst",
+        "name": "Royal Amethyst",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

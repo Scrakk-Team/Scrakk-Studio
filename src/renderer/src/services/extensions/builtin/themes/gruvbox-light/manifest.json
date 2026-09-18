@@ -1,0 +1,18 @@
+{
+  "id": "gruvbox-light",
+  "name": "Gruvbox Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Gruvbox Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "gruvbox-light",
+        "name": "Gruvbox Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

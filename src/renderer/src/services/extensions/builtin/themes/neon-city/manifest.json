@@ -1,0 +1,18 @@
+{
+  "id": "neon-city",
+  "name": "Neon City",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Neon City — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "neon-city",
+        "name": "Neon City",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

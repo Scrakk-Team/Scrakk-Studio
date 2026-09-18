@@ -1,0 +1,6 @@
+{
+  "id": "palette",
+  "title": "Ctrl+Shift+P abre la paleta de comandos",
+  "description": "Accede a todas las funciones de Scrakk escribiendo lo que necesitas hacer.",
+  "order": 20
+}

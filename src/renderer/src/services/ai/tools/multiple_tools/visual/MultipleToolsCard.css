@@ -1,0 +1,51 @@
+/* multiple_tools card styles — injected via displayCss */
+.multitools-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.multitools-card__meta {
+  display: flex;
+  align-items: center;
+}
+
+.multitools-card__meta .multiread-count,
+.multitools-card__meta > span:first-child {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  background: var(--color-hover);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+}
+
+.multitools-card__list {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.multitools-card__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.multitools-card__index {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  min-width: 12px;
+}
+
+.multitools-card__name {
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+

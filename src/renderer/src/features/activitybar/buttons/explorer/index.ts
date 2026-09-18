@@ -1,11 +1,11 @@
 import type { ActivityBarButton } from '../../types'
-import { FolderIcon } from '@proicons/react'
+import { productIcon } from '@services/productIcons/components'
 
 /** Botón del explorador de archivos — barra izquierda, slot izquierdo. */
 const explorer: ActivityBarButton = {
   id: 'explorer',
   label: 'Explorador',
-  icon: FolderIcon,
+  icon: productIcon('files'),
   side: 'left',
   target: 'left',
   panelId: 'explorer',

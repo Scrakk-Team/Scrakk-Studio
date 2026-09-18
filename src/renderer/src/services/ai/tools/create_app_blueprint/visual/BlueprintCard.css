@@ -1,0 +1,62 @@
+/* create_app_blueprint card styles — injected via displayCss */
+.bp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bp-card__meta {
+  display: flex;
+  align-items: center;
+}
+
+.bp-card__name {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bp-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bp-card__label {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bp-card__list {
+  margin: 0;
+  padding: 0 0 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bp-card__item {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+.bp-card__item.muted {
+  color: var(--color-text-muted);
+}
+
+.bp-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.bp-card__chip {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  background: var(--color-hover);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+}
+

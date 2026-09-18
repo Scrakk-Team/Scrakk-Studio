@@ -7,6 +7,7 @@
  */
 
 import { setLspWorkspace } from './api'
+import { initDisabledServers } from './disabledServers'
 
 export * from './api'
 export {
@@ -15,9 +16,32 @@ export {
   getProblems,
   clearStoredDiagnostics,
   subscribeToDiagnostics,
-  type StoredFileDiagnostics
+  countProblems,
+  severityOf,
+  applyExtensionDiagnostics,
+  dropExtensionDiagnostics,
+  type StoredFileDiagnostics,
+  type DiagnosticsSourceKind,
+  type ProblemCounts
 } from './diagnosticsStore'
 export { formatLspDiagnosticsBlock, lspAfterEdit } from './format'
+export {
+  DIAGNOSTICS_SOURCE_PREFIX,
+  diagnosticHoverText,
+  diagnosticsAt,
+  diagnosticsToDecorations,
+  initDiagnosticsDecorations,
+  refreshDiagnosticsDecorations
+} from './decorations'
+export { hoverContentsToText, markedStringToText } from './hover'
+export { initLspFileSync, notifyLspDocumentSaved } from './fileSync'
+export {
+  getDisabledServers,
+  initDisabledServers,
+  isServerDisabled,
+  setServerDisabled,
+  subscribeToDisabledServers
+} from './disabledServers'
 
 /**
  * Sincroniza el workspace del LSP con el del Explorer: lee la raíz inicial
@@ -25,6 +49,10 @@ export { formatLspDiagnosticsBlock, lspAfterEdit } from './format'
  */
 export function initLspWorkspaceSync(): void {
   if (!window.api?.lsp) return
+  // Los servers que el usuario apagó (Ajustes → Servidores) se aplican ANTES
+  // de cualquier archivo: si no, el server arrancaría y recién después se
+  // apagaría (con sus diagnósticos ya publicados).
+  initDisabledServers()
   const KEY = 'scrakk-studio:root-path'
   try {
     const initial = localStorage.getItem(KEY)
@@ -37,3 +65,6 @@ export function initLspWorkspaceSync(): void {
     if (detail?.path) void setLspWorkspace(detail.path)
   })
 }
+export { aggregateServerState, type AggregateLspState } from './aggregate'
+export { lspRestartServer, lspInstallServer } from './api'
+export { decodeSemanticTokens, type DecodedSemanticToken } from './semanticTokens'

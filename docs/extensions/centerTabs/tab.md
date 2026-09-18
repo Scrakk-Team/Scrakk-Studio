@@ -21,7 +21,9 @@ archivos abiertos.
 
 1. El loader registra el contenido del tab **también como panel** con el mismo
    id (`panelId === id`): el `PanelHost` del slot central lo monta con su
-   ErrorBoundary + Suspense, igual que cualquier otro panel.
+   ErrorBoundary, igual que cualquier otro panel. Igual que en `panels`, la
+   entrada lleva `load` (import dinámico) y no un `React.lazy`: sin `Suspense`
+   en el host, un `lazy` no monta cuando el módulo llega.
 2. La integración en `Tabs.tsx` arma el array
    `[bienvenida, ...tabsDeExtension, ...archivos]`.
 3. Al seleccionar una tab de extensión, se setea `slots.center = panelId`.

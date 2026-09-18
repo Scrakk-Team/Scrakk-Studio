@@ -1,0 +1,18 @@
+{
+  "id": "cyberpunk-2077",
+  "name": "Cyberpunk 2077",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Cyberpunk 2077 — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "cyberpunk-2077",
+        "name": "Cyberpunk 2077",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

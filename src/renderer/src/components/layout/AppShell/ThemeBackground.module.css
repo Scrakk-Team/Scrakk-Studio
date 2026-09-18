@@ -1,0 +1,17 @@
+/* Capa de fondo con imagen del theme: fija detrás de todo el chrome.
+   z-index NEGATIVO: se ordena sola debajo del contenido sin tocar a los
+   hermanos (sin position/z-index globales que rompan otros estilos).
+   Las vars las emite el applier de themes (logic.ts) solo si el tema trae
+   imagen; sin ellas la capa no se renderiza. */
+.layer {
+  position: fixed;
+  inset: calc(-2 * var(--theme-bg-blur, 0px));
+  z-index: -1;
+  background-image: var(--theme-bg-image);
+  background-size: var(--theme-bg-size, cover);
+  background-position: var(--theme-bg-position, center);
+  background-repeat: no-repeat;
+  opacity: var(--theme-bg-opacity, 1);
+  filter: blur(var(--theme-bg-blur, 0px));
+  pointer-events: none;
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Candy Pop",
+  "type": "dark",
+  "colors": {
+    "bg": "#2a1f3d",
+    "surface": "#3a2f4d",
+    "border": "#5a4f6d",
+    "accent": "#ff6ec7",
+    "text": "#ffeaa7",
+    "textSecondary": "#fd79a8",
+    "textMuted": "#6a5a8a",
+    "error": "#ff7675",
+    "warning": "#fdcb6e",
+    "success": "#55efc4",
+    "info": "#74b9ff",
+    "scrollbarThumb": "#5a4f6d",
+    "scrollbarThumbHover": "#6a5f7d",
+    "indentGuide": "#4a3f5d",
+    "surfaceRaised": "#463b58",
+    "hover": "#524862",
+    "active": "#5d546d",
+    "accentHover": "#ff7ccd",
+    "accentActive": "#ff88d1",
+    "errorHover": "#ff8686",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#6e647f",
+    "editorBg": "#3a2f4d",
+    "panelBorder": "#5a4f6d"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6a5a8a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#55efc4"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#fdcb6e"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff6ec7"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#fd79a8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#74b9ff"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#fdcb6e"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#ffeaa7"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff7675"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#fd79a8"
+    }
+  ]
+}

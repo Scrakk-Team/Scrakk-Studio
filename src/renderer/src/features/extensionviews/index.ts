@@ -1,0 +1,15 @@
+/**
+ * Vistas de extensiones — paneles de la activity bar aportados por
+ * extensiones que ejecutan código (Extension Host).
+ */
+
+export { ExtensionViewPanel } from './ExtensionViewPanel'
+export { getHostBridge } from './panelBridge'
+export {
+  VIEW_PANEL_PREFIX,
+  parseViewPanelId,
+  readHostMode,
+  setHostMode,
+  viewButtonId,
+  viewPanelId
+} from './ids'

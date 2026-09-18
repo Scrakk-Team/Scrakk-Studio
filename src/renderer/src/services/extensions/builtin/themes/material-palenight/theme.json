@@ -1,0 +1,94 @@
+{
+  "name": "Material Palenight",
+  "type": "dark",
+  "colors": {
+    "bg": "#292d3e",
+    "surface": "#1b1e2b",
+    "border": "#3a3f58",
+    "accent": "#c792ea",
+    "text": "#a6accd",
+    "textSecondary": "#676e95",
+    "textMuted": "#4e5579",
+    "error": "#ff5370",
+    "warning": "#ffcb6b",
+    "success": "#c3e88d",
+    "info": "#82aaff",
+    "scrollbarThumb": "#3a3f58",
+    "scrollbarThumbHover": "#4a4f68",
+    "indentGuide": "#3a3f58",
+    "surfaceRaised": "#292c38",
+    "hover": "#363944",
+    "active": "#444651",
+    "accentHover": "#cd9dec",
+    "accentActive": "#d1a6ee",
+    "errorHover": "#ff6881",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#52566c",
+    "editorBg": "#1b1e2b",
+    "panelBorder": "#3a3f58"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#676e95",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#c3e88d"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f78c6c"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#f78c6c"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#c792ea"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c792ea"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#c792ea"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#82aaff"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffcb6b"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#ffcb6b"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f07178"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#89ddff"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#f07178"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#ffcb6b"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#89ddff"
+    }
+  ]
+}

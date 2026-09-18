@@ -1,0 +1,114 @@
+{
+  "name": "Storm Cloud",
+  "type": "dark",
+  "colors": {
+    "bg": "#12141a",
+    "surface": "#1a1c24",
+    "border": "#2a2e38",
+    "accent": "#778899",
+    "text": "#e4e8f0",
+    "textSecondary": "#a0a8b8",
+    "textMuted": "#586070",
+    "error": "#d06868",
+    "warning": "#d0a858",
+    "success": "#68a888",
+    "info": "#6898c0",
+    "scrollbarThumb": "#3a3e48",
+    "scrollbarThumbHover": "#4a4e58",
+    "indentGuide": "#222630",
+    "surfaceRaised": "#282a31",
+    "hover": "#35373e",
+    "active": "#43454b",
+    "accentHover": "#8594a3",
+    "accentActive": "#8f9dab",
+    "errorHover": "#d67a7a",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#444750",
+    "editorBg": "#1a1c24",
+    "panelBorder": "#2a2e38"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#586070"
+    },
+    {
+      "scope": "string",
+      "foreground": "#90c8a8"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d0a858"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#778899"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#98a8b8"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#98a8b8"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e4e8f0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#778899"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#98a8b8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#80b0d8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e0c080"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e0c080"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#90c8a8"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e4e8f0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#e0a088"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#80b0d8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e0c080"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a0a8b8"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#d06868"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#778899",
+      "fontStyle": "bold"
+    }
+  ]
+}

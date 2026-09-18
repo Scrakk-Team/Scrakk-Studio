@@ -2,8 +2,8 @@
  * Activity Bar — barras laterales de botones (izquierda y derecha) estilo
  * VS Code. Cada botón es un módulo `.ts` con su propio folder; el registry
  * los detecta solo (`import.meta.glob`). Al hacer click activa/desactiva el
- * panel que declara en el slot que declara. Los íconos son componentes de
- * @proicons/react (igual que el resto de la app).
+ * panel que declara en el slot que declara. Los íconos van por ID de
+ * productIcons (resueltos por el registry global, temables por extensiones).
  */
 
 import type { ComponentType } from 'react'
@@ -16,7 +16,7 @@ export interface ActivityBarButton {
   id: string
   /** Tooltip / aria-label. */
   label: string
-  /** Ícono proicons o SVG string (paneles de extensión). */
+  /** Ícono por ID de productIcons (o SVG string en paneles de extensión). */
   icon: ComponentType<{ size?: number }> | string
   /** En qué barra lateral vive. */
   side: ActivityBarSide
@@ -26,4 +26,10 @@ export interface ActivityBarButton {
   panelId: PanelId
   /** Orden dentro de la barra (ascendente). */
   order?: number
+  /**
+   * Cláusula `when` sobre claves de contexto (`setContext`): si evalúa falso,
+   * el botón no se muestra. Declarativo (un string), así el botón sigue
+   * siendo data y lo evalúa quien lo pinta.
+   */
+  when?: string
 }

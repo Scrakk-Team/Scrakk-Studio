@@ -1,0 +1,18 @@
+{
+  "id": "emerald-depths",
+  "name": "Emerald Depths",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Emerald Depths — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "emerald-depths",
+        "name": "Emerald Depths",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

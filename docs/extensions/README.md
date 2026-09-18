@@ -1,31 +1,51 @@
 # Sistema de Extensiones SEF (Scrakk Extension Format)
 
-Extiende la app con paquetes que aportan tres tipos de contribuciones: **paneles**,
-**botones de la activity bar** y **tabs centrales**. Un paquete es:
+Extiende la app con paquetes que aportan contribuciones **declarativas**. Un
+paquete es:
 
 - una **builtin** (`.tsx`/`.ts` compilados dentro del bundle de la app), o
-- un **`.sef` instalado por el usuario** (zip descomprimido en `userData/extensions/<id>/`).
+- un **`.sef` instalado por el usuario** (zip descomprimido en
+  `userData/extensions/<id>/`).
 
-En ambos casos la fuente de verdad es un `manifest.json` **declarativo**: el
-manifest DEFINE todo (id, nombre, contribuciones) y el loader resuelve los
-componentes por ruta y los registra en el `ExtensionRegistry`. No existe
-`activate(ctx)` ni ejecución arbitraria: cada contribución es un componente
-React montado por los sistemas ya existentes de la app.
+En ambos casos la fuente de verdad es un `manifest.json`: el manifest DEFINE
+todo y el loader resuelve los componentes por ruta y los registra en el
+`ExtensionRegistry`, que alimenta los sistemas ya existentes de la app.
+
+## Dos sabores de extensión
+
+| | **SEF declarativa** | **SEF con código** |
+| --- | --- | --- |
+| De dónde sale la UI | del bundle del paquete (React) | del **Extension Host**: la extensión corre en su proceso Node y sirve su contenido por IPC |
+| Qué kinds usa | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `encodings`, `notifications`, `lspServers` | `views` (+ `runtime` en el manifest) |
+| Ejemplo | builtin `clock` | una extensión de VS Code convertida (Comment Anchors, Cline) |
+| ¿Necesita Node? | no | sí |
+
+La declarativa no ejecuta código de la extensión. El sabor con código sí, y
+por eso pasa por el Extension Host: `views` es la puerta declarativa (el IDE
+sabe que el panel existe **antes** de ejecutar nada) y el contenido llega
+después, del host.
 
 ## Índice
 
 - [Estructura](structure.md) — dónde vive cada pieza del sistema.
 - [Manifest](manifest.md) — el formato del `manifest.json`.
 - [Empaquetado .sef](sef.md) — cómo armar un paquete instalable.
-- [Contribuciones](contributions.md) — paneles, botones y tabs.
-- [Paneles](panels/panel.md) — qué son y cómo se montan.
+- [Contribuciones](contributions.md) — **los diez tipos**, con ejemplo y dónde se montan.
+- [Vistas (con código)](views/view.md) — paneles de la activity bar servidos por el host.
+- [Paneles](panels/panel.md) — paneles React de un slot del layout.
+- [Botones del header](panels/header-actions.md) — acciones de un panel, reordenables arrastrando.
 - [Activity bar](activitybar/button.md) — botones de la barra de actividades.
 - [Tabs centrales](centerTabs/tab.md) — pestañas del strip central.
 - [Builtin](builtin.md) — cómo crear una extensión que viaja en la app.
+- [Extensiones de VS Code](vscode.md) — qué hace hoy el pipeline VSIX → SEF.
 
 ## En una línea
 
 1. La extensión declara contribuciones en `manifest.json`.
-2. El **loader** las convierte en `PanelEntry`/`ActivityBarButton`/`RegisteredCenterTab`.
-3. El **ExtensionRegistry** las guarda y notifica.
-4. La app (layout, activity bar, tabs) consume el registry y se re-renderiza sola.
+2. El **loader** (`loader/resolve.ts`) itera `contributes` y le pregunta al
+   **ExtensionTypeRegistry** por el handler de cada key — no conoce ningún tipo.
+3. El handler valida (`schema.ts`), registra (`api.ts` → `logic.ts` → `store.ts`)
+   y la app (layout, activity bar, tabs, temas) se re-renderiza sola.
+
+Agregar un tipo de contribución = crear `types/<kind>/` con sus cuatro archivos
+y sumar **una línea** a `ensureTypesRegistered()` en `types/index.ts`.

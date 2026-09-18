@@ -1,0 +1,174 @@
+/* NotificationHost — 4 esquinas, cards del tema, planas. */
+
+.stack {
+  position: fixed;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.stack > * {
+  pointer-events: auto;
+}
+
+.stack_tl { top: 46px; left: 16px; }
+.stack_tr { top: 46px; right: 16px; }
+.stack_bl { bottom: 40px; left: 16px; }
+.stack_br { bottom: 40px; right: 16px; }
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  padding-bottom: calc(var(--space-3) + 4px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  animation: notif-in 140ms var(--ease-out);
+}
+
+/* Acento de severidad SOLO abajo (como la tab activa): el borde de la card
+   queda siempre neutro. */
+.card.error::after,
+.card.warn::after,
+.card.success::after {
+  content: '';
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.card.error::after { background: #f85149; }
+.card.warn::after { background: #d29922; }
+.card.success::after { background: #3fb950; }
+
+@keyframes notif-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stack_bl .card,
+.stack_br .card {
+  animation-name: notif-in-bottom;
+}
+
+@keyframes notif-in-bottom {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.severityIcon {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.card.success .severityIcon { color: #3fb950; }
+.card.warn .severityIcon { color: #d29922; }
+.card.error .severityIcon { color: #f85149; }
+.card.info .severityIcon { color: var(--color-accent); }
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.message {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+/* `MessageOptions.detail`: texto largo de apoyo (monospace porque ahí las
+   extensiones suelen meter rutas, comandos o JSON). */
+.detail {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--color-bg-overlay);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.image {
+  width: 100%;
+  object-fit: contain;
+  border: 1px solid var(--color-border);
+}
+
+.imageRounded {
+  border-radius: var(--radius-md);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.actionBtn {
+  padding: 3px 12px;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: var(--color-hover);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.actionBtn:hover {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-text);
+}

@@ -13,7 +13,11 @@ export const LLM_IPC = {
   chatStreamReasoning: 'llm:chat-stream-reasoning',
   chatStreamToolCalls: 'llm:chat-stream-tool-calls',
   chatStreamDone: 'llm:chat-stream-done',
-  chatStreamError: 'llm:chat-stream-error'
+  chatStreamError: 'llm:chat-stream-error',
+  /** Renderer → main: corta el stream del requestId (botón "Detener"). */
+  chatStreamStop: 'llm:chat-stream-stop',
+  /** Main → renderer: el stream fue cortado por el usuario (no es error). */
+  chatStreamStopped: 'llm:chat-stream-stopped'
 } as const
 
 export type LlmMessageRole = 'user' | 'assistant' | 'system' | 'tool'
@@ -84,6 +88,16 @@ export interface LlmStreamErrorEvent {
   error: string
 }
 
+export interface LlmStreamErrorEvent {
+  requestId: string
+  error: string
+}
+
+/** El stream fue detenido por el usuario (abort del fetch en main). */
+export interface LlmStreamStoppedEvent {
+  requestId: string
+}
+
 export interface LlmStreamHandlers {
   /** Delta de contenido (lo que se muestra en la burbuja). */
   onContent?: (delta: string) => void
@@ -93,6 +107,8 @@ export interface LlmStreamHandlers {
   onToolCalls?: (toolCalls: LlmToolCall[]) => void
   onDone?: () => void
   onError?: (error: string) => void
+  /** El usuario presionó "Detener": el stream se cortó sin error. */
+  onStopped?: () => void
 }
 
 /** API de LLM expuesta por el preload en `window.api.llm`. */
@@ -102,4 +118,6 @@ export interface LlmApi {
    * Los handlers reciben los deltas a medida que llegan.
    */
   chatStream: (request: LlmStreamRequest, handlers: LlmStreamHandlers) => () => void
+  /** Corta el fetch del stream en el proceso main (botón "Detener"). */
+  stopStream: (requestId: string) => void
 }

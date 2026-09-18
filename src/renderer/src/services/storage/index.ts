@@ -8,18 +8,46 @@
 export { lsGet, lsSet, lsRemove, lsClear } from './localStorage'
 
 // Schema de tipos.
-export type { LayoutSlotsData, EditorSessionData, StorageSchema, StorageKey } from './schema'
+export type {
+  LayoutSlotsData,
+  PersistedLayoutData,
+  PersistedLayoutV3Data,
+  PersistedSplitTree,
+  PersistedSlotData,
+  PersistedTabData,
+  LegacyLayoutSlotsData,
+  EditorSessionData,
+  StorageSchema,
+  StorageKey,
+  OnboardingStatus,
+  TelemetryPreference,
+} from './schema'
 export { STORAGE_KEYS } from './schema'
 
 // API de alto nivel (lo que usan los módulos de la app).
 export {
-  getPersistedLayoutSlots,
-  persistLayoutSlots,
+  readLayoutSlotsRaw,
+  writeLayoutSlotsRaw,
   getPersistedEditorOpenFiles,
   persistEditorOpenFiles,
   getPersistedEditorActivePath,
   persistEditorActivePath,
+  getPersistedOnboardingStatus,
+  persistOnboardingStatus,
+  getPersistedOnboardingStep,
+  persistOnboardingStep,
+  getPersistedTelemetryEnabled,
+  persistTelemetryEnabled,
+  getPersistedTelemetryAskedAt,
+  markTelemetryAsked,
   clearAllStorage,
 } from './storageService'
 export { getPersistedHighlightSource, persistHighlightSource } from './storageService'
-export type { EditorHighlightSource } from './schema'
+export { getPersistedGrammarEngine, persistGrammarEngine } from './storageService'
+export {
+  getPersistedChatSessions,
+  persistChatSessions,
+  getPersistedChatActiveSession,
+  persistChatActiveSession,
+} from './storageService'
+export type { EditorGrammarEngine, EditorHighlightSource } from './schema'

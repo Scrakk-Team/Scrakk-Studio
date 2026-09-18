@@ -1,0 +1,78 @@
+{
+  "name": "Paper Light",
+  "type": "light",
+  "colors": {
+    "bg": "#fbfbfb",
+    "surface": "#f4f4f4",
+    "border": "#e0e0e0",
+    "accent": "#008ec4",
+    "text": "#444444",
+    "textSecondary": "#777777",
+    "textMuted": "#aaaaaa",
+    "error": "#c82829",
+    "warning": "#eab700",
+    "success": "#718c00",
+    "info": "#4271ae",
+    "scrollbarThumb": "#c8c8c8",
+    "scrollbarThumbHover": "#a8a8a8",
+    "indentGuide": "#e8e8e8",
+    "surfaceRaised": "#f5f5f5",
+    "hover": "#f5f5f5",
+    "active": "#f6f6f6",
+    "accentHover": "#1a99ca",
+    "accentActive": "#2ea2cf",
+    "errorHover": "#cf4243",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#e4e4e4",
+    "editorBg": "#f4f4f4",
+    "panelBorder": "#e0e0e0"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#8e908c",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#718c00"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#f5871f"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#f5871f"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#8959a8"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#8959a8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#4271ae"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#c99e00"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#c82829"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#c82829"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#444444"
+    }
+  ]
+}

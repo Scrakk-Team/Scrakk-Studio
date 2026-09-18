@@ -1,0 +1,39 @@
+/* CursorPosition — chip compacto de Ln/Col en la statusbar. */
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: var(--text-xs);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.indicator[data-empty='true'] {
+  color: var(--color-text-muted);
+}
+
+.label {
+  color: var(--color-text-muted);
+}
+
+.indicator[data-empty='false'] .label {
+  color: var(--color-text-secondary);
+}
+
+.value {
+  min-width: 1.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sep {
+  color: var(--color-text-muted);
+  margin: 0 1px;
+}

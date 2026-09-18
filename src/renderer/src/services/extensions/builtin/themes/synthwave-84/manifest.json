@@ -1,0 +1,18 @@
+{
+  "id": "synthwave-84",
+  "name": "SynthWave '84",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema SynthWave '84 — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "synthwave-84",
+        "name": "SynthWave '84",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -14,8 +14,11 @@ import {
   activateTheme,
   deactivateTheme,
   subscribeToThemes,
+  getFontFallbackMode,
+  setFontFallbackMode,
   ExtensionRegistry,
-  type RegisteredThemeEntry
+  type RegisteredThemeEntry,
+  type FontFallbackMode
 } from '@services/extensions'
 import styles from './AppearanceSection.module.css'
 
@@ -76,6 +79,7 @@ function ThemeCard({ theme, isActive, onActivate }: ThemeCardProps): JSX.Element
 export function AppearanceSection(): JSX.Element {
   const [themes, setThemes] = useState<RegisteredThemeEntry[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [fallback, setFallback] = useState<FontFallbackMode>(() => getFontFallbackMode())
 
   const refresh = useCallback((): void => {
     setThemes(listRegisteredThemes())
@@ -89,6 +93,8 @@ export function AppearanceSection(): JSX.Element {
     return subscribeToThemes(refresh)
   }, [refresh])
 
+  useEffect(() => subscribeToThemes(() => setFallback(getFontFallbackMode())), [])
+
   const handleActivate = useCallback((id: string): void => {
     if (!activateTheme(id)) return
     setActiveId(getActiveThemeId())
@@ -100,12 +106,29 @@ export function AppearanceSection(): JSX.Element {
   }, [])
 
   // Lista ÚNICA: builtin + temas de extensiones .sef, todos juntos.
-  // Activo primero, resto alfabético.
-  const allThemes = [...themes].sort((a, b) => {
-    if (a.id === activeId) return -1
-    if (b.id === activeId) return 1
-    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-  })
+  // Orden alfabético ESTABLE: activar un tema no mueve su card (solo cambia
+  // su badge a "Activo").
+  const allThemes = [...themes].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  )
+
+  const activeTheme = themes.find((theme) => theme.id === activeId) ?? null
+  const activeFontFamily = activeTheme?.definition.fonts?.ui?.family ?? null
+
+  const pickFallback = (mode: FontFallbackMode): void => {
+    setFontFallbackMode(mode)
+    setFallback(mode)
+  }
+
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const visibleThemes = q
+    ? allThemes.filter((theme) =>
+        [theme.name, theme.id, theme.type].some((field) =>
+          field.toLowerCase().includes(q)
+        )
+      )
+    : allThemes
 
   return (
     <div className={styles.section}>
@@ -117,17 +140,59 @@ export function AppearanceSection(): JSX.Element {
       {allThemes.length === 0 ? (
         <p className={styles.empty}>No hay temas registrados todavía.</p>
       ) : (
-        <div className={styles.grid}>
-          {allThemes.map((theme) => (
-            <ThemeCard
-              key={theme.id}
-              theme={theme}
-              isActive={theme.id === activeId}
-              onActivate={handleActivate}
+        <div className={styles.browser}>
+          <div className={styles.themeSearchWrap}>
+            <input
+              className={styles.themeSearchInput}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar temas…"
+              aria-label="Buscar temas"
+              spellCheck={false}
             />
-          ))}
+          </div>
+          {visibleThemes.length === 0 ? (
+            <p className={styles.empty}>Sin resultados para “{query.trim()}”.</p>
+          ) : (
+            <div className={styles.grid}>
+              {visibleThemes.map((theme) => (
+                <ThemeCard
+                  key={theme.id}
+                  theme={theme}
+                  isActive={theme.id === activeId}
+                  onActivate={handleActivate}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
+
+      {activeFontFamily ? (
+        <div className={styles.fontBox}>
+          <div className={styles.fontHead}>
+            <span className={styles.fontName}>{activeFontFamily}</span>
+            <span className={styles.fontTag}>Fuente del tema</span>
+          </div>
+          <p className={styles.hint}>Respaldo si no carga (sin internet):</p>
+          <div className={styles.fontTabs} role="tablist" aria-label="Respaldo de fuente">
+            {(['system', 'original'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                role="tab"
+                aria-selected={fallback === mode}
+                className={[styles.fontTab, fallback === mode ? styles.fontTabActive : null]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => pickFallback(mode)}
+              >
+                {mode === 'system' ? 'Sistema' : 'Original'}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {activeId !== null ? (
         <div className={styles.activeRow}>

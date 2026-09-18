@@ -1,0 +1,47 @@
+/* Árbol de splits (estilo VS Code): los lados se reparten el espacio con el
+   mismo ResizeHandle que separa los slots. Cada lado es una tarjeta con su
+   borde (igual que los slots exteriores) pero SIN redondeo: en el split se
+   ven los DOS bordes de separación flanqueando el handle, como entre
+   paneles. */
+.split {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.split[data-dir='column'] {
+  flex-direction: column;
+}
+
+.side {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Hoja DENTRO de un split: tarjeta con borde propio (igual que los slots
+   exteriores) y esquinas CUADRADAS — el redondeo queda solo en la tarjeta
+   que contiene el split. Los bordes de ambos lados quedan visibles juntos,
+   flanqueando el ResizeHandle. */
+.leaf {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+  border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  border-radius: 0;
+}
+
+/* Raíz leaf (slot SIN partir): lisa, sin tarjeta propia — la tarjeta
+   exterior (.slot / .center / .slotBottom) ya aporta borde y fondo. */
+.leafRoot {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}

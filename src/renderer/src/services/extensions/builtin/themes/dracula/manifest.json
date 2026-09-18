@@ -1,0 +1,18 @@
+{
+  "id": "dracula",
+  "name": "Dracula",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Dracula — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "dracula",
+        "name": "Dracula",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

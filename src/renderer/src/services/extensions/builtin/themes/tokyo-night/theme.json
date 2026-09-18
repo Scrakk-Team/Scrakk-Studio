@@ -1,0 +1,93 @@
+{
+  "name": "Tokyo Night",
+  "type": "dark",
+  "colors": {
+    "bg": "#1a1b26",
+    "surface": "#24283b",
+    "border": "#414868",
+    "accent": "#7aa2f7",
+    "text": "#a9b1d6",
+    "textSecondary": "#787c99",
+    "textMuted": "#565f89",
+    "error": "#f7768e",
+    "warning": "#e0af68",
+    "success": "#9ece6a",
+    "info": "#7dcfff",
+    "scrollbarThumb": "#414868",
+    "scrollbarThumbHover": "#565f89",
+    "indentGuide": "#292e42",
+    "surfaceRaised": "#313547",
+    "hover": "#3e4253",
+    "active": "#4b4f5e",
+    "accentHover": "#87abf8",
+    "accentActive": "#92b3f8",
+    "errorHover": "#f8869c",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#585e7a",
+    "editorBg": "#24283b",
+    "panelBorder": "#414868"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#565f89"
+    },
+    {
+      "scope": "string",
+      "foreground": "#9ece6a"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ff9e64"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#ff9e64"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#bb9af7"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#bb9af7"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#7dcfff"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#7aa2f7"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#f7768e"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#2ac3de"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#c0caf5"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#7aa2f7"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#f7768e"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#bb9af7"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a9b1d6"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Permitir scripts de instalación (electron)
+        run: npm config set ignore-scripts false
+
+      - name: Instalar dependencias
+        run: |
+          npm install --ignore-scripts
+          node node_modules/electron/install.js
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Empaquetar (linux)
+        run: npx electron-builder --linux AppImage deb tar.gz --publish never
+
+      - name: Crear Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: false
+          body: |
+            ## ${{ github.ref_name }} — {titulo}
+            {una linea de que trae}

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type JSX } from 'react'
-import { createEditorEngine, getStoredEngine, type EditorEngine, type EditorEngineId } from './engine'
+import { getOrCreateInnertaEngine, getStoredEngine, type EditorEngine, type EditorEngineId } from './engine'
 import { getEditorFiles, subscribeToEditorFiles } from './editorBus'
+import { lspNotifyFileChanged } from '@services/lsp'
+import { readEncoded, setDetected } from '@services/encodings'
 import styles from './EditorPanel.module.css'
 
 /**
@@ -20,10 +22,13 @@ export function EditorPanel(): JSX.Element {
     const host = hostRef.current
     if (!host) return
 
-    const engine = createEditorEngine()
+    const engine = getOrCreateInnertaEngine()
     engineRef.current = engine
     engine.attach(host)
-    engine.focus()
+    // No forzamos engine.focus() acá: robaría el foco a inputs abiertos
+    // en otras partes de la app. El canvas recibe foco cuando el usuario
+    // interactúa con el editor (click → onPointerDown) o al cargar un
+    // archivo (loadFile → canvas.focus).
 
     return () => {
       engine.dispose()
@@ -39,9 +44,12 @@ export function EditorPanel(): JSX.Element {
       if (!engine || !activePath || activePath === loadingPath) return
       loadingPath = activePath
       try {
-        const res = await window.api.fs.readFile(activePath)
-        if (!res.success || typeof res.content !== 'string') return
-        engine.loadFile(activePath, res.content)
+        // Lectura con detección de encoding (BOM/UTF-16/Latin-1 → texto).
+        const res = await readEncoded(activePath)
+        if (!res.success || typeof res.text !== 'string' || !res.detected) return
+        setDetected(activePath, res.text, res.detected)
+        engine.loadFile(activePath, res.text)
+        void lspNotifyFileChanged(activePath, res.text)
       } catch {
         // Lectura fallida: Innerta queda con su buffer actual.
       } finally {

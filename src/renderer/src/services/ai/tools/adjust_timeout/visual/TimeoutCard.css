@@ -1,0 +1,22 @@
+/* adjust_timeout card styles — injected via displayCss */
+.timeout-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.timeout-card__plus {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.timeout-card__value {
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.timeout-card__label {
+  color: var(--color-text-muted);
+}
+

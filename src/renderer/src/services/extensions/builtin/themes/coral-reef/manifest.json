@@ -1,0 +1,18 @@
+{
+  "id": "coral-reef",
+  "name": "Coral Reef",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Coral Reef — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "coral-reef",
+        "name": "Coral Reef",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

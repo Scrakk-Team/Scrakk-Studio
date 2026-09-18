@@ -2,12 +2,16 @@
  * Tipo 'centerTabs' — lógica de registro.
  *
  * El contenido del tab también se registra como panel: así el PanelHost del
- * slot central lo monta con su ErrorBoundary + Suspense, igual que cualquier
- * otro panel. El id del tab ES el id del panel.
+ * slot central lo monta con su ErrorBoundary, igual que cualquier otro panel.
+ * El id del tab ES el id del panel.
+ *
+ * Se registra con `load` (import dinámico), NO con `React.lazy`: el PanelHost
+ * no tiene Suspense y un `lazy` sin boundary no monta cuando el módulo llega
+ * (el panel recién aparece al volver a abrirlo). Ver `panelComponentLoader`
+ * en `../../manifest`.
  */
 
-import { lazy } from 'react'
-import type { ComponentResolver } from '../../manifest'
+import { panelComponentLoader, type ComponentResolver } from '../../manifest'
 import type { RegisteredCenterTab } from '../../manifest'
 import { ExtensionRegistry } from '../../registry'
 import type { CenterTabContribution } from './schema'
@@ -22,7 +26,7 @@ export function registerCenterTab(
       id: contribution.id,
       title: contribution.label,
       closable: contribution.closable,
-      component: lazy(resolver.resolveComponent(contribution.component))
+      load: panelComponentLoader(resolver, contribution.component)
     },
     extensionId
   )

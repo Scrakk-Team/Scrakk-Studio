@@ -1,0 +1,18 @@
+{
+  "id": "rose-pink",
+  "name": "Rose Pink",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Rose Pink — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "rose-pink",
+        "name": "Rose Pink",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

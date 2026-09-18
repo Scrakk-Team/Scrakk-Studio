@@ -1,0 +1,32 @@
+/* navigate_web card styles — injected via displayCss */
+.navweb-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  min-width: 0;
+}
+
+.navweb-card__action {
+  color: var(--color-accent);
+  font-size: 10px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  flex-shrink: 0;
+}
+
+.navweb-card__target {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navweb-card__text {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

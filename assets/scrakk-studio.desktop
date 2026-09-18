@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Scrakk Studio
+Comment=Scrakk Studio (dev)
+Exec=__EXEC__
+Icon=__ICON__
+Terminal=false
+Categories=Development;IDE;
+StartupWMClass=scrakk-studio
+StartupNotify=true

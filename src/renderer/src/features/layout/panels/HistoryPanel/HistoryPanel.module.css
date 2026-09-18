@@ -87,19 +87,17 @@
   padding: var(--space-5) var(--space-3);
 }
 
-.item {
+.itemRow {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 2px;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
   border-radius: var(--radius-input);
-  text-align: left;
   /* Hover inmediato, sin animación. */
   transition: none;
 }
 
-.item:hover {
+.itemRow:hover {
   background: var(--color-hover);
 }
 
@@ -108,6 +106,48 @@
 }
 
 .itemActive .itemTitle {
+  color: var(--color-text);
+}
+
+.item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.itemMenu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.itemRow:hover .itemMenu,
+.itemMenu:focus-visible {
+  opacity: 1;
+}
+
+.itemMenu:hover {
+  background: var(--color-hover);
   color: var(--color-text);
 }
 

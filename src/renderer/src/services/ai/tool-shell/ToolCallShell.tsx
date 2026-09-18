@@ -1,18 +1,14 @@
 /**
- * ToolCallShell — base shell for tool call cards.
+ * ToolCallShell — delega en la carpeta visual/ de cada tool.
  *
- * Provides:
- *   - Header: icon + label + arg preview + status
- *   - Expandable body (if meta.expandable)
- *   - Custom body via meta.renderBody, or default details view
- *   - CSS injection from meta.displayCss
- *
- * Each tool's visual/ provides the custom content; this shell wraps it.
+ * Rol exacto: DETECTAR si la tool tiene visual propio (meta.renderBody /
+ * children) y USARLO tal cual, sin card, header, chevron ni diseño propio.
+ * El texto simple (y el shimmer mientras carga) vive 100% en cada tool,
+ * en su propia carpeta visual/. Acá solo queda el fallback para las tools
+ * sin visual y el estado de error.
  */
 
-import { useState, type JSX, type ReactNode } from 'react'
-import { ToolCallIcon } from './ToolCallIcon'
-import { ToolCallStatus } from './ToolCallStatus'
+import type { JSX, ReactNode } from 'react'
 import type { ToolMeta } from '../tools/types'
 import type { ToolCall } from '../tools/types'
 import styles from './ToolCallShell.module.css'
@@ -32,9 +28,7 @@ export interface ToolCallExecution {
 interface ToolCallShellProps {
   execution: ToolCallExecution
   meta?: ToolMeta
-  /** Whether to default-expand the details */
-  defaultExpanded?: boolean
-  /** Optional custom body rendered inside the shell */
+  /** Contenido custom — reemplaza el renderBody de la tool. */
   children?: ReactNode
 }
 
@@ -80,88 +74,36 @@ function parseArgs(toolCall: ToolCall, partialArgs?: string): Record<string, unk
   }
 }
 
-export function ToolCallShell({
-  execution,
-  meta,
-  defaultExpanded = false,
-  children
-}: ToolCallShellProps): JSX.Element {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
+export function ToolCallShell({ execution, meta, children }: ToolCallShellProps): JSX.Element {
   const { toolCall, status, result, partialArgs } = execution
   const args = parseArgs(toolCall, partialArgs)
 
   const label = meta?.label || toolCall.function.name
-  const icon = meta?.icon
   const displayArg = extractDisplayArg(meta?.headerArgKey, args)
-  const expandable = meta?.expandable ?? true
-  const isLoading = status === 'pending' || status === 'streaming' || status === 'running'
 
-  // Split path into directory + filename for display
-  const pathParts = displayArg.split(/[\\/]/)
-  const fileName = pathParts.pop() || displayArg
-  const dirPath = pathParts.join('/')
+  // Si la tool tiene visual propio → se usa tal cual (detectar visual y delegar).
+  const visual = children ?? meta?.renderBody?.(args, result, status)
 
-  // Modo "plain": sin fondo, una sola línea de texto (ej. "Leí {path}").
-  if (meta?.plain) {
+  // Fallback de error (sin visual): ⚠ {label} · {arg}.
+  if (status === 'error' && !visual) {
     return (
-      <div className={styles.plain} title={displayArg || undefined}>
-        {meta.plainText ? <span className={styles.plainPrefix}>{meta.plainText}</span> : null}
-        <span className={styles.plainArg}>{displayArg || label}</span>
-      </div>
+      <span className={styles.errorText}>
+        ⚠ {label}
+        {displayArg ? ` · ${displayArg}` : ''}
+      </span>
     )
   }
 
+  // CSS propio de la tool (vive en su carpeta visual/) + su contenido directo.
   return (
-    <div className={`${styles.card} ${styles[status] || ''}`}>
-      {/* Inject tool-specific CSS if provided */}
-      {meta?.displayCss && <style>{meta.displayCss}</style>}
-
-      {/* Header */}
-      <div
-        className={`${styles.header} ${expandable ? styles.expandable : ''}`}
-        onClick={() => expandable && setIsExpanded(!isExpanded)}
-      >
-        <div className={styles.icon}>
-          <ToolCallIcon toolName={toolCall.function.name} icon={icon} />
-        </div>
-
-        <div className={styles.info}>
-          <span className={styles.label}>{label}</span>
-          {(displayArg || isLoading) && (
-            <span className={styles.argRow}>
-              <span className={styles.arg}>
-                {dirPath && <span className={styles.argPath}>{dirPath}/</span>}
-                <span className={styles.argFilename}>{fileName}</span>
-              </span>
-            </span>
-          )}
-        </div>
-
-        <ToolCallStatus status={status} errorMessage={result} />
-
-        {expandable && (
-          <svg
-            className={`${styles.chevron} ${isExpanded ? styles.chevronExpanded : ''}`}
-            width="12" height="12" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        )}
-      </div>
-
-      {/* Body */}
-      {isExpanded && (
-        <div className={styles.body}>
-          {children || (
-            <div className={styles.details}>
-              {result && (
-                <pre className={styles.resultContent}>{result}</pre>
-              )}
-            </div>
-          )}
-        </div>
+    <>
+      {meta?.displayCss ? <style>{meta.displayCss}</style> : null}
+      {visual ?? (
+        <span>
+          {label}
+          {displayArg ? ` · ${displayArg}` : ''}
+        </span>
       )}
-    </div>
+    </>
   )
 }

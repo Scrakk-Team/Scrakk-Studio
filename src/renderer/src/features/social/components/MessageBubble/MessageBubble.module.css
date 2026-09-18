@@ -1,0 +1,235 @@
+.row {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 2px 8px 2px 12px;
+  border-radius: var(--radius-sm);
+  isolation: isolate;
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--color-hover) 60%, transparent);
+  z-index: 3;
+}
+
+.groupStart {
+  margin-top: 12px;
+}
+
+.groupCont {
+  margin-top: 1px;
+}
+
+.avatarCol {
+  width: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2px;
+  position: relative;
+}
+
+.timeHover {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.row:hover .timeHover {
+  opacity: 1;
+}
+
+.contentCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.nameBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.nameBtn:hover {
+  text-decoration: underline;
+}
+
+.nameOwn {
+  color: var(--color-accent);
+}
+
+.avatarBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  display: inline-flex;
+}
+
+.time {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.edited {
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+
+.replyQuote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 2px 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--color-accent);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  max-width: 90%;
+  overflow: hidden;
+}
+
+.replyBar {
+  display: none;
+}
+
+.replyName {
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.replyBody {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.8;
+}
+
+.body {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.mention {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent);
+  padding: 0 3px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.mention:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.actions {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.row:hover .actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.editing .actions {
+  display: none;
+}
+
+.actionBtn {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.actionBtn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.editRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.editInput {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-sm);
+}
+
+.editSave {
+  padding: 4px 8px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.editCancel {
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: none;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}

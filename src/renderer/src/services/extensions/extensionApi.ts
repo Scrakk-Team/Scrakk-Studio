@@ -2,11 +2,12 @@
  * Extension API — superficie expuesta a los handlers de tipos (y base para
  * la futura API runtime de bundles .sef interactivos).
  *
- * Compuesta por namespaces: cada tipo decide qué exponer; el fs bridge y el
- * LSP van por IPC, así que acá no hay acceso a Node del renderer.
+ * GATEO POR PERMISOS (deny-by-default):
+ *  - fs.* usa los canales escopados `ext:fs-*` cuyo enforcement real corre
+ *    en el proceso main (jail al workspace + rutas sensibles bloqueadas).
+ *  - lsp.* requiere el permiso "lsp.use".
  */
 
-import type { ExtensionTypeContext } from './types/handler'
 import {
   lspStatus,
   lspRequest,
@@ -15,12 +16,23 @@ import {
   lspNotifyFileChanged,
   lspNotifyFileClosed
 } from '@services/lsp'
-import type { FileDiagnostics, LspRequestResponse, LspServerStatus } from '@shared/lsp'
+import { showTooltip, hideTooltip, type TooltipRequest } from '@services/tooltips'
+import {
+  notify,
+  dismissNotification,
+  type NotifyInput
+} from '@services/notifications'
+import type {
+  FileDiagnostics,
+  LspRequestResponse,
+  LspServerStatus
+} from '@shared/lsp'
+import { PERMISSIONS } from '@shared/permissions'
 
 export interface ExtensionLspApi {
   status(): Promise<LspServerStatus[]>
   /** Request genérico: definition/hover/references/… sobre un archivo. */
-  request(payload: Parameters<typeof lspRequest>[0] extends never ? never : {
+  request(payload: {
     method: string
     params?: unknown
     filePath?: string
@@ -34,36 +46,90 @@ export interface ExtensionLspApi {
   notifyFileClosed(path: string): Promise<void>
 }
 
-export interface ExtensionApi {
-  /** LSP: navegación/diagnósticos para extensiones de código. */
-  lsp: ExtensionLspApi
+export interface ExtensionFsApi {
+  readFile(path: string): Promise<{ success: boolean; content?: string; error?: string }>
+  writeFile(path: string, content: string): Promise<{ success: boolean; error?: string }>
 }
 
-export function buildExtensionApi(): ExtensionApi {
+export interface ExtensionTooltipApi {
+  show(request: TooltipRequest): void
+  hide(): void
+}
+
+export interface ExtensionNotificationsApi {
+  /** Muestra una notificación (4 esquinas, ≤3 acciones, imagen ≤500×500). */
+  show(input: NotifyInput): string
+  dismiss(id: string): void
+}
+
+export interface ExtensionApi {
+  /** FS enjaulado: solo workspace, rutas sensibles bloqueadas (main). */
+  fs: ExtensionFsApi
+  /** LSP: navegación/diagnósticos para extensiones de código. */
+  lsp: ExtensionLspApi
+  /** Tooltips con estilo del tema (para cualquier UI de la extensión). */
+  tooltips: ExtensionTooltipApi
+  /** Notificaciones globales (mismo registry que usa la app). */
+  notifications: ExtensionNotificationsApi
+}
+
+export interface BuildExtensionApiOptions {
+  extensionId: string
+  /** Permisos declarados en el manifest (deny-by-default). */
+  permissions?: string[]
+}
+
+function permissionError(permission: string): Error {
+  return new Error(`[permisos] la extensión no declara "${permission}"`)
+}
+
+export function buildExtensionApi(options: BuildExtensionApiOptions): ExtensionApi {
+  const declared = options.permissions ?? []
+
+  const gatedLsp = (): ExtensionLspApi => {
+    if (!declared.includes(PERMISSIONS.LSP_USE)) {
+      throw permissionError(PERMISSIONS.LSP_USE)
+    }
+    return rawLsp
+  }
+
+  // El fs SIEMPRE se expone vía canales escopados — main es el que decide.
+  const fsApi: ExtensionFsApi = {
+    readFile: (path) =>
+      window.api.extensions.fsFor(options.extensionId).readFile(path),
+    writeFile: (path, content) =>
+      window.api.extensions.fsFor(options.extensionId).writeFile(path, content)
+  }
+
+  // Proxy perezoso: lanzar PermissionError al USAR lsp sin permiso.
+  const rawLsp: ExtensionLspApi = {
+    status: () => lspStatus(),
+    request: (payload) => lspRequest(payload.method, payload.params, payload),
+    readDiagnostics: (paths) => lspReadDiagnostics(paths),
+    drainDiagnostics: (timeoutMs) => lspDrainDiagnostics(timeoutMs),
+    notifyFileChanged: async (path, content) => {
+      await lspNotifyFileChanged(path, content)
+    },
+    notifyFileClosed: async (path) => {
+      await lspNotifyFileClosed(path)
+    }
+  }
+
   return {
-    lsp: {
-      status: () => lspStatus(),
-      request: (payload) => lspRequest(payload.method, payload.params, payload),
-      readDiagnostics: (paths) => lspReadDiagnostics(paths),
-      drainDiagnostics: (timeoutMs) => lspDrainDiagnostics(timeoutMs),
-      notifyFileChanged: async (path, content) => {
-        await lspNotifyFileChanged(path, content)
-      },
-      notifyFileClosed: async (path) => {
-        await lspNotifyFileClosed(path)
-      }
+    fs: fsApi,
+    get lsp(): ExtensionLspApi {
+      return gatedLsp()
+    },
+    tooltips: {
+      show: (request) => showTooltip(request),
+      hide: () => hideTooltip()
+    },
+    notifications: {
+      show: (input) => notify(input),
+      dismiss: (id) => dismissNotification(id)
     }
   }
 }
 
-/** Singleton: la API es stateless sobre IPC. */
-let cached: ExtensionApi | null = null
-
-/** ctx.api de cada registro de contribución (barato, cacheado). */
-export function getExtensionApi(): ExtensionApi {
-  if (!cached) cached = buildExtensionApi()
-  return cached
-}
-
-/** Re-export para tipar el campo api de ExtensionTypeContext sin ciclos. */
-export type { ExtensionTypeContext }
+// Tipos expuestos para firmas de extensiones.
+export type { NotificationCorner, NotificationImage, NotificationSeverity } from '@services/notifications/types'

@@ -1,0 +1,6 @@
+{
+  "id": "ask-ai",
+  "title": "Selecciona texto y pregunta a la IA",
+  "description": "Selecciona código y haz clic derecho para explicar, refactorizar o mejorar con IA.",
+  "order": 50
+}

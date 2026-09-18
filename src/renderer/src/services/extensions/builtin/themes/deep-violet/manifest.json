@@ -1,0 +1,18 @@
+{
+  "id": "deep-violet",
+  "name": "Deep Violet",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Deep Violet — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "deep-violet",
+        "name": "Deep Violet",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

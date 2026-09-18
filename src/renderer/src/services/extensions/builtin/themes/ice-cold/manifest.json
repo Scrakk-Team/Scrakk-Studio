@@ -1,0 +1,18 @@
+{
+  "id": "ice-cold",
+  "name": "Ice Cold",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Ice Cold — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "ice-cold",
+        "name": "Ice Cold",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

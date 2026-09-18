@@ -1,0 +1,78 @@
+{
+  "name": "Tokyo Light",
+  "type": "light",
+  "colors": {
+    "bg": "#d5d6db",
+    "surface": "#cbccd1",
+    "border": "#b4b5b9",
+    "accent": "#34548a",
+    "text": "#343b58",
+    "textSecondary": "#4c505e",
+    "textMuted": "#6a6e7a",
+    "error": "#8c4351",
+    "warning": "#8f5e15",
+    "success": "#485e30",
+    "info": "#34548a",
+    "scrollbarThumb": "#a0a1a5",
+    "scrollbarThumbHover": "#909195",
+    "indentGuide": "#c0c1c5",
+    "surfaceRaised": "#cecfd4",
+    "hover": "#d1d2d7",
+    "active": "#d4d5d9",
+    "accentHover": "#486596",
+    "accentActive": "#59739f",
+    "errorHover": "#9a5a66",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#bdbec1",
+    "editorBg": "#cbccd1",
+    "panelBorder": "#b4b5b9"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6a6e7a",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#485e30"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#965027"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#965027"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#5a4a78"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#166775"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#34548a"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#8c4351"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#343b58"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#8c4351"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#4c505e"
+    }
+  ]
+}

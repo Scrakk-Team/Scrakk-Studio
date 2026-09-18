@@ -1,0 +1,18 @@
+{
+  "id": "lavender-haze",
+  "name": "Lavender Haze",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Lavender Haze — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "lavender-haze",
+        "name": "Lavender Haze",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

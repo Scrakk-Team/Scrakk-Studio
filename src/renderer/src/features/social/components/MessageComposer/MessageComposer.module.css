@@ -1,0 +1,126 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--activitybar-bg, var(--color-surface));
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.wrap:focus-within {
+  border-color: var(--color-border-strong);
+}
+
+.replyPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  font-size: var(--text-xs);
+}
+
+.replyLabel {
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.replyText {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+}
+
+.replyClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.replyClose:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.wrap:has(.replyPreview) .replyPreview {
+  border-bottom-color: transparent;
+}
+
+.wrap:focus-within:has(.replyPreview) .replyPreview {
+  border-bottom-color: var(--color-border);
+}
+
+.mentionList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.mentionItem {
+  text-align: left;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.mentionItem:hover {
+  background: var(--color-hover);
+}
+
+.form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: 6px 6px 6px 10px;
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  max-height: 140px;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  resize: none;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.send {
+  flex-shrink: 0;
+}

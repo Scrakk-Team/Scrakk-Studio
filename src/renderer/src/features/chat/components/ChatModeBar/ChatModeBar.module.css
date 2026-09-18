@@ -8,7 +8,7 @@
   padding: 3px 8px;
   /* Más ancha que el input (680px): sobresale ~16px por lado. */
   width: min(712px, calc(100% + 32px));
-  background: var(--color-surface-raised);
+  background: var(--activitybar-bg, var(--color-surface));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   user-select: none;

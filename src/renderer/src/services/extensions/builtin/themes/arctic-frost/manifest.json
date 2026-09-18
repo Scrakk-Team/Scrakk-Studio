@@ -1,0 +1,18 @@
+{
+  "id": "arctic-frost",
+  "name": "Arctic Frost",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Arctic Frost — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "arctic-frost",
+        "name": "Arctic Frost",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

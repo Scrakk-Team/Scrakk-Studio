@@ -1,0 +1,89 @@
+{
+  "name": "Mint Green",
+  "type": "light",
+  "colors": {
+    "bg": "#f5faf8",
+    "surface": "#e8f5f0",
+    "border": "#b8d8cc",
+    "accent": "#00897b",
+    "text": "#2d4a44",
+    "textSecondary": "#5a7a72",
+    "textMuted": "#8aa8a0",
+    "error": "#d32f2f",
+    "warning": "#f57c00",
+    "success": "#388e3c",
+    "info": "#1976d2",
+    "scrollbarThumb": "#a0c8bc",
+    "scrollbarThumbHover": "#80b8a8",
+    "indentGuide": "#c8e0d8",
+    "surfaceRaised": "#e9f6f1",
+    "hover": "#ebf6f2",
+    "active": "#ecf7f3",
+    "accentHover": "#1a9588",
+    "accentActive": "#2e9e93",
+    "errorHover": "#d84848",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#c1ddd2",
+    "editorBg": "#e8f5f0",
+    "panelBorder": "#b8d8cc"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6a9a8a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#00796b"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#00838f"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#0097a7"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#00695c"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#00695c"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#2d4a44"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#0097a7"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#6a1b9a"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#00838f"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#2d4a44"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#6a1b9a"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#00796b"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#5a7a72"
+    }
+  ]
+}

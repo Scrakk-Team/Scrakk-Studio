@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { useProviders } from '../../state'
 import styles from './ModelPicker.module.css'
@@ -70,8 +70,9 @@ export function ModelPicker(): JSX.Element {
         onClick={() => setOpen((prev) => !prev)}
       >
         <span className={styles.buttonModel}>{activeModel ?? 'Modelo'}</span>
-        <ChevronDownIcon
-          size={13}
+        <ProductIcon
+          id="chevron-down"
+          size={11}
           aria-hidden="true"
           className={open ? styles.chevronOpen : styles.chevron}
         />

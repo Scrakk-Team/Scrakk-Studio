@@ -1,0 +1,74 @@
+.wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pickBtn,
+.clearBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.pickBtn:hover,
+.clearBtn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.urlInput {
+  width: 100%;
+  padding: 6px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  outline: none;
+}
+
+.urlInput:focus {
+  border-color: var(--color-accent);
+}
+
+.urlInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.hint {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.error {
+  font-size: 10px;
+  color: var(--color-danger);
+}
+
+/* Input real oculto: se dispara con el botón. */
+.fileInput {
+  display: none;
+}

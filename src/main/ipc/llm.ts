@@ -60,6 +60,9 @@ function sendEvent(sender: WebContents, channel: string, payload: unknown): void
   if (!sender.isDestroyed()) sender.send(channel, payload)
 }
 
+/** Streams activos por requestId — el botón "Detener" aborta el fetch. */
+const activeStreams = new Map<string, AbortController>()
+
 /**
  * Corre el fetch en stream (SSE) y emite los deltas por IPC.
  * `choices[0].delta.content` → contenido; `reasoning_content`/`reasoning` →
@@ -67,6 +70,8 @@ function sendEvent(sender: WebContents, channel: string, payload: unknown): void
  */
 async function runStream(sender: WebContents, request: LlmStreamRequest): Promise<void> {
   const { requestId, baseUrl, model, apiKey, headers, messages, thinkingMode, tools } = request
+  const controller = new AbortController()
+  activeStreams.set(requestId, controller)
 
   try {
     const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
@@ -89,8 +94,9 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
         ...(tools && tools.length > 0 ? { tools, tool_choice: 'auto' } : {}),
         ...extraBody
       }),
-      // Un proveedor colgado no debe dejar el chat en isBusy para siempre.
-      signal: AbortSignal.timeout(180_000)
+      // Un proveedor colgado no debe dejar el chat en isBusy para siempre;
+      // el controller propio permite cortar desde el botón "Detener".
+      signal: AbortSignal.any([AbortSignal.timeout(180_000), controller.signal])
     })
 
     if (!response.ok) {
@@ -188,6 +194,11 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
       reasoning: fullReasoning
     })
   } catch (error) {
+    // Abort por "Detener": no es un error, se avisa y se conserva lo streamado.
+    if (controller.signal.aborted) {
+      sendEvent(sender, LLM_IPC.chatStreamStopped, { requestId })
+      return
+    }
     if (error instanceof Error && error.name === 'TimeoutError') {
       sendEvent(sender, LLM_IPC.chatStreamError, {
         requestId,
@@ -200,6 +211,8 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
         error: `No se pudo conectar con el proveedor: ${message}`
       })
     }
+  } finally {
+    activeStreams.delete(requestId)
   }
 }
 
@@ -211,5 +224,12 @@ export function registerLlmIpc(): void {
     // Arranca el stream en background; los deltas llegan por eventos.
     void runStream(event.sender, request)
     return { ok: true }
+  })
+
+  // Botón "Detener": aborta el fetch del stream (fire-and-forget).
+  ipcMain.on(LLM_IPC.chatStreamStop, (_event, payload: unknown) => {
+    const requestId = (payload as { requestId?: string } | null)?.requestId
+    if (typeof requestId !== 'string') return
+    activeStreams.get(requestId)?.abort()
   })
 }

@@ -1,0 +1,1 @@
+export { BrowserTabsCard } from './BrowserTabsCard'

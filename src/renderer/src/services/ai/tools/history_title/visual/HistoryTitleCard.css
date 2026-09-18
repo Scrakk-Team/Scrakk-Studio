@@ -1,0 +1,21 @@
+/* history_title card styles — injected via displayCss */
+.title-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  min-width: 0;
+}
+
+.title-card__label {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.title-card__value {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

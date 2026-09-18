@@ -97,19 +97,8 @@
   overflow-wrap: normal;
 }
 
-/* Scrollbar fina dentro del bloque. */
-.cbPre::-webkit-scrollbar {
-  height: 3px;
-}
-
-.cbPre::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.cbPre::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
-  border-radius: 3px;
-}
+/* El scroll horizontal usa el scrollbar universal (oculto hasta hover, 4px
+   de aire, radio 3px). Sin override local. */
 
 /* ── Bloques diff: líneas + / - coloreadas ────────────────────────────── */
 .cbDiff {

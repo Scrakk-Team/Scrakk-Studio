@@ -27,6 +27,17 @@ export interface SendMessageInput {
   onToolCalls?: (toolCalls: ToolCallInfo[]) => void
   /** Resultado de una tool call ejecutada. */
   onToolResult?: (toolCallId: string, result: ToolResultInfo) => void
+  /**
+   * Inicia una nueva ronda del ciclo agéntico (0 = primera respuesta).
+   * El UI crea un SEGMENTO de burbuja por ronda: así reasoning/tools/
+   * contenido de rondas consecutivas quedan como historial separado.
+   */
+  onRoundStart?: (round: number) => void
+  /**
+   * Señal de aborto del UI (botón "Detener"): corta el fetch en main y
+   * resuelve con el contenido parcial, sin terminar en error.
+   */
+  signal?: AbortSignal
 }
 
 /**
@@ -75,16 +86,31 @@ export function createLlmChatService(): ChatService {
         ]
 
         let fullContent = ''
+        // requestId de la ronda en curso — el aborto del UI lo usa para
+        // pedirle al proceso main que corte el fetch del stream.
+        let activeRequestId: string | null = null
+
+        // Botón "Detener": le avisa a main que aborte el fetch. La ronda
+        // termina por el evento chatStreamStopped (onStopped) y el loop
+        // corta al ver signal.aborted — se conserva todo lo streamado.
+        const onAbort = (): void => {
+          if (activeRequestId) window.api.llm.stopStream(activeRequestId)
+        }
+        input.signal?.addEventListener('abort', onAbort, { once: true })
 
         const streamRound = (): Promise<{ content: string; toolCalls: LlmToolCall[] }> => {
           return new Promise((roundResolve, roundReject) => {
             let settled = false
             let roundContent = ''
             let toolCalls: LlmToolCall[] = []
+            // El requestId se genera antes de arrancar: si el usuario aprieta
+            // "Detener" mientras el stream corre, main aborta ESTE fetch.
+            const requestId = crypto.randomUUID()
+            activeRequestId = requestId
 
             const stop = window.api.llm.chatStream(
               {
-                requestId: crypto.randomUUID(),
+                requestId,
                 providerId: provider.id,
                 baseUrl: provider.baseUrl,
                 // El id exacto del modelo tal como lo espera el proveedor.
@@ -109,12 +135,22 @@ export function createLlmChatService(): ChatService {
                 onDone: () => {
                   if (settled) return
                   settled = true
+                  activeRequestId = null
                   stop()
+                  roundResolve({ content: roundContent, toolCalls })
+                },
+                onStopped: () => {
+                  if (settled) return
+                  settled = true
+                  activeRequestId = null
+                  stop()
+                  // Resolve (no reject): lo streamado hasta acá es válido.
                   roundResolve({ content: roundContent, toolCalls })
                 },
                 onError: (error) => {
                   if (settled) return
                   settled = true
+                  activeRequestId = null
                   stop()
                   roundReject(new Error(error))
                 }
@@ -126,6 +162,10 @@ export function createLlmChatService(): ChatService {
         void (async (): Promise<void> => {
           try {
             for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+              // Detenido por el usuario: corta el ciclo y devuelve lo acumulado.
+              if (input.signal?.aborted) break
+
+              input.onRoundStart?.(round)
               const { content: roundContent, toolCalls } = await streamRound()
               fullContent += roundContent
 
@@ -155,9 +195,11 @@ export function createLlmChatService(): ChatService {
               })
 
               // Ejecuta secuencialmente (patrón scrakk: for, no paralelo).
+              // El signal del UI llega a las tools: las pendientes se marcan
+              // "[Aborted by user]" en vez de correr.
               let executions: Array<{ result: { tool_call_id: string; content: string }; execution: { success: boolean; blocked?: boolean } }>
               try {
-                const result = await executeTools(deduped, input.sessionId, undefined)
+                const result = await executeTools(deduped, input.sessionId, input.signal)
                 executions = result
               } catch (dispatchError) {
                 executions = deduped.map((tc) => ({
@@ -188,6 +230,8 @@ export function createLlmChatService(): ChatService {
             resolve({ content: fullContent })
           } catch (error) {
             reject(error)
+          } finally {
+            input.signal?.removeEventListener('abort', onAbort)
           }
         })()
       })

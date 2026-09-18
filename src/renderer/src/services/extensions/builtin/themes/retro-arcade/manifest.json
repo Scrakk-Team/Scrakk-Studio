@@ -1,0 +1,18 @@
+{
+  "id": "retro-arcade",
+  "name": "Retro Arcade",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Retro Arcade — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "retro-arcade",
+        "name": "Retro Arcade",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

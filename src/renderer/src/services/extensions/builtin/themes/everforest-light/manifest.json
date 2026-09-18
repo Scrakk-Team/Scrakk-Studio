@@ -1,0 +1,18 @@
+{
+  "id": "everforest-light",
+  "name": "Everforest Light",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Everforest Light — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "everforest-light",
+        "name": "Everforest Light",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -94,13 +94,19 @@ export interface InnertaInputHandle {
   dispose(): void
 }
 
+export interface WireInnertaInputOpts {
+  /** Si true, no registra handler de keyboard (para terminal PTY). */
+  skipKeyboard?: boolean
+}
+
 /**
  * Conecta los eventos del canvas a los exports C de input. Devuelve un handle
  * para desconectar (dispose). No-op mientras el module sea null.
  */
 export function wireInnertaInput(
   canvas: HTMLCanvasElement,
-  getModule: () => InnertaModule | null
+  getModule: () => InnertaModule | null,
+  opts?: WireInnertaInputOpts
 ): InnertaInputHandle {
   const module = (): InnertaModule | null => getModule()
   let capturedPointerId: number | null = null
@@ -250,7 +256,9 @@ export function wireInnertaInput(
   canvas.addEventListener('lostpointercapture', onLostPointerCapture)
   canvas.addEventListener('pointerleave', onPointerLeave)
   canvas.addEventListener('wheel', onWheel, { passive: false })
-  canvas.addEventListener('keydown', onKeyDown)
+  if (!opts?.skipKeyboard) {
+    canvas.addEventListener('keydown', onKeyDown)
+  }
   canvas.addEventListener('focus', onCanvasFocus)
   canvas.addEventListener('blur', onCanvasBlur)
   window.addEventListener('blur', onWindowBlur)

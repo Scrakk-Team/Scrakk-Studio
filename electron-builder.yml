@@ -1,0 +1,82 @@
+# Empaquetado Electron — pensado para ENTREGAR builds.
+#
+# Objetivo: que el artefacto no filtre más de lo necesario.
+#  - asar con solo lo de runtime (nada de fuentes, docs, tests, tools, secretos).
+#  - sin sourcemaps (los delata prod: `sourcemap: false` en electron-vite.prod).
+#  - nativo fuera del asar (node-pty / *.node) para que cargue.
+#
+# Firma de código (win/mac) se agrega cuando haya certificados. ASAR integrity
+# se controla desde el main (ver EnableEmbeddedAsarIntegrityValidation).
+
+appId: art.scrakk.studio
+productName: Scrakk Studio
+copyright: Copyright © Scrakk
+
+directories:
+  output: release
+  buildResources: build-resources
+
+asar: true
+# Fuera del asar: todo lo que el sistema operativo tiene que abrir como ARCHIVO
+# REAL, no como ruta virtual del archivo.
+#  - los .node (nativos) no pueden ejecutarse desde adentro del asar;
+#  - node-pty (nativo + prebuilds);
+#  - los scripts que se lanzan como PROCESO HIJO con `utilityProcess.fork`
+#    (host de extensiones y worker de tree-sitter). Si quedan adentro, algunas
+#    distros (SELinux, noexec…) no los pueden ejecutar y la capa de extensiones
+#    —y con ella los .scm del resaltado— no arranca nunca.
+asarUnpack:
+  - '**/*.node'
+  - '**/node_modules/node-pty/**'
+  - out/main/extension-host.js
+  - out/main/tree-sitter-worker.js
+  - out/main/*.node
+
+# node-pty se reconstruye contra Electron; si el entorno no tiene toolchain,
+# se puede forzar false y usar el binario ya compilado en node_modules.
+npmRebuild: false
+
+# Solo lo que corre. Todo lo demás (fuentes, docs, tests, tools, secretos) NO
+# entra al paquete.
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+  - '!**/*.ts'
+  - '!**/*.tsx'
+  - '!**/*.md'
+  - '!**/.env*'
+  - '!**/.dev.vars*'
+  - '!docs/**'
+  - '!tests/**'
+  - '!tools/**'
+  - '!native/**'
+  - '!files-otherapps/**'
+  - '!BorealChat-tauri/**'
+  - '!.opencode/**'
+  - '!.github/**'
+  - '!**/tsconfig*.json'
+  - '!**/vitest.config.*'
+  - '!**/electron.vite.config.*'
+
+linux:
+  target:
+    - AppImage
+    - deb
+    # tar.gz: el paquete portable para quien no usa gestor de paquetes ni
+    # AppImage (FUSE). Es el mismo linux-unpacked comprimido.
+    - tar.gz
+  category: Development
+  icon: build-resources/icon.png
+  # Asocia las ventanas al .desktop (WM_CLASS) en Linux.
+  syncDesktopName: true
+
+win:
+  target:
+    - nsis
+  icon: build-resources/icon.png
+
+mac:
+  target:
+    - dmg
+  icon: build-resources/icon.png

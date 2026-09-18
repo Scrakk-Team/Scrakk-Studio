@@ -1,4 +1,4 @@
-import { ArrowUpIcon, PlusIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import {
   useEffect,
   useRef,
@@ -9,24 +9,31 @@ import {
   type KeyboardEvent
 } from 'react'
 import { ModelPicker } from '@features/providers'
-import { IconButton } from '@ui/IconButton'
+import { IconButton } from '@ui'
 import styles from './ChatInput.module.css'
 
 interface ChatInputProps {
   onSend: (content: string) => void
   disabled?: boolean
+  /** true mientras la IA genera: el botón pasa a "Detener" y se sigue escribiendo. */
+  busy?: boolean
+  /** Cancela la generación en curso (el botón de stop). */
+  onStop?: () => void
 }
 
 /**
  * Input de chat, alto: textarea auto-resizable arriba + toolbar abajo con
  * el botón "+" a la izquierda y, a la derecha, el selector de proveedores
  * al lado del botón de enviar (que vive abajo, como ChatGPT).
+ *
+ * Mientras la IA genera (busy) el textarea NO se bloquea: el mismo botón
+ * pasa a ser "Detener" (RecordStop) hasta que el stream termina.
  */
-export function ChatInput({ onSend, disabled = false }: ChatInputProps): JSX.Element {
+export function ChatInput({ onSend, disabled = false, busy = false, onStop }: ChatInputProps): JSX.Element {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const canSend = !disabled && value.trim().length > 0
+  const canSend = !disabled && !busy && value.trim().length > 0
 
   // Auto-resize del textarea (hasta un máximo).
   useEffect(() => {
@@ -38,7 +45,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps): JSX.Ele
 
   const submit = (): void => {
     const trimmed = value.trim()
-    if (!trimmed || disabled) return
+    if (!trimmed || disabled || busy) return
     onSend(trimmed)
     setValue('')
   }
@@ -80,17 +87,41 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps): JSX.Ele
           label="Adjuntar (próximamente)"
           disabled
           title="Adjuntar (próximamente)"
+          size="sm"
+          className={styles.sendBtnSm}
         >
-          <PlusIcon size={16} />
+          <ProductIcon id="plus" size={14} />
         </IconButton>
 
         <div className={styles.toolbarSpacer} aria-hidden="true" />
 
         <ModelPicker />
 
-        <IconButton type="submit" variant="accent" shape="rounded" label="Enviar" disabled={!canSend} size="sm" className={styles.sendBtnSm}>
-          <ArrowUpIcon size={14} />
-        </IconButton>
+        {busy ? (
+          <IconButton
+            type="button"
+            variant="accent"
+            shape="rounded"
+            label="Detener generación"
+            size="sm"
+            className={styles.sendNudge}
+            onClick={onStop}
+          >
+            <ProductIcon id="record-stop" size={14} />
+          </IconButton>
+        ) : (
+          <IconButton
+            type="submit"
+            variant="accent"
+            shape="rounded"
+            label="Enviar"
+            disabled={!canSend}
+            size="sm"
+            className={styles.sendNudge}
+          >
+            <ProductIcon id="arrow-up" size={14} />
+          </IconButton>
+        )}
       </div>
     </form>
   )

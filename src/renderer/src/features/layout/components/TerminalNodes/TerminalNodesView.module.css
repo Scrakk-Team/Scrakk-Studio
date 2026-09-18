@@ -1,0 +1,290 @@
+/* Lienzo infinito de terminales (vista de nodos del slot inferior). */
+.viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background-color: var(--color-background);
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  cursor: grab;
+  user-select: none;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 560px;
+  height: 340px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  cursor: default;
+  resize: both;
+  min-width: 360px;
+  min-height: 220px;
+}
+
+.nodeHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 var(--space-1) 0 var(--space-2);
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.nodeHeader:active {
+  cursor: grabbing;
+}
+
+.nodeTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.nodeClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.nodeClose:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.nodeBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  user-select: text;
+  cursor: text;
+}
+
+.empty {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.emptyAction {
+  pointer-events: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.emptyAction:hover {
+  background: var(--color-hover);
+}
+
+.toolbar {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.toolButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.toolButton:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.toolDivider {
+  width: 1px;
+  height: 18px;
+  background: var(--color-border);
+  margin: 0 2px;
+}
+
+.zoomLabel {
+  min-width: 42px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Puntos de unión alrededor del nodo: cantidad dinámica según su tamaño
+   (medido por ResizeObserver). Ocultos hasta hover para no ensuciar,
+   visibles siempre mientras se arrastra un enlace. */
+.ports {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.port {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  background: var(--color-surface);
+  opacity: 0;
+  pointer-events: auto;
+  cursor: crosshair;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.node:hover .port,
+.viewport[data-linking='true'] .port,
+.port[data-pending='true'] {
+  opacity: 1;
+}
+
+.port:hover,
+.port[data-pending='true'] {
+  background: var(--color-accent);
+}
+
+/* Enlaces entre nodos (capa SVG bajo los nodos, coords de mundo). */
+.edges {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.edgeHit {
+  stroke: transparent;
+  stroke-width: 14;
+  fill: none;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.edgeLine {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.edgeDraft {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Agarrador grupal: mando en el centroide del grupo unido. El tamaño se
+   compensa del zoom por inline (siempre usable en pantalla). */
+.grabber {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-background);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  z-index: 20;
+  touch-action: none;
+  user-select: none;
+}
+
+.grabber:active {
+  cursor: grabbing;
+}
+
+.grabberCount {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

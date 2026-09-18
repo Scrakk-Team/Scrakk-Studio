@@ -1,5 +1,5 @@
 import { useEffect, useState, type JSX } from 'react'
-import { GridIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import { useLayout } from '@features/layout'
 import { formatTime, formatDate } from '../../shared/time'
 import styles from './ClockPanel.module.css'
@@ -30,7 +30,7 @@ export default function ClockPanel(): JSX.Element {
         className={styles.openDashboard}
         onClick={() => setSlotPanel('center', 'clock-dashboard')}
       >
-        <GridIcon size={14} aria-hidden="true" />
+        <ProductIcon id="grid" size={14} aria-hidden="true" />
         Abrir dashboard
       </button>
     </div>

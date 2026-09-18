@@ -10,7 +10,7 @@
 
 import { ExtensionRegistry } from '../registry'
 import { ensureTypesRegistered, ExtensionTypeRegistry } from '../types'
-import { getExtensionApi } from '../extensionApi'
+import { buildExtensionApi } from '../extensionApi'
 import type {
   ExtensionManifest,
   ComponentResolver,
@@ -74,9 +74,11 @@ export async function registerManifest(
         const registered = await handler.register(contribution, {
           extensionId: extId,
           isBuiltin,
+          // Sólo las .sef tienen raíz en disco (ver `readFile` arriba).
+          extensionPath: packageDir || undefined,
           resolver,
           readFile,
-          api: getExtensionApi()
+          api: buildExtensionApi({ extensionId: extId, permissions: manifest.permissions })
         })
         if (registered !== null && registered !== undefined) {
           ExtensionTypeRegistry.track(extId, kind, registered)

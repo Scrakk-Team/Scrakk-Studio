@@ -1,0 +1,1 @@
+export { registerAccountIpc } from './ipc'

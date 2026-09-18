@@ -3,7 +3,9 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-2);
-  background: var(--color-surface-raised);
+  /* Mismo fondo que las activitybars/titlebar/statusbar: sigue al tema
+     (sideBar del tema convertido), no al surface-raised del panel. */
+  background: var(--activitybar-bg, var(--color-surface));
   /* Sin borde por defecto; aparece al enfocar (click). */
   border: 1px solid transparent;
   border-radius: var(--radius-input);
@@ -61,4 +63,9 @@
 
 .sendBtnSm {
   transform: translateY(3px);
+}
+
+/* Nudge óptico del botón de enviar: 2px a la derecha (mismo Y que el resto). */
+.sendNudge {
+  transform: translate(2px, 3px);
 }

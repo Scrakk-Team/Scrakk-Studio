@@ -43,6 +43,19 @@ export function setWorkspaceRoot(path: string): void {
   window.dispatchEvent(new CustomEvent('workspace-changed', { detail: { path } }))
 }
 
+/**
+ * Raíz del workspace abierta (o null). Lectura pura, sin hook: la usan
+ * consumidores que necesitan la ruta fuera de React (ej. el jail del fs que
+ * se le declara al Extension Host).
+ */
+export function getWorkspaceRoot(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
 function sortEntries(entries: FileNode[]): FileNode[] {
   return [...entries].sort((a, b) => {
     if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1
@@ -69,6 +82,8 @@ export interface WorkspaceApi {
   isLoadingRoot: boolean
   /** Alterna expansión de una carpeta (carga lazy la primera vez). */
   toggleFolder: (dirPath: string) => void
+  /** Asegura una carpeta expandida+cargada (vistas filtradas). Nunca colapsa. */
+  ensureExpanded: (dirPath: string) => void
   /** Recarga la raíz completa. */
   refresh: () => void
   /** Recarga un directorio puntual (invalida su cache). */
@@ -83,14 +98,19 @@ export interface WorkspaceApi {
   moveInto: (paths: string[], targetDir: string) => Promise<{ ok: boolean; error?: string }>
 }
 
-export function useWorkspaceState(): WorkspaceApi {
-  const [rootPath, setRootPathState] = useState<string | null>(() => {
+export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
+  const [storedRoot, setStoredRoot] = useState<string | null>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY)
     } catch {
       return null
     }
   })
+
+  // Override para spawnear el árbol en otra raíz (GitPanel, etc.): todo lo
+  // pesado (cache, watcher, lotes) ya es path-based, solo cambia la raíz
+  // leída. La escritura global (setRootPath) sigue intacta.
+  const rootPath = rootOverride ?? storedRoot
 
   // Cache + dedupe en refs (mutables, sin re-renders espurios); treeVersion
   // fuerza el re-render cuando cambia algo del árbol.
@@ -246,14 +266,14 @@ export function useWorkspaceState(): WorkspaceApi {
 
   const setRootPath = useCallback((path: string): void => {
     setWorkspaceRoot(path)
-    setRootPathState(path)
+    setStoredRoot(path)
   }, [])
 
   // Si OTRO componente cambió el workspace, seguirlo.
   useEffect(() => {
     const onWorkspaceChanged = (event: Event): void => {
       const path = (event as CustomEvent<{ path?: string }>).detail?.path
-      if (path) setRootPathState(path)
+      if (path) setStoredRoot(path)
     }
     window.addEventListener('workspace-changed', onWorkspaceChanged)
     return () => window.removeEventListener('workspace-changed', onWorkspaceChanged)
@@ -276,6 +296,25 @@ export function useWorkspaceState(): WorkspaceApi {
       bump()
     },
     [bump, loadDir, unwatch, ensureWatched]
+  )
+
+  /**
+   * Asegura una carpeta expandida+cargada (vistas filtradas que auto-expanden
+   * ancestros). No colapsa nunca; no-op si ya está expandida.
+   */
+  const ensureExpanded = useCallback(
+    (dirPath: string): void => {
+      if (!expandedRef.current.has(dirPath)) {
+        expandedRef.current.add(dirPath)
+        bump()
+      }
+      if (!loadedRef.current.has(dirPath) && !loadingRef.current.has(dirPath)) {
+        void loadDir(dirPath, 0)
+      } else {
+        ensureWatched(dirPath)
+      }
+    },
+    [bump, loadDir, ensureWatched]
   )
 
   const refresh = useCallback((): void => {
@@ -404,6 +443,7 @@ export function useWorkspaceState(): WorkspaceApi {
     tree,
     isLoadingRoot,
     toggleFolder,
+    ensureExpanded,
     refresh,
     refreshNode,
     collapseAll,

@@ -1,4 +1,5 @@
-import type { ComponentPropsWithoutRef, JSX, ReactNode } from 'react'
+import { useRef, type ComponentPropsWithoutRef, type JSX, type ReactNode } from 'react'
+import { useSnapSvg } from './useSnapSvg'
 import styles from './IconButton.module.css'
 
 type IconButtonVariant = 'neutral' | 'accent' | 'danger'
@@ -29,6 +30,10 @@ export function IconButton({
   children,
   ...rest
 }: IconButtonProps): JSX.Element {
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+  // Glifo nítido en cualquier posición del layout (ver useSnapSvg).
+  useSnapSvg(buttonRef)
+
   const classes = [
     styles.iconButton,
     styles[variant],
@@ -40,7 +45,7 @@ export function IconButton({
     .join(' ')
 
   return (
-    <button type={type} className={classes} aria-label={label} title={label} {...rest}>
+    <button ref={buttonRef} type={type} className={classes} aria-label={label} title={label} {...rest}>
       {children}
     </button>
   )

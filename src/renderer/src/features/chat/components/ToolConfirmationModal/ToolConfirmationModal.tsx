@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState, type JSX } from 'react'
-import { Modal } from '@ui/Modal'
+import { Modal } from '@ui'
 import {
   confirmationBus,
   type ConfirmationRequest

@@ -1,0 +1,18 @@
+{
+  "id": "golden-hour",
+  "name": "Golden Hour",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Golden Hour — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "golden-hour",
+        "name": "Golden Hour",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

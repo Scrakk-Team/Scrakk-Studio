@@ -1,0 +1,18 @@
+{
+  "id": "aurora-borealis",
+  "name": "Aurora Borealis",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Aurora Borealis — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "aurora-borealis",
+        "name": "Aurora Borealis",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

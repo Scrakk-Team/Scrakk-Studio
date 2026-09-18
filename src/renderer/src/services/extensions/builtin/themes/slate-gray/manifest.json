@@ -1,0 +1,18 @@
+{
+  "id": "slate-gray",
+  "name": "Slate Gray",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Slate Gray — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "slate-gray",
+        "name": "Slate Gray",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

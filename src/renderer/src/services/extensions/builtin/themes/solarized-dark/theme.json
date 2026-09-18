@@ -1,0 +1,94 @@
+{
+  "name": "Solarized Dark",
+  "type": "dark",
+  "colors": {
+    "bg": "#002b36",
+    "surface": "#073642",
+    "border": "#094959",
+    "accent": "#268bd2",
+    "text": "#839496",
+    "textSecondary": "#657b83",
+    "textMuted": "#586e75",
+    "error": "#dc322f",
+    "warning": "#b58900",
+    "success": "#859900",
+    "info": "#268bd2",
+    "scrollbarThumb": "#094959",
+    "scrollbarThumbHover": "#0a5a6d",
+    "indentGuide": "#094959",
+    "surfaceRaised": "#16424d",
+    "hover": "#254e59",
+    "active": "#345a64",
+    "accentHover": "#3c97d6",
+    "accentActive": "#4da0da",
+    "errorHover": "#e04b48",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#275f6d",
+    "editorBg": "#073642",
+    "panelBorder": "#094959"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#586e75",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#2aa198"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d33682"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#cb4b16"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#859900"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#859900"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#b58900"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#b58900"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#b58900"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#93a1a1"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#839496"
+    }
+  ]
+}

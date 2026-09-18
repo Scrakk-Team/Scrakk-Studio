@@ -1,0 +1,139 @@
+{
+  "name": "GitHub Light",
+  "type": "light",
+  "colors": {
+    "bg": "#ffffff",
+    "surface": "#f6f8fa",
+    "border": "#d0d7de",
+    "accent": "#0969da",
+    "text": "#24292f",
+    "textSecondary": "#57606a",
+    "textMuted": "#8c959f",
+    "error": "#cf222e",
+    "warning": "#9a6700",
+    "success": "#1a7f37",
+    "info": "#0969da",
+    "scrollbarThumb": "#afb8c1",
+    "scrollbarThumbHover": "#8c959f",
+    "indentGuide": "#d8dee4",
+    "surfaceRaised": "#f7f8fa",
+    "hover": "#f7f9fb",
+    "active": "#f8f9fb",
+    "accentHover": "#2278de",
+    "accentActive": "#3584e1",
+    "errorHover": "#d53d47",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#d6dce2",
+    "editorBg": "#f6f8fa",
+    "panelBorder": "#d0d7de"
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#6e7781",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#0a3069"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#0550ae"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#0550ae"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#cf222e"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#cf222e"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#8250df"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#953800"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#116329"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#0550ae"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#24292f"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#24292f"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#0550ae"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#24292f"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#0969da",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

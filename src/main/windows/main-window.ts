@@ -1,9 +1,42 @@
 import { join } from 'node:path'
-import { BrowserWindow, nativeImage, shell } from 'electron'
+import { existsSync } from 'node:fs'
+import { app, BrowserWindow, shell } from 'electron'
 import { WINDOW_CONTROLS_IPC } from '@shared/window-controls'
 
 /** Debe coincidir con --titlebar-height en core/theme/tokens.css. */
 const TITLEBAR_HEIGHT = 38
+
+/** Origen del dev server (dev). null en prod. */
+const devOrigin = process.env['ELECTRON_RENDERER_URL']
+  ? new URL(process.env['ELECTRON_RENDERER_URL']).origin
+  : null
+
+/**
+ * True si la URL es la del propio dev server (local). Estas navegaciones
+ * NUNCA van al navegador externo: son las que usa Vite HMR para recargar la
+ * ventana en el lugar (sin esto, cada hot reload abría una tab de browser
+ * con localhost y la ventana quedaba congelada).
+ */
+export function isAppLocalUrl(url: string): boolean {
+  if (!devOrigin) return false
+  try {
+    return new URL(url).origin === devOrigin
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Ruta del icono de app: en dev vive en assets/ del repo; empaquetada,
+ * en resources. undefined si no existe (BrowserWindow lo acepta).
+ */
+function getAppIcon(): string | undefined {
+  const devPath = join(__dirname, '../../assets/scrakk-studio-b.png')
+  if (existsSync(devPath)) return devPath
+  const prodPath = join(process.resourcesPath, 'assets/scrakk-studio-b.png')
+  if (existsSync(prodPath)) return prodPath
+  return undefined
+}
 
 /**
  * Ventana principal.
@@ -14,8 +47,6 @@ const TITLEBAR_HEIGHT = 38
  * GTK (`setTitleBarOverlay` tiene @platform win32,linux) — como Rutinas.
  */
 export function createMainWindow(): BrowserWindow {
-  const isDev = !!process.env['ELECTRON_RENDERER_URL']
-
   const window = new BrowserWindow({
     width: 1120,
     height: 760,
@@ -24,6 +55,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     backgroundColor: '#000000',
     title: 'Scrakk Studio',
+    icon: getAppIcon(),
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: '#101010',
@@ -34,9 +66,24 @@ export function createMainWindow(): BrowserWindow {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      // En un build ENTREGADO no se abren DevTools (evita copiar el front a
+      // mano). En dev sí, para trabajar.
+      devTools: !app.isPackaged
     }
   })
+
+  // Bloqueo extra de atajos de DevTools en el build entregado (F12,
+  // Ctrl/Cmd+Shift+I/J/C). Además del devTools:false de arriba.
+  if (app.isPackaged) {
+    window.webContents.on('before-input-event', (event, input) => {
+      const key = input.key.toLowerCase()
+      const combo = input.control || input.meta
+      if (key === 'f12' || (combo && input.shift && (key === 'i' || key === 'j' || key === 'c'))) {
+        event.preventDefault()
+      }
+    })
+  }
 
   // Notificar al renderer los cambios de maximizado (ícono max/restore).
   const notifyMaximized = (): void => {
@@ -47,18 +94,14 @@ export function createMainWindow(): BrowserWindow {
   window.on('maximize', notifyMaximized)
   window.on('unmaximize', notifyMaximized)
 
-  // En dev, aplicar ícono de app para que se vea en la taskbar de Linux.
-  if (isDev) {
-    const iconPath = join(__dirname, '../../assets/scrakk-studio-b.png')
-    const icon = nativeImage.createFromPath(iconPath)
-    if (!icon.isEmpty()) window.setIcon(icon)
-  }
-
   window.on('ready-to-show', () => window.show())
 
-  // Links externos → navegador del sistema, nunca dentro de la app.
+  // Links externos → navegador del sistema, nunca dentro de la app. El propio
+  // dev server (HMR) jamás se abre afuera.
   window.webContents.setWindowOpenHandler(({ url }) => {
-    void shell.openExternal(url)
+    if (!isAppLocalUrl(url) && (url.startsWith('http://') || url.startsWith('https://'))) {
+      void shell.openExternal(url)
+    }
     return { action: 'deny' }
   })
 

@@ -1,0 +1,18 @@
+{
+  "id": "material-palenight",
+  "name": "Material Palenight",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Material Palenight — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "material-palenight",
+        "name": "Material Palenight",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

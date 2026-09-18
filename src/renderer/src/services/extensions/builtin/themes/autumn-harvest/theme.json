@@ -1,0 +1,114 @@
+{
+  "name": "Autumn Harvest",
+  "type": "dark",
+  "colors": {
+    "bg": "#1a1610",
+    "surface": "#242018",
+    "border": "#3a3428",
+    "accent": "#d2691e",
+    "text": "#f0e4d0",
+    "textSecondary": "#c0a888",
+    "textMuted": "#6a5a48",
+    "error": "#c85848",
+    "warning": "#d4a030",
+    "success": "#78a858",
+    "info": "#5888b0",
+    "scrollbarThumb": "#4a4438",
+    "scrollbarThumbHover": "#5a5448",
+    "indentGuide": "#302a20",
+    "surfaceRaised": "#312d26",
+    "hover": "#3e3b34",
+    "active": "#4b4842",
+    "accentHover": "#d67834",
+    "accentActive": "#da8446",
+    "errorHover": "#cf6c5e",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#524c42",
+    "editorBg": "#242018",
+    "panelBorder": "#3a3428"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6a5a48"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a0c878"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d4a030"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#d2691e"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#e08040"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#e08040"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#f0e4d0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#d2691e"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#e08040"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#78b0c8"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#a0c878"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f0e4d0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#d89068"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#78b0c8"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e0c070"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#c0a888"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#c85848"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#d2691e",
+      "fontStyle": "bold"
+    }
+  ]
+}

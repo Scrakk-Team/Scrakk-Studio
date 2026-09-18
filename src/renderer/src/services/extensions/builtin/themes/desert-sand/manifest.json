@@ -1,0 +1,18 @@
+{
+  "id": "desert-sand",
+  "name": "Desert Sand",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Desert Sand — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "desert-sand",
+        "name": "Desert Sand",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -13,8 +13,8 @@
 
 import * as fs from 'fs/promises'
 import * as path from 'path'
-import { execFile } from 'child_process'
 import type { LspServerConfig } from '@shared/lsp'
+import { resolveExecutable } from '../binaries'
 import { parseLspServerConfig } from './config'
 import type { InstallRecipe } from './install'
 
@@ -75,7 +75,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
       '.json': 'json'
     },
     rootMarkers: ['biome.json', 'biome.jsonc', 'package.json'],
-    gatedBy: '@biomejs/biome'
+    gatedBy: '@biomejs/biome',
+    install: { kind: 'npm', package: '@biomejs/biome' }
   },
   {
     id: 'python',
@@ -102,8 +103,9 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'cpp',
     command: 'clangd',
     args: ['--background-index'],
-    extensions: { '.c': 'c', '.h': 'c', '.cpp': 'cpp', '.cc': 'cpp', '.hpp': 'cpp' },
-    rootMarkers: ['compile_commands.json', 'CMakeLists.txt', 'Makefile', '.git']
+    extensions: { '.c': 'c', '.h': 'c', '.cpp': 'cpp', '.cc': 'cpp', '.hpp': 'hpp' },
+    rootMarkers: ['compile_commands.json', 'CMakeLists.txt', 'Makefile', '.git'],
+    install: { kind: 'github', repo: 'clangd/clangd', assetPattern: 'clangd-linux-\\d+\\.\\d+\\.\\d+\\.zip', binaryPath: 'clangd' }
   },
   {
     id: 'java',
@@ -115,20 +117,22 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'kotlin',
     command: 'kotlin-language-server',
     extensions: { '.kt': 'kotlin', '.kts': 'kotlin' },
-    rootMarkers: ['build.gradle', 'build.gradle.kts', 'settings.gradle', 'settings.gradle.kts']
+    rootMarkers: ['build.gradle', 'build.gradle.kts', 'settings.gradle', 'settings.gradle.kts'],
+    install: { kind: 'github', repo: 'fwcd/kotlin-language-server', assetPattern: '^server\\.zip$', binaryPath: 'kotlin-language-server' }
   },
   {
     id: 'ruby',
     command: 'ruby-lsp',
     extensions: { '.rb': 'ruby' },
-    rootMarkers: ['Gemfile', '.git']
+    rootMarkers: ['Gemfile', '.git'],
+    install: { kind: 'gem', package: 'ruby-lsp' }
   },
   {
     id: 'bash',
     command: 'bash-language-server',
     args: ['start'],
     extensions: { '.sh': 'shellscript', '.bash': 'shellscript', '.zsh': 'shellscript' },
-    install: { kind: 'npm', package: '@bash-lsp/bash-language-server server' },
+    install: { kind: 'npm', package: 'bash-language-server' },
   },
   {
     id: 'lua',
@@ -168,13 +172,14 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'markdown',
     command: 'marksman',
     extensions: { '.md': 'markdown' },
-    install: { kind: 'github', repo: 'fxplol/marksman-bin', assetPattern: 'marksman-linux-x64', binaryPath: 'marksman' },
+    install: { kind: 'github', repo: 'artempyanykh/marksman', assetPattern: 'marksman-linux-x64', binaryPath: 'marksman' },
   },
   {
     id: 'zig',
     command: 'zls',
     extensions: { '.zig': 'zig' },
-    rootMarkers: ['build.zig', '.git']
+    rootMarkers: ['build.zig', '.git'],
+    install: { kind: 'github', repo: 'zigtools/zls', assetPattern: 'zls-x86_64-linux\\.tar\\.xz', binaryPath: 'zls' }
   },
   {
     id: 'elixir',
@@ -194,7 +199,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     command: 'prisma-language-server',
     args: ['--stdio'],
     extensions: { '.prisma': 'prisma' },
-    rootMarkers: ['package.json', 'schema.prisma']
+    rootMarkers: ['package.json', 'schema.prisma'],
+    install: { kind: 'npm', package: '@prisma/language-server' }
   },
   {
     id: 'terraform',
@@ -204,9 +210,10 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
   },
   {
     id: 'dockerfile',
-    command: 'dockerfile-language-server-nodejs',
+    command: 'docker-langserver',
     args: ['--stdio'],
-    extensions: { 'Dockerfile': 'dockerfile', '.dockerfile': 'dockerfile' }
+    extensions: { Dockerfile: 'dockerfile', '.dockerfile': 'dockerfile' },
+    install: { kind: 'npm', package: 'dockerfile-language-server-nodejs' }
   },
   {
     id: 'cmake',
@@ -218,7 +225,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     command: 'vue-language-server',
     args: ['--stdio'],
     extensions: { '.vue': 'vue' },
-    rootMarkers: ['package.json']
+    rootMarkers: ['package.json'],
+    install: { kind: 'npm', package: '@vue/language-server' }
   },
   {
     id: 'svelte',
@@ -241,16 +249,23 @@ export function rootMarkersFor(serverName: string): string[] | undefined {
   return literals.length > 0 ? literals : undefined
 }
 
-/** ¿Existe el binario en PATH? */
+/**
+ * ¿Existe el binario en PATH?
+ *
+ * Se resuelve con `resolveExecutable` y no spawneando `which`/`where`: esos dos
+ * comandos faltan en instalaciones mínimas (y dependen ellos mismos del PATH,
+ * que es justo lo que acá hay que mirar). Además `resolveExecutable` usa el
+ * PATH AUMENTADO (`binaries.ts`), así que un server instalado con nvm o en
+ * `~/.local/bin` cuenta como disponible aunque la app se haya abierto desde el
+ * menú del escritorio.
+ */
 export function commandResolves(command: string): Promise<boolean> {
+  // Un server que escucha en TCP no tiene binario que resolver.
   if (command.includes(':') && /^\d{1,3}(\.\d{1,3}){3}:\d+/.test(command)) return Promise.resolve(true)
   if (path.isAbsolute(command)) {
     return fs.access(command).then(() => true, () => false)
   }
-  return new Promise((resolve) => {
-    const which = process.platform === 'win32' ? 'where' : 'which'
-    execFile(which, [command], (error) => resolve(!error))
-  })
+  return Promise.resolve(resolveExecutable(command) !== null)
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -263,10 +278,13 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 /**
- * Descubre builtins disponibles para un proyecto:
- *  - binario en PATH, O
- *  - binario en <root>/node_modules/.bin/<command>, O
- *  - gated: solo si package.json declara la dependencia (y hay binario).
+ * Registra TODOS los builtins del catálogo (para que el modal de gestión
+ * muestre la lista completa). Los gated (linters) solo si package.json
+ * declara la dependencia.
+ *
+ * La DISPONIBILIDAD del binario NO filtra acá: se reporta por-server vía
+ * `builtinAvailability` y decide el botón Instalar / auto-instalación al
+ * abrir un archivo matcheo.
  */
 export async function discoverBuiltinServers(projectRoot: string): Promise<Record<string, LspServerConfig>> {
   const discovered: Record<string, LspServerConfig> = {}
@@ -285,13 +303,6 @@ export async function discoverBuiltinServers(projectRoot: string): Promise<Recor
   for (const def of BUILTIN_SERVERS) {
     if (def.gatedBy && (!packageJsonDeps || !packageJsonDeps.has(def.gatedBy))) continue
 
-    let available = await commandResolves(def.command)
-    if (!available) {
-      const localBin = path.join(projectRoot, 'node_modules', '.bin', def.command)
-      available = await fileExists(localBin)
-    }
-    if (!available) continue
-
     const config = parseLspServerConfig(
       { command: def.command, args: def.args, extensions: def.extensions },
       def.id
@@ -300,4 +311,26 @@ export async function discoverBuiltinServers(projectRoot: string): Promise<Recor
   }
 
   return discovered
+}
+
+/**
+ * Disponibilidad real por id (PATH o node_modules/.bin del proyecto),
+ * cacheada por carga de root. Alimenta status().available y el botón.
+ */
+export async function builtinAvailability(
+  projectRoot: string,
+  ids: string[]
+): Promise<Record<string, boolean>> {
+  const out: Record<string, boolean> = {}
+  for (const id of ids) {
+    const def = BUILTIN_SERVERS.find((candidate) => candidate.id === id)
+    if (!def) continue
+    let available = await commandResolves(def.command)
+    if (!available) {
+      const localBin = path.join(projectRoot, 'node_modules', '.bin', def.command)
+      available = await fileExists(localBin)
+    }
+    out[id] = available
+  }
+  return out
 }

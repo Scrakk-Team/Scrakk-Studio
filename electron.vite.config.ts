@@ -1,37 +1,17 @@
-import { resolve } from 'node:path'
-import react from '@vitejs/plugin-react'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
-
 /**
- * Alias compartidos: cada módulo importa por alias, no por rutas relativas
- * largas → los módulos son independientes de su posición en el árbol.
+ * Wrapper de build config — elige perfil dev o prod según `mode`.
+ *
+ * Las configs reales viven en `build/electron-vite.{base,dev,prod}.ts`
+ * para que cada perfil sea testeable y editable sin tocar el wrapper.
+ *
+ * Switch manual: `mode: 'development'` (default) → dev. Para forzar
+ * prod en build, `electron-vite build` corre con `NODE_ENV=production`
+ * y Vite resuelve `mode: 'production'` solo.
  */
-const sharedAlias = {
-  '@shared': resolve('src/shared')
-}
 
-const rendererRoot = resolve('src/renderer/src')
+import { defineConfig } from 'electron-vite'
+import devConfig from './build/electron-vite.dev'
+import prodConfig from './build/electron-vite.prod'
 
-const rendererAlias = {
-  ...sharedAlias,
-  '@core': resolve(rendererRoot, 'core'),
-  '@ui': resolve(rendererRoot, 'components/ui'),
-  '@layout': resolve(rendererRoot, 'components/layout'),
-  '@features': resolve(rendererRoot, 'features'),
-  '@services': resolve(rendererRoot, 'services')
-}
-
-export default defineConfig({
-  main: {
-    plugins: [externalizeDepsPlugin()],
-    resolve: { alias: sharedAlias }
-  },
-  preload: {
-    plugins: [externalizeDepsPlugin()],
-    resolve: { alias: sharedAlias }
-  },
-  renderer: {
-    plugins: [react()],
-    resolve: { alias: rendererAlias }
-  }
-})
+const mode = process.env['NODE_ENV'] === 'production' ? 'production' : 'development'
+export default defineConfig(mode === 'production' ? prodConfig : devConfig)

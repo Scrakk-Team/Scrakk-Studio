@@ -453,11 +453,11 @@ function updateMemoryViews() {
   // need to do anything in updateMemoryViews.
   if (HEAP8?.buffer?.resizable) return;
   var b = getMemoryBuffer();
-  HEAP8 = new Int8Array(b);
+  Module['HEAP8'] = HEAP8 = new Int8Array(b);
   HEAP16 = new Int16Array(b);
-  HEAPU8 = new Uint8Array(b);
+  Module['HEAPU8'] = HEAPU8 = new Uint8Array(b);
   HEAPU16 = new Uint16Array(b);
-  HEAP32 = new Int32Array(b);
+  Module['HEAP32'] = HEAP32 = new Int32Array(b);
   HEAPU32 = new Uint32Array(b);
   HEAPF32 = new Float32Array(b);
   HEAPF64 = new Float64Array(b);
@@ -4225,7 +4225,7 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
       // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
       // for any code that deals with heap sizes, which would require special
       // casing all heap size related code to treat 0 specially.
-      2147483648;
+      1073741824;
   
   
   var growMemory = (size) => {
@@ -4811,6 +4811,13 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
     };
   var _glBindBuffer = _emscripten_glBindBuffer;
 
+  var _emscripten_glBindFramebuffer = (target, framebuffer) => {
+  
+      GLctx.bindFramebuffer(target, GL.framebuffers[framebuffer]);
+  
+    };
+  var _glBindFramebuffer = _emscripten_glBindFramebuffer;
+
   var _emscripten_glBindTexture = (target, texture) => {
       GLctx.bindTexture(target, GL.textures[texture]);
     };
@@ -4903,6 +4910,19 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
     };
   var _glDeleteBuffers = _emscripten_glDeleteBuffers;
 
+  
+  var _emscripten_glDeleteFramebuffers = (n, framebuffers) => {
+      for (var i = 0; i < n; ++i) {
+        var id = HEAP32[(((framebuffers)+(i*4))>>2)];
+        var framebuffer = GL.framebuffers[id];
+        if (!framebuffer) continue; // GL spec: "glDeleteFramebuffers silently ignores 0s and names that do not correspond to existing framebuffer objects".
+        GLctx.deleteFramebuffer(framebuffer);
+        framebuffer.name = 0;
+        GL.framebuffers[id] = null;
+      }
+    };
+  var _glDeleteFramebuffers = _emscripten_glDeleteFramebuffers;
+
   var _emscripten_glDeleteProgram = (id) => {
       if (!id) return;
       var program = GL.programs[id];
@@ -4975,11 +4995,23 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
     };
   var _glEnableVertexAttribArray = _emscripten_glEnableVertexAttribArray;
 
+  var _emscripten_glFramebufferTexture2D = (target, attachment, textarget, texture, level) => {
+      GLctx.framebufferTexture2D(target, attachment, textarget,
+                                      GL.textures[texture], level);
+    };
+  var _glFramebufferTexture2D = _emscripten_glFramebufferTexture2D;
+
   var _emscripten_glGenBuffers = (n, buffers) => {
       GL.genObject(n, buffers, 'createBuffer', GL.buffers
         );
     };
   var _glGenBuffers = _emscripten_glGenBuffers;
+
+  var _emscripten_glGenFramebuffers = (n, ids) => {
+      GL.genObject(n, ids, 'createFramebuffer', GL.framebuffers
+        );
+    };
+  var _glGenFramebuffers = _emscripten_glGenFramebuffers;
 
   var _emscripten_glGenTextures = (n, textures) => {
       GL.genObject(n, textures, 'createTexture', GL.textures
@@ -4995,6 +5027,174 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
 
   var _emscripten_glGenerateMipmap = (x0) => GLctx.generateMipmap(x0);
   var _glGenerateMipmap = _emscripten_glGenerateMipmap;
+
+  
+  var readI53FromI64 = (ptr) => {
+      return HEAPU32[((ptr)>>2)] + HEAP32[(((ptr)+(4))>>2)] * 4294967296;
+    };
+  
+  var readI53FromU64 = (ptr) => {
+      return HEAPU32[((ptr)>>2)] + HEAPU32[(((ptr)+(4))>>2)] * 4294967296;
+    };
+  
+  var writeI53ToI64 = (ptr, num) => {
+      HEAPU32[((ptr)>>2)] = num;
+      var lower = HEAPU32[((ptr)>>2)];
+      HEAPU32[(((ptr)+(4))>>2)] = (num - lower)/4294967296;
+      var deserialized = (num >= 0) ? readI53FromU64(ptr) : readI53FromI64(ptr);
+      var offset = ((ptr)>>2);
+      if (deserialized != num) warnOnce(`writeI53ToI64() out of range: serialized JS Number ${num} to Wasm heap as bytes lo=${ptrToString(HEAPU32[offset])}, hi=${ptrToString(HEAPU32[offset+1])}, which deserializes back to ${deserialized} instead!`);
+    };
+  
+  
+  var webglGetExtensions = () => {
+      var exts = getEmscriptenSupportedExtensions(GLctx);
+      exts = exts.concat(exts.map((e) => 'GL_' + e));
+      return exts;
+    };
+  
+  
+  
+  
+  /** @type {!Float32Array} */
+  var HEAPF32;
+  var emscriptenWebGLGet = (name_, p, type) => {
+      // Guard against user passing a null pointer.
+      // Note that GLES2 spec does not say anything about how passing a null
+      // pointer should be treated.  Testing on desktop core GL 3, the application
+      // crashes on glGetIntegerv to a null pointer, but better to report an error
+      // instead of doing anything random.
+      if (!p) {
+        GL.recordError(0x501 /* GL_INVALID_VALUE */);
+        return;
+      }
+      var ret = undefined;
+      switch (name_) { // Handle a few trivial GLES values
+        case 0x8DFA: // GL_SHADER_COMPILER
+          ret = 1;
+          break;
+        case 0x8DF8: // GL_SHADER_BINARY_FORMATS
+          if (type != 0 && type != 1) {
+            GL.recordError(0x500); // GL_INVALID_ENUM
+          }
+          // Do not write anything to the out pointer, since no binary formats are
+          // supported.
+          return;
+        case 0x87FE: // GL_NUM_PROGRAM_BINARY_FORMATS
+        case 0x8DF9: // GL_NUM_SHADER_BINARY_FORMATS
+          ret = 0;
+          break;
+        case 0x86A2: // GL_NUM_COMPRESSED_TEXTURE_FORMATS
+          // WebGL doesn't have GL_NUM_COMPRESSED_TEXTURE_FORMATS (it's obsolete
+          // since GL_COMPRESSED_TEXTURE_FORMATS returns a JS array that can be
+          // queried for length), so implement it ourselves to allow C++ GLES2
+          // code to get the length.
+          var formats = GLctx.getParameter(0x86A3 /*GL_COMPRESSED_TEXTURE_FORMATS*/);
+          ret = formats ? formats.length : 0;
+          break;
+  
+        case 0x821D: // GL_NUM_EXTENSIONS
+          if (GL.currentContext.version < 2) {
+            // Calling GLES3/WebGL2 function with a GLES2/WebGL1 context
+            GL.recordError(0x502 /* GL_INVALID_OPERATION */);
+            return;
+          }
+          ret = webglGetExtensions().length;
+          break;
+        case 0x821B: // GL_MAJOR_VERSION
+        case 0x821C: // GL_MINOR_VERSION
+          if (GL.currentContext.version < 2) {
+            GL.recordError(0x500); // GL_INVALID_ENUM
+            return;
+          }
+          ret = name_ == 0x821B ? 3 : 0; // return version 3.0
+          break;
+      }
+  
+      if (ret === undefined) {
+        var result = GLctx.getParameter(name_);
+        switch (typeof result) {
+          case 'number':
+            ret = result;
+            break;
+          case 'boolean':
+            ret = result ? 1 : 0;
+            break;
+          case 'string':
+            GL.recordError(0x500); // GL_INVALID_ENUM
+            return;
+          case 'object':
+            if (result === null) {
+              // null is a valid result for some (e.g., which buffer is bound -
+              // perhaps nothing is bound), but otherwise can mean an invalid
+              // name_, which we need to report as an error
+              switch (name_) {
+                case 0x8894: // ARRAY_BUFFER_BINDING
+                case 0x8B8D: // CURRENT_PROGRAM
+                case 0x8895: // ELEMENT_ARRAY_BUFFER_BINDING
+                case 0x8CA6: // FRAMEBUFFER_BINDING or DRAW_FRAMEBUFFER_BINDING
+                case 0x8CA7: // RENDERBUFFER_BINDING
+                case 0x8069: // TEXTURE_BINDING_2D
+                case 0x85B5: // WebGL 2 GL_VERTEX_ARRAY_BINDING, or WebGL 1 extension OES_vertex_array_object GL_VERTEX_ARRAY_BINDING_OES
+                case 0x8F36: // COPY_READ_BUFFER_BINDING or COPY_READ_BUFFER
+                case 0x8F37: // COPY_WRITE_BUFFER_BINDING or COPY_WRITE_BUFFER
+                case 0x88ED: // PIXEL_PACK_BUFFER_BINDING
+                case 0x88EF: // PIXEL_UNPACK_BUFFER_BINDING
+                case 0x8CAA: // READ_FRAMEBUFFER_BINDING
+                case 0x8919: // SAMPLER_BINDING
+                case 0x8C1D: // TEXTURE_BINDING_2D_ARRAY
+                case 0x806A: // TEXTURE_BINDING_3D
+                case 0x8E25: // TRANSFORM_FEEDBACK_BINDING
+                case 0x8C8F: // TRANSFORM_FEEDBACK_BUFFER_BINDING
+                case 0x8A28: // UNIFORM_BUFFER_BINDING
+                case 0x8514: { // TEXTURE_BINDING_CUBE_MAP
+                  ret = 0;
+                  break;
+                }
+                default: {
+                  GL.recordError(0x500); // GL_INVALID_ENUM
+                  return;
+                }
+              }
+            } else if (result instanceof Float32Array ||
+                       result instanceof Uint32Array ||
+                       result instanceof Int32Array ||
+                       result instanceof Array) {
+              for (var i = 0; i < result.length; ++i) {
+                switch (type) {
+                  case 0: HEAP32[(((p)+(i*4))>>2)] = result[i]; break;
+                  case 2: HEAPF32[(((p)+(i*4))>>2)] = result[i]; break;
+                  case 4: HEAP8[(p)+(i)] = result[i] ? 1 : 0; break;
+                }
+              }
+              return;
+            } else {
+              try {
+                ret = result.name | 0;
+              } catch(e) {
+                GL.recordError(0x500); // GL_INVALID_ENUM
+                err(`GL_INVALID_ENUM in glGet${type}v: Unknown object returned from WebGL getParameter(${name_})! (error: ${e})`);
+                return;
+              }
+            }
+            break;
+          default:
+            GL.recordError(0x500); // GL_INVALID_ENUM
+            err(`GL_INVALID_ENUM in glGet${type}v: Native code calling glGet${type}v(${name_}) and it returns ${result} of type ${typeof(result)}!`);
+            return;
+        }
+      }
+  
+      switch (type) {
+        case 1: writeI53ToI64(p, ret); break;
+        case 0: HEAP32[((p)>>2)] = ret; break;
+        case 2:   HEAPF32[((p)>>2)] = ret; break;
+        case 4: HEAP8[p] = ret ? 1 : 0; break;
+      }
+    };
+  
+  var _emscripten_glGetIntegerv = (name_, p) => emscriptenWebGLGet(name_, p, 0);
+  var _glGetIntegerv = _emscripten_glGetIntegerv;
 
   
   var _emscripten_glGetProgramInfoLog = (program, maxLength, length, infoLog) => {
@@ -5105,12 +5305,6 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
       return ret;
     };
   
-  
-  var webglGetExtensions = () => {
-      var exts = getEmscriptenSupportedExtensions(GLctx);
-      exts = exts.concat(exts.map((e) => 'GL_' + e));
-      return exts;
-    };
   
   var _emscripten_glGetString = (name_) => {
       var ret = GL.stringCache[name_];
@@ -5329,8 +5523,6 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
   
   
   
-  /** @type {!Float32Array} */
-  var HEAPF32;
   var heapObjectForWebGLType = (type) => {
       // Micro-optimization for size: Subtract lowest GL enum number (0x1400/* GL_BYTE */) from type to compare
       // smaller values for the heap, for shorter generated code size.
@@ -5435,10 +5627,22 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
       return webglGetProgramUniformLocation(GLctx.currentProgram, location);
     };
   
+  var _emscripten_glUniform1f = (location, v0) => {
+      GLctx.uniform1f(webglGetUniformLocation(location), v0);
+    };
+  var _glUniform1f = _emscripten_glUniform1f;
+
+  
   var _emscripten_glUniform1i = (location, v0) => {
       GLctx.uniform1i(webglGetUniformLocation(location), v0);
     };
   var _glUniform1i = _emscripten_glUniform1i;
+
+  
+  var _emscripten_glUniform4f = (location, v0, v1, v2, v3) => {
+      GLctx.uniform4f(webglGetUniformLocation(location), v0, v1, v2, v3);
+    };
+  var _glUniform4f = _emscripten_glUniform4f;
 
   
   var miniTempWebGLFloatBuffers = [];
@@ -7623,6 +7827,63 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
     };
 
 
+
+  
+  
+  
+  
+  
+  
+  
+    /**
+   * @param {number} ptr
+   * @param {number} value
+   * @param {string} type
+   */
+  function setValue(ptr, value, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': HEAP8[ptr] = value; break;
+      case 'i8': HEAP8[ptr] = value; break;
+      case 'i16': HEAP16[((ptr)>>1)] = value; break;
+      case 'i32': HEAP32[((ptr)>>2)] = value; break;
+      case 'i64': HEAP64[((ptr)>>3)] = BigInt(value); break;
+      case 'float': HEAPF32[((ptr)>>2)] = value; break;
+      case 'double': HEAPF64[((ptr)>>3)] = value; break;
+      case '*': HEAPU32[((ptr)>>2)] = value; break;
+      default: abort(`invalid type for setValue: ${type}`);
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+    /**
+   * @param {number} ptr
+   * @param {string} type
+   */
+  function getValue(ptr, type = 'i8') {
+    if (type.endsWith('*')) type = '*';
+    switch (type) {
+      case 'i1': return HEAP8[ptr];
+      case 'i8': return HEAP8[ptr];
+      case 'i16': return HEAP16[((ptr)>>1)];
+      case 'i32': return HEAP32[((ptr)>>2)];
+      case 'i64': return HEAP64[((ptr)>>3)];
+      case 'float': return HEAPF32[((ptr)>>2)];
+      case 'double': return HEAPF64[((ptr)>>3)];
+      case '*': return HEAPU32[((ptr)>>2)];
+      default: abort(`invalid type for getValue: ${type}`);
+    }
+  }
+
+
+
+
   var FS_createPath = (...args) => FS.createPath(...args);
 
 
@@ -7699,6 +7960,8 @@ if (Module['printErr']) err = Module['printErr'];
 // Begin runtime exports
   Module['addRunDependency'] = addRunDependency;
   Module['removeRunDependency'] = removeRunDependency;
+  Module['setValue'] = setValue;
+  Module['getValue'] = getValue;
   Module['UTF8ToString'] = UTF8ToString;
   Module['stringToUTF8'] = stringToUTF8;
   Module['lengthBytesUTF8'] = lengthBytesUTF8;
@@ -7708,17 +7971,15 @@ if (Module['printErr']) err = Module['printErr'];
   Module['FS_unlink'] = FS_unlink;
   Module['FS_createPath'] = FS_createPath;
   Module['FS_createDevice'] = FS_createDevice;
+  Module['FS'] = FS;
   Module['FS_createDataFile'] = FS_createDataFile;
   Module['FS_createLazyFile'] = FS_createLazyFile;
   Module['allocateUTF8'] = allocateUTF8;
   var missingLibrarySymbols = [
-  'writeI53ToI64',
   'writeI53ToI64Clamped',
   'writeI53ToI64Signaling',
   'writeI53ToU64Clamped',
   'writeI53ToU64Signaling',
-  'readI53FromI64',
-  'readI53FromU64',
   'convertI32PairToI53',
   'convertI32PairToI53Checked',
   'convertU32PairToI53',
@@ -7757,8 +8018,6 @@ if (Module['printErr']) err = Module['printErr'];
   'getFunctionAddress',
   'addFunction',
   'removeFunction',
-  'setValue',
-  'getValue',
   'intArrayToString',
   'AsciiToString',
   'stringToAscii',
@@ -7837,7 +8096,6 @@ if (Module['printErr']) err = Module['printErr'];
   'getSocketAddress',
   'FS_mkdirTree',
   '_setNetworkCallback',
-  'emscriptenWebGLGet',
   'emscriptenWebGLGetUniform',
   'emscriptenWebGLGetVertexAttrib',
   '__glGetActiveAttribOrUniform',
@@ -7863,14 +8121,14 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'wasmExports',
   'writeStackCookie',
   'checkStackCookie',
+  'writeI53ToI64',
+  'readI53FromI64',
+  'readI53FromU64',
   'INT53_MAX',
   'INT53_MIN',
   'bigintToI53Checked',
-  'HEAP8',
-  'HEAPU8',
   'HEAP16',
   'HEAPU16',
-  'HEAP32',
   'HEAPU32',
   'HEAPF32',
   'HEAPF64',
@@ -7959,7 +8217,6 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'FS_stdin_getChar_buffer',
   'FS_stdin_getChar',
   'FS_readFile',
-  'FS',
   'FS_root',
   'FS_mounts',
   'FS_devices',
@@ -8081,6 +8338,7 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'webgl_enable_EXT_clip_control',
   'webgl_enable_WEBGL_polygon_mode',
   'GL',
+  'emscriptenWebGLGet',
   'computeUnpackAlignedImageSize',
   'colorChannelsInGlTextureFormat',
   'emscriptenWebGLGetTexPixelData',
@@ -8141,14 +8399,18 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('wasmBinary');
 }
 var ASM_CONSTS = {
-  22318356: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } }
+  22655300: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } },  
+ 22655450: ($0, $1, $2, $3) => { if (Module._innertaOnEvent) { try { Module._innertaOnEvent($0, $1, $2, $3); } catch (e) {} } }
 };
 
 // Imports from the Wasm binary.
+var _fflush = makeInvalidEarlyAccess('_fflush');
 var _InitInnerta = Module['_InitInnerta'] = makeInvalidEarlyAccess('_InitInnerta');
 var _ShutdownInnerta = Module['_ShutdownInnerta'] = makeInvalidEarlyAccess('_ShutdownInnerta');
 var _SetInnertaBounds = Module['_SetInnertaBounds'] = makeInvalidEarlyAccess('_SetInnertaBounds');
 var _SetInnertaVisible = Module['_SetInnertaVisible'] = makeInvalidEarlyAccess('_SetInnertaVisible');
+var _SetInnertaBookmarks = Module['_SetInnertaBookmarks'] = makeInvalidEarlyAccess('_SetInnertaBookmarks');
+var _GetInnertaBookmarkCount = Module['_GetInnertaBookmarkCount'] = makeInvalidEarlyAccess('_GetInnertaBookmarkCount');
 var _InnertaFrame = Module['_InnertaFrame'] = makeInvalidEarlyAccess('_InnertaFrame');
 var _SetInnertaContent = Module['_SetInnertaContent'] = makeInvalidEarlyAccess('_SetInnertaContent');
 var _SetInnertaTheme = Module['_SetInnertaTheme'] = makeInvalidEarlyAccess('_SetInnertaTheme');
@@ -8157,7 +8419,15 @@ var _SetInnertaDimRegions = Module['_SetInnertaDimRegions'] = makeInvalidEarlyAc
 var _SetInnertaTokenColor = Module['_SetInnertaTokenColor'] = makeInvalidEarlyAccess('_SetInnertaTokenColor');
 var _SetInnertaFocus = Module['_SetInnertaFocus'] = makeInvalidEarlyAccess('_SetInnertaFocus');
 var _InnertaEnsureVisible = Module['_InnertaEnsureVisible'] = makeInvalidEarlyAccess('_InnertaEnsureVisible');
+var _SetInnertaFoldingRanges = Module['_SetInnertaFoldingRanges'] = makeInvalidEarlyAccess('_SetInnertaFoldingRanges');
+var _ClearInnertaFoldingRanges = Module['_ClearInnertaFoldingRanges'] = makeInvalidEarlyAccess('_ClearInnertaFoldingRanges');
+var _GetInnertaFoldingCount = Module['_GetInnertaFoldingCount'] = makeInvalidEarlyAccess('_GetInnertaFoldingCount');
+var _GetInnertaFoldingIsHost = Module['_GetInnertaFoldingIsHost'] = makeInvalidEarlyAccess('_GetInnertaFoldingIsHost');
+var _GetInnertaFoldingFromEngine = Module['_GetInnertaFoldingFromEngine'] = makeInvalidEarlyAccess('_GetInnertaFoldingFromEngine');
+var _SetInnertaSelection = Module['_SetInnertaSelection'] = makeInvalidEarlyAccess('_SetInnertaSelection');
+var _ClearInnertaSelection = Module['_ClearInnertaSelection'] = makeInvalidEarlyAccess('_ClearInnertaSelection');
 var _SetInnertaCursor = Module['_SetInnertaCursor'] = makeInvalidEarlyAccess('_SetInnertaCursor');
+var _GetInnertaCursor = Module['_GetInnertaCursor'] = makeInvalidEarlyAccess('_GetInnertaCursor');
 var _SetInnertaScrollOffset = Module['_SetInnertaScrollOffset'] = makeInvalidEarlyAccess('_SetInnertaScrollOffset');
 var _OpenInnertaFile = Module['_OpenInnertaFile'] = makeInvalidEarlyAccess('_OpenInnertaFile');
 var _GoToInnertaWelcome = Module['_GoToInnertaWelcome'] = makeInvalidEarlyAccess('_GoToInnertaWelcome');
@@ -8169,9 +8439,18 @@ var _SetInnertaDiffDecorations = Module['_SetInnertaDiffDecorations'] = makeInva
 var _ClearInnertaDiffDecorations = Module['_ClearInnertaDiffDecorations'] = makeInvalidEarlyAccess('_ClearInnertaDiffDecorations');
 var _SetInnertaUnderlines = Module['_SetInnertaUnderlines'] = makeInvalidEarlyAccess('_SetInnertaUnderlines');
 var _ClearInnertaUnderlines = Module['_ClearInnertaUnderlines'] = makeInvalidEarlyAccess('_ClearInnertaUnderlines');
+var _GetInnertaUnderlineCount = Module['_GetInnertaUnderlineCount'] = makeInvalidEarlyAccess('_GetInnertaUnderlineCount');
 var _SetInnertaWasmClipboard = Module['_SetInnertaWasmClipboard'] = makeInvalidEarlyAccess('_SetInnertaWasmClipboard');
+var _InnertaHitTest = Module['_InnertaHitTest'] = makeInvalidEarlyAccess('_InnertaHitTest');
+var _SetInnertaSemanticTokens = Module['_SetInnertaSemanticTokens'] = makeInvalidEarlyAccess('_SetInnertaSemanticTokens');
+var _SetInnertaHighlightSource = Module['_SetInnertaHighlightSource'] = makeInvalidEarlyAccess('_SetInnertaHighlightSource');
+var _GetInnertaSemanticTokens = Module['_GetInnertaSemanticTokens'] = makeInvalidEarlyAccess('_GetInnertaSemanticTokens');
+var _GetInnertaHighlightSource = Module['_GetInnertaHighlightSource'] = makeInvalidEarlyAccess('_GetInnertaHighlightSource');
 var _GetInnertaSelectedText = Module['_GetInnertaSelectedText'] = makeInvalidEarlyAccess('_GetInnertaSelectedText');
 var _GetInnertaText = Module['_GetInnertaText'] = makeInvalidEarlyAccess('_GetInnertaText');
+var _GetInnertaRevision = Module['_GetInnertaRevision'] = makeInvalidEarlyAccess('_GetInnertaRevision');
+var _SetInnertaCleanRevision = Module['_SetInnertaCleanRevision'] = makeInvalidEarlyAccess('_SetInnertaCleanRevision');
+var _GetInnertaDirty = Module['_GetInnertaDirty'] = makeInvalidEarlyAccess('_GetInnertaDirty');
 var _InnertaMouseMove = Module['_InnertaMouseMove'] = makeInvalidEarlyAccess('_InnertaMouseMove');
 var _InnertaMouseLeave = Module['_InnertaMouseLeave'] = makeInvalidEarlyAccess('_InnertaMouseLeave');
 var _InnertaMouseButton = Module['_InnertaMouseButton'] = makeInvalidEarlyAccess('_InnertaMouseButton');
@@ -8179,6 +8458,7 @@ var _InnertaScroll = Module['_InnertaScroll'] = makeInvalidEarlyAccess('_Innerta
 var _InnertaKey = Module['_InnertaKey'] = makeInvalidEarlyAccess('_InnertaKey');
 var _InnertaChar = Module['_InnertaChar'] = makeInvalidEarlyAccess('_InnertaChar');
 var _SetInnertaBgColor = Module['_SetInnertaBgColor'] = makeInvalidEarlyAccess('_SetInnertaBgColor');
+var _SetInnertaTerminalFont = Module['_SetInnertaTerminalFont'] = makeInvalidEarlyAccess('_SetInnertaTerminalFont');
 var _SetInnertaAccentColor = Module['_SetInnertaAccentColor'] = makeInvalidEarlyAccess('_SetInnertaAccentColor');
 var _SetInnertaTextColor = Module['_SetInnertaTextColor'] = makeInvalidEarlyAccess('_SetInnertaTextColor');
 var _SetInnertaBorderColor = Module['_SetInnertaBorderColor'] = makeInvalidEarlyAccess('_SetInnertaBorderColor');
@@ -8187,9 +8467,35 @@ var _SetInnertaTextMutedColor = Module['_SetInnertaTextMutedColor'] = makeInvali
 var _SetInnertaIndentGuideColor = Module['_SetInnertaIndentGuideColor'] = makeInvalidEarlyAccess('_SetInnertaIndentGuideColor');
 var _GetInnertaFontPath = Module['_GetInnertaFontPath'] = makeInvalidEarlyAccess('_GetInnertaFontPath');
 var _SetInnertaBreadcumbFilename = Module['_SetInnertaBreadcumbFilename'] = makeInvalidEarlyAccess('_SetInnertaBreadcumbFilename');
+var _SetInnertaGutterVisible = Module['_SetInnertaGutterVisible'] = makeInvalidEarlyAccess('_SetInnertaGutterVisible');
+var _SetInnertaMinimapVisible = Module['_SetInnertaMinimapVisible'] = makeInvalidEarlyAccess('_SetInnertaMinimapVisible');
+var _GetInnertaMinimapVisible = Module['_GetInnertaMinimapVisible'] = makeInvalidEarlyAccess('_GetInnertaMinimapVisible');
+var _SetInnertaTerminalMode = Module['_SetInnertaTerminalMode'] = makeInvalidEarlyAccess('_SetInnertaTerminalMode');
+var _InnertaFeedVt = Module['_InnertaFeedVt'] = makeInvalidEarlyAccess('_InnertaFeedVt');
+var _GetInnertaCharWidth = Module['_GetInnertaCharWidth'] = makeInvalidEarlyAccess('_GetInnertaCharWidth');
+var _GetInnertaLineHeight = Module['_GetInnertaLineHeight'] = makeInvalidEarlyAccess('_GetInnertaLineHeight');
+var _InnertaResize = Module['_InnertaResize'] = makeInvalidEarlyAccess('_InnertaResize');
+var _InnertaTerminalMouseButton = Module['_InnertaTerminalMouseButton'] = makeInvalidEarlyAccess('_InnertaTerminalMouseButton');
+var _InnertaTerminalMouseMove = Module['_InnertaTerminalMouseMove'] = makeInvalidEarlyAccess('_InnertaTerminalMouseMove');
+var _InnertaTerminalReadOutputString = Module['_InnertaTerminalReadOutputString'] = makeInvalidEarlyAccess('_InnertaTerminalReadOutputString');
+var _InnertaIsAltScreen = Module['_InnertaIsAltScreen'] = makeInvalidEarlyAccess('_InnertaIsAltScreen');
+var _InnertaTerminalHasSelection = Module['_InnertaTerminalHasSelection'] = makeInvalidEarlyAccess('_InnertaTerminalHasSelection');
+var _InnertaTerminalGetSelectionText = Module['_InnertaTerminalGetSelectionText'] = makeInvalidEarlyAccess('_InnertaTerminalGetSelectionText');
+var _InnertaTerminalClearSelection = Module['_InnertaTerminalClearSelection'] = makeInvalidEarlyAccess('_InnertaTerminalClearSelection');
+var _InnertaTerminalGetCursorRow = Module['_InnertaTerminalGetCursorRow'] = makeInvalidEarlyAccess('_InnertaTerminalGetCursorRow');
+var _InnertaTerminalGetCursorCol = Module['_InnertaTerminalGetCursorCol'] = makeInvalidEarlyAccess('_InnertaTerminalGetCursorCol');
+var _InnertaCreateView = Module['_InnertaCreateView'] = makeInvalidEarlyAccess('_InnertaCreateView');
+var _InnertaDestroyView = Module['_InnertaDestroyView'] = makeInvalidEarlyAccess('_InnertaDestroyView');
+var _InnertaViewSetBounds = Module['_InnertaViewSetBounds'] = makeInvalidEarlyAccess('_InnertaViewSetBounds');
+var _InnertaViewSetVisible = Module['_InnertaViewSetVisible'] = makeInvalidEarlyAccess('_InnertaViewSetVisible');
+var _InnertaViewSetContent = Module['_InnertaViewSetContent'] = makeInvalidEarlyAccess('_InnertaViewSetContent');
+var _InnertaViewAppend = Module['_InnertaViewAppend'] = makeInvalidEarlyAccess('_InnertaViewAppend');
+var _InnertaViewSetPtyFd = Module['_InnertaViewSetPtyFd'] = makeInvalidEarlyAccess('_InnertaViewSetPtyFd');
+var _InnertaViewSetReadOnlyRanges = Module['_InnertaViewSetReadOnlyRanges'] = makeInvalidEarlyAccess('_InnertaViewSetReadOnlyRanges');
+var _InnertaViewFocus = Module['_InnertaViewFocus'] = makeInvalidEarlyAccess('_InnertaViewFocus');
+var _InnertaViewSetBoundsWasm = Module['_InnertaViewSetBoundsWasm'] = makeInvalidEarlyAccess('_InnertaViewSetBoundsWasm');
 var _malloc = Module['_malloc'] = makeInvalidEarlyAccess('_malloc');
 var _free = Module['_free'] = makeInvalidEarlyAccess('_free');
-var _fflush = makeInvalidEarlyAccess('_fflush');
 var _emscripten_builtin_memalign = makeInvalidEarlyAccess('_emscripten_builtin_memalign');
 var _emscripten_stack_get_end = makeInvalidEarlyAccess('_emscripten_stack_get_end');
 var _emscripten_stack_get_base = makeInvalidEarlyAccess('_emscripten_stack_get_base');
@@ -8206,10 +8512,13 @@ var wasmMemory = makeInvalidEarlyAccess('wasmMemory');
 var wasmTable = makeInvalidEarlyAccess('wasmTable');
 
 function assignWasmExports(wasmExports) {
+  assert(typeof wasmExports['fflush'] != 'undefined', 'missing Wasm export: fflush');
   assert(typeof wasmExports['InitInnerta'] != 'undefined', 'missing Wasm export: InitInnerta');
   assert(typeof wasmExports['ShutdownInnerta'] != 'undefined', 'missing Wasm export: ShutdownInnerta');
   assert(typeof wasmExports['SetInnertaBounds'] != 'undefined', 'missing Wasm export: SetInnertaBounds');
   assert(typeof wasmExports['SetInnertaVisible'] != 'undefined', 'missing Wasm export: SetInnertaVisible');
+  assert(typeof wasmExports['SetInnertaBookmarks'] != 'undefined', 'missing Wasm export: SetInnertaBookmarks');
+  assert(typeof wasmExports['GetInnertaBookmarkCount'] != 'undefined', 'missing Wasm export: GetInnertaBookmarkCount');
   assert(typeof wasmExports['InnertaFrame'] != 'undefined', 'missing Wasm export: InnertaFrame');
   assert(typeof wasmExports['SetInnertaContent'] != 'undefined', 'missing Wasm export: SetInnertaContent');
   assert(typeof wasmExports['SetInnertaTheme'] != 'undefined', 'missing Wasm export: SetInnertaTheme');
@@ -8218,7 +8527,15 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['SetInnertaTokenColor'] != 'undefined', 'missing Wasm export: SetInnertaTokenColor');
   assert(typeof wasmExports['SetInnertaFocus'] != 'undefined', 'missing Wasm export: SetInnertaFocus');
   assert(typeof wasmExports['InnertaEnsureVisible'] != 'undefined', 'missing Wasm export: InnertaEnsureVisible');
+  assert(typeof wasmExports['SetInnertaFoldingRanges'] != 'undefined', 'missing Wasm export: SetInnertaFoldingRanges');
+  assert(typeof wasmExports['ClearInnertaFoldingRanges'] != 'undefined', 'missing Wasm export: ClearInnertaFoldingRanges');
+  assert(typeof wasmExports['GetInnertaFoldingCount'] != 'undefined', 'missing Wasm export: GetInnertaFoldingCount');
+  assert(typeof wasmExports['GetInnertaFoldingIsHost'] != 'undefined', 'missing Wasm export: GetInnertaFoldingIsHost');
+  assert(typeof wasmExports['GetInnertaFoldingFromEngine'] != 'undefined', 'missing Wasm export: GetInnertaFoldingFromEngine');
+  assert(typeof wasmExports['SetInnertaSelection'] != 'undefined', 'missing Wasm export: SetInnertaSelection');
+  assert(typeof wasmExports['ClearInnertaSelection'] != 'undefined', 'missing Wasm export: ClearInnertaSelection');
   assert(typeof wasmExports['SetInnertaCursor'] != 'undefined', 'missing Wasm export: SetInnertaCursor');
+  assert(typeof wasmExports['GetInnertaCursor'] != 'undefined', 'missing Wasm export: GetInnertaCursor');
   assert(typeof wasmExports['SetInnertaScrollOffset'] != 'undefined', 'missing Wasm export: SetInnertaScrollOffset');
   assert(typeof wasmExports['OpenInnertaFile'] != 'undefined', 'missing Wasm export: OpenInnertaFile');
   assert(typeof wasmExports['GoToInnertaWelcome'] != 'undefined', 'missing Wasm export: GoToInnertaWelcome');
@@ -8230,9 +8547,18 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['ClearInnertaDiffDecorations'] != 'undefined', 'missing Wasm export: ClearInnertaDiffDecorations');
   assert(typeof wasmExports['SetInnertaUnderlines'] != 'undefined', 'missing Wasm export: SetInnertaUnderlines');
   assert(typeof wasmExports['ClearInnertaUnderlines'] != 'undefined', 'missing Wasm export: ClearInnertaUnderlines');
+  assert(typeof wasmExports['GetInnertaUnderlineCount'] != 'undefined', 'missing Wasm export: GetInnertaUnderlineCount');
   assert(typeof wasmExports['SetInnertaWasmClipboard'] != 'undefined', 'missing Wasm export: SetInnertaWasmClipboard');
+  assert(typeof wasmExports['InnertaHitTest'] != 'undefined', 'missing Wasm export: InnertaHitTest');
+  assert(typeof wasmExports['SetInnertaSemanticTokens'] != 'undefined', 'missing Wasm export: SetInnertaSemanticTokens');
+  assert(typeof wasmExports['SetInnertaHighlightSource'] != 'undefined', 'missing Wasm export: SetInnertaHighlightSource');
+  assert(typeof wasmExports['GetInnertaSemanticTokens'] != 'undefined', 'missing Wasm export: GetInnertaSemanticTokens');
+  assert(typeof wasmExports['GetInnertaHighlightSource'] != 'undefined', 'missing Wasm export: GetInnertaHighlightSource');
   assert(typeof wasmExports['GetInnertaSelectedText'] != 'undefined', 'missing Wasm export: GetInnertaSelectedText');
   assert(typeof wasmExports['GetInnertaText'] != 'undefined', 'missing Wasm export: GetInnertaText');
+  assert(typeof wasmExports['GetInnertaRevision'] != 'undefined', 'missing Wasm export: GetInnertaRevision');
+  assert(typeof wasmExports['SetInnertaCleanRevision'] != 'undefined', 'missing Wasm export: SetInnertaCleanRevision');
+  assert(typeof wasmExports['GetInnertaDirty'] != 'undefined', 'missing Wasm export: GetInnertaDirty');
   assert(typeof wasmExports['InnertaMouseMove'] != 'undefined', 'missing Wasm export: InnertaMouseMove');
   assert(typeof wasmExports['InnertaMouseLeave'] != 'undefined', 'missing Wasm export: InnertaMouseLeave');
   assert(typeof wasmExports['InnertaMouseButton'] != 'undefined', 'missing Wasm export: InnertaMouseButton');
@@ -8240,6 +8566,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['InnertaKey'] != 'undefined', 'missing Wasm export: InnertaKey');
   assert(typeof wasmExports['InnertaChar'] != 'undefined', 'missing Wasm export: InnertaChar');
   assert(typeof wasmExports['SetInnertaBgColor'] != 'undefined', 'missing Wasm export: SetInnertaBgColor');
+  assert(typeof wasmExports['SetInnertaTerminalFont'] != 'undefined', 'missing Wasm export: SetInnertaTerminalFont');
   assert(typeof wasmExports['SetInnertaAccentColor'] != 'undefined', 'missing Wasm export: SetInnertaAccentColor');
   assert(typeof wasmExports['SetInnertaTextColor'] != 'undefined', 'missing Wasm export: SetInnertaTextColor');
   assert(typeof wasmExports['SetInnertaBorderColor'] != 'undefined', 'missing Wasm export: SetInnertaBorderColor');
@@ -8248,9 +8575,35 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['SetInnertaIndentGuideColor'] != 'undefined', 'missing Wasm export: SetInnertaIndentGuideColor');
   assert(typeof wasmExports['GetInnertaFontPath'] != 'undefined', 'missing Wasm export: GetInnertaFontPath');
   assert(typeof wasmExports['SetInnertaBreadcumbFilename'] != 'undefined', 'missing Wasm export: SetInnertaBreadcumbFilename');
+  assert(typeof wasmExports['SetInnertaGutterVisible'] != 'undefined', 'missing Wasm export: SetInnertaGutterVisible');
+  assert(typeof wasmExports['SetInnertaMinimapVisible'] != 'undefined', 'missing Wasm export: SetInnertaMinimapVisible');
+  assert(typeof wasmExports['GetInnertaMinimapVisible'] != 'undefined', 'missing Wasm export: GetInnertaMinimapVisible');
+  assert(typeof wasmExports['SetInnertaTerminalMode'] != 'undefined', 'missing Wasm export: SetInnertaTerminalMode');
+  assert(typeof wasmExports['InnertaFeedVt'] != 'undefined', 'missing Wasm export: InnertaFeedVt');
+  assert(typeof wasmExports['GetInnertaCharWidth'] != 'undefined', 'missing Wasm export: GetInnertaCharWidth');
+  assert(typeof wasmExports['GetInnertaLineHeight'] != 'undefined', 'missing Wasm export: GetInnertaLineHeight');
+  assert(typeof wasmExports['InnertaResize'] != 'undefined', 'missing Wasm export: InnertaResize');
+  assert(typeof wasmExports['InnertaTerminalMouseButton'] != 'undefined', 'missing Wasm export: InnertaTerminalMouseButton');
+  assert(typeof wasmExports['InnertaTerminalMouseMove'] != 'undefined', 'missing Wasm export: InnertaTerminalMouseMove');
+  assert(typeof wasmExports['InnertaTerminalReadOutputString'] != 'undefined', 'missing Wasm export: InnertaTerminalReadOutputString');
+  assert(typeof wasmExports['InnertaIsAltScreen'] != 'undefined', 'missing Wasm export: InnertaIsAltScreen');
+  assert(typeof wasmExports['InnertaTerminalHasSelection'] != 'undefined', 'missing Wasm export: InnertaTerminalHasSelection');
+  assert(typeof wasmExports['InnertaTerminalGetSelectionText'] != 'undefined', 'missing Wasm export: InnertaTerminalGetSelectionText');
+  assert(typeof wasmExports['InnertaTerminalClearSelection'] != 'undefined', 'missing Wasm export: InnertaTerminalClearSelection');
+  assert(typeof wasmExports['InnertaTerminalGetCursorRow'] != 'undefined', 'missing Wasm export: InnertaTerminalGetCursorRow');
+  assert(typeof wasmExports['InnertaTerminalGetCursorCol'] != 'undefined', 'missing Wasm export: InnertaTerminalGetCursorCol');
+  assert(typeof wasmExports['InnertaCreateView'] != 'undefined', 'missing Wasm export: InnertaCreateView');
+  assert(typeof wasmExports['InnertaDestroyView'] != 'undefined', 'missing Wasm export: InnertaDestroyView');
+  assert(typeof wasmExports['InnertaViewSetBounds'] != 'undefined', 'missing Wasm export: InnertaViewSetBounds');
+  assert(typeof wasmExports['InnertaViewSetVisible'] != 'undefined', 'missing Wasm export: InnertaViewSetVisible');
+  assert(typeof wasmExports['InnertaViewSetContent'] != 'undefined', 'missing Wasm export: InnertaViewSetContent');
+  assert(typeof wasmExports['InnertaViewAppend'] != 'undefined', 'missing Wasm export: InnertaViewAppend');
+  assert(typeof wasmExports['InnertaViewSetPtyFd'] != 'undefined', 'missing Wasm export: InnertaViewSetPtyFd');
+  assert(typeof wasmExports['InnertaViewSetReadOnlyRanges'] != 'undefined', 'missing Wasm export: InnertaViewSetReadOnlyRanges');
+  assert(typeof wasmExports['InnertaViewFocus'] != 'undefined', 'missing Wasm export: InnertaViewFocus');
+  assert(typeof wasmExports['InnertaViewSetBoundsWasm'] != 'undefined', 'missing Wasm export: InnertaViewSetBoundsWasm');
   assert(typeof wasmExports['malloc'] != 'undefined', 'missing Wasm export: malloc');
   assert(typeof wasmExports['free'] != 'undefined', 'missing Wasm export: free');
-  assert(typeof wasmExports['fflush'] != 'undefined', 'missing Wasm export: fflush');
   assert(typeof wasmExports['emscripten_builtin_memalign'] != 'undefined', 'missing Wasm export: emscripten_builtin_memalign');
   assert(typeof wasmExports['emscripten_stack_get_end'] != 'undefined', 'missing Wasm export: emscripten_stack_get_end');
   assert(typeof wasmExports['emscripten_stack_get_base'] != 'undefined', 'missing Wasm export: emscripten_stack_get_base');
@@ -8263,10 +8616,13 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['emscripten_stack_get_current'] != 'undefined', 'missing Wasm export: emscripten_stack_get_current');
   assert(typeof wasmExports['memory'] != 'undefined', 'missing Wasm export: memory');
   assert(typeof wasmExports['__indirect_function_table'] != 'undefined', 'missing Wasm export: __indirect_function_table');
+  _fflush = createExportWrapper('fflush', wasmExports['fflush'], 1);
   _InitInnerta = Module['_InitInnerta'] = createExportWrapper('InitInnerta', wasmExports['InitInnerta'], 5);
   _ShutdownInnerta = Module['_ShutdownInnerta'] = createExportWrapper('ShutdownInnerta', wasmExports['ShutdownInnerta'], 0);
   _SetInnertaBounds = Module['_SetInnertaBounds'] = createExportWrapper('SetInnertaBounds', wasmExports['SetInnertaBounds'], 4);
   _SetInnertaVisible = Module['_SetInnertaVisible'] = createExportWrapper('SetInnertaVisible', wasmExports['SetInnertaVisible'], 1);
+  _SetInnertaBookmarks = Module['_SetInnertaBookmarks'] = createExportWrapper('SetInnertaBookmarks', wasmExports['SetInnertaBookmarks'], 2);
+  _GetInnertaBookmarkCount = Module['_GetInnertaBookmarkCount'] = createExportWrapper('GetInnertaBookmarkCount', wasmExports['GetInnertaBookmarkCount'], 0);
   _InnertaFrame = Module['_InnertaFrame'] = createExportWrapper('InnertaFrame', wasmExports['InnertaFrame'], 0);
   _SetInnertaContent = Module['_SetInnertaContent'] = createExportWrapper('SetInnertaContent', wasmExports['SetInnertaContent'], 1);
   _SetInnertaTheme = Module['_SetInnertaTheme'] = createExportWrapper('SetInnertaTheme', wasmExports['SetInnertaTheme'], 1);
@@ -8275,7 +8631,15 @@ function assignWasmExports(wasmExports) {
   _SetInnertaTokenColor = Module['_SetInnertaTokenColor'] = createExportWrapper('SetInnertaTokenColor', wasmExports['SetInnertaTokenColor'], 2);
   _SetInnertaFocus = Module['_SetInnertaFocus'] = createExportWrapper('SetInnertaFocus', wasmExports['SetInnertaFocus'], 1);
   _InnertaEnsureVisible = Module['_InnertaEnsureVisible'] = createExportWrapper('InnertaEnsureVisible', wasmExports['InnertaEnsureVisible'], 0);
+  _SetInnertaFoldingRanges = Module['_SetInnertaFoldingRanges'] = createExportWrapper('SetInnertaFoldingRanges', wasmExports['SetInnertaFoldingRanges'], 2);
+  _ClearInnertaFoldingRanges = Module['_ClearInnertaFoldingRanges'] = createExportWrapper('ClearInnertaFoldingRanges', wasmExports['ClearInnertaFoldingRanges'], 0);
+  _GetInnertaFoldingCount = Module['_GetInnertaFoldingCount'] = createExportWrapper('GetInnertaFoldingCount', wasmExports['GetInnertaFoldingCount'], 0);
+  _GetInnertaFoldingIsHost = Module['_GetInnertaFoldingIsHost'] = createExportWrapper('GetInnertaFoldingIsHost', wasmExports['GetInnertaFoldingIsHost'], 0);
+  _GetInnertaFoldingFromEngine = Module['_GetInnertaFoldingFromEngine'] = createExportWrapper('GetInnertaFoldingFromEngine', wasmExports['GetInnertaFoldingFromEngine'], 0);
+  _SetInnertaSelection = Module['_SetInnertaSelection'] = createExportWrapper('SetInnertaSelection', wasmExports['SetInnertaSelection'], 4);
+  _ClearInnertaSelection = Module['_ClearInnertaSelection'] = createExportWrapper('ClearInnertaSelection', wasmExports['ClearInnertaSelection'], 0);
   _SetInnertaCursor = Module['_SetInnertaCursor'] = createExportWrapper('SetInnertaCursor', wasmExports['SetInnertaCursor'], 2);
+  _GetInnertaCursor = Module['_GetInnertaCursor'] = createExportWrapper('GetInnertaCursor', wasmExports['GetInnertaCursor'], 0);
   _SetInnertaScrollOffset = Module['_SetInnertaScrollOffset'] = createExportWrapper('SetInnertaScrollOffset', wasmExports['SetInnertaScrollOffset'], 1);
   _OpenInnertaFile = Module['_OpenInnertaFile'] = createExportWrapper('OpenInnertaFile', wasmExports['OpenInnertaFile'], 1);
   _GoToInnertaWelcome = Module['_GoToInnertaWelcome'] = createExportWrapper('GoToInnertaWelcome', wasmExports['GoToInnertaWelcome'], 0);
@@ -8285,11 +8649,20 @@ function assignWasmExports(wasmExports) {
   _DestroyInnertaSession = Module['_DestroyInnertaSession'] = createExportWrapper('DestroyInnertaSession', wasmExports['DestroyInnertaSession'], 1);
   _SetInnertaDiffDecorations = Module['_SetInnertaDiffDecorations'] = createExportWrapper('SetInnertaDiffDecorations', wasmExports['SetInnertaDiffDecorations'], 1);
   _ClearInnertaDiffDecorations = Module['_ClearInnertaDiffDecorations'] = createExportWrapper('ClearInnertaDiffDecorations', wasmExports['ClearInnertaDiffDecorations'], 0);
-  _SetInnertaUnderlines = Module['_SetInnertaUnderlines'] = createExportWrapper('SetInnertaUnderlines', wasmExports['SetInnertaUnderlines'], 1);
+  _SetInnertaUnderlines = Module['_SetInnertaUnderlines'] = createExportWrapper('SetInnertaUnderlines', wasmExports['SetInnertaUnderlines'], 2);
   _ClearInnertaUnderlines = Module['_ClearInnertaUnderlines'] = createExportWrapper('ClearInnertaUnderlines', wasmExports['ClearInnertaUnderlines'], 0);
+  _GetInnertaUnderlineCount = Module['_GetInnertaUnderlineCount'] = createExportWrapper('GetInnertaUnderlineCount', wasmExports['GetInnertaUnderlineCount'], 0);
   _SetInnertaWasmClipboard = Module['_SetInnertaWasmClipboard'] = createExportWrapper('SetInnertaWasmClipboard', wasmExports['SetInnertaWasmClipboard'], 1);
+  _InnertaHitTest = Module['_InnertaHitTest'] = createExportWrapper('InnertaHitTest', wasmExports['InnertaHitTest'], 2);
+  _SetInnertaSemanticTokens = Module['_SetInnertaSemanticTokens'] = createExportWrapper('SetInnertaSemanticTokens', wasmExports['SetInnertaSemanticTokens'], 2);
+  _SetInnertaHighlightSource = Module['_SetInnertaHighlightSource'] = createExportWrapper('SetInnertaHighlightSource', wasmExports['SetInnertaHighlightSource'], 1);
+  _GetInnertaSemanticTokens = Module['_GetInnertaSemanticTokens'] = createExportWrapper('GetInnertaSemanticTokens', wasmExports['GetInnertaSemanticTokens'], 1);
+  _GetInnertaHighlightSource = Module['_GetInnertaHighlightSource'] = createExportWrapper('GetInnertaHighlightSource', wasmExports['GetInnertaHighlightSource'], 0);
   _GetInnertaSelectedText = Module['_GetInnertaSelectedText'] = createExportWrapper('GetInnertaSelectedText', wasmExports['GetInnertaSelectedText'], 0);
   _GetInnertaText = Module['_GetInnertaText'] = createExportWrapper('GetInnertaText', wasmExports['GetInnertaText'], 0);
+  _GetInnertaRevision = Module['_GetInnertaRevision'] = createExportWrapper('GetInnertaRevision', wasmExports['GetInnertaRevision'], 0);
+  _SetInnertaCleanRevision = Module['_SetInnertaCleanRevision'] = createExportWrapper('SetInnertaCleanRevision', wasmExports['SetInnertaCleanRevision'], 1);
+  _GetInnertaDirty = Module['_GetInnertaDirty'] = createExportWrapper('GetInnertaDirty', wasmExports['GetInnertaDirty'], 0);
   _InnertaMouseMove = Module['_InnertaMouseMove'] = createExportWrapper('InnertaMouseMove', wasmExports['InnertaMouseMove'], 2);
   _InnertaMouseLeave = Module['_InnertaMouseLeave'] = createExportWrapper('InnertaMouseLeave', wasmExports['InnertaMouseLeave'], 0);
   _InnertaMouseButton = Module['_InnertaMouseButton'] = createExportWrapper('InnertaMouseButton', wasmExports['InnertaMouseButton'], 3);
@@ -8297,6 +8670,7 @@ function assignWasmExports(wasmExports) {
   _InnertaKey = Module['_InnertaKey'] = createExportWrapper('InnertaKey', wasmExports['InnertaKey'], 3);
   _InnertaChar = Module['_InnertaChar'] = createExportWrapper('InnertaChar', wasmExports['InnertaChar'], 1);
   _SetInnertaBgColor = Module['_SetInnertaBgColor'] = createExportWrapper('SetInnertaBgColor', wasmExports['SetInnertaBgColor'], 1);
+  _SetInnertaTerminalFont = Module['_SetInnertaTerminalFont'] = createExportWrapper('SetInnertaTerminalFont', wasmExports['SetInnertaTerminalFont'], 1);
   _SetInnertaAccentColor = Module['_SetInnertaAccentColor'] = createExportWrapper('SetInnertaAccentColor', wasmExports['SetInnertaAccentColor'], 1);
   _SetInnertaTextColor = Module['_SetInnertaTextColor'] = createExportWrapper('SetInnertaTextColor', wasmExports['SetInnertaTextColor'], 1);
   _SetInnertaBorderColor = Module['_SetInnertaBorderColor'] = createExportWrapper('SetInnertaBorderColor', wasmExports['SetInnertaBorderColor'], 1);
@@ -8305,9 +8679,35 @@ function assignWasmExports(wasmExports) {
   _SetInnertaIndentGuideColor = Module['_SetInnertaIndentGuideColor'] = createExportWrapper('SetInnertaIndentGuideColor', wasmExports['SetInnertaIndentGuideColor'], 1);
   _GetInnertaFontPath = Module['_GetInnertaFontPath'] = createExportWrapper('GetInnertaFontPath', wasmExports['GetInnertaFontPath'], 0);
   _SetInnertaBreadcumbFilename = Module['_SetInnertaBreadcumbFilename'] = createExportWrapper('SetInnertaBreadcumbFilename', wasmExports['SetInnertaBreadcumbFilename'], 1);
+  _SetInnertaGutterVisible = Module['_SetInnertaGutterVisible'] = createExportWrapper('SetInnertaGutterVisible', wasmExports['SetInnertaGutterVisible'], 1);
+  _SetInnertaMinimapVisible = Module['_SetInnertaMinimapVisible'] = createExportWrapper('SetInnertaMinimapVisible', wasmExports['SetInnertaMinimapVisible'], 1);
+  _GetInnertaMinimapVisible = Module['_GetInnertaMinimapVisible'] = createExportWrapper('GetInnertaMinimapVisible', wasmExports['GetInnertaMinimapVisible'], 0);
+  _SetInnertaTerminalMode = Module['_SetInnertaTerminalMode'] = createExportWrapper('SetInnertaTerminalMode', wasmExports['SetInnertaTerminalMode'], 1);
+  _InnertaFeedVt = Module['_InnertaFeedVt'] = createExportWrapper('InnertaFeedVt', wasmExports['InnertaFeedVt'], 1);
+  _GetInnertaCharWidth = Module['_GetInnertaCharWidth'] = createExportWrapper('GetInnertaCharWidth', wasmExports['GetInnertaCharWidth'], 0);
+  _GetInnertaLineHeight = Module['_GetInnertaLineHeight'] = createExportWrapper('GetInnertaLineHeight', wasmExports['GetInnertaLineHeight'], 0);
+  _InnertaResize = Module['_InnertaResize'] = createExportWrapper('InnertaResize', wasmExports['InnertaResize'], 2);
+  _InnertaTerminalMouseButton = Module['_InnertaTerminalMouseButton'] = createExportWrapper('InnertaTerminalMouseButton', wasmExports['InnertaTerminalMouseButton'], 5);
+  _InnertaTerminalMouseMove = Module['_InnertaTerminalMouseMove'] = createExportWrapper('InnertaTerminalMouseMove', wasmExports['InnertaTerminalMouseMove'], 3);
+  _InnertaTerminalReadOutputString = Module['_InnertaTerminalReadOutputString'] = createExportWrapper('InnertaTerminalReadOutputString', wasmExports['InnertaTerminalReadOutputString'], 0);
+  _InnertaIsAltScreen = Module['_InnertaIsAltScreen'] = createExportWrapper('InnertaIsAltScreen', wasmExports['InnertaIsAltScreen'], 0);
+  _InnertaTerminalHasSelection = Module['_InnertaTerminalHasSelection'] = createExportWrapper('InnertaTerminalHasSelection', wasmExports['InnertaTerminalHasSelection'], 0);
+  _InnertaTerminalGetSelectionText = Module['_InnertaTerminalGetSelectionText'] = createExportWrapper('InnertaTerminalGetSelectionText', wasmExports['InnertaTerminalGetSelectionText'], 0);
+  _InnertaTerminalClearSelection = Module['_InnertaTerminalClearSelection'] = createExportWrapper('InnertaTerminalClearSelection', wasmExports['InnertaTerminalClearSelection'], 0);
+  _InnertaTerminalGetCursorRow = Module['_InnertaTerminalGetCursorRow'] = createExportWrapper('InnertaTerminalGetCursorRow', wasmExports['InnertaTerminalGetCursorRow'], 0);
+  _InnertaTerminalGetCursorCol = Module['_InnertaTerminalGetCursorCol'] = createExportWrapper('InnertaTerminalGetCursorCol', wasmExports['InnertaTerminalGetCursorCol'], 0);
+  _InnertaCreateView = Module['_InnertaCreateView'] = createExportWrapper('InnertaCreateView', wasmExports['InnertaCreateView'], 2);
+  _InnertaDestroyView = Module['_InnertaDestroyView'] = createExportWrapper('InnertaDestroyView', wasmExports['InnertaDestroyView'], 1);
+  _InnertaViewSetBounds = Module['_InnertaViewSetBounds'] = createExportWrapper('InnertaViewSetBounds', wasmExports['InnertaViewSetBounds'], 5);
+  _InnertaViewSetVisible = Module['_InnertaViewSetVisible'] = createExportWrapper('InnertaViewSetVisible', wasmExports['InnertaViewSetVisible'], 2);
+  _InnertaViewSetContent = Module['_InnertaViewSetContent'] = createExportWrapper('InnertaViewSetContent', wasmExports['InnertaViewSetContent'], 2);
+  _InnertaViewAppend = Module['_InnertaViewAppend'] = createExportWrapper('InnertaViewAppend', wasmExports['InnertaViewAppend'], 2);
+  _InnertaViewSetPtyFd = Module['_InnertaViewSetPtyFd'] = createExportWrapper('InnertaViewSetPtyFd', wasmExports['InnertaViewSetPtyFd'], 2);
+  _InnertaViewSetReadOnlyRanges = Module['_InnertaViewSetReadOnlyRanges'] = createExportWrapper('InnertaViewSetReadOnlyRanges', wasmExports['InnertaViewSetReadOnlyRanges'], 3);
+  _InnertaViewFocus = Module['_InnertaViewFocus'] = createExportWrapper('InnertaViewFocus', wasmExports['InnertaViewFocus'], 1);
+  _InnertaViewSetBoundsWasm = Module['_InnertaViewSetBoundsWasm'] = createExportWrapper('InnertaViewSetBoundsWasm', wasmExports['InnertaViewSetBoundsWasm'], 5);
   _malloc = Module['_malloc'] = createExportWrapper('malloc', wasmExports['malloc'], 1);
   _free = Module['_free'] = createExportWrapper('free', wasmExports['free'], 1);
-  _fflush = createExportWrapper('fflush', wasmExports['fflush'], 1);
   _emscripten_builtin_memalign = createExportWrapper('emscripten_builtin_memalign', wasmExports['emscripten_builtin_memalign'], 2);
   _emscripten_stack_get_end = wasmExports['emscripten_stack_get_end'];
   _emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'];
@@ -8380,6 +8780,8 @@ var wasmImports = {
   /** @export */
   glBindBuffer: _glBindBuffer,
   /** @export */
+  glBindFramebuffer: _glBindFramebuffer,
+  /** @export */
   glBindTexture: _glBindTexture,
   /** @export */
   glBindVertexArray: _glBindVertexArray,
@@ -8402,6 +8804,8 @@ var wasmImports = {
   /** @export */
   glDeleteBuffers: _glDeleteBuffers,
   /** @export */
+  glDeleteFramebuffers: _glDeleteFramebuffers,
+  /** @export */
   glDeleteProgram: _glDeleteProgram,
   /** @export */
   glDeleteShader: _glDeleteShader,
@@ -8418,13 +8822,19 @@ var wasmImports = {
   /** @export */
   glEnableVertexAttribArray: _glEnableVertexAttribArray,
   /** @export */
+  glFramebufferTexture2D: _glFramebufferTexture2D,
+  /** @export */
   glGenBuffers: _glGenBuffers,
+  /** @export */
+  glGenFramebuffers: _glGenFramebuffers,
   /** @export */
   glGenTextures: _glGenTextures,
   /** @export */
   glGenVertexArrays: _glGenVertexArrays,
   /** @export */
   glGenerateMipmap: _glGenerateMipmap,
+  /** @export */
+  glGetIntegerv: _glGetIntegerv,
   /** @export */
   glGetProgramInfoLog: _glGetProgramInfoLog,
   /** @export */
@@ -8452,7 +8862,11 @@ var wasmImports = {
   /** @export */
   glTexSubImage2D: _glTexSubImage2D,
   /** @export */
+  glUniform1f: _glUniform1f,
+  /** @export */
   glUniform1i: _glUniform1i,
+  /** @export */
+  glUniform4f: _glUniform4f,
   /** @export */
   glUniformMatrix4fv: _glUniformMatrix4fv,
   /** @export */

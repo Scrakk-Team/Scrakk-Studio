@@ -1,0 +1,78 @@
+{
+  "name": "Nord Light",
+  "type": "light",
+  "colors": {
+    "bg": "#eceff4",
+    "surface": "#e5e9f0",
+    "border": "#d8dee9",
+    "accent": "#5e81ac",
+    "text": "#2e3440",
+    "textSecondary": "#4c566a",
+    "textMuted": "#7b88a1",
+    "error": "#bf616a",
+    "warning": "#d08770",
+    "success": "#a3be8c",
+    "info": "#81a1c1",
+    "scrollbarThumb": "#c8ced9",
+    "scrollbarThumbHover": "#b8bec9",
+    "indentGuide": "#d8dee9",
+    "surfaceRaised": "#e7eaf1",
+    "hover": "#e8ecf2",
+    "active": "#eaedf3",
+    "accentHover": "#6e8eb4",
+    "accentActive": "#7b98bb",
+    "errorHover": "#c7747c",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#dde2ec",
+    "editorBg": "#e5e9f0",
+    "panelBorder": "#d8dee9"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#7b88a1",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a3be8c"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#b48ead"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#2e3440"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#4c566a"
+    }
+  ]
+}

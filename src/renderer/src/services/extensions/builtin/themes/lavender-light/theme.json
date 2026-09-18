@@ -1,0 +1,89 @@
+{
+  "name": "Lavender Light",
+  "type": "light",
+  "colors": {
+    "bg": "#faf8fc",
+    "surface": "#f0ecf8",
+    "border": "#d8d0e8",
+    "accent": "#7c4dff",
+    "text": "#3a3050",
+    "textSecondary": "#6a5a80",
+    "textMuted": "#9a8ab0",
+    "error": "#d32f2f",
+    "warning": "#f57c00",
+    "success": "#388e3c",
+    "info": "#1976d2",
+    "scrollbarThumb": "#c0b0d8",
+    "scrollbarThumbHover": "#a090c8",
+    "indentGuide": "#d0c8e0",
+    "surfaceRaised": "#f1edf8",
+    "hover": "#f2eef9",
+    "active": "#f3eff9",
+    "accentHover": "#895fff",
+    "accentActive": "#946dff",
+    "errorHover": "#d84848",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#ddd6eb",
+    "editorBg": "#f0ecf8",
+    "panelBorder": "#d8d0e8"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#8a7aa0"
+    },
+    {
+      "scope": "string",
+      "foreground": "#7b1fa2"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#6a1b9a"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#512da8"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#7c4dff"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#7c4dff"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#3a3050"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#512da8"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#00838f"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#6a1b9a"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#3a3050"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#00838f"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#7b1fa2"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#6a5a80"
+    }
+  ]
+}

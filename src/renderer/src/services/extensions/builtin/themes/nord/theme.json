@@ -1,0 +1,109 @@
+{
+  "name": "Nord",
+  "type": "dark",
+  "colors": {
+    "bg": "#2e3440",
+    "surface": "#3b4252",
+    "border": "#434c5e",
+    "accent": "#88c0d0",
+    "text": "#eceff4",
+    "textSecondary": "#d8dee9",
+    "textMuted": "#616e88",
+    "error": "#bf616a",
+    "warning": "#ebcb8b",
+    "success": "#a3be8c",
+    "info": "#81a1c1",
+    "scrollbarThumb": "#4c566a",
+    "scrollbarThumbHover": "#5c667a",
+    "indentGuide": "#434c5e",
+    "surfaceRaised": "#474d5c",
+    "hover": "#535967",
+    "active": "#5e6471",
+    "accentHover": "#94c6d5",
+    "accentActive": "#9dcbd8",
+    "errorHover": "#c7747c",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#5a6171",
+    "editorBg": "#3b4252",
+    "panelBorder": "#434c5e"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#616e88"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a3be8c"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#b48ead"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#eceff4"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#eceff4"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#eceff4"
+    }
+  ]
+}

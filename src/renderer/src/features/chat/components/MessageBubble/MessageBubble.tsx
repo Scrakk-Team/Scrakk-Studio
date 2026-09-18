@@ -1,5 +1,5 @@
 import type { ChatMessage } from '@services/chat'
-import type { JSX } from 'react'
+import { memo, type JSX } from 'react'
 import { Markdown } from '../Markdown/Markdown'
 import { MessageActions } from '../MessageActions/MessageActions'
 import { ToolCallsBlock } from '../ToolCallsBlock'
@@ -19,8 +19,12 @@ interface MessageBubbleProps {
  * Assistant → texto a la izquierda sin fondo ni borde, renderizado en
  * markdown (código, tablas, listas, links), con acciones de copiar y
  * regenerar debajo. Tool calls se muestran inline antes del contenido.
+ *
+ * memo: el store preserva la identidad de los mensajes intactos por token,
+ * así en un chat largo solo re-renderiza la burbuja que está streameando
+ * (antes: cada token re-parseaba y re-resaltaba TODO el historial).
  */
-export function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
   message,
   pending = false,
   onRegenerate
@@ -50,4 +54,4 @@ export function MessageBubble({
       </div>
     </div>
   )
-}
+})

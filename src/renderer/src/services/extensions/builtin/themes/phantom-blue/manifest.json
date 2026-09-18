@@ -1,0 +1,18 @@
+{
+  "id": "phantom-blue",
+  "name": "Phantom Blue",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Phantom Blue — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "phantom-blue",
+        "name": "Phantom Blue",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "purple-void",
+  "name": "Purple Void",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Purple Void — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "purple-void",
+        "name": "Purple Void",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

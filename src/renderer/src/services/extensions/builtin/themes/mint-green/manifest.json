@@ -1,0 +1,18 @@
+{
+  "id": "mint-green",
+  "name": "Mint Green",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Mint Green — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "mint-green",
+        "name": "Mint Green",
+        "type": "light",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

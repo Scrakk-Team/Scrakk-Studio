@@ -1,0 +1,18 @@
+{
+  "id": "vaporwave",
+  "name": "Vaporwave",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Vaporwave — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "vaporwave",
+        "name": "Vaporwave",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

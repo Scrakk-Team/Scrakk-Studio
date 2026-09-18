@@ -17,11 +17,18 @@ import {
   type ReadDiagnosticsRequest,
   type RegisterDynamicServersRequest,
   type RemoveDynamicServersRequest,
+  type SetDisabledServersRequest,
   type SetWorkspaceRequest,
   type SetWorkspaceResponse,
   type WorkspaceRootRequest
 } from '@shared/lsp'
 import { LspManager, setDynamicRootMarkers } from './manager'
+import { setPermissionWorkspaceRoots } from '../extensions/permissions'
+import {
+  providerQueryFromLspRequest,
+  queryExtensionProviders,
+  toLspResults
+} from '../extensions/providerBridge'
 
 function broadcast(channel: string, payload: unknown): void {
   for (const window of BrowserWindow.getAllWindows()) {
@@ -49,6 +56,7 @@ export function registerLspIpc(): void {
     async (_event, request: SetWorkspaceRequest): Promise<SetWorkspaceResponse> => {
       try {
         const servers = await manager.setWorkspace(request.rootPath)
+        setPermissionWorkspaceRoots([request.rootPath])
         return { ok: true, servers }
       } catch (error) {
         return { ok: false, servers: [], error: String(error) }
@@ -98,7 +106,42 @@ export function registerLspIpc(): void {
 
   ipcMain.handle(LSP_IPC.status, () => manager.status())
 
-  ipcMain.handle(LSP_IPC.request, (_event, payload: LspRequestPayload) => manager.request(payload))
+  /**
+   * Servers apagados por el usuario. El renderer los persiste (Ajustes) y los
+   * empuja acá al arrancar y en cada cambio; el manager los respeta al cargar
+   * configs, así que un server apagado no arranca de verdad.
+   */
+  ipcMain.handle(
+    LSP_IPC.setDisabledServers,
+    async (_event, request: SetDisabledServersRequest): Promise<{ ok: boolean }> => {
+      await manager.setDisabledServers(request?.ids ?? [])
+      return { ok: true }
+    }
+  )
+
+  ipcMain.handle(LSP_IPC.getDisabledServers, () => ({ ids: manager.disabledServerIds() }))
+
+  /**
+   * Requests LSP: al `LspManager` (servers del sistema / de `.scrakk/lsp.json`)
+   * y, si el pedido tiene equivalente, a los PROVEEDORES de las extensiones.
+   *
+   * Los dos caminos responden lo mismo porque el contrato es el del LSP: una
+   * extensión que arranca su server con `vscode-languageclient` responde por
+   * `lsp:request` igual que un server del sistema. Sin esto, la mitad (la más
+   * común) de los language servers no llegaba al editor.
+   */
+  ipcMain.handle(LSP_IPC.request, async (_event, payload: LspRequestPayload) => {
+    const fromServers = await manager.request(payload)
+    const query = providerQueryFromLspRequest(payload.method, payload.params)
+    if (!query || payload.broadcast) return fromServers
+    const answers = await queryExtensionProviders(query)
+    if (answers.length === 0) return fromServers
+    return {
+      ...fromServers,
+      ok: true,
+      results: [...fromServers.results, ...toLspResults(answers)]
+    }
+  })
 
   ipcMain.handle(
     LSP_IPC.notifyFileChanged,
@@ -123,6 +166,16 @@ export function registerLspIpc(): void {
   )
 
   ipcMain.handle(LSP_IPC.shutdownAll, () => manager.shutdownAll().then(() => ({ ok: true })))
+
+  ipcMain.handle(
+    LSP_IPC.restartServer,
+    (_event, request: { serverName: string }) => manager.restartServer(request.serverName)
+  )
+
+  ipcMain.handle(
+    LSP_IPC.installServer,
+    (_event, request: { serverName: string }) => manager.installNow(request.serverName)
+  )
 }
 
 /** Acceso directo al manager (para tests y futuros módulos main). */

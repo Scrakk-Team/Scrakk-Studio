@@ -1,0 +1,73 @@
+{
+  "name": "Matrix",
+  "type": "dark",
+  "colors": {
+    "bg": "#0d0d0d",
+    "surface": "#0a1a0a",
+    "border": "#0f2f0f",
+    "accent": "#00ff41",
+    "text": "#00ff41",
+    "textSecondary": "#00cc33",
+    "textMuted": "#006622",
+    "error": "#ff0040",
+    "warning": "#ccff00",
+    "success": "#00ff41",
+    "info": "#00ccff",
+    "scrollbarThumb": "#0f2f0f",
+    "scrollbarThumbHover": "#1a4a1a",
+    "indentGuide": "#0a2a0a",
+    "surfaceRaised": "#192819",
+    "hover": "#273527",
+    "active": "#364336",
+    "accentHover": "#1aff54",
+    "accentActive": "#2eff63",
+    "errorHover": "#ff1f57",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#2c482c",
+    "editorBg": "#0a1a0a",
+    "panelBorder": "#0f2f0f"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#006622"
+    },
+    {
+      "scope": "string",
+      "foreground": "#00ff41"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ccff00"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#00ff41"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#00cc33"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#00ff41"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ccff00"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#00cc33"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#00ff41"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#00cc33"
+    }
+  ]
+}

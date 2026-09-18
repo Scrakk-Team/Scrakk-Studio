@@ -1,0 +1,76 @@
+/* LspChip — bloque full-bleed pegado al borde izquierdo, con el MISMO
+   color de la statusbar (sin fondo accent). Sin hover. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  /* Ocupa TODA la altura de la statusbar (28px): sin espacios arriba/abajo. */
+  align-self: stretch;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: 0;
+  /* Fondo TRANSPARENTE, como el resto de los chips de la barra.
+     Antes copiaba `--statusbar-bg` / `--color-surface` para simular el fondo
+     de la barra, y en los temas con imagen (glass) eso se ve: la barra es
+     translúcida (`backdrop-filter`) y este bloque pintaba un color OPACO
+     encima → el chip se veía de otro tono que la barra. Dejándolo transparente
+     hereda exactamente lo que la barra pinta, sea opaca o glass, sin adivinar
+     qué variable usó el tema. */
+  background: transparent;
+  color: var(--color-text-secondary);
+  margin-left: calc(-1 * var(--space-2));
+}
+
+/* Hover: mismo efecto que el resto de chips de la statusbar
+   (EncodingChip/SearchBar): fondo --color-hover, full-bleed. */
+.chip:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.chip:active {
+  background: var(--color-active);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.dot_idle {
+  background: var(--color-text-muted);
+}
+
+.dot_ready {
+  background: #3fb950;
+}
+
+.dot_starting {
+  background: #58a6ff;
+  animation: lsp-pulse 1s ease-in-out infinite;
+}
+
+.dot_retrying {
+  background: #d29922;
+  animation: lsp-pulse 1s ease-in-out infinite;
+}
+
+.dot_failed {
+  background: #f85149;
+}
+
+.count {
+  line-height: 1;
+}
+
+@keyframes lsp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}

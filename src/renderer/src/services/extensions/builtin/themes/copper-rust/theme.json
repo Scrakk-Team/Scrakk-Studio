@@ -1,0 +1,114 @@
+{
+  "name": "Copper Rust",
+  "type": "dark",
+  "colors": {
+    "bg": "#1c1612",
+    "surface": "#26201a",
+    "border": "#3d3228",
+    "accent": "#cd7f32",
+    "text": "#e8dcd0",
+    "textSecondary": "#b8a898",
+    "textMuted": "#6d5d4d",
+    "error": "#c45c4c",
+    "warning": "#d4a04c",
+    "success": "#6b9c5a",
+    "info": "#5a8cb0",
+    "scrollbarThumb": "#4d4238",
+    "scrollbarThumbHover": "#5d5248",
+    "indentGuide": "#322a22",
+    "surfaceRaised": "#332d28",
+    "hover": "#403b35",
+    "active": "#4d4843",
+    "accentHover": "#d28c46",
+    "accentActive": "#d69657",
+    "errorHover": "#cb7061",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#544b42",
+    "editorBg": "#26201a",
+    "panelBorder": "#3d3228"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6d5d4d"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a8c070"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d4a04c"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#cd7f32"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#c87850"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#c87850"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e8dcd0"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#cd7f32"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#c87850"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#7eb8c4"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#e8b870"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#e8b870"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#a8c070"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e8dcd0"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#d89070"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#7eb8c4"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#e8b870"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#b8a898"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#c45c4c"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#cd7f32",
+      "fontStyle": "bold"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+/* lsp card styles — injected via displayCss */
+.lsp-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  min-width: 0;
+}
+
+.lsp-card__op {
+  color: var(--color-accent);
+  font-size: 10px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  flex-shrink: 0;
+}
+
+.lsp-card__file {
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lsp-card__pos {
+  color: var(--color-text-muted);
+}
+
+.lsp-card__extra {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

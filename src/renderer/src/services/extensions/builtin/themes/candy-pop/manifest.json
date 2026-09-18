@@ -1,0 +1,18 @@
+{
+  "id": "candy-pop",
+  "name": "Candy Pop",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Candy Pop — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "candy-pop",
+        "name": "Candy Pop",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

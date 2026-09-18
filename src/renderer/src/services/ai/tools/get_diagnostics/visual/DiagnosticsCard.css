@@ -1,0 +1,93 @@
+/* get_diagnostics card styles — injected via displayCss */
+.diag-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.diag-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.diag-card__count,
+.diag-card__clean {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.diag-card__count.bad {
+  color: var(--color-danger);
+}
+
+.diag-card__paths {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  background: var(--color-hover);
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+}
+
+.diag-card__preview {
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.diag-card__file {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.diag-card__filepath {
+  color: var(--color-accent);
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.diag-card__item {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.diag-card__sev {
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.diag-card__sev.err {
+  color: var(--color-danger);
+}
+
+.diag-card__sev.warn {
+  color: var(--color-text-muted);
+}
+
+.diag-card__msg {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diag-card__raw {
+  margin: 0;
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+}
+

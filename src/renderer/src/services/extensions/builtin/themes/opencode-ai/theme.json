@@ -1,0 +1,176 @@
+{
+  "name": "OpenCode AI",
+  "type": "dark",
+  "colors": {
+    "bg": "#201d1d",
+    "surface": "#302c2c",
+    "border": "#646262",
+    "accent": "#007aff",
+    "text": "#fdfcfc",
+    "textSecondary": "#9a9898",
+    "textMuted": "#6e6e73",
+    "error": "#ff3b30",
+    "warning": "#ff9f0a",
+    "success": "#30d158",
+    "info": "#007aff",
+    "scrollbarThumb": "#302c2c",
+    "scrollbarThumbHover": "#646262",
+    "indentGuide": "#302c2c",
+    "editorBg": "#302c2c",
+    "surfaceRaised": "#3c3939",
+    "hover": "#494545",
+    "active": "#555252",
+    "accentHover": "#1a87ff",
+    "accentActive": "#2e92ff",
+    "errorHover": "#ff5349",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#777575",
+    "panelBorder": "#646262"
+  },
+  "components": {
+    "tabs": {
+      "activeBg": "#302c2c"
+    },
+    "editor": {
+      "editorBg": "#302c2c"
+    },
+    "breadcrumb": {
+      "breadcrumbBg": "#302c2c"
+    }
+  },
+  "fonts": {
+    "ui": {
+      "family": "IBM Plex Mono",
+      "source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+      "size": "13px",
+      "weight": "500",
+      "lineHeight": "1.5"
+    },
+    "editor": {
+      "family": "IBM Plex Mono",
+      "source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+      "size": "13px",
+      "lineHeight": "1.5"
+    },
+    "terminal": {
+      "family": "IBM Plex Mono, monospace",
+      "size": "13px"
+    },
+    "heading": {
+      "family": "IBM Plex Mono",
+      "weight": "700",
+      "size": "16px"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#6e6e73",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#30d158"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ff9f0a"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#ff9f0a"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#007aff",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#fdfcfc"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#fdfcfc",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#007aff"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#007aff"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#007aff"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#fdfcfc"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#9a9898"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#fdfcfc"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#9a9898"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#007aff",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

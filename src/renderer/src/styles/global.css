@@ -1,7 +1,7 @@
-/* ==========================================================================
+/* ================================================================================
    ESTILOS GLOBALES — reset mínimo + base
-   Diseño plano: cero sombras, cero glow, cero gradientes.
-   ========================================================================== */
+   Diseño plano: cero sombras, cero glow, cero gradientes, (Es la estetica que busco.)
+   ================================================================================ */
 
 *,
 *::before,
@@ -18,9 +18,11 @@ body,
 }
 
 body {
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  line-height: var(--leading-normal);
+  /* Fuente UI del tema activo (solo si trae fonts.ui); si no, la original. */
+  font-family: var(--theme-font-ui, var(--font-sans));
+  font-size: var(--theme-font-ui-size, var(--text-md));
+  font-weight: var(--theme-font-ui-weight, 400);
+  line-height: var(--theme-font-ui-line-height, var(--leading-normal));
   background: var(--color-bg);
   color: var(--color-text);
   overflow: hidden;
@@ -35,6 +37,16 @@ body {
   color: var(--color-on-accent);
 }
 
+/* Selección programada del menú por defecto (Copiar/Seleccionar todo):
+   permite seleccionar temporalmente subárboles bajo `user-select: none`
+   (Chromium ignora rangos en nodos no seleccionables). El atributo lo
+   pone/quita `defaultMenu.ts` y vive solo hasta la próxima interacción. */
+[data-allow-select],
+[data-allow-select] * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
 /* Workspace: las activity bars van pegadas a los bordes laterales de la
    ventana (sin padding horizontal) y con el mismo alto de antes (inset
    vertical). El espaciado interno de los paneles lo aporta PanelLayout. */
@@ -45,19 +57,69 @@ body {
   padding: var(--space-2) 0;
 }
 
-/* Scrollbar plana y delgada */
+/* ── Scrollbar universal ──────────────────────────────────────────────────
+   Réplica del scrollbar de Innerta (ScrollbarRenderer.cpp) con DOS reglas
+   globales que se aplican solas a CUALQUIER contenedor con scroll (ningún
+   componente las llama):
+     1. Oculto por defecto → aparece solo cuando el cursor está encima.
+     2. 4px de aire con el contenido (izquierda en vertical, arriba en
+        horizontal) para que nunca se superponga.
+   Pulgar de 8px (un poco menos que Innerta), radio 3px, oculto hasta hover y
+   con hover 45%. La PISTA es siempre transparente: evita la franja rara que
+   dejaba el track al clipar su borde. Los colores los siguen mandando los
+   temas vía --color-scrollbar / --color-scrollbar-hover. */
+:root {
+  /* Grosor del pulgar visible. */
+  --scrollbar-thickness: 8px;
+  /* Separación con el contenido (lado del contenido). */
+  --scrollbar-gap: 4px;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-scrollbar);
-  border-radius: var(--radius-capsule);
-}
-
-::-webkit-scrollbar-track {
+  width: calc(var(--scrollbar-thickness) + var(--scrollbar-gap));
+  height: calc(var(--scrollbar-thickness) + var(--scrollbar-gap));
   background: transparent;
+}
+
+/* Pista y esquina: siempre invisibles. Solo se pinta el pulgar. */
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Pulgar: oculto por defecto. El aire de 4px va del lado del contenido,
+   según la orientación (izquierda en vertical, arriba en horizontal). */
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  background-clip: padding-box;
+  border-radius: 3px;
+  min-height: 20px;
+  min-width: 20px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  border-left: var(--scrollbar-gap) solid transparent;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  border-top: var(--scrollbar-gap) solid transparent;
+}
+
+/* Regla 1 — revelado al pasar el cursor por CUALQUIER contenedor con scroll.
+   `*:hover` también matchea a los ancestros, así el contenedor aparece cuando
+   el puntero entra en él. Sin clases ni código por componente. */
+*:hover::-webkit-scrollbar-thumb {
+  background-color: var(--color-scrollbar);
+}
+
+/* El pulgar se refuerza al apuntarlo directamente. Va al final a propósito:
+   empata en especificidad con el revelado y debe ganar. */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-scrollbar-hover, var(--color-text-muted));
+}
+
+::-webkit-scrollbar-button {
+  display: none;
 }
 
 /* Foco visible: borde plano, sin glow.
@@ -71,6 +133,21 @@ body {
 input:focus-visible,
 textarea:focus-visible {
   outline: none;
+}
+
+/* Editor Innerta: el canvas gana foco al clickear/escribir y el host
+   FileTabView/EditorPanel recibía el outline global accent (2px naranja)
+   recortado por overflow:hidden a una raya de 1px justo arriba del 1.
+   Se suprime solo en el host del editor; el resto de la app mantiene su
+   anillo de foco. */
+.file-tab-view-host:focus-visible,
+.file-tab-view-host:focus-within,
+.file-tab-view-host *:focus-visible,
+.host:focus-visible,
+.host:focus-within,
+.host *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 button {

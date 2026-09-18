@@ -4,7 +4,7 @@
  */
 
 import { useState, type JSX } from 'react'
-import { Modal } from '@ui/Modal'
+import { Modal } from '@ui'
 import styles from './DeleteModal.module.css'
 
 export interface DeleteTarget {

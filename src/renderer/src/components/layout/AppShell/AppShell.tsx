@@ -1,4 +1,10 @@
-import type { JSX, ReactNode } from 'react'
+import { useEffect, type JSX, type ReactNode } from 'react'
+import { TooltipHost } from '@services/tooltips'
+import { NotificationHost } from '@features/notifications/NotificationHost'
+import { ModalHost } from '@features/modals/ModalHost'
+import { ProfileFloatingHost } from '@features/social/components/ProfileFloating/ProfileFloating'
+import { installDefaultContextMenu } from '@features/editor/engines/innerta/menuHost'
+import { ThemeBackground } from './ThemeBackground'
 import styles from './AppShell.module.css'
 
 interface AppShellProps {
@@ -10,5 +16,18 @@ interface AppShellProps {
  * titlebar arriba + contenido que llena el resto.
  */
 export function AppShell({ children }: AppShellProps): JSX.Element {
-  return <div className={styles.shell}>{children}</div>
+  // Fallback global de click derecho (Copiar/Pegar/Seleccionar todo) en
+  // componentes sin menú propio. 1× por montaje, con cleanup.
+  useEffect(() => installDefaultContextMenu(), [])
+
+  return (
+    <div className={styles.shell}>
+      <ThemeBackground />
+      {children}
+      <TooltipHost />
+      <NotificationHost />
+      <ModalHost />
+      <ProfileFloatingHost />
+    </div>
+  )
 }

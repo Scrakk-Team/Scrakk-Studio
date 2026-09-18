@@ -12,7 +12,7 @@
 
 export { ExtensionRegistry } from './registry'
 export { bootExtensions } from './boot'
-export { loadBuiltinExtensions } from './loader/builtin'
+export { loadBuiltinExtensions, registerBuiltinExtensionById } from './loader/builtin'
 export { loadInstalledExtensions, registerInstalledExtension } from './loader/installed'
 export {
   ExtensionTypeRegistry,
@@ -33,17 +33,35 @@ export type {
   RegisteredCenterTab,
   ComponentResolver
 } from './manifest'
+export {
+  isExtensionEnabled,
+  enableExtension,
+  disableExtension,
+  getDisabledExtensions,
+  hydrateEnabled,
+  subscribeToEnabled
+} from './enabled'
+export type { DisabledExtensionMeta } from './enabled'
 export type {
   ThemeContribution,
-  ThemeDefinition
+  ThemeDefinition,
+  ThemeBackground,
+  ThemeFonts,
+  ThemeFontSlot
 } from './types/themes/schema'
 export type { LspContribution } from './types/lsp/schema'
+export type { FileIconContribution } from './types/fileIcons/schema'
+export type { ProductIconContribution } from './types/productIcons/schema'
 export type { RegisteredThemeEntry } from './types/themes/logic'
+export type { FontFallbackMode } from './types/themes/logic'
 export {
   listThemes as listRegisteredThemes,
   activateTheme,
   deactivateTheme,
   getActiveThemeId,
   getTheme as getRegisteredTheme,
+  getActiveThemeBackground,
+  getFontFallbackMode,
+  setFontFallbackMode,
   subscribeToThemes
 } from './types/themes/logic'

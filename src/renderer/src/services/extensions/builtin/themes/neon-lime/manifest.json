@@ -1,0 +1,18 @@
+{
+  "id": "neon-lime",
+  "name": "Neon Lime",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Neon Lime — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "neon-lime",
+        "name": "Neon Lime",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

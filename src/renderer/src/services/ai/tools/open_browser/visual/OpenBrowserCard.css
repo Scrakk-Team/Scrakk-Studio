@@ -1,0 +1,22 @@
+/* open_browser card styles — injected via displayCss */
+.openbr-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  min-width: 0;
+}
+
+.openbr-card__icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.openbr-card__url {
+  color: var(--color-text-secondary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

@@ -1,0 +1,165 @@
+{
+  "name": "OpenDesign",
+  "type": "light",
+  "colors": {
+    "bg": "#faf9f7",
+    "surface": "#ffffff",
+    "border": "#ebe8e1",
+    "accent": "#c96442",
+    "text": "#1a1916",
+    "textSecondary": "#74716b",
+    "textMuted": "#989590",
+    "error": "#9c2a25",
+    "warning": "#b26200",
+    "success": "#1f7a3a",
+    "info": "#2348b8",
+    "scrollbarThumb": "#ece9e2",
+    "scrollbarThumbHover": "#d8d4cb",
+    "indentGuide": "#f1eee7",
+    "surfaceRaised": "#ffffff",
+    "hover": "#ffffff",
+    "active": "#ffffff",
+    "accentHover": "#ce7455",
+    "accentActive": "#d38064",
+    "errorHover": "#a8443f",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#edebe5",
+    "editorBg": "#ffffff",
+    "panelBorder": "#ebe8e1"
+  },
+  "fonts": {
+    "ui": {
+      "family": "Inter",
+      "source": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "size": "13px",
+      "weight": "400",
+      "lineHeight": "1.5"
+    },
+    "editor": {
+      "family": "Fira Code",
+      "source": "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap",
+      "size": "13px",
+      "lineHeight": "1.6"
+    },
+    "terminal": {
+      "family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      "size": "12.5px"
+    },
+    "heading": {
+      "family": "Source Serif 4",
+      "source": "https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&display=swap",
+      "weight": "600",
+      "size": "15px"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#989590",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#1f7a3a"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#b26200"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#b26200"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#c96442",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#1a1916"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#2348b8"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#6c3aa6"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#c96442"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#2348b8"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#1a1916"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#74716b"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#1a1916"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#74716b"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#c96442",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

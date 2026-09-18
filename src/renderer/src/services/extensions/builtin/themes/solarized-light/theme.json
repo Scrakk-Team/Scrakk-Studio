@@ -1,0 +1,78 @@
+{
+  "name": "Solarized Light",
+  "type": "light",
+  "colors": {
+    "bg": "#fdf6e3",
+    "surface": "#eee8d5",
+    "border": "#d3cbb7",
+    "accent": "#268bd2",
+    "text": "#657b83",
+    "textSecondary": "#839496",
+    "textMuted": "#93a1a1",
+    "error": "#dc322f",
+    "warning": "#b58900",
+    "success": "#859900",
+    "info": "#268bd2",
+    "scrollbarThumb": "#c0b8a0",
+    "scrollbarThumbHover": "#a09880",
+    "indentGuide": "#d8d0bc",
+    "surfaceRaised": "#efe9d8",
+    "hover": "#f0ebda",
+    "active": "#f1ecdd",
+    "accentHover": "#3c97d6",
+    "accentActive": "#4da0da",
+    "errorHover": "#e04b48",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#d8d1c0",
+    "editorBg": "#eee8d5",
+    "panelBorder": "#d3cbb7"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#93a1a1",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#2aa198"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d33682"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#cb4b16"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#859900"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#b58900"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#b58900"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#268bd2"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#657b83"
+    }
+  ]
+}

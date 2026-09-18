@@ -1,0 +1,114 @@
+{
+  "name": "Arctic Frost",
+  "type": "dark",
+  "colors": {
+    "bg": "#0c1520",
+    "surface": "#121e2c",
+    "border": "#1e3040",
+    "accent": "#88c0d0",
+    "text": "#e5f0f8",
+    "textSecondary": "#a8c0d0",
+    "textMuted": "#506878",
+    "error": "#bf616a",
+    "warning": "#ebcb8b",
+    "success": "#a3be8c",
+    "info": "#81a1c1",
+    "scrollbarThumb": "#2e4050",
+    "scrollbarThumbHover": "#3e5060",
+    "indentGuide": "#182838",
+    "surfaceRaised": "#202c39",
+    "hover": "#2e3945",
+    "active": "#3d4652",
+    "accentHover": "#94c6d5",
+    "accentActive": "#9dcbd8",
+    "errorHover": "#c7747c",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#394957",
+    "editorBg": "#121e2c",
+    "panelBorder": "#1e3040"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#506878"
+    },
+    {
+      "scope": "string",
+      "foreground": "#a3be8c"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#b48ead"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#e5f0f8"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#81a1c1"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#e5f0f8"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#d08770"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#88c0d0"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#8fbcbb"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#a8c0d0"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#bf616a"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#88c0d0",
+      "fontStyle": "bold"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Blood Moon",
+  "type": "dark",
+  "colors": {
+    "bg": "#1a0a0a",
+    "surface": "#2a1515",
+    "border": "#4a2525",
+    "accent": "#dc143c",
+    "text": "#f5deb3",
+    "textSecondary": "#cd853f",
+    "textMuted": "#6a4a4a",
+    "error": "#ff0000",
+    "warning": "#ff8c00",
+    "success": "#8b0000",
+    "info": "#b22222",
+    "scrollbarThumb": "#4a2525",
+    "scrollbarThumbHover": "#5a3535",
+    "indentGuide": "#3a1a1a",
+    "surfaceRaised": "#372323",
+    "hover": "#443131",
+    "active": "#503f3f",
+    "accentHover": "#e02c50",
+    "accentActive": "#e23e5f",
+    "errorHover": "#ff1f1f",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#603f3f",
+    "editorBg": "#2a1515",
+    "panelBorder": "#4a2525"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6a4a4a"
+    },
+    {
+      "scope": "string",
+      "foreground": "#ff8c00"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#dc143c"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#b22222"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#ff6347"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f5deb3"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#dc143c"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#cd853f"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+/* LayoutToggles — grupo de toggles de paneles en la statusbar. */
+
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.btn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.btn:active {
+  background: var(--color-active);
+}
+
+/* Activo = panel visible: ícono destacado. */
+.active {
+  color: var(--color-text);
+}

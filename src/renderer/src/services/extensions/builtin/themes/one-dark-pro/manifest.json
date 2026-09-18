@@ -1,0 +1,18 @@
+{
+  "id": "one-dark-pro",
+  "name": "One Dark Pro",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema One Dark Pro — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "one-dark-pro",
+        "name": "One Dark Pro",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

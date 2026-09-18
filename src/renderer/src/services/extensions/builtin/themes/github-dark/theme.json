@@ -1,0 +1,155 @@
+{
+  "name": "GitHub Dark",
+  "type": "dark",
+  "colors": {
+    "bg": "#0d1117",
+    "surface": "#161b22",
+    "border": "#30363d",
+    "accent": "#58a6ff",
+    "text": "#c9d1d9",
+    "textSecondary": "#8b949e",
+    "textMuted": "#6e7681",
+    "error": "#f85149",
+    "warning": "#d29922",
+    "success": "#3fb950",
+    "info": "#58a6ff",
+    "scrollbarThumb": "#484f58",
+    "scrollbarThumbHover": "#6e7681",
+    "indentGuide": "#21262d",
+    "panelBorder": "#30363d",
+    "panelBorderOpacity": 25,
+    "editorBg": "#161b22",
+    "surfaceRaised": "#24292f",
+    "hover": "#32363d",
+    "active": "#40444a",
+    "accentHover": "#69afff",
+    "accentActive": "#76b6ff",
+    "errorHover": "#f9665f",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#494e54"
+  },
+  "components": {
+    "tabs": {
+      "activeBg": "#161b22"
+    },
+    "editor": {
+      "editorBg": "#161b22"
+    },
+    "breadcrumb": {
+      "breadcrumbBg": "#161b22"
+    },
+    "welcomePage": {
+      "welcomePageBg": "#161b22",
+      "welcomePageButtonBg": "#0d1117"
+    }
+  },
+  "tokenColors": [
+    {
+      "scope": [
+        "comment",
+        "comment.line",
+        "comment.block"
+      ],
+      "foreground": "#8b949e",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template"
+      ],
+      "foreground": "#a5d6ff"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#79c0ff"
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant"
+      ],
+      "foreground": "#79c0ff"
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.other",
+        "storage.type",
+        "storage.modifier"
+      ],
+      "foreground": "#ff7b72"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#ff7b72"
+    },
+    {
+      "scope": [
+        "entity.name.function",
+        "support.function"
+      ],
+      "foreground": "#d2a8ff"
+    },
+    {
+      "scope": [
+        "entity.name.class",
+        "entity.name.type",
+        "support.class",
+        "support.type"
+      ],
+      "foreground": "#ffa657"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#7ee787"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#79c0ff"
+    },
+    {
+      "scope": [
+        "variable",
+        "variable.other"
+      ],
+      "foreground": "#c9d1d9"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#ffa657"
+    },
+    {
+      "scope": [
+        "variable.object.property",
+        "meta.object-literal.key",
+        "support.type.property-name"
+      ],
+      "foreground": "#79c0ff"
+    },
+    {
+      "scope": [
+        "punctuation",
+        "punctuation.definition",
+        "punctuation.separator"
+      ],
+      "foreground": "#8b949e"
+    },
+    {
+      "scope": "markup.heading",
+      "foreground": "#58a6ff",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.bold",
+      "fontStyle": "bold"
+    },
+    {
+      "scope": "markup.italic",
+      "fontStyle": "italic"
+    }
+  ]
+}

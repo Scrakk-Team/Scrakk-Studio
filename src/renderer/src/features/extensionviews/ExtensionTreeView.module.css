@@ -1,0 +1,151 @@
+/* Vista de árbol de una extensión — mismo lenguaje visual que el Explorador. */
+
+.tree {
+  height: 100%;
+  overflow: auto;
+  padding: 4px 0;
+  font-size: 12.5px;
+  color: var(--color-text, #d4d4d4);
+  user-select: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+.row.clickable {
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--color-hover, rgba(255, 255, 255, 0.06));
+}
+
+.twisty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.twisty:hover {
+  opacity: 1;
+}
+
+.twistySpacer {
+  display: inline-block;
+  width: 16px;
+}
+
+.icon {
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.iconDot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.6;
+  font-size: 11.5px;
+}
+
+.spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: tree-spin 0.7s linear infinite;
+}
+
+@keyframes tree-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  font-size: 12.5px;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger, #f48771);
+}
+
+.hint {
+  margin: 0;
+  opacity: 0.7;
+}
+
+/*
+ * Contenido de la VISTA VACÍA declarado por la extensión (`viewsWelcome`):
+ * no es un error ni un estado del IDE, es la extensión explicándose. Por eso
+ * respira más que `.state` y el texto no va atenuado del todo.
+ */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  user-select: text;
+}
+
+.welcomeText {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.welcomeAction {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.14));
+  border-radius: 3px;
+  background: var(--color-button-bg, rgba(255, 255, 255, 0.08));
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.welcomeAction:hover {
+  background: var(--color-hover, rgba(255, 255, 255, 0.14));
+}
+
+.welcomeAction:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

@@ -1,11 +1,11 @@
-import { KeyIcon, SearchIcon, ServerIcon } from '@proicons/react'
+import { ProductIcon } from '@services/productIcons/components'
 import { useMemo, useState, type JSX } from 'react'
 import {
   THINKING_MODE_LABELS,
   thinkingOptionsFor,
   type ThinkingMode
 } from '@shared/thinking'
-import { Modal } from '@ui/Modal'
+import { Modal } from '@ui'
 import { useProviders } from '../../state'
 import styles from './ProvidersModal.module.css'
 
@@ -81,7 +81,7 @@ export function ProvidersModal({ open, onClose }: ProvidersModalProps): JSX.Elem
       </p>
 
       <div className={styles.searchRow}>
-        <SearchIcon size={14} className={styles.searchIcon} aria-hidden="true" />
+        <ProductIcon id="search" size={14} className={styles.searchIcon} aria-hidden="true" />
         <input
           className={styles.searchInput}
           type="text"
@@ -109,7 +109,7 @@ export function ProvidersModal({ open, onClose }: ProvidersModalProps): JSX.Elem
                 onClick={() => handleProviderClick(provider.id)}
               >
                 <span className={styles.providerIcon} aria-hidden="true">
-                  <ServerIcon size={14} />
+                  <ProductIcon id="server" size={14} />
                 </span>
                 <span className={styles.providerInfo}>
                   <span className={styles.providerTop}>
@@ -132,7 +132,7 @@ export function ProvidersModal({ open, onClose }: ProvidersModalProps): JSX.Elem
                         API key de {provider.name}
                       </label>
                       <div className={styles.keyRow}>
-                        <KeyIcon size={14} className={styles.keyIcon} aria-hidden="true" />
+                        <ProductIcon id="key" size={14} className={styles.keyIcon} aria-hidden="true" />
                         <input
                           id={`key-${provider.id}`}
                           className={styles.keyInput}

@@ -1,0 +1,111 @@
+{
+  "name": "Dracula",
+  "type": "dark",
+  "colors": {
+    "bg": "#282a36",
+    "surface": "#2d303e",
+    "border": "#44475a",
+    "accent": "#bd93f9",
+    "text": "#f8f8f2",
+    "textSecondary": "#bfbfbf",
+    "textMuted": "#6272a4",
+    "error": "#ff5555",
+    "warning": "#ffb86c",
+    "success": "#50fa7b",
+    "info": "#8be9fd",
+    "scrollbarThumb": "#44475a",
+    "scrollbarThumbHover": "#54576a",
+    "indentGuide": "#44475a",
+    "surfaceRaised": "#3a3c4a",
+    "hover": "#464955",
+    "active": "#535561",
+    "accentHover": "#c49efa",
+    "accentActive": "#c9a6fa",
+    "errorHover": "#ff6969",
+    "onAccent": "#000000",
+    "onError": "#ffffff",
+    "borderStrong": "#5a5d6e",
+    "editorBg": "#2d303e",
+    "panelBorder": "#44475a"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#6272a4"
+    },
+    {
+      "scope": "string",
+      "foreground": "#f1fa8c"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#bd93f9"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#bd93f9"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#ff79c6"
+    },
+    {
+      "scope": "keyword.control",
+      "foreground": "#ff79c6"
+    },
+    {
+      "scope": "keyword.operator",
+      "foreground": "#ff79c6"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#8be9fd",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "storage.modifier",
+      "foreground": "#ff79c6"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#50fa7b"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#8be9fd"
+    },
+    {
+      "scope": "entity.name.type",
+      "foreground": "#8be9fd"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#f8f8f2"
+    },
+    {
+      "scope": "variable.parameter",
+      "foreground": "#ffb86c",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "support.function",
+      "foreground": "#8be9fd"
+    },
+    {
+      "scope": "support.class",
+      "foreground": "#8be9fd"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#ff79c6"
+    },
+    {
+      "scope": "entity.other.attribute-name",
+      "foreground": "#50fa7b"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#f8f8f2"
+    }
+  ]
+}

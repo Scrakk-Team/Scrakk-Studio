@@ -7,7 +7,8 @@
  */
 
 import type { JSX } from 'react'
-import { ToolCallShell, type ToolCallExecution } from '@services/ai/tool-shell'
+import { memo } from 'react'
+import { ToolCallShell, ToolCallIcon, type ToolCallExecution } from '@services/ai/tool-shell'
 import type { ToolCallInfo, ToolResultInfo, ToolCallStatusType } from '@services/chat/types'
 import { registry } from '@services/ai/tools'
 import styles from './ToolCallsBlock.module.css'
@@ -19,7 +20,7 @@ interface ToolCallsBlockProps {
   status?: ToolCallStatusType
 }
 
-export function ToolCallsBlock({
+export const ToolCallsBlock = memo(function ToolCallsBlock({
   toolCalls,
   toolResults,
   status = 'running'
@@ -45,13 +46,21 @@ export function ToolCallsBlock({
         }
 
         return (
-          <ToolCallShell
-            key={tc.id}
-            execution={execution}
-            meta={meta}
-          />
+          <div key={tc.id} className={styles.toolRow}>
+            <ToolCallIcon
+              toolName={tc.function.name}
+              icon={meta?.icon}
+              size={13}
+            />
+            <div className={styles.toolVisual}>
+              <ToolCallShell
+                execution={execution}
+                meta={meta}
+              />
+            </div>
+          </div>
         )
       })}
     </div>
   )
-}
+})

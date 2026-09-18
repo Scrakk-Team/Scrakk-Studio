@@ -133,20 +133,11 @@ describe('servers dinámicos (ext type lspServers)', () => {
       const file = path.join(projectDir!, 'd.mockts')
       await fs.writeFile(file, '')
       await manager.ensureFileOpen(file)
-      await waitFor(() => manager.status()[0]?.state === 'ready')
+      await waitFor(() => manager.status().find((s) => s.name === 'dyn-server')?.state === 'ready')
 
-      // Quitar → desaparece del registro.
-      manager.removeDynamicServers('my-ext-id')
-      await waitFor(
-        () => !manager.status().some((s) => s.name === 'dyn-server'),
-        5000,
-        50
-      ).catch(() => {
-        // invalidateAllRoots es fire-and-forget; forzar recarga síncrona:
-        void manager.setWorkspace(projectDir!)
-      })
-      const after = manager.status().filter((s) => s.name === 'dyn-server' && s.source === 'dynamic')
-      expect(after).toHaveLength(0)
+      // Quitar → desaparece del registro Y se apaga su cliente.
+      await manager.removeDynamicServers('my-ext-id')
+      expect(manager.status().some((s) => s.name === 'dyn-server')).toBe(false)
 
       await manager.shutdownAll()
     } finally {

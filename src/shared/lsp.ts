@@ -34,12 +34,23 @@ export const LSP_IPC = {
   readDiagnostics: 'lsp:read-diagnostics',
   /** Apaga todos los servers ordenadamente. */
   shutdownAll: 'lsp:shutdown-all',
+  /** Reinicia UN server (shutdown + start). */
+  restartServer: 'lsp:restart-server',
+  /** Fuerza instalación de la receta de un builtin (si tiene). */
+  installServer: 'lsp:install-server',
   /**
    * Tipo de extensión 'lspServers': registra/quit servers aportados por una
    * extensión (.sef o builtin). Prioridad: user > project > dynamic > builtin.
    */
   registerDynamicServers: 'lsp:register-dynamic-servers',
   removeDynamicServers: 'lsp:remove-dynamic-servers',
+  /**
+   * Servers que el usuario APAGÓ (por id). Un server apagado no arranca ni
+   * recibe documentos: es la única forma de que "no quiero este linter acá"
+   * sea una decisión real y no un adorno de Ajustes.
+   */
+  setDisabledServers: 'lsp:set-disabled-servers',
+  getDisabledServers: 'lsp:get-disabled-servers',
   /** Evento main → renderer: publishDiagnostics de cualquier server. */
   onDiagnostics: 'lsp:on-diagnostics',
   /** Evento main → renderer: cambios de estado de servers. */
@@ -130,9 +141,19 @@ export interface LspServerStatus {
   state: LspServerStateKind
   /** true si el binario fue encontrado en el sistema (o es socket). */
   available: boolean
-  /** Origen de la config: builtin | user | project. */
-  source: 'builtin' | 'user' | 'project'
+  /**
+   * Origen de la config: builtin | user | project | dynamic.
+   * `dynamic` = lo aportó una extensión (tipo `lspServers` o `vscode-languageclient`).
+   */
+  source: 'builtin' | 'user' | 'project' | 'dynamic'
   extensions: string[]
+  /**
+   * Extensión que lo aportó (sólo `source: 'dynamic'`): el id de la fuente con
+   * la que se registró, para poder apagarlo desde Ajustes sabiendo de quién es.
+   */
+  extensionId?: string
+  /** El usuario lo apagó: no arranca (y se ve como tal, no como "detenido"). */
+  disabled?: boolean
   error?: string
 }
 
@@ -236,6 +257,16 @@ export interface RegisterDynamicServersResponse {
   error?: string
 }
 
+// ── Servers apagados por el usuario ───────────────────────────────────────
+
+export interface SetDisabledServersRequest {
+  ids: string[]
+}
+
+export interface DisabledServersResponse {
+  ids: string[]
+}
+
 // ── Progreso $/progress ────────────────────────────────────────────────────
 
 export interface LspProgressPayload {
@@ -256,6 +287,17 @@ export interface ReadDiagnosticsRequest {
   paths: string[]
 }
 
+// ── Acciones por server ───────────────────────────────────────────────────
+
+export interface LspServerActionRequest {
+  serverName: string
+}
+
+export interface LspServerActionResult {
+  ok: boolean
+  error?: string
+}
+
 // ── API expuesta por el preload (window.api.lsp) ───────────────────────────
 
 export interface LspApi {
@@ -270,9 +312,16 @@ export interface LspApi {
   drainDiagnostics(timeoutMs?: number): Promise<FileDiagnostics[]>
   readDiagnostics(paths: string[]): Promise<FileDiagnostics[]>
   shutdownAll(): Promise<{ ok: boolean }>
+  restartServer(serverName: string): Promise<LspServerActionResult>
+  /** Instala la receta del server si no está en el sistema. */
+  installServer(serverName: string): Promise<LspServerActionResult>
   /** Tipo de extensión 'lspServers': registra servers dinámicos. */
   registerDynamicServers(sourceId: string, servers: DynamicLspServerDef[]): Promise<RegisterDynamicServersResponse>
   removeDynamicServers(sourceId: string): Promise<{ ok: boolean }>
+  /** Apaga/enciende servers por id (la decisión vive en Ajustes). */
+  setDisabledServers(ids: string[]): Promise<{ ok: boolean }>
+  /** Los ids apagados que el main tiene aplicados ahora mismo. */
+  getDisabledServers(): Promise<DisabledServersResponse>
   /** Suscripción a publishDiagnostics (live). Devuelve unsubscriber. */
   onDiagnostics(callback: (payload: DiagnosticsChangedPayload) => void): () => void
   /** Suscripción a cambios de estado de servers. Devuelve unsubscriber. */

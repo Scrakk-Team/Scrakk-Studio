@@ -33,6 +33,15 @@ export interface ExtensionTypeContext {
   extensionId: string
   /** True = compilada dentro del bundle de la app. */
   isBuiltin: boolean
+  /**
+   * Raíz del paquete instalado (vacío/ausente para builtin).
+   *
+   * Existe para los tipos que necesitan una ruta ABSOLUTA a un archivo del
+   * paquete: un `lspServers` que trae su propio server (`./server/out/x.js`)
+   * no puede resolverse contra el PATH del sistema — el binario está adentro
+   * de la extensión.
+   */
+  extensionPath?: string
   /** Resolvedor de componentes/íconos del paquete (kinds visuales). */
   resolver: ComponentResolver
   /**

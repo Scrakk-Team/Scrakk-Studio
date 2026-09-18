@@ -1,0 +1,32 @@
+/* Chips de extensiones: mismo lenguaje visual que los chips propios. */
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted, #9aa0a6);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.item:hover:not(:disabled) {
+  color: var(--color-text, #e6e6e6);
+  background: var(--color-surface-hover, rgb(255 255 255 / 6%));
+}
+
+.item:disabled {
+  cursor: default;
+}
+
+.text {
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

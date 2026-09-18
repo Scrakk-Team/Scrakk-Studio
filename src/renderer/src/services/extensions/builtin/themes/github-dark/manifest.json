@@ -1,0 +1,18 @@
+{
+  "id": "github-dark",
+  "name": "GitHub Dark",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema GitHub Dark — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "github-dark",
+        "name": "GitHub Dark",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

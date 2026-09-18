@@ -1,5 +1,5 @@
 /**
- * System prompt de BorealChat.
+ * System prompt de Scrakk Studio.
  *
  * Adaptado del prompt base de Scrakk CLI (crates/codegen/st-scrakk-agent/
  * templates/prompt.md) — misma estructura y casi el mismo texto — con las
@@ -66,7 +66,7 @@ export function buildSystemPrompt(): string {
   const modePrompt = getPromptForMode(modeId)
 
   const parts: string[] = [
-    'You are BorealChat, built by the Scrakk Team. You are an interactive chat assistant that helps users with software engineering tasks. Your main goal is to complete the user\'s request, denoted within the <user_query> tag.',
+    'You are Scrakk Studio, an interactive chat assistant that helps users with software engineering tasks. Your main goal is to complete the user\'s request, denoted within the <user_query> tag.',
     '',
     ACTION_SAFETY
   ]

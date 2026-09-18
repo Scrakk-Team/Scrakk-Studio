@@ -5,3 +5,15 @@
 
 export { ExplorerPanel } from './ExplorerPanel'
 export { setWorkspaceRoot } from './hooks/useWorkspaceState'
+export { ExplorerView } from './ExplorerView'
+export {
+  registerFileDecorationProvider,
+  getFileDecoration,
+  refreshFileDecorations,
+  subscribeToDecorations,
+  isGitDecorationsVisible,
+  setGitDecorationsVisible,
+  type FileDecoration,
+  type FileDecorationProvider
+} from './decorations'
+export { ancestorDirs, filterRowsByPaths } from './filter'

@@ -1,5 +1,5 @@
 .welcome-page {
-  /* Aliases de las variables del editor → tokens de BorealChat.
+  /* Aliases de las variables del editor → tokens de Scrakk Studio.
      Fondo oscuro base (mismo que explorer y chat): las tarjetas internas
      van sobre la superficie clara para destacar. */
   --welcome-page-bg: var(--color-bg);
@@ -61,8 +61,11 @@
   font-size: 9px;
   font-weight: 500;
   color: var(--text-muted);
-  background: var(--welcome-page-bg, var(--bg-color));
-  border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+  /* Mismo fondo que los 3 botones (no transparente suelto). */
+  background: var(--welcome-page-button-bg, var(--bg-color));
+  /* Solo el borde de adentro (abajo, sobre el botón): arriba y lados, nada. */
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
   border-radius: 4px;
   padding: 1px 5px;
   letter-spacing: 0.3px;
@@ -351,12 +354,32 @@
   }
 }
 
-/* Tips Section */
+/* Info: consejos + anuncios en un contenedor surface, compactos. */
+.welcome-info-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-secondary, var(--color-surface));
+}
+
+/* Tips Section (compacta) */
 .welcome-tips-section {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+}
+
+/* Ads: dentro del contenedor info. */
+.welcome-ads-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .tips-header {
@@ -367,38 +390,34 @@
 }
 
 .tips-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
+/* Contenedor único con fondo redondeado en el
+   color secundario del theme (surface) */
 .tips-indicators {
   display: flex;
+  align-items: center;
   gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--bg-secondary);
 }
 
 .tip-indicator {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--border-color);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.tip-indicator:hover {
   background: var(--text-secondary);
 }
 
 .tip-indicator.active {
   background: var(--tree-color);
   width: 20px;
-  border-radius: 3px;
+  border-radius: 999px;
 }
 
 .tips-slider {
@@ -418,7 +437,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 18px;
+  padding: 10px 14px;
 }
 
 .tip-content {
@@ -431,14 +450,87 @@
 }
 
 .tip-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
   margin: 0;
 }
 
 .tip-description {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tabs del contenedor info: 2 botones seleccionables lado a lado. */
+.info-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.info-tab {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast, 0.15s) var(--ease-out, ease),
+    color var(--duration-fast, 0.15s) var(--ease-out, ease);
+}
+
+.info-tab:hover {
+  color: var(--text-secondary);
+}
+
+.info-tab.active {
+  background: var(--hover-bg, var(--color-hover));
+  color: var(--text-color, var(--color-text));
+}
+
+.info-tabs .tips-indicators {
+  margin-left: auto;
+}
+
+.ads-slider {
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--welcome-page-tips-bg, var(--bg-color));
+  border: none;
+}
+
+.ad-card {
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+}
+
+.ad-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  max-width: 500px;
+}
+
+.ad-title {
   font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.ad-description {
+  font-size: 10px;
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0;

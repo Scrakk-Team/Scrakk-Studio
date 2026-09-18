@@ -1,0 +1,78 @@
+{
+  "name": "Ros├® Pine Dawn",
+  "type": "light",
+  "colors": {
+    "bg": "#faf4ed",
+    "surface": "#fffaf3",
+    "border": "#dfdad9",
+    "accent": "#d7827e",
+    "text": "#575279",
+    "textSecondary": "#797593",
+    "textMuted": "#9893a5",
+    "error": "#b4637a",
+    "warning": "#ea9d34",
+    "success": "#56949f",
+    "info": "#286983",
+    "scrollbarThumb": "#cecacd",
+    "scrollbarThumbHover": "#b4b0b3",
+    "indentGuide": "#e4dfde",
+    "surfaceRaised": "#fffaf4",
+    "hover": "#fffbf4",
+    "active": "#fffbf5",
+    "accentHover": "#db8e8b",
+    "accentActive": "#de9895",
+    "errorHover": "#bd768a",
+    "onAccent": "#ffffff",
+    "onError": "#ffffff",
+    "borderStrong": "#e3dede",
+    "editorBg": "#fffaf3",
+    "panelBorder": "#dfdad9"
+  },
+  "tokenColors": [
+    {
+      "scope": "comment",
+      "foreground": "#9893a5",
+      "fontStyle": "italic"
+    },
+    {
+      "scope": "string",
+      "foreground": "#ea9d34"
+    },
+    {
+      "scope": "constant.numeric",
+      "foreground": "#d7827e"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#d7827e"
+    },
+    {
+      "scope": "keyword",
+      "foreground": "#286983"
+    },
+    {
+      "scope": "storage.type",
+      "foreground": "#56949f"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#d7827e"
+    },
+    {
+      "scope": "entity.name.class",
+      "foreground": "#907aa9"
+    },
+    {
+      "scope": "variable",
+      "foreground": "#575279"
+    },
+    {
+      "scope": "entity.name.tag",
+      "foreground": "#b4637a"
+    },
+    {
+      "scope": "punctuation",
+      "foreground": "#797593"
+    }
+  ]
+}

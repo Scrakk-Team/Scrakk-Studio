@@ -1,0 +1,196 @@
+.problems {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+}
+
+/* Barra de filtros: severidades (con su conteo) + búsqueda. */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+.filter:hover {
+  background: var(--color-surface-raised);
+}
+
+/* Encendido = esa severidad se muestra (apagado = filtrada). */
+.filterOn {
+  opacity: 1;
+  border-color: var(--color-border);
+}
+
+.filterCount {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.query {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-surface-raised);
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  outline: none;
+}
+
+.query:focus {
+  border-color: var(--color-border-strong);
+}
+
+.query::placeholder {
+  color: var(--color-text-muted);
+}
+
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1) 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 3px var(--space-2);
+  border: none;
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--text-xs);
+}
+
+.groupHeader:hover {
+  background: var(--color-surface-raised);
+}
+
+.groupActive .fileName {
+  font-weight: 600;
+}
+
+.arrow {
+  display: inline-flex;
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.fileName {
+  flex-shrink: 0;
+}
+
+.fileDir {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.groupCount {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fila de un problema: icono, mensaje, origen/código y posición. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 2px var(--space-2) 2px calc(var(--space-2) + 18px);
+  border: none;
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--text-xs);
+}
+
+.row:hover {
+  background: var(--color-surface-raised);
+}
+
+.rowIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.origin,
+.code {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.code {
+  font-family: var(--font-mono, monospace);
+}
+
+.position {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.footer {
+  flex-shrink: 0;
+  padding: 4px var(--space-2);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 10px;
+}

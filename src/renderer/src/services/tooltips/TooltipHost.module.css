@@ -1,0 +1,47 @@
+.tooltip {
+  position: fixed;
+  z-index: 300;
+  transform: translateY(-100%);
+  max-width: 420px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+/* ── Variante markdown (hover LSP): mismo pipeline del chat ──────────────
+   Sin pre-wrap (el markdown decide sus saltos), interactividad para scroll
+   de tablas/codeblocks largos, tipografía idéntica al chat. */
+.tooltipMarkdown {
+  white-space: normal;
+  pointer-events: auto;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Compactación del Markdown del chat dentro del tooltip: sin los márgenes
+   de burbuja, paddings y fonts más chicos. Solo afecta DENTRO del tooltip. */
+.tooltipMarkdown > div > * {
+  font-size: var(--text-xs);
+}
+
+.tooltipMarkdown > div > div {
+  margin: 0 0 4px;
+}
+
+.tooltipMarkdown > div > div:last-child {
+  margin-bottom: 0;
+}
+
+.tooltipMarkdown > div > pre {
+  margin: 4px 0;
+}
+
+.tooltipMarkdown > div > table {
+  margin: 4px 0;
+}

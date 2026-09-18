@@ -1,0 +1,18 @@
+{
+  "id": "forest-green",
+  "name": "Forest Green",
+  "version": "0.1.0",
+  "author": "Scrakk Studio",
+  "description": "Tema Forest Green — builtin (contribution themes).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      {
+        "id": "forest-green",
+        "name": "Forest Green",
+        "type": "dark",
+        "path": "./theme.json"
+      }
+    ]
+  }
+}

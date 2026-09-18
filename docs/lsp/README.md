@@ -20,6 +20,20 @@ de Studio (contrato shared → runtime main → puente preload → API renderer)
 - **Config en capas**: `~/.scrakk/lsp.json` + `<root>/.scrakk/lsp.json`
   (mismo formato que ya detecta el CLI) + servers dinámicos desde
   extensiones SEF + catálogo builtin con auto-detección.
+- **Extensiones de VS Code con su propio server**: la lib real
+  `vscode-languageclient` corre en el Extension Host, y sus proveedores
+  (hover, definición, referencias, formateo…) llegan al editor por
+  `provider/query` — el mismo canal `lsp:request` que los servers del sistema
+  (ver [vscode-languageclient.md](vscode-languageclient.md)).
+- **Diagnósticos en la UI**: los del LSP y los de las extensiones comparten
+  store (una entrada por fuente) y se listan en el panel **Problemas**, con el
+  chip de conteos en la barra de estado.
+- **Diagnósticos SUBRAYADOS en el editor**: el mismo store alimenta el
+  subrayado (ondulado/punteado según severidad, color del tema) y el mensaje al
+  pasar el puntero por encima; `editor.setDecorations` de una extensión entra
+  por el mismo canal (ver [../editor/decorations.md](../editor/decorations.md)).
+- **Servers apagados por el usuario**: Ajustes → Servidores los apaga de
+  verdad (no arrancan, y se apaga el que estaba corriendo).
 - **Protocolo moderno**: `$ /progress`, `completionItem/resolve` dirigido,
   semantic tokens e inlay hints (capabilities declaradas).
 
@@ -32,7 +46,10 @@ de Studio (contrato shared → runtime main → puente preload → API renderer)
 | [servers.md](servers.md) | Catálogo builtin, detección, auto-instalación |
 | [api.md](api.md) | La API completa para frontend/editor/tools del agente |
 | [protocol.md](protocol.md) | Detalles del protocolo soportado y sus límites |
-| [extensions.md](extensions.md) | Tipo de contribución `lspServers` en SEF |
+| [extensions.md](extensions.md) | Tipo de contribución `lspServers` en SEF (y apagado/encendido desde Ajustes) |
+| [providers.md](providers.md) | Proveedores de lenguaje de las extensiones: cómo llegan al editor |
+| [vscode-languageclient.md](vscode-languageclient.md) | Un VSIX con su `LanguageClient`: la lib REAL corriendo en el Extension Host |
+| [../editor/decorations.md](../editor/decorations.md) | Cómo se subrayan los diagnósticos (y las decoraciones) en el editor |
 | [testing.md](testing.md) | Suite de tests, mock server, cómo correr todo |
 
 ## En una línea
