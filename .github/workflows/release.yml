@@ -87,6 +87,5 @@ jobs:
         with:
           files: release/*
           generate_release_notes: false
-          body: |
-            ## ${{ github.ref_name }} — {titulo}
-            {una linea de que trae}
+          name: ${{ github.ref_name }}
+          body: ${{ github.ref_name }}
