@@ -6,10 +6,8 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  build-linux:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -37,6 +35,52 @@ jobs:
 
       - name: Empaquetar (linux)
         run: npx electron-builder --linux AppImage deb tar.gz --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: release/*
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Empaquetar (windows)
+        run: npx electron-builder --win nsis --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: release/*
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
 
       - name: Crear Release
         uses: softprops/action-gh-release@v2
