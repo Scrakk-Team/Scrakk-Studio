@@ -1,5 +1,5 @@
 -- 0014: presencia real (estado + actividad) con RLS (yo + mis amigos) y Realtime.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Estado en vivo: online/away/busy/offline + actividad (nombres, nunca rutas).
 -- La app late (heartbeat) cada 45s y publica su estado; al cerrar deja offline.

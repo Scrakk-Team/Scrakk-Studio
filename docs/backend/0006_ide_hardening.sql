@@ -1,5 +1,5 @@
 -- 0006: hardening post-advisors (IDE accounts).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Cierra los avisos del linter de Supabase introducidos por 0004/0005:
 --  * touch_updated_at: search_path mutable → fijo ('' sin deps de public).

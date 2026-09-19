@@ -2,7 +2,9 @@
  * Cliente R2 (API S3-compatible, SigV4) para el proceso main.
  *
  * Sin dependencias nuevas: firma HMAC-SHA256 con node:crypto y PUT con fetch.
- * Las credenciales van por entorno (nunca hardcodeadas):
+ * TODO sale por entorno — ni el endpoint (que lleva el account id) ni las
+ * credenciales viven en el código. Sin config no hay R2 y se usa Supabase
+ * Storage (buckets `avatars` / `chat-images`), que ya está protegido por RLS.
  *
  *  SCRAKK_R2_ENDPOINT      https://<accountid>.r2.cloudflarestorage.com
  *  SCRAKK_R2_ACCESS_KEY    access key del token R2
@@ -26,17 +28,15 @@ interface R2Config {
 }
 
 function cfgFor(kind: R2Kind): R2Config | null {
-  const endpoint = (process.env.SCRAKK_R2_ENDPOINT ?? 'https://eaa65e50775620523cf9a829e7b465a5.r2.cloudflarestorage.com').trim().replace(/\/+$/, '')
+  const endpoint = (process.env.SCRAKK_R2_ENDPOINT ?? '').trim().replace(/\/+$/, '')
   const accessKey = (process.env.SCRAKK_R2_ACCESS_KEY ?? '').trim()
   const secretKey = (process.env.SCRAKK_R2_SECRET_KEY ?? '').trim()
   const bucket = (
     kind === 'avatar' ? process.env.SCRAKK_R2_BUCKET_AVATAR : process.env.SCRAKK_R2_BUCKET_CHAT
   )?.trim() || (kind === 'avatar' ? 'scrakk-avatars' : 'scrakk-chat-images')
   const publicBase = (
-    kind === 'avatar'
-      ? (process.env.SCRAKK_R2_PUBLIC_AVATAR ?? 'https://pub-da2990c67c154667a4c23c857b0398b5.r2.dev')
-      : (process.env.SCRAKK_R2_PUBLIC_CHAT ?? 'https://pub-cd0e99d124f844e78f2ece43da6b8c1f.r2.dev')
-  ).trim().replace(/\/+$/, '')
+    kind === 'avatar' ? process.env.SCRAKK_R2_PUBLIC_AVATAR : process.env.SCRAKK_R2_PUBLIC_CHAT
+  )?.trim().replace(/\/+$/, '')
   if (!endpoint || !accessKey || !secretKey || !publicBase) return null
   return { endpoint, bucket, accessKey, secretKey, publicBase }
 }

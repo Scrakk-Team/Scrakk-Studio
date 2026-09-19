@@ -1,5 +1,5 @@
 -- 0012: search_users tolera el "@" inicial.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Bug: el placeholder del buscador sugiere "@usuario", pero la RPC no limpiaba
 -- el "@", así que buscar "@algo" devolvía vacío → parecía que "el buscador no

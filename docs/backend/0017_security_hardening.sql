@@ -1,5 +1,5 @@
 -- 0017: hardening de seguridad (aplicado vía MCP de Supabase).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Contexto: los .sql son públicos en el repo. La seguridad NO depende del
 -- secreto: cualquiera puede conocer el esquema y aun así no puede hacer nada

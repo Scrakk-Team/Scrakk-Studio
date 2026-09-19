@@ -1,5 +1,5 @@
 -- 0016: imágenes en DMs + avatares (Supabase Storage, sin tocar Cloudflare).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- - Buckets públicos `avatars` y `chat-images` (paths con UUID: no listables).
 -- - Tabla `message_attachments`: una fila por imagen pegada (Ctrl+V) en un DM.

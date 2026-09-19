@@ -1,5 +1,5 @@
 -- 0013: Realtime de amistades.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Dos causas de que "no llegara en vivo":
 --  1. `friendships` NO estaba en la publicación supabase_realtime → aceptar

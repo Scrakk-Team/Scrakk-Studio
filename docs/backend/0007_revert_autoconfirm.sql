@@ -1,5 +1,5 @@
 -- 0007: revertir la auto-confirmación (0005) — el login vuelve a ser OTP.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Decisión: el IDE reutiliza el MISMO login que el CLI (email → código OTP vía
 -- la API de Scrakk con Resend). Ese flujo ya confirma el email con

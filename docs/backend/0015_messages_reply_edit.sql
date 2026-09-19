@@ -1,5 +1,5 @@
 -- 0015: reply + edit/delete support for DMs
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- - reply_to: citar un mensaje del mismo DM (FK on delete set null)
 -- - edited_at: marca de edición

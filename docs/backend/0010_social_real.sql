@@ -1,5 +1,5 @@
 -- 0010: social real — amigos + mensajes directos (sin servidores/comunidades).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Todo vive en la DB oficial por ahora (los límites del free tier se evalúan
 -- después). Realtime entrega mensajes y solicitudes en vivo.

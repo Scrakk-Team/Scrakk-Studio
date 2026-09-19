@@ -1,5 +1,5 @@
 -- 0005: auto-confirmación de email en el alta (sin SMTP / sin Resend).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Motivo: el proyecto tiene `mailer_autoconfirm = false` y NO hay SMTP, así que
 -- el signup fallaba con "Error sending confirmation email". GoTrue decide con

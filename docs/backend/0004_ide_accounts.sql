@@ -1,5 +1,5 @@
 -- 0004: IDE accounts (perfil social) — ADITIVA, no cambia el CLI.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 -- Aplicada vía MCP de Supabase (quedó en supabase_migrations.schema_migrations).
 --
 -- Reutiliza el MISMO auth.users (login compartido CLI ⇄ IDE) y extiende

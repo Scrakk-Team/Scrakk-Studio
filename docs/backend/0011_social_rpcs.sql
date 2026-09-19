@@ -1,5 +1,5 @@
 -- 0011: RPCs del social real.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- security definer + search_path fijo + validación; EXECUTE solo para
 -- authenticated (nunca anon/public). Así la amistad y la búsqueda no pueden

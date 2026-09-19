@@ -1,5 +1,5 @@
 -- 0009: allowlist de cuentas oficiales para handles reservados.
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- La reserva (0008) sigue valiendo para todos; solo las cuentas listadas acá
 -- pueden usar handles reservados (p. ej. "scrakk"). Se decide por DUEÑO del

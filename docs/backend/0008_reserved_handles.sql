@@ -1,5 +1,5 @@
 -- 0008: reserva de handles EN LA BASE (no confiar en el cliente).
--- Proyecto: scrakk-cli (Supabase, ref ufcwwigmzgmyyfauymim)
+-- Proyecto: scrakk-cli (Supabase)
 --
 -- Cierra la suplantación: cualquiera con sesión podía escribir un handle
 -- reservado por PostgREST salteando la validación del IDE (que vivía solo en
