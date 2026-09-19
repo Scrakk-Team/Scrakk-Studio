@@ -18,6 +18,7 @@ import {
   shutdownExtensionHosts
 } from './ipc/extension-host'
 import { flushAllTokens } from './supabaseClient'
+import { loadLocalEnv } from './env'
 import { createMainWindow } from './windows/main-window'
 import { applyPathAugmentation } from './binaries'
 
@@ -55,6 +56,8 @@ if (!gotTheLock) {
   })
 
   app.whenReady().then(() => {
+    // .env local (R2 y dev): el entorno real siempre gana.
+    loadLocalEnv()
     registerWindowControlsIpc()
     registerScreenshotIpc()
     registerLlmIpc()

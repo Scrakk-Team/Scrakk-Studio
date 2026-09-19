@@ -11,6 +11,7 @@ import type {
   DirectMessage,
   Friend,
   FriendRequest,
+  ImageUpload,
   IncomingMessageEvent,
   MessageDeleteEvent,
   MessageUpdateEvent,
@@ -19,6 +20,7 @@ import type {
   SocialResult,
   SocialUser,
   TypingEvent,
+  UploadedImage,
   UserPresence
 } from '@shared/social'
 
@@ -50,9 +52,15 @@ export const social = {
     accountId: string,
     toUserId: string,
     body: string,
-    replyTo?: string | null
+    replyTo?: string | null,
+    attachments?: ImageUpload[]
   ): Promise<SocialResult<DirectMessage>> =>
-    window.api.social.sendMessage(accountId, toUserId, body, replyTo ?? null),
+    window.api.social.sendMessage(accountId, toUserId, body, replyTo ?? null, attachments ?? []),
+  uploadImage: (
+    accountId: string,
+    kind: 'chat' | 'avatar',
+    image: ImageUpload
+  ): Promise<SocialResult<UploadedImage>> => window.api.social.uploadImage(accountId, kind, image),
   editMessage: (
     accountId: string,
     messageId: string,

@@ -6,7 +6,7 @@
  */
 
 import { BrowserWindow, ipcMain } from 'electron'
-import { SOCIAL_IPC, type PresenceActivity, type PresenceStatus } from '@shared/social'
+import { SOCIAL_IPC, type ImageUpload, type PresenceActivity, type PresenceStatus } from '@shared/social'
 import * as service from './service'
 
 function broadcast(channel: string, payload: unknown): void {
@@ -58,8 +58,13 @@ export function registerSocialIpc(): void {
   )
   ipcMain.handle(
     SOCIAL_IPC.sendMessage,
-    (_event, accountId: string, toUserId: string, body: string, replyTo?: string | null) =>
-      service.sendMessage(accountId, toUserId, body, replyTo ?? null)
+    (_event, accountId: string, toUserId: string, body: string, replyTo?: string | null, attachments?: ImageUpload[]) =>
+      service.sendMessage(accountId, toUserId, body, replyTo ?? null, attachments ?? [])
+  )
+  ipcMain.handle(
+    SOCIAL_IPC.uploadImage,
+    (_event, accountId: string, kind: 'chat' | 'avatar', image: ImageUpload) =>
+      service.uploadImage(accountId, kind, image)
   )
   ipcMain.handle(
     SOCIAL_IPC.editMessage,

@@ -152,6 +152,30 @@
   color: var(--color-on-accent);
 }
 
+.attachGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 2px;
+}
+
+.attachThumb {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+  max-width: 240px;
+}
+
+.attachThumb img {
+  display: block;
+  max-width: 240px;
+  max-height: 180px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
 .actions {
   position: absolute;
   right: 8px;

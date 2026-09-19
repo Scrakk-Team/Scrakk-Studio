@@ -162,6 +162,21 @@ export const MessageBubble = memo(function MessageBubble({
         ) : (
           <div className={styles.body}>{renderWithMentions(message.body)}</div>
         )}
+        {message.attachments && message.attachments.length > 0 ? (
+          <div className={styles.attachGrid}>
+            {message.attachments.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={styles.attachThumb}
+                onClick={() => window.open(a.url, '_blank', 'noopener')}
+                title="Abrir imagen en tamaño completo"
+              >
+                <img src={a.url} alt="Imagen adjunta" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.actions}>

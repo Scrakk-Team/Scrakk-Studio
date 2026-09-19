@@ -8,14 +8,19 @@
 
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
 import { getClientFor } from '../supabaseClient'
+import { IMAGE_RULES } from '@shared/social'
+import { isR2Configured, uploadToR2 } from '../images/r2'
 import type {
   DirectMessage,
   Friend,
   FriendRequest,
+  ImageUpload,
+  MessageAttachment,
   PresenceActivity,
   PresenceStatus,
   SocialResult,
   SocialUser,
+  UploadedImage,
   UserPresence
 } from '@shared/social'
 import { SOCIAL_RULES } from '@shared/social'
@@ -68,6 +73,48 @@ interface MessageRow {
   read_at: string | null
   reply_to: string | null
   edited_at: string | null
+}
+
+interface AttachmentRow {
+  id: string
+  message_id: string
+  path: string
+  url: string
+  mime: string
+  size_bytes: number
+  width: number | null
+  height: number | null
+}
+
+function mapAttachment(row: AttachmentRow): MessageAttachment {
+  return {
+    id: row.id,
+    messageId: row.message_id,
+    path: row.path,
+    url: row.url,
+    mime: row.mime,
+    sizeBytes: row.size_bytes,
+    width: row.width,
+    height: row.height
+  }
+}
+
+const ATTACH_SELECT = 'id,message_id,path,url,mime,size_bytes,width,height'
+
+/** Adjuntos de un lote de mensajes (una sola query). */
+async function hydrateAttachments(
+  supabase: SupabaseClient,
+  messageIds: string[]
+): Promise<Map<string, MessageAttachment[]>> {
+  const map = new Map<string, MessageAttachment[]>()
+  if (messageIds.length === 0) return map
+  const { data } = await supabase.from('message_attachments').select(ATTACH_SELECT).in('message_id', messageIds)
+  for (const row of (data ?? []) as AttachmentRow[]) {
+    const list = map.get(row.message_id) ?? []
+    list.push(mapAttachment(row))
+    map.set(row.message_id, list)
+  }
+  return map
 }
 
 function mapUser(row: UserRow): SocialUser {
@@ -202,9 +249,14 @@ export async function listMessages(
       .in('id', replyIds)
     for (const r of (replyData ?? []) as MessageRow[]) replyMap.set(r.id, r)
   }
+  const attachMap = await hydrateAttachments(
+    supabase,
+    rows.map((r) => r.id)
+  )
   return ok(
     rows.map((r) => ({
       ...mapMessage(r),
+      attachments: attachMap.get(r.id) ?? [],
       replyPreview: r.reply_to && replyMap.get(r.reply_to)
         ? { id: replyMap.get(r.reply_to)!.id, body: replyMap.get(r.reply_to)!.body, senderId: replyMap.get(r.reply_to)!.sender_id }
         : null
@@ -212,15 +264,73 @@ export async function listMessages(
   )
 }
 
+function extFor(mime: string): string {
+  if (mime === 'image/jpeg') return 'jpg'
+  if (mime === 'image/png') return 'png'
+  if (mime === 'image/webp') return 'webp'
+  if (mime === 'image/gif') return 'gif'
+  if (mime === 'image/avif') return 'avif'
+  return 'bin'
+}
+
+function validateImage(image: ImageUpload): { ok: true; bytes: Buffer } | { ok: false; error: string } {
+  const allowed = IMAGE_RULES.allowedMime as readonly string[]
+  if (!allowed.includes(image.mime)) return { ok: false, error: 'Formato no soportado (png, jpg, webp, gif, avif)' }
+  let bytes: Buffer
+  try {
+    bytes = Buffer.from(image.base64, 'base64')
+  } catch {
+    return { ok: false, error: 'Imagen inválida' }
+  }
+  if (bytes.length === 0 || bytes.length > IMAGE_RULES.maxBytes) {
+    return { ok: false, error: 'La imagen supera los 10 MB' }
+  }
+  return { ok: true, bytes }
+}
+
+/**
+ * Sube una imagen: R2 si está configurado, si no Supabase Storage (fallback).
+ * El renderer nunca ve el binario de vuelta: solo la URL pública.
+ */
+export async function uploadImage(
+  accountId: string,
+  kind: 'chat' | 'avatar',
+  image: ImageUpload
+): Promise<SocialResult<UploadedImage>> {
+  const supabase = await clientOf(accountId)
+  if (!supabase) return fail('Cuenta no encontrada')
+  const valid = validateImage(image)
+  if (!valid.ok) return fail(valid.error)
+  // Camino R2 (buckets scrakk-chat-images / scrakk-avatars).
+  if (isR2Configured(kind)) {
+    const up = await uploadToR2(image.base64, image.mime, kind, image.name)
+    if (!up.ok) return fail(cleanError(up.error))
+    return ok({ path: up.key, url: up.url, mime: image.mime, sizeBytes: valid.bytes.length })
+  }
+  // Fallback: Supabase Storage (buckets `avatars` / `chat-images`).
+  const bucket = kind === 'avatar' ? 'avatars' : 'chat-images'
+  const safeName = (image.name || 'img').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 40) || 'img'
+  const path = `${accountId}/${crypto.randomUUID()}-${safeName}.${extFor(image.mime)}`
+  const { error } = await supabase.storage.from(bucket).upload(path, valid.bytes, {
+    contentType: image.mime,
+    upsert: false
+  })
+  if (error) return fail(cleanError(error.message))
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+  return ok({ path, url: data.publicUrl, mime: image.mime, sizeBytes: valid.bytes.length })
+}
+
 export async function sendMessage(
   accountId: string,
   toUserId: string,
   body: string,
-  replyTo: string | null = null
+  replyTo: string | null = null,
+  attachments: ImageUpload[] = []
 ): Promise<SocialResult<DirectMessage>> {
-  const text = body.trim()
+  const text = body.trim() || (attachments.length > 0 ? '📷' : '')
   if (!text) return fail('El mensaje está vacío')
   if (text.length > SOCIAL_RULES.messageMax) return fail('Mensaje demasiado largo')
+  if (attachments.length > 8) return fail('Máximo 8 imágenes por mensaje')
   const supabase = await clientOf(accountId)
   if (!supabase) return fail('Cuenta no encontrada')
   // Validate reply_to belongs to same DM if provided
@@ -237,6 +347,21 @@ export async function sendMessage(
       (p.sender_id === toUserId && p.recipient_id === accountId)
     if (!isSameDm) return fail('No podés citar un mensaje de otro chat')
   }
+  // 1) Subir imágenes ANTES de crear el mensaje: si falla, no queda huérfano.
+  const uploads: Array<{ url: string; path: string; mime: string; sizeBytes: number; width: number | null; height: number | null }> = []
+  for (const image of attachments.slice(0, 8)) {
+    const up = await uploadImage(accountId, 'chat', image)
+    if (!up.ok) return fail(`No se pudo subir la imagen: ${up.error ?? 'error desconocido'}`)
+    uploads.push({
+      url: up.data.url,
+      path: up.data.path,
+      mime: up.data.mime,
+      sizeBytes: up.data.sizeBytes,
+      width: image.width ?? null,
+      height: image.height ?? null
+    })
+  }
+  // 2) Crear el mensaje.
   const { data, error } = await supabase
     .from('messages')
     .insert({ sender_id: accountId, recipient_id: toUserId, body: text, reply_to: replyTo })
@@ -256,7 +381,26 @@ export async function sendMessage(
       .maybeSingle()
     if (parent) (mapped as any).replyPreview = { id: (parent as any).id, body: (parent as any).body, senderId: (parent as any).sender_id }
   }
-  return ok(mapped)
+  // 3) Colgar adjuntos. Si esto falla, se borra el mensaje (sin huérfanos).
+  let saved: MessageAttachment[] = []
+  if (uploads.length > 0) {
+    const rows: Omit<AttachmentRow, 'id'>[] = uploads.map((u) => ({
+      message_id: mapped.id,
+      path: u.path,
+      url: u.url,
+      mime: u.mime,
+      size_bytes: u.sizeBytes,
+      width: u.width,
+      height: u.height
+    }))
+    const { data: inserted, error: attachErr } = await supabase.from('message_attachments').insert(rows).select(ATTACH_SELECT)
+    if (attachErr || !inserted) {
+      await supabase.from('messages').delete().eq('id', mapped.id).eq('sender_id', accountId)
+      return fail(`No se pudo guardar la imagen: ${cleanError(attachErr?.message)}`)
+    }
+    saved = (inserted as AttachmentRow[]).map(mapAttachment)
+  }
+  return ok({ ...mapped, attachments: saved })
 }
 
 export async function editMessage(
@@ -278,7 +422,9 @@ export async function editMessage(
     .single()
   if (error) return fail(cleanError(error.message))
   if (!data) return fail('Mensaje no encontrado')
-  return ok(mapMessage(data as MessageRow))
+  const edited = mapMessage(data as MessageRow)
+  const attachMap = await hydrateAttachments(supabase, [edited.id])
+  return ok({ ...edited, attachments: attachMap.get(edited.id) ?? [] })
 }
 
 export async function deleteMessage(
@@ -455,7 +601,8 @@ export async function watchAccount(
             .maybeSingle()
           if (data) preview = { id: (data as any).id, body: (data as any).body, senderId: (data as any).sender_id }
         }
-        handlers.incomingMessage({ ...mapMessage(row), replyPreview: preview })
+        const attachMap = await hydrateAttachments(supabase, [row.id])
+        handlers.incomingMessage({ ...mapMessage(row), attachments: attachMap.get(row.id) ?? [], replyPreview: preview })
       }
     )
     .on(
@@ -483,6 +630,28 @@ export async function watchAccount(
       { event: '*', schema: 'public', table: 'presence' },
       () => handlers.presenceChanged()
     )
+  // Adjuntos: llegan DESPUÉS del INSERT del mensaje (el emisor sube las
+  // imágenes antes de crear la fila, pero las filas de adjuntos se insertan
+  // justo después). Sin esto, el receptor ve el mensaje sin la imagen hasta
+  // recargar. RLS filtra: solo llega lo que puedo leer.
+  channel
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'message_attachments' },
+      async (payload) => {
+        const att = payload.new as AttachmentRow
+        const { data: parent } = await supabase
+          .from('messages')
+          .select('id,sender_id,recipient_id,body,created_at,read_at,reply_to,edited_at')
+          .eq('id', att.message_id)
+          .maybeSingle()
+        if (!parent) return
+        const row = parent as MessageRow
+        if (row.sender_id !== uid && row.recipient_id !== uid) return
+        const attachMap = await hydrateAttachments(supabase, [row.id])
+        handlers.messageUpdated({ ...mapMessage(row), attachments: attachMap.get(row.id) ?? [] })
+      }
+    )
   // Mensajes editados / borrados (ambos participantes)
   channel
     .on(
@@ -495,7 +664,8 @@ export async function watchAccount(
           const { data } = await supabase.from('messages').select('id,body,sender_id').eq('id', row.reply_to).maybeSingle()
           if (data) preview = { id: (data as any).id, body: (data as any).body, senderId: (data as any).sender_id }
         }
-        handlers.messageUpdated({ ...mapMessage(row), replyPreview: preview })
+        const attachMap = await hydrateAttachments(supabase, [row.id])
+        handlers.messageUpdated({ ...mapMessage(row), attachments: attachMap.get(row.id) ?? [], replyPreview: preview })
       }
     )
     .on(
@@ -508,7 +678,8 @@ export async function watchAccount(
           const { data } = await supabase.from('messages').select('id,body,sender_id').eq('id', row.reply_to).maybeSingle()
           if (data) preview = { id: (data as any).id, body: (data as any).body, senderId: (data as any).sender_id }
         }
-        handlers.messageUpdated({ ...mapMessage(row), replyPreview: preview })
+        const attachMap = await hydrateAttachments(supabase, [row.id])
+        handlers.messageUpdated({ ...mapMessage(row), attachments: attachMap.get(row.id) ?? [], replyPreview: preview })
       }
     )
     .on(

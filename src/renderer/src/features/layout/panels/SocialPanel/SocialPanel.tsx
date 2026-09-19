@@ -141,6 +141,7 @@ function SocialPanelInner(): JSX.Element {
       <main className={styles.screen}>
         <ProfileEditor
           mode="setup"
+          accountId={accountId}
           onSubmit={async (draft) =>
             updateProfile({
               name: draft.name,
@@ -182,6 +183,7 @@ function SocialPanelInner(): JSX.Element {
           <ProfileEditor
             mode="edit"
             dni={me.dni}
+            accountId={accountId}
             initial={{
               name: me.name,
               handle: me.handle,

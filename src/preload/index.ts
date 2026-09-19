@@ -38,6 +38,7 @@ import { ACCOUNT_IPC } from '@shared/account'
 import {
   SOCIAL_IPC,
   type AccountEvent,
+  type ImageUpload,
   type IncomingMessageEvent,
   type MessageDeleteEvent,
   type MessageUpdateEvent,
@@ -443,8 +444,23 @@ const api: WindowApi = {
       ipcRenderer.invoke(SOCIAL_IPC.removeFriend, accountId, otherId),
     listMessages: (accountId: string, withUserId: string, beforeId?: string | null, limit?: number) =>
       ipcRenderer.invoke(SOCIAL_IPC.listMessages, accountId, withUserId, beforeId ?? null, limit ?? 50),
-    sendMessage: (accountId: string, toUserId: string, body: string, replyTo?: string | null) =>
-      ipcRenderer.invoke(SOCIAL_IPC.sendMessage, accountId, toUserId, body, replyTo ?? null),
+    sendMessage: (
+      accountId: string,
+      toUserId: string,
+      body: string,
+      replyTo?: string | null,
+      attachments?: ImageUpload[]
+    ) =>
+      ipcRenderer.invoke(
+        SOCIAL_IPC.sendMessage,
+        accountId,
+        toUserId,
+        body,
+        replyTo ?? null,
+        attachments ?? []
+      ),
+    uploadImage: (accountId: string, kind: 'chat' | 'avatar', image: ImageUpload) =>
+      ipcRenderer.invoke(SOCIAL_IPC.uploadImage, accountId, kind, image),
     editMessage: (accountId: string, messageId: string, body: string) =>
       ipcRenderer.invoke(SOCIAL_IPC.editMessage, accountId, messageId, body),
     deleteMessage: (accountId: string, messageId: string) =>

@@ -30,3 +30,6 @@ build-resources/
 .jokitignore
 .stfolder/
 .perf/
+
+# Secretos locales (R2, keys de dev) — NUNCA commitear
+.env

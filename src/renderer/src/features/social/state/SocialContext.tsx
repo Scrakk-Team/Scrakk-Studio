@@ -18,6 +18,7 @@ import type {
   DirectMessage,
   Friend,
   FriendRequest,
+  ImageUpload,
   PresenceActivity,
   PresenceStatus,
   SocialUser,
@@ -146,7 +147,7 @@ interface SocialContextValue {
 
   openChat: (friend: Friend) => Promise<void>
   closeChat: () => void
-  sendMessage: (body: string) => Promise<AccountActionResult>
+  sendMessage: (body: string, attachments?: ImageUpload[]) => Promise<AccountActionResult>
   editMessage: (messageId: string, body: string) => Promise<AccountActionResult>
   deleteMessage: (messageId: string) => Promise<AccountActionResult>
   setReplyTo: (message: DirectMessage | null) => void
@@ -674,11 +675,11 @@ export function SocialProvider({
   }, [])
 
   const sendMessage = useCallback(
-    async (body: string): Promise<AccountActionResult> => {
+    async (body: string, attachments: ImageUpload[] = []): Promise<AccountActionResult> => {
       const peer = activePeerRef.current
       const id = accountIdRef.current
       if (!peer || !id) return { ok: false, error: 'No hay conversación abierta' }
-      const result = await social.sendMessage(id, peer.id, body, replyTo?.id ?? null)
+      const result = await social.sendMessage(id, peer.id, body, replyTo?.id ?? null, attachments)
       if (!result.ok) return { ok: false, error: result.error }
       setMessages((prev) => [...prev, result.data])
       setReplyTo(null)

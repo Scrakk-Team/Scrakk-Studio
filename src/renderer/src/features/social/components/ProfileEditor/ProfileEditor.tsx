@@ -28,6 +28,8 @@ interface ProfileEditorProps {
   /** DNI ya emitido (se muestra en edición). */
   dni?: string
   mode?: 'setup' | 'edit'
+  /** Cuenta que sube el avatar (para guardar en Storage). */
+  accountId?: string | null
   onSubmit: (draft: ProfileDraft) => Promise<ProfileEditorSubmitResult>
   onCancel?: () => void
 }
@@ -46,6 +48,7 @@ export function ProfileEditor({
   initial,
   dni,
   mode = 'setup',
+  accountId,
   onSubmit,
   onCancel
 }: ProfileEditorProps): JSX.Element {
@@ -89,7 +92,7 @@ export function ProfileEditor({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} name={name} />
+      <AvatarPicker value={avatarUrl} onChange={setAvatarUrl} name={name} accountId={accountId} />
 
       <div className={styles.introText}>
         <span className={styles.title}>{isSetup ? 'Completa tu perfil' : 'Editar perfil'}</span>

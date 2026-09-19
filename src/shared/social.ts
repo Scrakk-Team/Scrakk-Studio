@@ -20,6 +20,8 @@ export const SOCIAL_IPC = {
   editMessage: 'social:edit-message',
   deleteMessage: 'social:delete-message',
   markRead: 'social:mark-read',
+  /** Sube una imagen al Storage (chat o avatar). */
+  uploadImage: 'social:upload-image',
   /** Presencia: leer (yo + amigos) y publicar la mía. */
   getPresence: 'social:get-presence',
   setPresence: 'social:set-presence',
@@ -82,7 +84,44 @@ export interface DirectMessage {
   editedAt: string | null
   /** Preview del mensaje citado, si aplica (hidratado en list) */
   replyPreview?: { id: string; body: string; senderId: string } | null
+  /** Imágenes pegadas (Ctrl+V) — hidratadas en list. */
+  attachments?: MessageAttachment[]
 }
+
+/** Imagen adjunta a un DM (Storage: `chat-images`). */
+export interface MessageAttachment {
+  id: string
+  messageId: string
+  path: string
+  url: string
+  mime: string
+  sizeBytes: number
+  width: number | null
+  height: number | null
+}
+
+/** Imagen lista para subir (binario en base64, sin prefijo data:). */
+export interface ImageUpload {
+  base64: string
+  mime: string
+  name: string
+  width?: number | null
+  height?: number | null
+}
+
+/** Resultado de subir una imagen al Storage. */
+export interface UploadedImage {
+  path: string
+  url: string
+  mime: string
+  sizeBytes: number
+}
+
+/** Reglas de imágenes (main revalida). Formatos: png/jpg/webp/gif/avif. */
+export const IMAGE_RULES = {
+  maxBytes: 10 * 1024 * 1024,
+  allowedMime: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif']
+} as const
 
 /** Estado de presencia. */
 export type PresenceStatus = 'online' | 'away' | 'busy' | 'offline'
@@ -155,8 +194,15 @@ export interface SocialApi {
     accountId: string,
     toUserId: string,
     body: string,
-    replyTo?: string | null
+    replyTo?: string | null,
+    attachments?: ImageUpload[]
   ) => Promise<SocialResult<DirectMessage>>
+  /** Sube imagen a Storage (`chat` o `avatar`). Devuelve URL pública. */
+  uploadImage: (
+    accountId: string,
+    kind: 'chat' | 'avatar',
+    image: ImageUpload
+  ) => Promise<SocialResult<UploadedImage>>
   editMessage: (
     accountId: string,
     messageId: string,
