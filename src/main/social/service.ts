@@ -9,7 +9,7 @@
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
 import { getClientFor } from '../supabaseClient'
 import { IMAGE_RULES } from '@shared/social'
-import { isR2Configured, uploadToR2 } from '../images/r2'
+import { isR2Configured, sniffMime, uploadToR2 } from '../images/r2'
 import type {
   DirectMessage,
   Friend,
@@ -38,6 +38,7 @@ function cleanError(message: string | undefined): string {
   if (m.includes('user_not_found')) return 'Ese usuario no existe'
   if (m.includes('invalid_target')) return 'Destino inválido'
   if (m.includes('request_not_found')) return 'La solicitud ya no existe'
+  if (m.includes('rate_limited')) return 'Tenés demasiadas solicitudes pendientes. Esperá un poco.'
   return message ?? 'Algo salió mal'
 }
 
@@ -285,6 +286,10 @@ function validateImage(image: ImageUpload): { ok: true; bytes: Buffer } | { ok: 
   if (bytes.length === 0 || bytes.length > IMAGE_RULES.maxBytes) {
     return { ok: false, error: 'La imagen supera los 10 MB' }
   }
+  // El mime declarado tiene que coincidir con los bytes reales.
+  const sniffed = sniffMime(bytes)
+  if (sniffed === null) return { ok: false, error: 'El archivo no es una imagen válida' }
+  if (sniffed !== image.mime) return { ok: false, error: 'La imagen no coincide con su formato' }
   return { ok: true, bytes }
 }
 

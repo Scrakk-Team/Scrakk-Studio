@@ -54,6 +54,33 @@ function extFor(mime: string): string {
   return 'bin'
 }
 
+/**
+ * Tipo real por magic bytes. No confiamos en el `mime` que declara el
+ * cliente: si no coincide con los bytes, se rechaza (evita subir HTML/SVG
+ * u otro contenido disfrazado de imagen a un bucket público).
+ */
+export function sniffMime(bytes: Buffer): string | null {
+  if (bytes.length < 12) return null
+  // PNG
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return 'image/png'
+  // JPEG
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg'
+  // GIF87a / GIF89a
+  if (bytes.toString('ascii', 0, 6) === 'GIF87a' || bytes.toString('ascii', 0, 6) === 'GIF89a') {
+    return 'image/gif'
+  }
+  // WEBP: RIFF....WEBP
+  if (bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP') {
+    return 'image/webp'
+  }
+  // AVIF/AVIS: ....ftyp{avif|avis}
+  if (bytes.toString('ascii', 4, 8) === 'ftyp') {
+    const brand = bytes.toString('ascii', 8, 12)
+    if (brand === 'avif' || brand === 'avis') return 'image/avif'
+  }
+  return null
+}
+
 function sha256Hex(data: Buffer): string {
   return createHash('sha256').update(data).digest('hex')
 }
