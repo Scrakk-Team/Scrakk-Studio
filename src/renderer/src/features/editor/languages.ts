@@ -10,13 +10,15 @@
  * es, el motor cae a `plaintext` y el archivo se pinta sólo con lo que aporten
  * el LSP y las extensiones — un "no pinta" invisible, sin error.
  *
- * Los ids válidos son los de `deps/languages.json` del motor (18 entradas) más
- * `tsx` (parser propio dentro del repo de TypeScript) y `plaintext` (explícito:
- * "sin gramática"), que es lo que acepta `UpdateLanguageFromExtension` /
+ * Los ids válidos son los de `deps/languages.json` del motor (28 entradas) más
+ * `tsx` (parser propio dentro del repo de TypeScript), `php_only` (parser
+ * propio dentro del repo de PHP, para archivos 100% PHP) y `plaintext`
+ * (explícito: "sin gramática"), que es lo que acepta `UpdateLanguageFromExtension` /
  * `SetLanguageId` en `EditorWindow.cpp`:
  *
  *   python javascript typescript tsx c cpp rust go java json html css bash
- *   c_sharp ruby lua toml yaml markdown plaintext
+ *   c_sharp ruby lua toml yaml markdown php php_only zig kotlin swift dart
+ *   sql dockerfile graphql elixir vue plaintext
  *
  * Los alias (`json5`, `scss`, `xhtml`…) apuntan al id del motor que más se le
  * acerca: es la gramática disponible, no una promesa de soporte exacto.
@@ -126,6 +128,57 @@ export const SUPPORTED_LANGUAGES: LanguageDefinition[] = [
     id: 'markdown',
     name: 'Markdown',
     extensions: ['md', 'markdown', 'mdown', 'mkd']
+  },
+  {
+    id: 'php',
+    name: 'PHP',
+    extensions: ['php']
+  },
+  {
+    id: 'zig',
+    name: 'Zig',
+    extensions: ['zig']
+  },
+  {
+    id: 'kotlin',
+    name: 'Kotlin',
+    extensions: ['kt', 'kts']
+  },
+  {
+    id: 'swift',
+    name: 'Swift',
+    extensions: ['swift']
+  },
+  {
+    id: 'dart',
+    name: 'Dart',
+    extensions: ['dart']
+  },
+  {
+    id: 'sql',
+    name: 'SQL',
+    extensions: ['sql']
+  },
+  {
+    id: 'dockerfile',
+    name: 'Dockerfile',
+    extensions: ['dockerfile', 'docker', 'containerfile'],
+    filenames: ['dockerfile']
+  },
+  {
+    id: 'graphql',
+    name: 'GraphQL',
+    extensions: ['graphql', 'gql']
+  },
+  {
+    id: 'elixir',
+    name: 'Elixir',
+    extensions: ['ex', 'exs']
+  },
+  {
+    id: 'vue',
+    name: 'Vue',
+    extensions: ['vue']
   }
 ]
 
