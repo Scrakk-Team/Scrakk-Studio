@@ -1,10 +1,10 @@
--- 0015: reply + edit/delete support for DMs
+-- 0015: reply + edit/delete en DMs.
 -- Proyecto: scrakk-cli (Supabase)
 --
 -- - reply_to: citar un mensaje del mismo DM (FK on delete set null)
 -- - edited_at: marca de edición
--- - RLS: el emisor puede editar/borrar sus propios mensajes; el receptor solo puede marcar leído
--- - Grants por columna para no exponer plan/device_id
+-- - El emisor edita/borra sus mensajes; el receptor solo marca leído
+-- - Grants por columna
 
 alter table public.messages add column if not exists reply_to uuid references public.messages(id) on delete set null;
 alter table public.messages add column if not exists edited_at timestamptz;

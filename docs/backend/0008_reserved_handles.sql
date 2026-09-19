@@ -1,10 +1,7 @@
--- 0008: reserva de handles EN LA BASE (no confiar en el cliente).
+-- 0008: reserva de handles en la base.
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Cierra la suplantación: cualquiera con sesión podía escribir un handle
--- reservado por PostgREST salteando la validación del IDE (que vivía solo en
--- TypeScript). Acá se valida formato y reserva del lado del servidor.
---
+-- Valida formato y reserva del lado del servidor.
 -- Nota: 0009 ajusta la función para exceptuar cuentas oficiales.
 
 create or replace function public.handle_is_reserved(h text)

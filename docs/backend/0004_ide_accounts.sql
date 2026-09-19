@@ -1,11 +1,9 @@
--- 0004: IDE accounts (perfil social) — ADITIVA, no cambia el CLI.
+-- 0004: perfiles del IDE (campos sociales sobre auth.users).
 -- Proyecto: scrakk-cli (Supabase)
 -- Aplicada vía MCP de Supabase (quedó en supabase_migrations.schema_migrations).
 --
 -- Reutiliza el MISMO auth.users (login compartido CLI ⇄ IDE) y extiende
--- public.profiles con los campos sociales. El cliente (rol `authenticated`)
--- puede leer SU fila y actualizar SOLO columnas sociales: plan/device_id/email
--- quedan fuera del grant de UPDATE (anti escalación de plan).
+-- public.profiles con los campos sociales.
 
 alter table public.profiles
   add column if not exists handle text,

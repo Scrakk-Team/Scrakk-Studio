@@ -1,11 +1,8 @@
--- 0006: hardening post-advisors (IDE accounts).
+-- 0006: search_path fijo y EXECUTE revocado en las funciones de trigger.
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Cierra los avisos del linter de Supabase introducidos por 0004/0005:
---  * touch_updated_at: search_path mutable → fijo ('' sin deps de public).
---  * ensure_profile / auto_confirm_new_user / touch_updated_at: eran invocables
---    por anon/authenticated vía /rest/v1/rpc (SECURITY DEFINER). Se revoca
---    EXECUTE; los triggers siguen disparando sin ese privilegio.
+-- ensure_profile / auto_confirm_new_user / touch_updated_at quedan invocables
+-- solo como triggers (los triggers disparan sin ese privilegio).
 
 create or replace function public.touch_updated_at()
 returns trigger

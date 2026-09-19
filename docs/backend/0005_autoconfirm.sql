@@ -1,20 +1,10 @@
 -- 0005: auto-confirmación de email en el alta (sin SMTP / sin Resend).
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Motivo: el proyecto tiene `mailer_autoconfirm = false` y NO hay SMTP, así que
--- el signup fallaba con "Error sending confirmation email". GoTrue decide con
--- el valor que devuelve el INSERT (RETURNING), por lo que marcar
--- `email_confirmed_at` en un trigger BEFORE INSERT hace que:
---   1) no intente enviar el correo, y
---   2) devuelva sesión inmediatamente (login email+password client-side).
---
--- ⚠️ Trade-off: cualquier alta queda con el email confirmado SIN verificación.
--- Es el precio de "sin mails". Alternativas si se quiere verificar:
---   a) desactivar "Confirm email" en Supabase y usar OTP con Resend, o
---   b) crear el usuario server-side con admin.createUser({ email_confirm: true }).
---
--- No afecta al CLI: sus usuarios se crean con admin.createUser({ email_confirm: true }),
--- que ya deja email_confirmed_at seteado (el trigger solo lo setea si es null).
+-- El proyecto tiene `mailer_autoconfirm = false` y no hay SMTP, así que el
+-- signup fallaba con "Error sending confirmation email". Marcar
+-- `email_confirmed_at` en un trigger BEFORE INSERT evita el envío y devuelve
+-- sesión de inmediato.
 
 create or replace function public.auto_confirm_new_user()
 returns trigger

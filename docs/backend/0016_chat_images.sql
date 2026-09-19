@@ -1,14 +1,13 @@
--- 0016: imágenes en DMs + avatares (Supabase Storage, sin tocar Cloudflare).
+-- 0016: imágenes en DMs + avatares (Supabase Storage).
 -- Proyecto: scrakk-cli (Supabase)
 --
--- - Buckets públicos `avatars` y `chat-images` (paths con UUID: no listables).
--- - Tabla `message_attachments`: una fila por imagen pegada (Ctrl+V) en un DM.
---   El `body` del mensaje sigue siendo el texto/caption (límite 4000 intacto).
--- - RLS: solo participantes del DM ven/insertan adjuntos; el emisor borra.
--- - Realtime: se agrega la tabla a la publicación para live updates.
+-- - Buckets públicos `avatars` y `chat-images`.
+-- - Tabla `message_attachments`: una fila por imagen de un DM.
+--   El `body` del mensaje sigue siendo el texto/caption (límite 4000).
+-- - Realtime: la tabla se agrega a la publicación.
 --
--- Aplicar en el SQL editor de Supabase (los buckets también se pueden crear
--- desde Dashboard > Storage con los mismos nombres y "Public: on").
+-- Aplicar este SQL (los buckets también se pueden crear desde
+-- Dashboard > Storage con los mismos nombres y "Public: on").
 
 -- Buckets (idempotente)
 insert into storage.buckets (id, name, public)

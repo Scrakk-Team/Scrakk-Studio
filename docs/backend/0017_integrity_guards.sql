@@ -1,20 +1,7 @@
--- 0017: hardening de seguridad (aplicado vía MCP de Supabase).
+-- 0017: guards y validaciones en la base (integridad + límites).
 -- Proyecto: scrakk-cli (Supabase)
---
--- Contexto: los .sql son públicos en el repo. La seguridad NO depende del
--- secreto: cualquiera puede conocer el esquema y aun así no puede hacer nada
--- fuera de lo que un usuario logueado normal puede (RLS + grante de columna +
--- estos guards).
---
--- Qué cierra:
---   1) messages: un RECEPTOR podía reescribir body/edited_at por API.
---   2) message_attachments: url/path/mime los controlaba el cliente.
---   3) profiles.avatar_url: sin tope; email se podía falsear al insertar.
---   4) storage buckets: sin límite de tamaño ni de tipos.
---   5) are_friends: enumerable por cualquier logueado (fuga de relaciones).
---   6) send_friend_request: spam sin tope de solicitudes pendientes.
 
--- ── 1) messages: guard de integridad ────────────────────────────────────────
+-- ── messages: guard ─────────────────────────────────────────────────────────
 create or replace function public.messages_guard() returns trigger
 language plpgsql security definer set search_path = '' as $fn$
 begin
@@ -33,7 +20,7 @@ begin
     return new;
   end if;
 
-  -- sender/recipient/reply_to inmutables (aunque hubiera grant de columna).
+  -- sender/recipient/reply_to inmutables.
   if new.sender_id is distinct from old.sender_id
      or new.recipient_id is distinct from old.recipient_id
      or new.reply_to is distinct from old.reply_to then
@@ -54,7 +41,7 @@ drop trigger if exists messages_guard on public.messages;
 create trigger messages_guard before insert or update on public.messages
   for each row execute function public.messages_guard();
 
--- ── 2) message_attachments: contenido verificado en la base ─────────────────
+-- ── message_attachments: contenido verificado en la base ────────────────────
 alter table public.message_attachments
   drop constraint if exists message_attachments_url_check,
   drop constraint if exists message_attachments_mime_check,
@@ -70,7 +57,7 @@ alter table public.message_attachments
   add constraint message_attachments_path_check
     check (char_length(path) between 1 and 512 and path !~ '[.]{2}');
 
--- ── 3) profiles: avatar acotado y email a prueba de falseo ──────────────────
+-- ── profiles ────────────────────────────────────────────────────────────────
 alter table public.profiles
   drop constraint if exists profiles_avatar_url_check,
   drop constraint if exists profiles_email_check;
@@ -90,7 +77,7 @@ alter table public.profiles
 create or replace function public.profiles_lock_email() returns trigger
 language plpgsql security definer set search_path = '' as $fn$
 begin
-  -- El email SIEMPRE sale de auth.users: no se puede spoofear por API.
+  -- El email se toma de auth.users.
   if auth.uid() is not null then
     new.email := coalesce((select u.email from auth.users u where u.id = auth.uid()), new.email);
   end if;
@@ -101,13 +88,13 @@ drop trigger if exists profiles_lock_email on public.profiles;
 create trigger profiles_lock_email before insert or update on public.profiles
   for each row execute function public.profiles_lock_email();
 
--- ── 4) storage: límite de tamaño y tipos por bucket ─────────────────────────
+-- ── storage: límite de tamaño y tipos por bucket ────────────────────────────
 update storage.buckets
 set file_size_limit = 10485760,
     allowed_mime_types = array['image/png','image/jpeg','image/webp','image/gif','image/avif']
 where id in ('avatars','chat-images');
 
--- ── 5) are_friends: solo sobre uno mismo ────────────────────────────────────
+-- ── are_friends ─────────────────────────────────────────────────────────────
 create or replace function public.are_friends(a uuid, b uuid) returns boolean
 language sql stable security definer set search_path = '' as $fn$
   select auth.uid() is not null
@@ -118,7 +105,7 @@ language sql stable security definer set search_path = '' as $fn$
      )
 $fn$;
 
--- ── 6) send_friend_request: tope anti-spam ──────────────────────────────────
+-- ── send_friend_request: tope de pendientes ─────────────────────────────────
 create or replace function public.send_friend_request(target uuid)
 returns text language plpgsql security definer set search_path = '' as $fn$
 declare me uuid := auth.uid(); rev public.friend_requests%rowtype; pendientes int;

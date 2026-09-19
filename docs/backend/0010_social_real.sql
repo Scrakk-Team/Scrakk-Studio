@@ -1,8 +1,7 @@
--- 0010: social real — amigos + mensajes directos (sin servidores/comunidades).
+-- 0010: amigos + mensajes directos (sin servidores/comunidades).
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Todo vive en la DB oficial por ahora (los límites del free tier se evalúan
--- después). Realtime entrega mensajes y solicitudes en vivo.
+-- Realtime entrega mensajes y solicitudes en vivo.
 
 create table if not exists public.friendships (
   id uuid primary key default gen_random_uuid(),

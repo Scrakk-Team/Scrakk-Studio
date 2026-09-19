@@ -1,10 +1,8 @@
 -- 0012: search_users tolera el "@" inicial.
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Bug: el placeholder del buscador sugiere "@usuario", pero la RPC no limpiaba
--- el "@", así que buscar "@algo" devolvía vacío → parecía que "el buscador no
--- sirve". Ahora normaliza el "@" inicial y los espacios, y matchea
--- handle/display_name case-insensitive.
+-- Normaliza el "@" inicial y los espacios, y matchea handle/display_name
+-- case-insensitive.
 
 create or replace function public.search_users(q text)
 returns table (id uuid, handle text, display_name text, avatar_url text)

@@ -1,9 +1,8 @@
--- 0014: presencia real (estado + actividad) con RLS (yo + mis amigos) y Realtime.
+-- 0014: presencia (estado + actividad) con RLS y Realtime.
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Estado en vivo: online/away/busy/offline + actividad (nombres, nunca rutas).
--- La app late (heartbeat) cada 45s y publica su estado; al cerrar deja offline.
--- RLS: solo veo mi fila y la de mis amigos.
+-- Estados: online/away/busy/offline + actividad. La app late (heartbeat) cada
+-- 45s y al cerrar deja offline. RLS: mi fila y la de mis amigos.
 
 create table if not exists public.presence (
   user_id uuid primary key references auth.users(id) on delete cascade,

@@ -1,9 +1,7 @@
--- 0011: RPCs del social real.
+-- 0011: RPCs de amigos (buscar, listar, solicitar, responder, quitar).
 -- Proyecto: scrakk-cli (Supabase)
 --
--- security definer + search_path fijo + validación; EXECUTE solo para
--- authenticated (nunca anon/public). Así la amistad y la búsqueda no pueden
--- saltearse desde el cliente.
+-- security definer + search_path fijo; EXECUTE solo para authenticated.
 
 create or replace function public.search_users(q text)
 returns table (id uuid, handle text, display_name text, avatar_url text)
