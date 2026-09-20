@@ -1,5 +1,6 @@
 import { ProductIcon } from '@services/productIcons/components'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { useRef, useState, type JSX } from 'react'
+import { ContextMenu, type ContextMenuItem } from '@ui'
 import { useProviders } from '../../state'
 import styles from './ModelPicker.module.css'
 
@@ -10,11 +11,10 @@ interface ModelOption {
 }
 
 /**
- * Selector de modelos, vive dentro del input (a la izquierda del botón de
- * enviar). Muestra el modelo activo; el dropdown lista DIRECTAMENTE los
- * modelos (uno por proveedor añadido, el id que escribió el usuario).
+ * Items del menú de modelos (compartidos con el footer responsive, que los
+ * muestra dentro del botón de 3 puntos cuando el panel es angosto).
  */
-export function ModelPicker(): JSX.Element {
+export function useModelMenuItems(): ContextMenuItem[] {
   const {
     providers,
     activeProviderId,
@@ -23,10 +23,7 @@ export function ModelPicker(): JSX.Element {
     selectProvider,
     openProvidersModal
   } = useProviders()
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
 
-  // Un modelo por proveedor añadido (el que el usuario escribió para él).
   const modelOptions: ModelOption[] = providers
     .filter((provider) => getApiKey(provider.id) && getModel(provider.id).trim().length > 0)
     .map((provider) => ({
@@ -35,39 +32,59 @@ export function ModelPicker(): JSX.Element {
       model: getModel(provider.id)
     }))
 
+  if (modelOptions.length === 0) {
+    return [
+      { label: 'No hay modelos todavía', disabled: true },
+      {
+        label: 'Abrir proveedores',
+        icon: <ProductIcon id="server" size={13} aria-hidden="true" />,
+        onClick: () => openProvidersModal()
+      }
+    ]
+  }
+
+  return modelOptions.map((option) => ({
+    label: option.model,
+    sublabel: option.providerName,
+    checked: option.providerId === activeProviderId,
+    onClick: () => selectProvider(option.providerId)
+  }))
+}
+
+/**
+ * Selector de modelos, vive dentro del input (a la izquierda del botón de
+ * enviar). Muestra el modelo activo y abre el MISMO menú contextual global
+ * (@ui/ContextMenu), no un dropdown propio: misma pinta y mismo
+ * comportamiento que el resto de los menús de la app.
+ */
+export function ModelPicker(): JSX.Element {
+  const { activeProviderId, getModel } = useProviders()
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const items = useModelMenuItems()
+
   const activeModel = activeProviderId ? getModel(activeProviderId) : null
+  const open = anchor !== null
 
-  // Cerrar al hacer click afuera o con Escape.
-  useEffect(() => {
-    if (!open) return
-    const handlePointerDown = (event: PointerEvent): void => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('pointerdown', handlePointerDown)
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [open])
-
-  const handleSelect = (providerId: string): void => {
-    selectProvider(providerId)
-    setOpen(false)
+  const openMenu = (): void => {
+    const rect = buttonRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setAnchor({ x: rect.left, y: rect.top })
   }
 
   return (
-    <div ref={rootRef} className={styles.root}>
+    <div className={styles.root}>
       <button
+        ref={buttonRef}
         type="button"
         className={styles.button}
         aria-expanded={open}
-        aria-haspopup="listbox"
+        aria-haspopup="menu"
         title={activeModel ? `Modelo: ${activeModel}` : 'Seleccionar modelo'}
-        onClick={() => setOpen((prev) => !prev)}
+        // Evita que el pointerdown cierre el menú antes del click (si no,
+        // el toggle reabriría y el botón nunca cerraría).
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => (open ? setAnchor(null) : openMenu())}
       >
         <span className={styles.buttonModel}>{activeModel ?? 'Modelo'}</span>
         <ProductIcon
@@ -78,48 +95,15 @@ export function ModelPicker(): JSX.Element {
         />
       </button>
 
-      {open && (
-        <div className={styles.dropdown}>
-          {modelOptions.length === 0 ? (
-            <div className={styles.empty}>
-              <p className={styles.emptyText}>
-                No hay modelos todavía. Agregá un proveedor y escribí el tuyo.
-              </p>
-              <button
-                type="button"
-                className={styles.emptyAction}
-                onClick={() => {
-                  setOpen(false)
-                  openProvidersModal()
-                }}
-              >
-                Abrir proveedores
-              </button>
-            </div>
-          ) : (
-            <div className={styles.list} role="listbox" aria-label="Modelos disponibles">
-              {modelOptions.map((option) => {
-                const isActive = option.providerId === activeProviderId
-                return (
-                  <button
-                    key={option.providerId}
-                    type="button"
-                    role="option"
-                    aria-selected={isActive}
-                    className={styles.item}
-                    onClick={() => handleSelect(option.providerId)}
-                  >
-                    <span className={styles.itemInfo}>
-                      <span className={styles.itemModel}>{option.model}</span>
-                      <span className={styles.itemProvider}>{option.providerName}</span>
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )}
+      {anchor ? (
+        <ContextMenu
+          items={items}
+          x={anchor.x}
+          y={anchor.y}
+          placement="above"
+          onClose={() => setAnchor(null)}
+        />
+      ) : null}
     </div>
   )
 }

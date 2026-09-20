@@ -1,4 +1,5 @@
 export { ProvidersProvider, useProviders } from './state'
 export { ProvidersModal } from './components/ProvidersModal/ProvidersModal'
+export { ProvidersPanel } from './components/ProvidersPanel/ProvidersPanel'
 export { ProvidersMenu } from './components/ProvidersMenu/ProvidersMenu'
-export { ModelPicker } from './components/ModelPicker/ModelPicker'
+export { ModelPicker, useModelMenuItems } from './components/ModelPicker/ModelPicker'

@@ -1,2 +1,12 @@
 export * from './types'
-export { providers, getProvider } from './registry'
+export {
+  getProvider,
+  getProviders,
+  setProviderCatalog,
+  subscribeProviderCatalog
+} from './registry'
+export {
+  startProviderCatalog,
+  loadCachedProviderCatalog,
+  refreshProviderCatalog
+} from './catalog'

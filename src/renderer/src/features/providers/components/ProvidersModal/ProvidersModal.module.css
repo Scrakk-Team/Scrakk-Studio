@@ -83,6 +83,14 @@
   color: var(--color-on-accent);
 }
 
+/* Logo del proveedor (models.dev): sin fondo de acento, el SVG ya trae el suyo. */
+.providerLogo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .providerInfo {
   display: flex;
   flex-direction: column;
@@ -182,18 +190,32 @@
 .modelSelect {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
   background: transparent;
   border: none;
   outline: none;
+  font-family: inherit;
   font-size: var(--text-sm);
   color: var(--color-text);
   cursor: pointer;
   padding: var(--space-1) 0;
+  text-align: left;
 }
 
-.modelSelect option {
-  background: var(--color-surface-raised);
-  color: var(--color-text);
+.selectLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectChevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 .modelInput {

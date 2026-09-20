@@ -8,9 +8,10 @@ import {
   type ReactNode
 } from 'react'
 import type { ThinkingMode } from '@shared/thinking'
-import { getProvider, providers, type ProviderConfig } from '@services/providers'
+import { getProvider, getProviders, subscribeProviderCatalog, type ProviderConfig } from '@services/providers'
+import { PROVIDERS_STORAGE_KEY } from '../settings'
 
-const STORAGE_KEY = 'scrakk-studio:providers'
+const STORAGE_KEY = PROVIDERS_STORAGE_KEY
 
 interface StoredProvidersState {
   activeProviderId: string | null
@@ -19,13 +20,16 @@ interface StoredProvidersState {
   models: Record<string, string>
   /** Modo de pensamiento elegido por proveedor ('auto' si no está). */
   thinkingModes: Record<string, string>
+  /** Variante de razonamiento elegida por proveedor (`/variants`). */
+  variants: Record<string, string>
 }
 
 const EMPTY_STORED: StoredProvidersState = {
   activeProviderId: null,
   apiKeys: {},
   models: {},
-  thinkingModes: {}
+  thinkingModes: {},
+  variants: {}
 }
 
 function loadStoredState(): StoredProvidersState {
@@ -42,7 +46,9 @@ function loadStoredState(): StoredProvidersState {
       thinkingModes:
         typeof parsed.thinkingModes === 'object' && parsed.thinkingModes !== null
           ? parsed.thinkingModes
-          : {}
+          : {},
+      variants:
+        typeof parsed.variants === 'object' && parsed.variants !== null ? parsed.variants : {}
     }
   } catch {
     return EMPTY_STORED
@@ -61,6 +67,10 @@ interface ProvidersContextValue {
   getModel: (providerId: string) => string
   /** Modo de pensamiento elegido de un proveedor (fallback: 'auto'). */
   getThinkingMode: (providerId: string) => ThinkingMode
+  /** Variante de razonamiento elegida (`/variants`); '' si no hay. */
+  getVariant: (providerId: string) => string
+  /** Guarda la variante de razonamiento del proveedor. */
+  setVariant: (providerId: string, variant: string | null) => void
   /** Selecciona el proveedor activo (debe tener key para poder chatear). */
   selectProvider: (providerId: string) => void
   /** Guarda la key del proveedor (persistida en localStorage). */
@@ -81,7 +91,7 @@ const ProvidersContext = createContext<ProvidersContextValue | null>(null)
 
 /**
  * Estado real de los proveedores de LLM: el proveedor activo y sus API keys.
- * Se detectan solos desde `services/providers` (import.meta.glob); acá solo
+ * Se detectan solos desde `services/providers` (import.meta.glob); aquí solo
  * se elige cuál usar y se guardan las keys localmente.
  */
 export function ProvidersProvider({ children }: { children: ReactNode }) {
@@ -94,28 +104,67 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>(stored.apiKeys)
   const [models, setModels] = useState<Record<string, string>>(stored.models)
   const [thinkingModes, setThinkingModes] = useState<Record<string, string>>(stored.thinkingModes)
+  const [variants, setVariants] = useState<Record<string, string>>(stored.variants)
   const [isProvidersModalOpen, setIsProvidersModalOpen] = useState(false)
+  // Catálogo de proveedores (models.dev): llega async y se refresca en cada
+  // apertura; la lista re-renderiza a todos los consumidores.
+  const [providers, setProviders] = useState<ProviderConfig[]>(() => getProviders())
+
+  useEffect(() => subscribeProviderCatalog(() => setProviders(getProviders())), [])
+
+  // El comando `/variants` (y cualquier subsistema sin React) escribe la
+  // variante por evento; acá se re-sincroniza el estado.
+  useEffect(() => {
+    const onSetVariant = (event: Event): void => {
+      const detail = (event as CustomEvent<{ providerId?: string; variant?: string | null }>).detail
+      if (!detail?.providerId) return
+      setVariants((prev) => {
+        const next = { ...prev }
+        if (detail.variant) next[detail.providerId!] = detail.variant
+        else delete next[detail.providerId!]
+        return next
+      })
+    }
+    window.addEventListener('providers:set-variant', onSetVariant)
+    return () => window.removeEventListener('providers:set-variant', onSetVariant)
+  }, [])
+
+  // Cuando el catálogo llega, restaura el proveedor activo guardado.
+  useEffect(() => {
+    if (activeProviderId === null && stored.activeProviderId && getProvider(stored.activeProviderId)) {
+      setActiveProviderId(stored.activeProviderId)
+    }
+  }, [providers, activeProviderId, stored.activeProviderId])
 
   // Persistencia: cada cambio se guarda solo.
   useEffect(() => {
-    const stored: StoredProvidersState = { activeProviderId, apiKeys, models, thinkingModes }
+    const stored: StoredProvidersState = { activeProviderId, apiKeys, models, thinkingModes, variants }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
     } catch {
       // Almacenamiento no disponible: se sigue en memoria nomás.
     }
-  }, [activeProviderId, apiKeys, models, thinkingModes])
+  }, [activeProviderId, apiKeys, models, thinkingModes, variants])
 
   const activeProvider = useMemo(
     () => (activeProviderId ? getProvider(activeProviderId) : null),
-    [activeProviderId]
+    [activeProviderId, providers]
   )
 
   const getApiKey = useCallback((providerId: string): string => apiKeys[providerId] ?? '', [apiKeys])
 
   const getModel = useCallback(
-    (providerId: string): string => models[providerId] ?? getProvider(providerId)?.defaultModel ?? '',
-    [models]
+    (providerId: string): string => {
+      const config = getProvider(providerId)
+      const stored = models[providerId]
+      // Un id guardado que no está en el catálogo se ignora (cae al default):
+      // evita quedar pegado a un id viejo que el proveedor rechaza con 400.
+      if (stored && config?.models && config.models.length > 0 && !config.models.includes(stored)) {
+        return config.defaultModel
+      }
+      return stored ?? config?.defaultModel ?? ''
+    },
+    [models, providers]
   )
 
   const getThinkingMode = useCallback(
@@ -157,7 +206,25 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     setThinkingModes((prev) => ({ ...prev, [providerId]: mode }))
   }, [])
 
-  const openProvidersModal = useCallback(() => setIsProvidersModalOpen(true), [])
+  const getVariant = useCallback(
+    (providerId: string): string => variants[providerId] ?? '',
+    [variants]
+  )
+
+  const setVariant = useCallback((providerId: string, variant: string | null) => {
+    setVariants((prev) => {
+      const next = { ...prev }
+      if (variant) next[providerId] = variant
+      else delete next[providerId]
+      return next
+    })
+  }, [])
+
+  // "Abrir proveedores" ahora lleva a Ajustes → Chat → Proveedores (el modal
+  // viejo fue reemplazado por la sección).
+  const openProvidersModal = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('open-settings', { detail: { section: 'chatProviders' } }))
+  }, [])
   const closeProvidersModal = useCallback(() => setIsProvidersModalOpen(false), [])
 
   const value = useMemo(
@@ -168,6 +235,8 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       getApiKey,
       getModel,
       getThinkingMode,
+      getVariant,
+      setVariant,
       selectProvider,
       setApiKey,
       removeApiKey,
@@ -184,6 +253,8 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       getApiKey,
       getModel,
       getThinkingMode,
+      getVariant,
+      setVariant,
       selectProvider,
       setApiKey,
       removeApiKey,

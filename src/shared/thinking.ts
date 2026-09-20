@@ -3,7 +3,7 @@
  *
  * Las IAs razonan distinto según la familia: OpenAI usa `reasoning_effort`,
  * Claude el `thinking` con budget, Gemini `thinkingConfig`, DeepSeek R1
- * razona siempre. Acá se DETECTA la familia según el id del modelo y se
+ * razona siempre. Aquí se DETECTA la familia según el id del modelo y se
  * traduce el modo elegido a los params que espera cada proveedor.
  */
 
@@ -54,14 +54,33 @@ export function thinkingOptionsFor(modelId: string): ThinkingMode[] {
 
 /**
  * Traduce el modo elegido a los params extra del body del proveedor.
- * undefined = no tocar el body (el proveedor usa su default).
+ * `undefined` = no tocar el body (el proveedor usa su default).
+ *
+ * Si viene `variant` (elegida con `/variants`, validada contra el catálogo del
+ * modelo), manda ESA: es el esfuerzo exacto que el proveedor declara.
  */
 export function buildThinkingBody(
   modelId: string,
-  mode: ThinkingMode
+  mode: ThinkingMode,
+  variant?: string
 ): Record<string, unknown> | undefined {
+  const family = detectThinkingFamily(modelId)
+  if (variant) {
+    const value = variant.toLowerCase()
+    if (family === 'openai') {
+      if (value === 'off' || value === 'none' || value === 'disabled') return undefined
+      return { reasoning_effort: value }
+    }
+    if (family === 'anthropic' || family === 'gemini') {
+      if (value === 'off' || value === 'none' || value === 'disabled') {
+        return { thinking: { type: 'disabled' } }
+      }
+      return { thinking: { type: 'enabled' } }
+    }
+    return undefined
+  }
   if (mode === 'auto') return undefined
-  switch (detectThinkingFamily(modelId)) {
+  switch (family) {
     case 'openai':
       if (mode === 'low' || mode === 'medium' || mode === 'high') {
         return { reasoning_effort: mode }

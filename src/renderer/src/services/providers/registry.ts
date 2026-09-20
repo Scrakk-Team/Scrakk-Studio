@@ -1,22 +1,46 @@
+/**
+ * Registry de proveedores — en memoria, alimentado por el catálogo (models.dev).
+ *
+ * Antes era un `import.meta.glob` de carpetas hardcodeadas; ahora la lista
+ * llega async desde el main. Este módulo es el punto único de lectura y
+ * suscripción: cualquier consumidor lee `getProviders()` y escucha
+ * `subscribeProviderCatalog()` para re-renderizar cuando el catálogo carga o
+ * se refresca.
+ */
+
 import type { ProviderConfig } from './types'
 
-/**
- * Detección automática de proveedores.
- *
- * Cualquier carpeta `services/providers/<id>/` cuyo `index.ts` exporte por
- * defecto un `ProviderConfig` se registra sola — sin tocar nada más:
- * `import.meta.glob` lo resuelve Vite al build (eager: los módulos se cargan
- * con la app, así la lista está disponible apenas arranca).
- */
-const modules = import.meta.glob<{ default: ProviderConfig }>('./*/index.ts', {
-  eager: true
-})
+let list: ProviderConfig[] = []
+const listeners = new Set<() => void>()
 
-/** Todos los proveedores detectados, ordenados por nombre. */
-export const providers: ProviderConfig[] = Object.values(modules)
-  .map((module) => module.default)
-  .sort((a, b) => a.name.localeCompare(b.name))
+function emit(): void {
+  for (const listener of [...listeners]) {
+    try {
+      listener()
+    } catch {
+      // Un suscriptor roto no debe tumbar a los demás.
+    }
+  }
+}
+
+/** Proveedores actuales (vacío hasta que el catálogo carga). */
+export function getProviders(): ProviderConfig[] {
+  return list
+}
 
 export function getProvider(id: string): ProviderConfig | null {
-  return providers.find((provider) => provider.id === id) ?? null
+  return list.find((provider) => provider.id === id) ?? null
+}
+
+/** Reemplaza la lista (lo llama el loader del catálogo). */
+export function setProviderCatalog(next: ProviderConfig[]): void {
+  list = next
+  emit()
+}
+
+export function subscribeProviderCatalog(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
 }
