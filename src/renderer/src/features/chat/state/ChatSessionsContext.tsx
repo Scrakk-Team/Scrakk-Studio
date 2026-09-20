@@ -68,16 +68,52 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   sessionsRef.current = sessions
   activeSessionIdRef.current = activeSessionId
 
-  // Persistencia con debounce: agrupa los cambios del stream.
+  // Persistencia diferida a idle: serializar TODO el historial es caro, así
+  // que se hace cuando el hilo está libre (no durante el stream). El timeout
+  // es la red de seguridad si idle nunca llega.
   useEffect(() => {
-    const timer = setTimeout(() => persistChatSessions(sessions), 300)
-    return () => clearTimeout(timer)
+    const idle = (
+      globalThis as {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
+        cancelIdleCallback?: (handle: number) => void
+      }
+    ).requestIdleCallback
+    const cancelIdle = (
+      globalThis as { cancelIdleCallback?: (handle: number) => void }
+    ).cancelIdleCallback
+    const write = (): void => persistChatSessions(sessions)
+    const handle =
+      typeof idle === 'function'
+        ? idle(write, { timeout: 1000 })
+        : window.setTimeout(write, 400)
+    return () => {
+      if (typeof idle === 'function' && typeof cancelIdle === 'function') cancelIdle(handle)
+      else window.clearTimeout(handle)
+    }
   }, [sessions])
 
   useEffect(() => {
     const timer = setTimeout(() => persistChatActiveSession(activeSessionId), 300)
     return () => clearTimeout(timer)
   }, [activeSessionId])
+
+  // La tool history_title de la IA pide renombrar la sesión por evento:
+  // el executor no es React y no conoce el store. Se renombra la sesión
+  // del `sessionId` (o la activa si no vino).
+  useEffect(() => {
+    const onSetTitle = (event: Event): void => {
+      const detail = (event as CustomEvent<{ title?: string; sessionId?: string | null }>).detail
+      const title = detail?.title?.trim().slice(0, 60)
+      if (!title) return
+      const target = detail?.sessionId ?? activeSessionIdRef.current
+      if (!target) return
+      setSessions((prev) =>
+        prev.map((session) => (session.id === target ? { ...session, title } : session))
+      )
+    }
+    window.addEventListener('set-chat-title', onSetTitle)
+    return () => window.removeEventListener('set-chat-title', onSetTitle)
+  }, [])
 
   // Flush inmediato al cerrar la ventana: no confiar solo en el debounce.
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { memo, type JSX, type ReactNode } from 'react'
+import { memo, useDeferredValue, type JSX, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { Components, ExtraProps } from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
@@ -94,6 +94,10 @@ interface MarkdownProps {
  * sí evita re-resaltados.
  */
 export const Markdown = memo(function Markdown({ content }: MarkdownProps): JSX.Element {
+  // El parseo de markdown + Prism es lo más caro del chat. Con `content`
+  // aplazado, React puede descartar renders intermedios del stream (el texto
+  // viejo se mantiene un instante) en vez de bloquear el hilo por token.
+  const deferredContent = useDeferredValue(content)
   return (
     <div className={styles.md}>
       <ReactMarkdown
@@ -101,7 +105,7 @@ export const Markdown = memo(function Markdown({ content }: MarkdownProps): JSX.
         rehypePlugins={[rehypeRaw, rehypeSanitize]}
         components={components}
       >
-        {content}
+        {deferredContent}
       </ReactMarkdown>
     </div>
   )

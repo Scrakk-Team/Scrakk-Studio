@@ -23,7 +23,7 @@
 
 /* Mensajes del usuario: burbuja con el mismo color que el chat activo del
    historial (--color-active) y texto blanco, todas las esquinas iguales.
-   pre-wrap solo acá: el texto plano del usuario conserva sus saltos de
+   pre-wrap solo aquí: el texto plano del usuario conserva sus saltos de
    línea. El markdown de la IA NO (los \n se duplicarían con remark-breaks). */
 .bubbleUser {
   max-width: 60%;
@@ -43,4 +43,10 @@
   color: var(--color-text);
   font-size: var(--text-md);
   padding: var(--space-1) 0;
+}
+
+/* Texto mientras streamea: plano (sin markdown), conservando saltos de línea. */
+.streamText {
+  white-space: pre-wrap;
+  word-break: break-word;
 }

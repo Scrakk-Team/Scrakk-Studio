@@ -1,0 +1,13 @@
+/* Host del profiler de panel: no genera caja (no cambia el layout del panel). */
+.host {
+  display: contents;
+}
+
+/* Panel marcado como lento: se le pausan las animaciones (lo que más CPU y
+   paint consume de forma continua) hasta que sus renders se normalicen. Se
+   quita solo, desde `panelHealth`, en cuanto el promedio baja. */
+.host[data-panel-slow] *,
+.host[data-panel-slow] *::before,
+.host[data-panel-slow] *::after {
+  animation-play-state: paused !important;
+}

@@ -1,5 +1,5 @@
 import type { ChatMessage } from '@services/chat'
-import { useEffect, useRef, type JSX } from 'react'
+import { memo, useEffect, useRef, type JSX } from 'react'
 import { MessageBubble } from '../MessageBubble/MessageBubble'
 import { ThinkingState } from '../ThinkingState/ThinkingState'
 import { ThoughtBlock } from '../ThoughtBlock/ThoughtBlock'
@@ -25,7 +25,7 @@ interface MessageListProps {
  *
  * Usa el scrollbar global (réplica de Innerta): sin rail custom.
  */
-export function MessageList({
+export const MessageList = memo(function MessageList({
   messages,
   isStreaming,
   onRegenerate,
@@ -92,4 +92,4 @@ export function MessageList({
       })}
     </div>
   )
-}
+})

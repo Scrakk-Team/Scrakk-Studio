@@ -16,4 +16,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  /* Mensajes fuera de pantalla: no se pintan (el historial largo no cuesta).
+     `contain-intrinsic-size` evita saltos de scroll al no medirlos. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
 }
