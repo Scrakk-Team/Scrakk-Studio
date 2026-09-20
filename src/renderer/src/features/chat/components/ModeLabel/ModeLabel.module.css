@@ -1,12 +1,33 @@
 .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
   font-size: 10px;
   color: var(--color-text-muted);
-  user-select: none;
   letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.label:hover {
+  color: var(--color-text-secondary);
 }
 
 .mode {
   font-weight: 600;
   /* Color viene del inline style con getModeColor() */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: var(--color-text-muted);
 }

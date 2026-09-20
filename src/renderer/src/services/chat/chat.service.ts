@@ -3,7 +3,7 @@ import type { ThinkingMode } from '@shared/thinking'
 import type { ProviderConfig } from '../providers/types'
 import type { ChatMessage, ChatReply, ToolCallInfo, ToolResultInfo } from './types'
 import { buildSystemMessages } from '../ai/chatContextBuilder'
-import { getToolDefinitions } from '../ai/tools'
+import { getEnabledToolDefinitions } from '../ai/tools'
 import { executeTools } from '../ai/toolExecutor'
 
 /** Entrada de un envío: el proveedor se resuelve en la UI (ProvidersProvider). */
@@ -14,6 +14,8 @@ export interface SendMessageInput {
   model: string
   /** Modo de pensamiento elegido para el modelo activo. */
   thinkingMode: ThinkingMode
+  /** Variante de razonamiento elegida (`/variants`); manda sobre el modo. */
+  variant?: string
   content: string
   /** Historial de la sesión — el modelo recibe el contexto completo. */
   history: ChatMessage[]
@@ -65,22 +67,22 @@ function toToolCallInfo(toolCall: LlmToolCall): ToolCallInfo {
 export function createLlmChatService(): ChatService {
   return {
     sendMessage: (input): Promise<ChatReply> => {
-      const { provider, apiKey, model, thinkingMode, content, history } = input
+      const { provider, apiKey, model, thinkingMode, variant, content, history } = input
 
       return new Promise((resolve, reject) => {
         if (!provider) {
-          reject(new Error('No hay proveedor activo. Abrí el menú de Proveedores y configurá uno.'))
+          reject(new Error('No hay proveedor activo. Abre el menú de Proveedores y configura uno.'))
           return
         }
         if (!apiKey.trim()) {
-          reject(new Error(`Falta la API key de ${provider.name}. La agregás en el menú de Proveedores.`))
+          reject(new Error(`Falta la API key de ${provider.name}. La agregas en el menú de Proveedores.`))
           return
         }
 
         // El array de mensajes crece con cada ronda de tools: system +
         // historial + user + assistant(tool_calls) + tool results + …
         const messages: LlmChatMessage[] = [
-          ...buildSystemMessages(),
+          ...buildSystemMessages(input.sessionId ?? null),
           ...history.map((message) => ({ role: message.role, content: message.content })),
           { role: 'user', content }
         ]
@@ -119,8 +121,9 @@ export function createLlmChatService(): ChatService {
                 headers: provider.headers,
                 messages,
                 thinkingMode,
+                variant,
                 // Schemas de las tools registradas (function calling).
-                tools: getToolDefinitions()
+                tools: getEnabledToolDefinitions(input.sessionId ?? null)
               },
               {
                 onContent: (delta) => {
@@ -144,7 +147,7 @@ export function createLlmChatService(): ChatService {
                   settled = true
                   activeRequestId = null
                   stop()
-                  // Resolve (no reject): lo streamado hasta acá es válido.
+                  // Resolve (no reject): lo streamado hasta aquí es válido.
                   roundResolve({ content: roundContent, toolCalls })
                 },
                 onError: (error) => {

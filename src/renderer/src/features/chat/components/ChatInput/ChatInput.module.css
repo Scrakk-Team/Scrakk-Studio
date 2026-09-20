@@ -1,4 +1,5 @@
 .form {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -68,4 +69,59 @@
 /* Nudge óptico del botón de enviar: 2px a la derecha (mismo Y que el resto). */
 .sendNudge {
   transform: translate(2px, 3px);
+}
+
+/* Autocompletado de comandos (`/`): panel flotante ARRIBA del input, más
+   ancho que el propio input para que entren nombre + descripción. */
+.suggestions {
+  position: absolute;
+  left: -12px;
+  right: -12px;
+  bottom: calc(100% + var(--space-2));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.suggestion {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 9px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.suggestion:hover,
+.suggestion:focus-visible {
+  background: var(--color-hover);
+  outline: none;
+}
+
+.suggestionName {
+  flex: none;
+  color: var(--color-text);
+  font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+  font-size: var(--text-xs);
+}
+
+.suggestionDesc {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

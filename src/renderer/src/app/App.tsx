@@ -1,10 +1,8 @@
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useState } from 'react'
 import { AppShell } from '@layout/AppShell'
-import { ChatsProvider, ToolConfirmationModal } from '@features/chat'
+import { ChatsProvider, ToolConfirmationModal, registerChatCommands } from '@features/chat'
 import {
-  ProvidersProvider,
-  ProvidersModal,
-  useProviders
+  ProvidersProvider
 } from '@features/providers'
 import {
   LayoutProvider,
@@ -23,6 +21,10 @@ import { OnboardingProvider, OnboardingWizard } from '@features/onboarding'
 import { GitCommandsBridge } from '@features/git/GitCommandsBridge'
 import { GitDecorationsBridge } from '@features/git/GitDecorationsBridge'
 import { LspNotificationsBridge } from '@features/lsp/LspNotificationsBridge'
+import { skillRegistry } from '@services/skills'
+import { startProviderCatalog } from '@services/providers'
+import { loadPermissionSettings } from '@services/ai/policy/permissionSettings'
+import { loadModeSettings } from '@services/ai/policy/modeSettings'
 import { commandRegistry, type Command } from '@services/commands'
 import { setWorkspaceRoot } from '@features/explorer'
 import { getEditorFiles, openFileInEditor, requestCloseFile } from '@features/editor'
@@ -42,35 +44,9 @@ import {
 } from '@features/editor/engines/innerta/InnertaEngine'
 
 /**
- * Modal de proveedores montado UNA vez a nivel global: el estado del modal
- * vive en el ProvidersContext, así que cualquier trigger (status bar, panel
- * de historial) lo abre sin duplicar el overlay.
+ * Los proveedores ya no usan modal: abren Ajustes → Chat → Proveedores.
+ * El comando global vive en APP_COMMANDS (`providers.open`).
  */
-function ProvidersModalHost(): JSX.Element {
-  const { isProvidersModalOpen, closeProvidersModal, openProvidersModal } = useProviders()
-
-  // Comando + evento para abrirlo desde la paleta y shortcuts.
-  useEffect(() => {
-    const unsub = commandRegistry.register({
-      id: 'providers.open',
-      title: 'Abrir proveedores LLM',
-      category: 'Configuración',
-      run: () => {
-        window.dispatchEvent(new CustomEvent('open-providers-modal'))
-      }
-    })
-    const handler = (): void => openProvidersModal()
-    window.addEventListener('open-providers-modal', handler)
-    return () => {
-      unsub()
-      window.removeEventListener('open-providers-modal', handler)
-    }
-  }, [openProvidersModal])
-
-  return (
-    <ProvidersModal open={isProvidersModalOpen} onClose={closeProvidersModal} />
-  )
-}
 
 /** Comandos globales que no dependen de contextos React internos. */
 const APP_COMMANDS: Command[] = [
@@ -124,6 +100,16 @@ const APP_COMMANDS: Command[] = [
     run: () => {
       setMinimapVisibleEverywhere(!getMinimapVisible())
     }
+  },
+  {
+    id: 'providers.open',
+    title: 'Abrir proveedores LLM',
+    category: 'Configuración',
+    run: () => {
+      window.dispatchEvent(
+        new CustomEvent('open-settings', { detail: { section: 'chatProviders' } })
+      )
+    }
   }
 ]
 
@@ -154,6 +140,29 @@ export function App() {
     setSettingsOpen(true)
   }
   const closeSettings = (): void => setSettingsOpen(false)
+
+  // Descubrimiento de skills (.scrakk/skills + extensiones): una vez al
+  // arrancar; el registry se mantiene solo con sus watchers.
+  useEffect(() => {
+    skillRegistry.start()
+  }, [])
+
+  // Catálogo de proveedores (models.dev): cache en disco → fetch remoto en
+  // cada apertura del editor.
+  useEffect(() => {
+    startProviderCatalog()
+  }, [])
+
+  // Comandos con barra del chat con IA (`/variants`, …).
+  useEffect(() => {
+    registerChatCommands()
+  }, [])
+
+  // Modos propios (`.scrakk/modes.json`) y luego las reglas de permisos
+  // (`.scrakk/permissions.json`): el modo por defecto puede ser propio.
+  useEffect(() => {
+    void loadModeSettings().then(() => loadPermissionSettings())
+  }, [])
 
   // Registro de comandos globales + listener del modal de ajustes.
   useEffect(() => {
@@ -300,7 +309,6 @@ export function App() {
               onClose={closeSettings}
               initialSection={settingsSection}
             />
-            <ProvidersModalHost />
             <LspNotificationsBridge />
             <CommandPalette />
             {/* Configuración inicial: se muestra sola en el primer arranque y

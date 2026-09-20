@@ -9,3 +9,4 @@ export { ToolConfirmationModal } from './components/ToolConfirmationModal/ToolCo
 export { ModeGlow } from './components/ModeGlow/ModeGlow'
 export { ModeLabel } from './components/ModeLabel/ModeLabel'
 export { ChatModeBar } from './components/ChatModeBar/ChatModeBar'
+export { registerChatCommands } from './commands'

@@ -123,7 +123,7 @@ function ServerRow({ server }: { server: LspServerStatus }): JSX.Element {
         {/*
           Encender/apagar: la decisión se persiste y se empuja al main, que es
           quien la aplica al arrancar (un server apagado no corre EN REALIDAD,
-          no sólo se ve gris acá).
+          no sólo se ve gris aquí).
         */}
         <button
           type="button"
@@ -212,7 +212,7 @@ export function ServersSection({ visible = true }: ServersSectionProps): JSX.Ele
 
       {servers.length === 0 ? (
         <p className={styles.empty}>
-          Abrí una carpeta con código o instalá una extensión con{" "}
+          Abre una carpeta con código o instala una extensión con{" "}
           <code>lspServers</code>.
         </p>
       ) : (

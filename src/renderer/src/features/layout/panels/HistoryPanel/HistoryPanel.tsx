@@ -1,5 +1,5 @@
 import { ProductIcon } from '@services/productIcons/components'
-import { useMemo, useState, type JSX, type MouseEvent } from 'react'
+import { startTransition, useMemo, useState, type JSX, type MouseEvent } from 'react'
 import { ProvidersMenu, useProviders } from '@features/providers'
 import { useChats } from '@features/chat'
 import { showModal } from '@services/modals'
@@ -29,7 +29,9 @@ export function HistoryPanel({ onPick }: { onPick?: () => void } = {}): JSX.Elem
   }, [sessions, query])
 
   const handleNewChat = (): void => {
-    createSession()
+    startTransition(() => {
+      createSession()
+    })
     setQuery('')
     onPick?.()
   }
@@ -95,7 +97,9 @@ export function HistoryPanel({ onPick }: { onPick?: () => void } = {}): JSX.Elem
                   className={styles.item}
                   aria-current={isActive ? 'true' : undefined}
                   onClick={() => {
-                    selectSession(session.id)
+                    // Cambiar de chat monta todo el historial de la sesión:
+                    // transición, así el click responde al instante.
+                    startTransition(() => selectSession(session.id))
                     onPick?.()
                   }}
                 >

@@ -87,7 +87,7 @@ export function AppearanceSection(): JSX.Element {
   }, [])
 
   // Stream reactivo del ecosistema de temas: builtin, .sef instaladas en
-  // runtime, activación y desinstalación — todo llega por acá.
+  // runtime, activación y desinstalación — todo llega por aquí.
   useEffect(() => {
     refresh()
     return subscribeToThemes(refresh)

@@ -112,7 +112,7 @@ export function HighlightSection(): JSX.Element {
       <span className={styles.groupLabel}>Motor de gramática</span>
       <p className={styles.hint}>
         Un paquete puede traer gramática TextMate y parser tree-sitter para el
-        mismo lenguaje. Acá se decide cuál manda (los dos a la vez pintarían dos
+        mismo lenguaje. Aquí se decide cuál manda (los dos a la vez pintarían dos
         veces el mismo rango).
       </p>
       <div className={styles.grid}>

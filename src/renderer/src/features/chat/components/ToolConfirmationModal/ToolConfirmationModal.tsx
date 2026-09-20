@@ -1,87 +1,109 @@
 /**
- * Modal de confirmación de tool calls (patrón de Scrakk Code Editor).
+ * Confirmación de tool calls.
  *
- * Se suscribe al ConfirmationBus: cuando el policy engine pide aprobación
- * para una tool (mutaciones, comandos de riesgo), muestra el modal con el
- * motivo y el detalle. Aprobar/Rechazar responden la llamada; "Siempre"
- * además pasa el policy engine a modo all_allow.
+ * Se suscribe al ConfirmationBus y muestra la confirmación como panel anclado
+ * ARRIBA del input de chat (igual que el autocompletado de comandos), sin el
+ * JSON de argumentos: motivo, riesgo y detalles cortos. Si no hay input
+ * montado, cae al modal centrado de siempre.
  */
 
-import { useEffect, useState, type JSX } from 'react'
-import { Modal } from '@ui'
+import { useEffect, type JSX } from 'react'
+import { showAnchoredModal, showModal } from '@services/modals'
 import {
   confirmationBus,
-  type ConfirmationRequest
+  type ConfirmationRequest,
+  type ConfirmationResponse
 } from '@services/ai/policy/confirmation-bus'
 import { policyEngine } from '@services/ai/policy'
 import { toolSettingsService } from '@services/ai/toolSettings'
+import { getChatInputAnchor } from '../ChatInput/inputAnchor'
 import styles from './ToolConfirmationModal.module.css'
 
-export function ToolConfirmationModal(): JSX.Element | null {
-  const [request, setRequest] = useState<ConfirmationRequest | null>(null)
+function applyAlwaysApprove(): void {
+  toolSettingsService.setApprovalMode('all_allow')
+  policyEngine.setModeId('all_allow')
+  // El glow del input refleja el color del modo.
+  window.dispatchEvent(new CustomEvent('approval-mode-changed', { detail: { mode: 'all_allow' } }))
+}
 
+function ConfirmationCard({
+  request,
+  onRespond
+}: {
+  request: ConfirmationRequest
+  onRespond: (response: ConfirmationResponse) => void
+}): JSX.Element {
+  const risk = request.riskLevel ?? 'unknown'
+  return (
+    <div className={styles.body}>
+      <div className={[styles.risk, styles[risk]].join(' ')}>Riesgo: {risk}</div>
+      <p className={styles.reason}>{request.reason}</p>
+      {request.detail ? <p className={styles.detail}>{request.detail}</p> : null}
+
+      {request.details && request.details.length > 0 ? (
+        <ul className={styles.list}>
+          {request.details.map((detail, index) => (
+            <li key={index}>{detail}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={styles.always}
+          onClick={() => onRespond('approved_always')}
+        >
+          Siempre aprobar
+        </button>
+        <button type="button" className={styles.reject} onClick={() => onRespond('rejected')}>
+          Rechazar
+        </button>
+        <button type="button" className={styles.approve} onClick={() => onRespond('approved')} autoFocus>
+          Aprobar
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function ToolConfirmationModal(): JSX.Element | null {
   useEffect(() => {
-    return confirmationBus.subscribe((next) => setRequest(next))
+    return confirmationBus.subscribe((request) => {
+      const respond = (response: ConfirmationResponse): void => {
+        if (response === 'approved_always') applyAlwaysApprove()
+        confirmationBus.resolve(request.id, response)
+      }
+      const render = ({ close }: { close: () => void }): JSX.Element => (
+        <ConfirmationCard
+          request={request}
+          onRespond={(response) => {
+            respond(response)
+            close()
+          }}
+        />
+      )
+      // Cerrar por Esc/click afuera también rechaza (no deja al agente colgado).
+      const onClose = (): void => respond('rejected')
+
+      const anchor = getChatInputAnchor()
+      if (anchor) {
+        showAnchoredModal({
+          key: `tool-confirm:${request.id}`,
+          title: 'Confirmar acción',
+          anchor: { x: anchor.x, y: anchor.y, width: anchor.width, height: anchor.height },
+          placement: 'above',
+          align: 'center',
+          width: 360,
+          render,
+          onClose
+        })
+      } else {
+        showModal({ title: 'Confirmar acción', size: 'sm', render, onClose })
+      }
+    })
   }, [])
 
-  if (!request) return null
-
-  const respond = (response: 'approved' | 'rejected' | 'approved_always'): void => {
-    const id = request.id
-    setRequest(null)
-    if (response === 'approved_always') {
-      toolSettingsService.setApprovalMode('all_allow')
-      policyEngine.setModeId('all_allow')
-      // El glow del input refleja el color del modo.
-      window.dispatchEvent(new CustomEvent('approval-mode-changed', { detail: { mode: 'all_allow' } }))
-    }
-    confirmationBus.resolve(id, response)
-  }
-
-  const risk = request.riskLevel ?? 'unknown'
-
-  return (
-    <Modal open onClose={() => respond('rejected')} title="Confirmar acción">
-      <div className={styles.body}>
-        <div className={[styles.risk, styles[risk]].join(' ')}>
-          Riesgo: {risk}
-        </div>
-        <p className={styles.reason}>{request.reason}</p>
-        <p className={styles.detail}>{request.detail}</p>
-
-        {request.details && request.details.length > 0 ? (
-          <ul className={styles.list}>
-            {request.details.map((detail, index) => (
-              <li key={index}>{detail}</li>
-            ))}
-          </ul>
-        ) : null}
-
-        {request.toolArgs && Object.keys(request.toolArgs).length > 0 ? (
-          <pre className={styles.args}>{JSON.stringify(request.toolArgs, null, 2)}</pre>
-        ) : null}
-
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.always}
-            onClick={() => respond('approved_always')}
-          >
-            Siempre aprobar
-          </button>
-          <button type="button" className={styles.reject} onClick={() => respond('rejected')}>
-            Rechazar
-          </button>
-          <button
-            type="button"
-            className={styles.approve}
-            onClick={() => respond('approved')}
-            autoFocus
-          >
-            Aprobar
-          </button>
-        </div>
-      </div>
-    </Modal>
-  )
+  // El estado vive en el servicio de modales: este componente solo suscribe.
+  return null
 }

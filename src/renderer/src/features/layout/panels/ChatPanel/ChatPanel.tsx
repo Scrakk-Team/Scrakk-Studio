@@ -1,8 +1,9 @@
-import { createLlmChatService, type ChatMessage, type ChatService } from '@services/chat'
+import { createLlmChatService, type ChatMessage, type ChatService, type ChatInsertPayload } from '@services/chat'
+import { isSlashInput, slashCommands } from '@services/slash-commands'
 import type { ToolCallInfo, ToolResultInfo } from '@services/chat/types'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useProviders } from '@features/providers'
-import { useChats, ModeGlow, ModeLabel, ChatModeBar } from '@features/chat'
+import { useChats, ModeGlow, ChatModeBar } from '@features/chat'
 import { HeaderActionButton, usePanelTitleOptional } from '@features/layout'
 import { ChatInput } from '@features/chat/components/ChatInput/ChatInput'
 import { MessageList } from '@features/chat/components/MessageList/MessageList'
@@ -15,11 +16,14 @@ import {
   subscribeToHistoryView,
   toggleHistoryView
 } from '../HistoryPanel/viewState'
+import { SkillsPanel } from '../SkillsPanel/SkillsPanel'
+import { isSkillsViewOpen, setSkillsViewOpen, subscribeToSkillsView } from '../SkillsPanel/viewState'
+import { ComposerFooter } from './ComposerFooter'
 import styles from './ChatPanel.module.css'
 
 /**
  * Panel de chat: usa las sesiones reales del ChatsProvider (el historial
- * refleja lo que pasa acá) y delega el "backend" al módulo services. El LLM
+ * refleja lo que pasa aquí) y delega el "backend" al módulo services. El LLM
  * sale por IPC al proceso main (sin CORS) usando el proveedor activo de
  * ProvidersProvider.
  *
@@ -38,7 +42,7 @@ export function ChatPanel(): JSX.Element {
     updateMessage,
     removeMessagesAfter
   } = useChats()
-  const { activeProvider, getApiKey, getModel, getThinkingMode } = useProviders()
+  const { activeProvider, getApiKey, getModel, getThinkingMode, getVariant } = useProviders()
   const [isBusy, setIsBusy] = useState(false)
   // Controller del stream en curso: el botón "Detener" lo aborta. Mientras
   // genera, el input queda escribible (no se deshabilita).
@@ -54,6 +58,9 @@ export function ChatPanel(): JSX.Element {
   const panelHeader = usePanelTitleOptional()
   const [showHistory, setShowHistory] = useState(() => isHistoryViewOpen())
   useEffect(() => subscribeToHistoryView(() => setShowHistory(isHistoryViewOpen())), [])
+  // Vista de skills: misma mecánica que el historial (reemplaza el contenido).
+  const [showSkills, setShowSkills] = useState(() => isSkillsViewOpen())
+  useEffect(() => subscribeToSkillsView(() => setShowSkills(isSkillsViewOpen())), [])
   useEffect(() => {
     if (!panelHeader) return undefined
     panelHeader.setActions(() => (
@@ -64,7 +71,11 @@ export function ChatPanel(): JSX.Element {
           icon="history"
           size="sm"
           variant={showHistory ? 'accent' : 'neutral'}
-          onClick={() => toggleHistoryView()}
+          onClick={() => {
+            // Historial y skills comparten el panel: abrir uno cierra el otro.
+            setSkillsViewOpen(false)
+            toggleHistoryView()
+          }}
         />
         <HeaderActionButton
           id="chat.new-session"
@@ -77,6 +88,39 @@ export function ChatPanel(): JSX.Element {
     ))
     return () => panelHeader.setActions(null)
   }, [panelHeader, createSession, showHistory])
+
+  // Título del header: "Chat: {nombre}" con el título real de la sesión (lo
+  // setea solo con el primer mensaje o la tool history_title). Sin sesión o
+  // sin título propio queda "Chat" a secas.
+  useEffect(() => {
+    if (!panelHeader) return undefined
+    const name = activeSession?.title?.trim()
+    panelHeader.setTitle(name && name !== 'Nuevo chat' ? `Chat: ${name}` : 'Chat')
+    return undefined
+  }, [panelHeader, activeSession?.title])
+
+  // API pública del chat: cualquier subsistema puede insertar contenido
+  // (skills desde una librería, texto de un panel) y cae como mensaje del
+  // usuario en la sesión activa.
+  useEffect(() => {
+    const onInsert = (event: Event): void => {
+      const detail = (event as CustomEvent<ChatInsertPayload>).detail
+      if (!detail?.text) return
+      const targetId = sessionId ?? createSession()
+      const content =
+        detail.kind === 'skill' && detail.name
+          ? `<skill name="${detail.name}">\n${detail.text}\n</skill>`
+          : detail.text
+      appendMessage(targetId, {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content,
+        timestamp: Date.now()
+      })
+    }
+    window.addEventListener('chat:insert', onInsert)
+    return () => window.removeEventListener('chat:insert', onInsert)
+  }, [sessionId, createSession, appendMessage])
 
   // Encola un mensaje de respuesta vacío y lo va llenando en vivo con el
   // stream (razonamiento y contenido por separado). Lo comparten el envío
@@ -101,7 +145,48 @@ export function ChatPanel(): JSX.Element {
       }
       const segments = new Map<string, SegmentTools>()
 
+      // Deltas del stream agrupados por frame: un `setState` por TOKEN
+      // re-renderiza todo el panel; agrupando, como mucho uno por frame.
+      const pendingContent = new Map<string, string>()
+      const pendingReasoning = new Map<string, string>()
+      let flushHandle: number | null = null
+
+      const flushDeltas = (): void => {
+        flushHandle = null
+        if (pendingContent.size === 0 && pendingReasoning.size === 0) return
+        const contentBySegment = new Map(pendingContent)
+        const reasoningBySegment = new Map(pendingReasoning)
+        pendingContent.clear()
+        pendingReasoning.clear()
+        for (const [id, delta] of contentBySegment) {
+          patchSegment(id, (message) => ({ ...message, content: message.content + delta }))
+        }
+        for (const [id, delta] of reasoningBySegment) {
+          patchSegment(id, (message) => ({
+            ...message,
+            reasoning: (message.reasoning ?? '') + delta
+          }))
+        }
+      }
+
+      const scheduleFlush = (): void => {
+        if (flushHandle !== null) return
+        flushHandle = requestAnimationFrame(flushDeltas)
+      }
+
+      /** Vuelca lo pendiente YA (fin de ronda, tools, fin del stream). */
+      const flushNow = (): void => {
+        if (flushHandle !== null) {
+          cancelAnimationFrame(flushHandle)
+          flushHandle = null
+        }
+        flushDeltas()
+      }
+
       const startSegment = (): void => {
+        // La ronda anterior pudo dejar deltas sin volcar: se aplican antes de
+        // crear el segmento nuevo para no perder orden.
+        flushNow()
         const id = crypto.randomUUID()
         currentSegmentId = id
         segments.set(id, { calls: [], results: {} })
@@ -136,6 +221,7 @@ export function ChatPanel(): JSX.Element {
           apiKey: activeProvider ? getApiKey(activeProvider.id) : '',
           model: activeProvider ? getModel(activeProvider.id) : '',
           thinkingMode: activeProvider ? getThinkingMode(activeProvider.id) : 'auto',
+          variant: activeProvider ? getVariant(activeProvider.id) : '',
           content,
           history,
           sessionId: targetId,
@@ -146,22 +232,19 @@ export function ChatPanel(): JSX.Element {
           onReasoning: (delta) => {
             const id = currentSegmentId
             if (!id) return
-            patchSegment(id, (message) => ({
-              ...message,
-              reasoning: (message.reasoning ?? '') + delta
-            }))
+            pendingReasoning.set(id, (pendingReasoning.get(id) ?? '') + delta)
+            scheduleFlush()
           },
           onContent: (delta) => {
             const id = currentSegmentId
             if (!id) return
-            patchSegment(id, (message) => ({
-              ...message,
-              content: message.content + delta
-            }))
+            pendingContent.set(id, (pendingContent.get(id) ?? '') + delta)
+            scheduleFlush()
           },
           onToolCalls: (calls) => {
             const id = currentSegmentId
             if (!id) return
+            flushNow()
             const state = segments.get(id)
             if (!state) return
             state.calls = [...calls]
@@ -170,6 +253,7 @@ export function ChatPanel(): JSX.Element {
           onToolResult: (toolCallId, result) => {
             const id = currentSegmentId
             if (!id) return
+            flushNow()
             const state = segments.get(id)
             if (!state) return
             state.results[toolCallId] = result
@@ -178,7 +262,7 @@ export function ChatPanel(): JSX.Element {
         })
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Ups, algo salió mal. Probá de nuevo.'
+          error instanceof Error ? error.message : 'Ups, algo salió mal. Prueba de nuevo.'
         if (currentSegmentId) {
           patchSegment(currentSegmentId, (current) => ({
             ...current,
@@ -194,6 +278,8 @@ export function ChatPanel(): JSX.Element {
           })
         }
       } finally {
+        // El último delta pudo quedar en el buffer: se vuelca antes de cerrar.
+        flushNow()
         abortRef.current = null
         setIsBusy(false)
       }
@@ -210,6 +296,21 @@ export function ChatPanel(): JSX.Element {
     async (content: string): Promise<void> => {
       const trimmed = content.trim()
       if (!trimmed || isBusy) return
+
+      // Comando con barra: NO va al modelo. Se ejecuta por el sistema de
+      // comandos; si el comando mostró su propia UI, no se agrega nada.
+      if (isSlashInput(trimmed)) {
+        const result = await slashCommands.run(trimmed, { source: 'chat', sessionId: sessionId ?? null })
+        if (result.ok && result.ui) return
+        const targetId = sessionId ?? createSession()
+        appendMessage(targetId, {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: result.ok ? (result.message ?? 'Listo.') : `⚠ ${result.error ?? 'Error'}`,
+          timestamp: Date.now()
+        })
+        return
+      }
 
       // Si no hay sesión activa (o arrancamos de cero), se crea una.
       const targetId = sessionId ?? createSession()
@@ -264,7 +365,7 @@ export function ChatPanel(): JSX.Element {
             <ModeGlow />
             <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} />
           </div>
-          <ModeLabel />
+          <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
         </div>
       </div>
     ) : (
@@ -287,18 +388,22 @@ export function ChatPanel(): JSX.Element {
             <ModeGlow />
             <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} />
           </div>
-          <ModeLabel />
+          <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
         </div>
       </>
     )
 
-  // El historial REEMPLAZA el contenido del panel (no es una columna al lado
-  // ni una tab aparte): el panel de chat suele vivir en una sidebar de ~300px
-  // y partirla dejaría dos columnas inservibles. Elegir un chat (o crear uno)
-  // cierra la vista y vuelve a la conversación.
+  // Historial y skills REEMPLAZAN el contenido del panel (no son columnas al
+  // lado ni tabs aparte): el panel de chat suele vivir en una sidebar de
+  // ~300px y partirla dejaría dos columnas inservibles. Son mutuamente
+  // excluyentes. Elegir un chat (o crear uno) cierra el historial.
   return (
     <main className={styles.screen}>
-      {showHistory ? (
+      {showSkills ? (
+        <div className={styles.historyView} data-skills-view="">
+          <SkillsPanel />
+        </div>
+      ) : showHistory ? (
         <div className={styles.historyView} data-history-view="">
           <HistoryPanel onPick={() => setHistoryViewOpen(false)} />
         </div>

@@ -1,6 +1,6 @@
 /**
  * Feature Settings — modal de ajustes genérico. Las secciones viven en
- * sections/ con su propio .tsx y se registran en sections/index.ts; acá
+ * sections/ con su propio .tsx y se registran en sections/index.ts; aquí
  * solo se exporta el modal, el registry y el trigger global.
  */
 

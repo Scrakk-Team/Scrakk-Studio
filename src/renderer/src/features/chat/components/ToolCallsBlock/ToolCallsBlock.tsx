@@ -47,11 +47,13 @@ export const ToolCallsBlock = memo(function ToolCallsBlock({
 
         return (
           <div key={tc.id} className={styles.toolRow}>
-            <ToolCallIcon
-              toolName={tc.function.name}
-              icon={meta?.icon}
-              size={13}
-            />
+            <span className={styles.toolIconBox}>
+              <ToolCallIcon
+                toolName={tc.function.name}
+                icon={meta?.icon}
+                size={13}
+              />
+            </span>
             <div className={styles.toolVisual}>
               <ToolCallShell
                 execution={execution}

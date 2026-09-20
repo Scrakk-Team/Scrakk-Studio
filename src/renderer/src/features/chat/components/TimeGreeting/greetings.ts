@@ -39,7 +39,7 @@ const MADRUGADA: string[] = [
   'Hora de trasnoche, hora de crear.',
   '¿Quién necesita sueño cuando hay algo que pensar?',
   'La noche es larga y el café acompaña.',
-  '¿Qué te trae por acá a esta hora?',
+  '¿Qué te trae por aquí a esta hora?',
   'Mañana te vas a acordar de esta noche.',
   'El resto duerme. Nosotros pensamos.',
   '¿Empezaste algo o sigues con la duda?',
@@ -47,7 +47,7 @@ const MADRUGADA: string[] = [
   '¿Te quedaste con algo dando vueltas?',
   'A esta hora hasta los pensamientos suenan más fuerte.',
   '¿Café o té para aguantar?',
-  'Tarde o temprano sale el sol. Mientras tanto, acá estamos.',
+  'Tarde o temprano sale el sol. Mientras tanto, aquí estamos.',
   '¿Noche de insomnio o de ideas, {name}?'
 ]
 
@@ -119,7 +119,7 @@ const TARDE: string[] = [
   'Queda tarde por delante.',
   '¿Algo dulce para acompañar la tarde?',
   'La tarde es buena para pensar despacio.',
-  '¿Cómo viene el día hasta acá?',
+  '¿Cómo viene el día hasta aquí?',
   'Tarde productiva, se nota.',
   '¿Terminamos algo o empezamos otra cosa?',
   'La luz de la tarde es la mejor compañía.',
@@ -136,7 +136,7 @@ const TARDE: string[] = [
 const NOCHE: string[] = [
   'Buenas noches, {name}. ¿Cómo cierras el día?',
   'Cayó la noche, bajó el ruido.',
-  '¿Cena lista o seguimos acá?',
+  '¿Cena lista o seguimos aquí?',
   'La noche es para lo que quedó pendiente.',
   '¿Qué tal te trató el día?',
   'Noche tranquila, pantalla encendida.',
@@ -171,7 +171,7 @@ const NOCHE: string[] = [
   '¿Último café o ya está?',
   'Noche de balance.',
   '¿Mañana es otro día o seguimos hoy?',
-  'Buenas noches. Cuando quieras, acá estoy.'
+  'Buenas noches. Cuando quieras, aquí estoy.'
 ]
 
 interface TimeSlotConfig {

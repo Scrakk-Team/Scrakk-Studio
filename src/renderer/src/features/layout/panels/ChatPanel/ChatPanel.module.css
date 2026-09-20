@@ -17,7 +17,7 @@
 /* Vista de historial embebida: OCUPA el panel mientras está abierta (el
    historial no es un panel aparte ni una columna al lado; el chat de la
    sidebar queda angosto y partir 300px en dos columnas es inservible).
-   El padding de `.screen` se compensa acá para que la lista use el ancho. */
+   El padding de `.screen` se compensa aquí para que la lista use el ancho. */
 .historyView {
   display: flex;
   flex-direction: column;
@@ -99,4 +99,62 @@
 
 .messagesList {
   width: min(680px, 100%);
+}
+
+/* Fila debajo del input: modo + skills a la izquierda, selector de modelo a
+   la derecha. Mismo ancho máximo que el input para que quede alineado. */
+.composerFooter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(680px, 100%);
+}
+
+.composerFooterSpacer {
+  flex: 1;
+}
+
+/* Cada control del footer, en su propia caja. */
+.footerSlot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Botón de 3 puntos: guarda los controles que no caben (skills, pensamiento
+   y modelo). Lo renderiza React solo cuando hay algo colapsado. */
+.moreBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-capsule);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.moreBtn:hover,
+.moreBtn[aria-expanded='true'] {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Botón "skills: N": mismo tono que el modo, clickeable. */
+.skillsBtn {
+  padding: 1px 6px;
+  border-radius: var(--radius-capsule);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.skillsBtn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
 }

@@ -1,7 +1,7 @@
 /**
  * Sección "Editor" — opciones del editor Innerta (WASM).
  *
- * Los valores viven en sus APIs correspondientes (nada hardcodeado acá):
+ * Los valores viven en sus APIs correspondientes (nada hardcodeado aquí):
  * - Minimapa: getMinimapVisible / setMinimapVisibleEverywhere (InnertaEngine),
  *   que persiste en localStorage y aplica en vivo a todos los engines vivos.
  */

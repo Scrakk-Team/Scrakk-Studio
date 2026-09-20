@@ -8,8 +8,9 @@ import {
   type JSX,
   type KeyboardEvent
 } from 'react'
-import { ModelPicker } from '@features/providers'
 import { IconButton } from '@ui'
+import { slashCommands, type SlashCommand } from '@services/slash-commands'
+import { registerChatInputAnchor } from './inputAnchor'
 import styles from './ChatInput.module.css'
 
 interface ChatInputProps {
@@ -22,18 +23,36 @@ interface ChatInputProps {
 }
 
 /**
- * Input de chat, alto: textarea auto-resizable arriba + toolbar abajo con
- * el botón "+" a la izquierda y, a la derecha, el selector de proveedores
- * al lado del botón de enviar (que vive abajo, como ChatGPT).
+ * Input de chat: textarea auto-resizable + toolbar con el botón "+" a la
+ * izquierda y el de enviar/detener a la derecha. El selector de modelo y el
+ * modo viven ABAJO del input (los monta el ChatPanel), no dentro de la barra.
  *
  * Mientras la IA genera (busy) el textarea NO se bloquea: el mismo botón
  * pasa a ser "Detener" (RecordStop) hasta que el stream termina.
  */
 export function ChatInput({ onSend, disabled = false, busy = false, onStop }: ChatInputProps): JSX.Element {
   const [value, setValue] = useState('')
+  const [suggestions, setSuggestions] = useState<SlashCommand[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const canSend = !disabled && !busy && value.trim().length > 0
+
+  // Autocompletado de comandos: al escribir `/` (sin espacio todavía) se
+  // listan los comandos registrados que matchean. El sistema es global; acá
+  // solo se muestra.
+  useEffect(() => {
+    const update = (): void => {
+      const trimmed = value.trimStart()
+      if (!trimmed.startsWith('/') || trimmed.includes(' ')) {
+        setSuggestions([])
+        return
+      }
+      setSuggestions(slashCommands.match(trimmed.slice(1)))
+    }
+    update()
+    return slashCommands.subscribe(update)
+  }, [value])
 
   // Auto-resize del textarea (hasta un máximo).
   useEffect(() => {
@@ -42,6 +61,13 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
     el.style.height = 'auto'
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`
   }, [value])
+
+  // Publica el rect del input para que la confirmación de tools se ancle
+  // arriba (mismo lugar que el autocompletado de comandos).
+  useEffect(() => {
+    registerChatInputAnchor(() => formRef.current?.getBoundingClientRect() ?? null)
+    return () => registerChatInputAnchor(null)
+  }, [])
 
   const submit = (): void => {
     const trimmed = value.trim()
@@ -67,14 +93,32 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form ref={formRef} className={styles.form} onSubmit={handleSubmit}>
+      {suggestions.length > 0 ? (
+        <div className={styles.suggestions} role="listbox" aria-label="Comandos">
+          {suggestions.map((command) => (
+            <button
+              key={command.name}
+              type="button"
+              className={styles.suggestion}
+              onClick={() => {
+                setValue(`/${command.name} `)
+                textareaRef.current?.focus()
+              }}
+            >
+              <span className={styles.suggestionName}>/{command.name}</span>
+              <span className={styles.suggestionDesc}>{command.description}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
       <textarea
         ref={textareaRef}
         className={styles.input}
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="Escribí un mensaje…"
+        placeholder="Escribe un mensaje…"
         rows={1}
         disabled={disabled}
         aria-label="Mensaje"
@@ -94,8 +138,6 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
         </IconButton>
 
         <div className={styles.toolbarSpacer} aria-hidden="true" />
-
-        <ModelPicker />
 
         {busy ? (
           <IconButton

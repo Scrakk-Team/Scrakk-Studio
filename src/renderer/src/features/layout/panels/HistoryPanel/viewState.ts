@@ -8,7 +8,7 @@
  * adentro del panel de chat (una columna, como en VS Code). El botón del
  * header vive en el ChatPanel, pero el comando/atajo (`mod+alt+h`) no puede
  * tocar el `useState` de un panel que quizá ni esté montado, así que el flag
- * vive acá: módulo chico, módulo-level, con el mismo patrón de siempre
+ * vive aquí: módulo chico, módulo-level, con el mismo patrón de siempre
  * (Set<Listener> + emit) que el resto de los stores de la app.
  *
  * No se persiste a propósito: es una vista transitoria (misma decisión que el

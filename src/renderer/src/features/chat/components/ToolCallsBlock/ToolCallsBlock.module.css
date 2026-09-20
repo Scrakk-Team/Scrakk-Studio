@@ -4,6 +4,10 @@
   gap: 2px;
   margin-bottom: 2px;
   min-width: 0;
+  /* El texto de las tools no se selecciona: es info de ejecución, no parte
+     de la respuesta de la IA. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Fila de tool: icono + visual. El texto hereda muted para diferenciarlo
@@ -22,4 +26,19 @@
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   line-height: var(--leading-normal);
+}
+
+/* Caja del icono: alto = una línea de texto (1lh) y el glyph centrado.
+   Sin esto el icono (13px) quedaba pegado al borde superior de una línea
+   de 18px y se veía "flotando" arriba del texto. */
+.toolIconBox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1lh;
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  /* Ajuste fino: el glyph apoya 0.5px por encima del centro exacto. */
+  transform: translateY(-0.5px);
 }
