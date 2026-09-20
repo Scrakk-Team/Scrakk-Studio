@@ -117,7 +117,7 @@ export function CommandPalette(): JSX.Element | null {
         <input
           ref={inputRef}
           className={styles.input}
-          placeholder="Escribí un comando…"
+          placeholder="Escribe un comando…"
           value={query}
           onChange={(event) => {
             setQuery(event.target.value)

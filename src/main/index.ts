@@ -12,6 +12,9 @@ import { registerTerminalIpc } from './ipc/terminal'
 import { registerGitIpc } from './ipc/git'
 import { registerAccountIpc } from './account'
 import { registerSocialIpc } from './social'
+import { registerScrakkIpc } from './scrakk'
+import { registerModelsDevIpc } from './models-dev'
+import { registerWebIpc } from './web'
 import {
   registerExtensionHostIpc,
   registerExtensionScheme,
@@ -25,7 +28,7 @@ import { applyPathAugmentation } from './binaries'
 // PATH ANTES QUE NADA: lanzada desde el menú, la app hereda el PATH pelado de la
 // sesión (sin nvm/fnm/volta/~/.local/bin), y entonces `npm`, `node` y `git` no
 // existen para el LSP, la terminal ni el panel de Git — sin ningún error visible.
-// Se aumenta una sola vez acá y todo hijo lo hereda. Ver `binaries.ts`.
+// Se aumenta una sola vez aquí y todo hijo lo hereda. Ver `binaries.ts`.
 applyPathAugmentation()
 
 // Nombre de app ANTES de ready: en Linux define el WM_CLASS/app_id.
@@ -71,6 +74,9 @@ if (!gotTheLock) {
     registerGitIpc()
     registerAccountIpc()
     registerSocialIpc()
+    registerScrakkIpc()
+    registerModelsDevIpc()
+    registerWebIpc()
     registerExtensionHostIpc()
 
     // Links externos (target=_blank) se abren en el navegador del sistema,

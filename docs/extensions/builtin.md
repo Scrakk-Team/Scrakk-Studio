@@ -40,10 +40,10 @@ La clave del glob es `../builtin/<ext-id>/<ruta-del-manifest>`.
 
 ## Cómo crear una
 
-1. Creá la carpeta `services/extensions/builtin/<ext-id>/`.
-2. Escribí el `manifest.json` (ver [manifest.md](manifest.md)) con sus
+1. Crea la carpeta `services/extensions/builtin/<ext-id>/`.
+2. Escribe el `manifest.json` (ver [manifest.md](manifest.md)) con sus
    `contributes`.
-3. Agregá los componentes o la data en las rutas que el manifest referencia,
+3. Agrega los componentes o la data en las rutas que el manifest referencia,
    cada uno en su carpeta con su `.module.css` y su `index.ts`.
 4. La extensión se registra sola en el próximo boot (`bootExtensions()` de
    `main.tsx`). No hace falta tocar nada más.

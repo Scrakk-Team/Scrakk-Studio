@@ -1,5 +1,5 @@
 /* HeaderActionButton — el botón de header mientras se lo arrastra.
-   El look normal lo pone IconButton: acá sólo viven los estados del drag. */
+   El look normal lo pone IconButton: aquí sólo viven los estados del drag. */
 
 /* Mientras se mueve: el botón real queda fantasma en su lugar; el chip que
    sigue al cursor (mismo ícono) es el que "se lleva". */

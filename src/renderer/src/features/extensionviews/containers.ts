@@ -116,7 +116,7 @@ export function rememberContainerView(
 /**
  * Vistas VISIBLES de un contenedor según sus cláusulas `when`.
  *
- * El lector de claves se inyecta (no se importa acá) para que este archivo lo
+ * El lector de claves se inyecta (no se importa aquí) para que este archivo lo
  * pueda usar el boot sin arrastrar el puente del host.
  */
 export function visibleViews(

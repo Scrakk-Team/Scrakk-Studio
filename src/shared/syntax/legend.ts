@@ -59,7 +59,7 @@ export const LEGEND = {
   operator: 21,
   decorator: 22,
   /**
-   * `tag` NO está en la leyenda del LSP. Se agrega acá porque el tema del
+   * `tag` NO está en la leyenda del LSP. Se agrega aquí porque el tema del
    * editor tiene un color propio para etiquetas HTML/XML y sin esta entrada
    * una gramática TextMate no tendría forma de pedirlo (caería en `class`,
    * que en el tema es el color de tipos — incorrecto en `<div>`).
@@ -91,7 +91,7 @@ export const SLOT_NAMES: readonly string[] = [
 /**
  * Leyenda → slot. ESPEJO de `SyntaxHighlighter::LspTokenTypeToSlot` (C++).
  *
- * Si cambiás uno, cambiá el otro: el test `syntax-legend.test.ts` verifica que
+ * Si cambiás uno, cambia el otro: el test `syntax-legend.test.ts` verifica que
  * la tabla sea coherente con `SLOT_TO_LEGEND`, pero no puede leer C++ — por eso
  * el espejo se documenta en los dos lados y este comentario es el contrato.
  */
@@ -141,7 +141,7 @@ export function slotForLegend(legend: number): number {
 
 /**
  * Slot → leyenda. Un slot puede tener varias leyendas (el 6 sale de `type`,
- * `namespace` y `typeParameter`): acá se elige la canónica para que el
+ * `namespace` y `typeParameter`): aquí se elige la canónica para que el
  * round-trip leyenda→slot→leyenda no cambie de color.
  */
 export const SLOT_TO_LEGEND: Record<number, number> = {
@@ -252,7 +252,7 @@ export interface HostToken {
  * relativos como manda la spec) porque es el mismo camino que usa el LSP: un
  * solo decoder en C++ para las cuatro fuentes de color.
  *
- * Precondición que el motor asume y acá se garantiza: los tokens van
+ * Precondición que el motor asume y aquí se garantiza: los tokens van
  * ordenados por (línea, columna) y no se solapan dentro de la línea. Un solape
  * no rompe el pintado (el motor pinta en orden), pero sí desordena los deltas,
  * así que se filtran los tokens inválidos y se ordena antes de codificar.
@@ -299,7 +299,7 @@ export function encodeHostTokens(tokens: HostToken[]): number[] {
  * El motor tiene UN canal de tokens (`SetInnertaSemanticTokens`), así que las
  * fuentes que corren del lado del host no pueden empujar por su cuenta: si lo
  * hicieran, la última en llegar borraría a la otra (el LSP y la gramática
- * TextMate de una extensión se pisarían entre sí). Se fusionan acá.
+ * TextMate de una extensión se pisarían entre sí). Se fusionan aquí.
  */
 export interface HostTokenSource {
   source: SyntaxSource
@@ -312,7 +312,7 @@ export interface HostTokenSource {
  * Regla: en un rango donde dos fuentes declaran color, gana la de mayor
  * prioridad — el LSP sobre la gramática, la gramática sobre el árbol. Es la
  * misma regla del paint list (`mergeSpans`), pero sobre tokens ya resueltos:
- * acá no hay estilos que heredar, sólo un slot por rango.
+ * aquí no hay estilos que heredar, sólo un slot por rango.
  *
  * El algoritmo corta los rangos en los límites de todos los tokens y, en cada
  * tramo, elige la fuente de mayor prioridad (a igual prioridad, la que llegó

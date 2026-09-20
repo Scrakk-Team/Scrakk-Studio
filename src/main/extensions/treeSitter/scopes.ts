@@ -66,7 +66,7 @@ export interface ScopeTokenResult {
  *
  * O sea: el índice que devuelve el parser ya está en la misma unidad que la
  * columna de la línea del editor. Convertirlo "de byte a UTF-16" descoloca todo
- * lo que venga después del primer carácter multibyte. Acá no se convierte: se
+ * lo que venga después del primer carácter multibyte. Aquí no se convierte: se
  * usa el índice tal cual.
  */
 

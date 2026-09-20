@@ -2,7 +2,7 @@
  * Capturas de pantalla (proceso main).
  *
  * ─────────────────────────────────────────────────────────────────────────
- * POR QUÉ ACÁ Y NO EN EL RENDERER
+ * POR QUÉ AQUÍ Y NO EN EL RENDERER
  *
  * El canvas del editor es WebGL: leer sus píxeles desde el renderer no funciona
  * (con `preserveDrawingBuffer: false`, `toDataURL()` devuelve una imagen vacía

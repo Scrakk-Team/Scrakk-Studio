@@ -83,7 +83,7 @@ export function matchesGlob(glob: string, relativePath: string): boolean {
  *
  * Lista corta a propósito: son las que VS Code también ignora por defecto
  * (control de versiones y dependencias instaladas). `out`, `dist` o `build`
- * NO van acá: hay extensiones que justamente buscan artefactos ahí.
+ * NO van aquí: hay extensiones que justamente buscan artefactos ahí.
  */
 export const SKIPPED_DIRS = new Set([
   '.git',

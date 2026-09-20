@@ -6,7 +6,7 @@
  *  - Lectura/escritura SOLO dentro de los roots del workspace abierto.
  *  - Rutas sensibles (~/.ssh, credenciales cloud, llaves privadas) denegadas
  *    SIEMPRE, incluso con permisos amplios.
- * El enforcement corre en el proceso main; acá vive la lógica pura.
+ * El enforcement corre en el proceso main; aquí vive la lógica pura.
  */
 
 export const PERMISSIONS = {

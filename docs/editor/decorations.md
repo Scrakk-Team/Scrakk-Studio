@@ -47,7 +47,7 @@ tiene la misma restricción (su línea por defecto es 1.5 em) y también apoya l
 sierra en el borde inferior.
 
 Sobre el suavizado, sin mentir: el SVG de VS Code lo rasteriza el navegador con
-antialias; acá `DrawLine` emite un **quad sólido** y `SetAntialiasMode` sólo
+antialias; aquí `DrawLine` emite un **quad sólido** y `SetAntialiasMode` sólo
 guarda un flag (no hay AA en el backend GL), así que a 45° el trazo sale
 escalonado. A 1 px de grosor la diferencia es un píxel de borde, no de forma.
 
@@ -83,7 +83,7 @@ desvíen *distinto*.
 > Antes esto era un **stub vacío** (`SetInnertaUnderlines(const wchar_t*) {}` con
 > su `g_underlines` declarado y nunca leído): el host podía mandar subrayados
 > para siempre sin que se pintara un pixel, y no había forma de distinguirlo de
-> "no los pedí".
+> "no los pide".
 
 ## 2. El store (`@services/decorations`)
 

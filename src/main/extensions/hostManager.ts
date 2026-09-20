@@ -301,7 +301,7 @@ export class ExtensionHostManager {
   /** Claves de contexto puestas con `setContext` (por extensión). */
   private readonly contextKeys = new Map<string, Map<string, unknown>>()
   /**
-   * Estado del editor que el RENDERER empuja acá. El manager lo guarda por dos
+   * Estado del editor que el RENDERER empuja aquí. El manager lo guarda por dos
    * razones: (1) un host que arranca después recibe el snapshot completo en
    * `init` (la extensión ve los documentos desde `activate`), y (2) el main no
    * necesita despertar a nadie para responder eso.
@@ -325,7 +325,7 @@ export class ExtensionHostManager {
    * Lo que una extensión recibe en `init` para arrancar como en VS Code:
    * storage ya creado, estado ya leído y sus datos de paquete.
    *
-   * Deliberadamente TODO se resuelve acá (main) y viaja hecho: el host no toca
+   * Deliberadamente TODO se resuelve aquí (main) y viaja hecho: el host no toca
    * el disco ni decide rutas.
    */
   private async activationParams(
@@ -645,7 +645,7 @@ export class ExtensionHostManager {
         const keys = this.contextKeys.get(session.id) ?? new Map<string, unknown>()
         keys.set(key, value)
         this.contextKeys.set(session.id, keys)
-        // La UI también se entera: las claves `when` de menús salen de acá.
+        // La UI también se entera: las claves `when` de menús salen de aquí.
         this.sink.onHostEvent(session.id, 'context/key', { key, value })
       }
       return true
@@ -798,7 +798,7 @@ export class ExtensionHostManager {
   private installHandlers(session: HostSession): void {
     const { peer } = session
 
-    // Acá el mensaje llega directo (ver HostProcessLike).
+    // Aquí el mensaje llega directo (ver HostProcessLike).
     session.child.on('message', (message) => peer.receive(message as HostMessage))
 
     session.child.on('exit', (code) => {
@@ -857,13 +857,13 @@ export class ExtensionHostManager {
 
     // ── Barra de estado y paneles del editor ─────────────────────────────
     // Los items y los paneles se emiten tal cual (son estado de la UI); el
-    // HTML de un panel además se cachea acá, porque lo sirve `scrakk-ext:`.
+    // HTML de un panel además se cachea aquí, porque lo sirve `scrakk-ext:`.
     peer.on('status/item', (payload) => {
       this.sink.onHostEvent(session.id, 'status/item', payload)
     })
 
     // Diagnósticos: se empujan tal cual a la UI, que los lista en el panel de
-    // Problemas. Son estado del host (no se cachean acá): el renderer guarda
+    // Problemas. Son estado del host (no se cachean aquí): el renderer guarda
     // la foto por archivo y la reemplaza en cada cambio.
     peer.on('diagnostics/change', (payload) => {
       this.sink.onHostEvent(session.id, 'diagnostics/change', payload)
@@ -871,7 +871,7 @@ export class ExtensionHostManager {
 
     // Decoraciones del editor (`editor.setDecorations`): mismo camino que los
     // diagnósticos — es estado del host y el renderer guarda la foto por
-    // archivo, así que no se cachea acá.
+    // archivo, así que no se cachea aquí.
     peer.on('decorations/set', (payload) => {
       this.sink.onHostEvent(session.id, 'decorations/set', payload)
     })
@@ -1092,7 +1092,7 @@ export class ExtensionHostManager {
       const { id, args } = raw as { id: string; args: unknown[] }
 
       // 1) Built-in del IDE que se resuelve SIN depender de la UI. `setContext`
-      //    cae acá: es la primera llamada que espera una extensión al activar y
+      //    cae aquí: es la primera llamada que espera una extensión al activar y
       //    no puede quedar colgada por un round-trip.
       const builtin = this.runBuiltinCommand(session, id, args)
       if (builtin !== undefined) return builtin

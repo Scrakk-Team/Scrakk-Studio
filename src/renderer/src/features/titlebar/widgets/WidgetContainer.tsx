@@ -7,7 +7,7 @@ import styles from './WidgetContainer.module.css'
  * WidgetContainer — pinta los widgets registrados de la titlebar.
  *
  * Modular como el sistema de layouts: cada widget se registra en
- * `widgets/registry.ts` (id + lazy component) y acá se monta con
+ * `widgets/registry.ts` (id + lazy component) y aquí se monta con
  * Suspense + el PanelErrorBoundary de layouts (aislamiento por widget).
  */
 export function WidgetContainer(): JSX.Element {

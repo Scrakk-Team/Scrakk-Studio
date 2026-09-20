@@ -72,7 +72,7 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
       <div ref={contentZone.ref} className={styles.slotBody}>
         <div className={styles.emptySlot} role="status" aria-live="polite">
           <p className={styles.emptySlotTitle}>Slot vacío</p>
-          <p className={styles.emptySlotHint}>Arrastrá una tab o un panel acá</p>
+          <p className={styles.emptySlotHint}>Arrastrá una tab o un panel aquí</p>
         </div>
       </div>
     )
@@ -127,7 +127,7 @@ interface SplitPanesProps {
  * Contenido DIVIDIDO de un strip: un panel por tab (montados todos en
  * paralelo) con un ResizeHandle CUADRADO entre ellos — la misma separación
  * que entre los paneles del layout, solo que sin redondeo. La barra de tabs
- * compartida queda ARRIBA (la renderiza SlotBody); acá no hay títulos.
+ * compartida queda ARRIBA (la renderiza SlotBody); aquí no hay títulos.
  */
 function SplitPanes({ stripId, tabs, dir, zoneRef }: SplitPanesProps): JSX.Element {
   // Pesos por panel (flex). Se re-inician solo si cambia la CANTIDAD de tabs.

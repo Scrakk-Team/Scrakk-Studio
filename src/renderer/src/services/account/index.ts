@@ -2,7 +2,7 @@
  * Servicio de cuenta (renderer) — MULTI-CUENTA.
  *
  * Todo pasa por IPC al proceso main. Cada llamada lleva el `accountId` (el
- * `auth.users.id` de esa cuenta), así cada panel maneja la suya. Acá no hay
+ * `auth.users.id` de esa cuenta), así cada panel maneja la suya. Aquí no hay
  * tokens ni claves.
  */
 

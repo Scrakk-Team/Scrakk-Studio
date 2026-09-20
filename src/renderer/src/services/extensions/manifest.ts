@@ -17,6 +17,8 @@ import type { ThemeContribution } from './types/themes/schema'
 import type { LspContribution } from './types/lsp/schema'
 import type { FileIconContribution } from './types/fileIcons/schema'
 import type { ProductIconContribution } from './types/productIcons/schema'
+import type { ToolContribution } from './types/tools/schema'
+import type { SkillContribution } from './types/skills/schema'
 import type {
   PanelContribution,
   ActivityBarContribution,
@@ -72,11 +74,22 @@ export interface ExtensionContributions {
   fileIcons?: FileIconContribution[]
   /** Temas de iconos de producto/UI (SEF productIcons): van al registry global. */
   productIcons?: ProductIconContribution[]
+  /**
+   * Herramientas de IA (SEF `tools`): se registran en el tool registry global
+   * igual que las built-in, con visual propio opcional y ejecución por comando
+   * en el Extension Host.
+   */
+  tools?: ToolContribution[]
+  /**
+   * Skills (SEF `skills`): paquetes de workflows (estándar Agent Skills) que
+   * aporta la extensión, con su `SKILL.md` adentro del paquete.
+   */
+  skills?: SkillContribution[]
 }
 
 /**
  * Las interfaces de cada contribución viven en el schema de su tipo
- * (`types/<kind>/schema.ts`); acá se re-exportan por compatibilidad.
+ * (`types/<kind>/schema.ts`); aquí se re-exportan por compatibilidad.
  */
 export type { PanelContribution } from './types/panels/schema'
 export type { ViewContribution } from './types/views/schema'
@@ -112,7 +125,7 @@ export interface ComponentResolver {
    *
    * Ojo: el factory es un `import()` crudo, NO un componente `React.lazy`.
    * Quien arma un `PanelEntry` lo pasa por `panelComponentLoader()`, que lo
-   * adapta al contrato del layout (`load`) sin tocar React acá.
+   * adapta al contrato del layout (`load`) sin tocar React aquí.
    */
   resolveComponent: (path: string) => () => Promise<{ default: ComponentType }>
   /** Devuelve el componente de ícono (eager) para una ruta del paquete. */

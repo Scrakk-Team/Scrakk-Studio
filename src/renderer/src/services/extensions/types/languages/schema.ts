@@ -10,11 +10,11 @@
  * Separarlos en SEF obligaría a que una extensión declare lo mismo tres veces
  * y a que la UI muestre tres fichas de la misma cosa.
  *
- * Acá es UNA contribución con piezas opcionales. Cada pieza se reporta por
+ * Aquí es UNA contribución con piezas opcionales. Cada pieza se reporta por
  * separado (color ✓, outline ✓, snippets ✗) porque una extensión de lenguaje
  * nunca es "soportada" o "no soportada" en bloque.
  *
- * Sobre la validación: acá se valida la FORMA. Que el archivo exista se
+ * Sobre la validación: aquí se valida la FORMA. Que el archivo exista se
  * verifica al registrar (leyéndolo), no con `ctx.hasModule`: `hasModule` sólo
  * conoce los módulos JS del bundle, y un `.tmLanguage`/`snippets.json` es un
  * asset — preguntarle a `hasModule` por él daba `false` y se caían TODAS las
@@ -252,7 +252,7 @@ function asStringRecordArray(value: unknown): Record<string, string[]> | undefin
 export function parseLanguagesContribution(
   raw: unknown,
   // El contexto se recibe por contrato del handler, pero este tipo NO valida
-  // existencia de archivos acá (ver la nota de arriba sobre `hasModule`).
+  // existencia de archivos aquí (ver la nota de arriba sobre `hasModule`).
   _ctx?: ParseContext
 ): LanguageContribution[] | null {
   const items = Array.isArray(raw) ? raw : [raw]

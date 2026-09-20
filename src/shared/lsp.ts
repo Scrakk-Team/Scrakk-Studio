@@ -46,7 +46,7 @@ export const LSP_IPC = {
   removeDynamicServers: 'lsp:remove-dynamic-servers',
   /**
    * Servers que el usuario APAGÓ (por id). Un server apagado no arranca ni
-   * recibe documentos: es la única forma de que "no quiero este linter acá"
+   * recibe documentos: es la única forma de que "no quiero este linter aquí"
    * sea una decisión real y no un adorno de Ajustes.
    */
   setDisabledServers: 'lsp:set-disabled-servers',

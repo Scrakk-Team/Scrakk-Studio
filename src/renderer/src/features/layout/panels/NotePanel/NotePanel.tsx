@@ -133,7 +133,7 @@ export function NotePanel(): JSX.Element {
                 key={active.id}
                 className={styles.editorInput}
                 defaultValue={active.content}
-                placeholder="Escribí tu nota…"
+                placeholder="Escribe tu nota…"
                 aria-label="Contenido de la nota"
                 spellCheck={false}
                 onChange={(event) => updateNote(active.id, event.target.value)}

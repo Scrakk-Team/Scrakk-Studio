@@ -9,7 +9,7 @@
  * (que se actualiza al guardar/abrir) y la gramática TextMate de una extensión
  * (que se recalcula al tipear) se pisarían en cada cambio.
  *
- * Entonces las fuentes no empujan: PUBLICAN acá (`setSourceTokens`) y este
+ * Entonces las fuentes no empujan: PUBLICAN aquí (`setSourceTokens`) y este
  * módulo fusiona por prioridad (`mergeHostTokens`) y publica el resultado.
  * La prioridad ya está definida en el núcleo compartido — el LSP gana sobre la
  * gramática, la gramática sobre el árbol.

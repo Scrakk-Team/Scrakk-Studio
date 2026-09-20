@@ -18,7 +18,7 @@
  * DOS CASOS, Y EL ORDEN IMPORTA
  *
  * 1. **La extensión lo bundlea** (webpack/esbuild: el 90% de las reales). No
- *    pasa por acá: el `require` sale de su bundle y `vscode` sí lo intercepta
+ *    pasa por aquí: el `require` sale de su bundle y `vscode` sí lo intercepta
  *    el host. Es el caso ideal y no necesita nada nuestro.
  * 2. **La extensión lo declara como dependencia externa** y no lo trae
  *    instalado. Ahí entra este puente: se resuelve desde NUESTRO
@@ -32,7 +32,7 @@
  * ─────────────────────────────────────────────────────────────────────────
  * MIGRACIÓN A OWEAR (leer antes de tocar)
  *
- * Igual que el resto del host: acá no hay nada de Electron ni de stdio. Cuando
+ * Igual que el resto del host: aquí no hay nada de Electron ni de stdio. Cuando
  * Owear reemplace el runtime, este archivo se conserva o se tira entero — no
  * lo conoce ninguna extensión, sólo lo usa el intérprete de módulos del host.
  */

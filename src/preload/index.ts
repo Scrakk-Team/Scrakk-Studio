@@ -35,6 +35,15 @@ import {
 import { WINDOW_CONTROLS_IPC, type WindowApi } from '@shared/window-controls'
 import { SCREENSHOT_IPC } from '@shared/screenshot'
 import { ACCOUNT_IPC } from '@shared/account'
+import { MODELS_DEV_IPC, type ModelsDevCatalog } from '@shared/modelsDev'
+import { WEB_IPC, type WebFetchRequest, type WebSearchRequest } from '@shared/web'
+import {
+  SCRAKK_FS_IPC,
+  type ScrakkChangeEvent,
+  type ScrakkOp,
+  type ScrakkWriteJsonOp,
+  type ScrakkWriteOp
+} from '@shared/scrakk'
 import {
   SOCIAL_IPC,
   type AccountEvent,
@@ -522,6 +531,36 @@ const api: WindowApi = {
         ipcRenderer.removeListener(SOCIAL_IPC.typingChanged, listener)
       }
     }
+  },
+  scrakk: {
+    roots: (projectRoot?: string | null) =>
+      ipcRenderer.invoke(SCRAKK_FS_IPC.roots, projectRoot ?? null),
+    list: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.list, op),
+    read: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.read, op),
+    write: (op: ScrakkWriteOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.write, op),
+    delete: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.delete, op),
+    mkdir: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.mkdir, op),
+    exists: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.exists, op),
+    stat: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.stat, op),
+    readJson: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.readJson, op),
+    writeJson: (op: ScrakkWriteJsonOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.writeJson, op),
+    watch: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.watch, op),
+    unwatch: (op: ScrakkOp) => ipcRenderer.invoke(SCRAKK_FS_IPC.unwatch, op),
+    onChanged: (callback: (event: ScrakkChangeEvent) => void) => {
+      const listener = (_event: IpcRendererEvent, payload: ScrakkChangeEvent): void => callback(payload)
+      ipcRenderer.on(SCRAKK_FS_IPC.changed, listener)
+      return () => {
+        ipcRenderer.removeListener(SCRAKK_FS_IPC.changed, listener)
+      }
+    }
+  },
+  modelsDev: {
+    catalog: () => ipcRenderer.invoke(MODELS_DEV_IPC.catalog) as Promise<ModelsDevCatalog | null>,
+    refresh: () => ipcRenderer.invoke(MODELS_DEV_IPC.refresh) as Promise<ModelsDevCatalog | null>
+  },
+  web: {
+    search: (request: WebSearchRequest) => ipcRenderer.invoke(WEB_IPC.search, request),
+    fetch: (request: WebFetchRequest) => ipcRenderer.invoke(WEB_IPC.fetch, request)
   }
 }
 

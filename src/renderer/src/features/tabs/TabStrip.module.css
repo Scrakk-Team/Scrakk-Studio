@@ -80,7 +80,7 @@
 
 /* Punto dirty (archivo con cambios sin guardar): ocupa el lugar de la X y
    revela la X al hover — convención VS Code. El punto SOLO existe dentro de
-   .closeDirty (el span SIEMPRE se renderiza: oculto por acá, no por React). */
+   .closeDirty (el span SIEMPRE se renderiza: oculto por aquí, no por React). */
 .dirtyDot {
   display: none;
   width: 7px;

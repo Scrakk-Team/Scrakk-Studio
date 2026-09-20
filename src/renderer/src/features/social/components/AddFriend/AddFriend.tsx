@@ -97,8 +97,8 @@ export function AddFriend({ search, onSend }: AddFriendProps): JSX.Element {
       ) : query.trim().length > 0 ? (
         <p className={styles.empty}>
           {query.trim().replace(/^@+/, '').length < SOCIAL_RULES.searchMin
-            ? `Escribí al menos ${SOCIAL_RULES.searchMin} caracteres.`
-            : 'Sin resultados. Probá con otro @usuario o nombre.'}
+            ? `Escribe al menos ${SOCIAL_RULES.searchMin} caracteres.`
+            : 'Sin resultados. Prueba con otro @usuario o nombre.'}
         </p>
       ) : null}
     </div>

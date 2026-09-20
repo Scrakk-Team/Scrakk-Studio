@@ -16,7 +16,7 @@
  *   2. El paquete instalado vive en disco: se resuelve la ruta ABSOLUTA.
  *   3. El MAIN tokeniza (ahí están los archivos y el `.wasm` de Oniguruma) y
  *      devuelve SCOPES, no colores.
- *   4. Acá se resuelve cada stack de scopes a un SLOT del tema (el mismo
+ *   4. Aquí se resuelve cada stack de scopes a un SLOT del tema (el mismo
  *      resolutor que usan los captures de tree-sitter, ver `legend.ts`).
  *   5. El resultado es una lista de tokens que el puente del editor fusiona con
  *      las demás fuentes y empuja al motor.

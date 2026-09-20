@@ -2,7 +2,7 @@
  * Tipos de UI del panel Social.
  *
  * Amigos/mensajes/presencia reales vienen de `@shared/social` (servicio IPC).
- * Acá quedan el perfil propio y la vista.
+ * Aquí quedan el perfil propio y la vista.
  */
 
 import type { PresenceActivity, PresenceStatus } from '@shared/social'

@@ -74,7 +74,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
       })
 
       // Gutter/line numbers: ya los desactiva el preset TERMINAL aplicado en
-      // InnertaCreateView (ApplyViewOpts) — no hay toggles sueltos acá.
+      // InnertaCreateView (ApplyViewOpts) — no hay toggles sueltos aquí.
 
       // Calcular dims REALES: esperar a que el módulo WASM tenga las métricas correctas
       // (getCharWidth puede retornar el fallback8 antes de que el font cargue)

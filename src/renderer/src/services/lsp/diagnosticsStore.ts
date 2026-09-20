@@ -12,7 +12,7 @@
  *
  * Guardar una sola lista por ruta era un bug silencioso: el último que
  * escribía pisaba al otro (el server publicaba y borraba los del linter, y
- * viceversa). Acá cada fuente tiene su propia entrada y la lectura AGRUPA.
+ * viceversa). Aquí cada fuente tiene su propia entrada y la lectura AGRUPA.
  *
  * Suscribible: el panel de Problemas lee `getProblems`/`getAllProblems` sin
  * re-consultar al main. Réplica del modelo del CLI (uri → Vec<Diagnostic>

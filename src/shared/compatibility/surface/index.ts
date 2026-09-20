@@ -1,8 +1,8 @@
 /**
  * Tabla única de la capa de compatibilidad — API pública.
  *
- * De acá salen: el reporte de compatibilidad que ve el usuario al instalar una
- * extensión (`kinds.ts` se deriva de acá), la razón de cada `unsupported()` del
+ * De aquí salen: el reporte de compatibilidad que ve el usuario al instalar una
+ * extensión (`kinds.ts` se deriva de aquí), la razón de cada `unsupported()` del
  * host, y el audit que mantiene la tabla contra el runtime.
  *
  * Uso:

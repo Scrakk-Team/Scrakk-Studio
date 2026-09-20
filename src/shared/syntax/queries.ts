@@ -17,7 +17,7 @@
  *   textobjects.scm → rangos de selección
  *
  * Hoy el engine abre sólo `highlights.scm` e `injections.scm`: `tags.scm` y
- * `locals.scm` están en el repo **y nunca se leen**. La regla acá es la
+ * `locals.scm` están en el repo **y nunca se leen**. La regla aquí es la
  * contraria a propósito: se carga **todo** `.scm`, se le pone su categoría, y
  * lo que no se reconoce viaja igual como `unknown` con su nombre real. El IDE
  * decide dónde pintar el dato; la capa de sintaxis no descarta nada.
@@ -205,7 +205,7 @@ export function capturesOf(queryText: string): string[] {
  *   ("" @injection.language)      ← el texto capturado ES el lenguaje
  *
  * Devuelve lo que puede: una inyección cuyo lenguaje se resuelve en runtime
- * (una variable, un string concatenado) no se puede adivinar acá, y eso está
+ * (una variable, un string concatenado) no se puede adivinar aquí, y eso está
  * bien: el tramo queda con el color del lenguaje raíz y se reporta.
  */
 export function injectionLanguagesOf(queryText: string): string[] {

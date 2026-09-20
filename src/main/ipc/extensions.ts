@@ -339,7 +339,7 @@ export function registerExtensionsIpc(): void {
    * Tokenizado con el parser tree-sitter del PAQUETE (proceso aparte).
    *
    * El manager verifica rutas y sha256 antes de mandar nada al worker, así que
-   * acá no hay nada que validar: si el pedido es inválido, el error sale del
+   * aquí no hay nada que validar: si el pedido es inválido, el error sale del
    * manager y el renderer lo reporta como "este lenguaje no resalta".
    */
   ipcMain.handle(

@@ -254,7 +254,7 @@ export function rootMarkersFor(serverName: string): string[] | undefined {
  *
  * Se resuelve con `resolveExecutable` y no spawneando `which`/`where`: esos dos
  * comandos faltan en instalaciones mínimas (y dependen ellos mismos del PATH,
- * que es justo lo que acá hay que mirar). Además `resolveExecutable` usa el
+ * que es justo lo que aquí hay que mirar). Además `resolveExecutable` usa el
  * PATH AUMENTADO (`binaries.ts`), así que un server instalado con nvm o en
  * `~/.local/bin` cuenta como disponible aunque la app se haya abierto desde el
  * menú del escritorio.
@@ -282,7 +282,7 @@ async function fileExists(filePath: string): Promise<boolean> {
  * muestre la lista completa). Los gated (linters) solo si package.json
  * declara la dependencia.
  *
- * La DISPONIBILIDAD del binario NO filtra acá: se reporta por-server vía
+ * La DISPONIBILIDAD del binario NO filtra aquí: se reporta por-server vía
  * `builtinAvailability` y decide el botón Instalar / auto-instalación al
  * abrir un archivo matcheo.
  */

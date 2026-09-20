@@ -8,7 +8,7 @@
  * points del .vsix se traducen) y el shim del host (qué API existe en
  * runtime). Una decía "supported" y la otra fallaba en silencio.
  *
- * Acá hay UNA entrada por pieza, con su ruta declarada:
+ * Aquí hay UNA entrada por pieza, con su ruta declarada:
  *
  *   route: 'sef'   → se TRADUCE a un kind SEF. Cero runtime, se ve nativo.
  *   route: 'host'  → se EMULA corriendo el código de la extensión.

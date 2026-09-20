@@ -10,7 +10,7 @@ import type { PanelEntry, PanelId } from './types'
 /**
  * Registro de paneles del sistema de layouts.
  *
- * Cualquier componente .tsx puede convertirse en panel: se registra acá con su
+ * Cualquier componente .tsx puede convertirse en panel: se registra aquí con su
  * IMPORT DINÁMICO y el `PanelHost` lo monta dentro de su propio ErrorBoundary.
  * Si ese panel peta, SOLO ese panel muestra el error; el resto de la app sigue
  * viva.

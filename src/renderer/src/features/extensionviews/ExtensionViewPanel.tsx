@@ -11,13 +11,13 @@
  *  - El contenido de la extensión vive en un **iframe** servido por
  *    `scrakk-ext://` con su propia CSP: no comparte DOM ni JS con el IDE.
  *  - Los mensajes del panel pasan por el shim `acquireVsCodeApi()` que inyecta
- *    el main, y acá sólo se reenvían al host.
+ *    el main, y aquí sólo se reenvían al host.
  *  - Un contenedor puede tener VARIAS vistas (VS Code las apila en
  *    secciones): cada una tiene su header plegable y su contenido.
  *  - Si algo falla se dice QUÉ falló; nunca se queda en blanco para siempre.
  *
  * ── DESVÍO CONSCIENTE DE VS CODE ──────────────────────────────────────────
- * VS Code abre TODAS las secciones del contenedor de entrada. Acá arranca
+ * VS Code abre TODAS las secciones del contenedor de entrada. Aquí arranca
  * abierta solo la primera y las demás se montan al abrirse: cada sección
  * monta un iframe y resuelve su vista en el host, así que abrirlas todas es
  * un costo que se paga aunque el usuario no las mire. Una vez abierta, la
@@ -285,7 +285,7 @@ function ExtensionView({
           break
         case 'activate/progress': {
           // `activate` de una extensión NO tiene timeout (igual que en VS Code):
-          // si tarda o se cuelga, acá se ve en qué está, en vez de un
+          // si tarda o se cuelga, aquí se ve en qué está, en vez de un
           // "Iniciando…" mudo para siempre.
           const info = message.payload as { seconds?: number; pending?: string[] } | undefined
           const pending = info?.pending ?? []

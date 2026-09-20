@@ -2,7 +2,7 @@
  * Tipo 'panels' — estado persistido / desregistro.
  *
  * Los paneles en sí los guarda el ExtensionRegistry (fuente única de
- * verdad); acá vive solo la salida limpia por-id que usa el handler.
+ * verdad); aquí vive solo la salida limpia por-id que usa el handler.
  */
 
 import { ExtensionRegistry } from '../../registry'

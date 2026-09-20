@@ -549,7 +549,7 @@ export function createHostRuntime(options: HostRuntimeOptions): HostRuntime {
         if (!bundle) throw new Error('command/execute sin init')
         const params = raw as ExecuteCommandParams
         // NO se limita a los comandos locales: la UI también pide built-ins
-        // del entorno por acá (`workbench.action.*`), y esos los resuelve el
+        // del entorno por aquí (`workbench.action.*`), y esos los resuelve el
         // IDE. Con `executeLocalCommand` el botón de un `viewsWelcome` que
         // llama a un built-in moría con "la extensión no registró el comando".
         return await bundle.executeCommand(params.id, params.args ?? [])

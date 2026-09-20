@@ -73,7 +73,7 @@ const MODE_KEY_PREFIX = 'scrakk-studio:ext-host-mode:'
  *
  * Default `strict` (deny-by-default): la elección de `compat` es del usuario
  * y se guarda por extensión. La UI de Ajustes para cambiarlo todavía no
- * existe — se lee de acá y se puede setear a mano con
+ * existe — se lee de aquí y se puede setear a mano con
  * `setHostMode(id, 'compat')`.
  */
 export function readHostMode(extensionId: string): 'strict' | 'compat' {

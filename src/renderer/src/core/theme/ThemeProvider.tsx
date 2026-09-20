@@ -40,7 +40,7 @@ function getActiveType(): Theme {
 
 /**
  * Módulo core de tema: puente del contexto React hacia el sistema de
- * extensiones de themes (JSON). Los colores los aplica logic.ts; acá solo
+ * extensiones de themes (JSON). Los colores los aplica logic.ts; aquí solo
  * se expone el estado reactivo y las acciones (toggle/comandos).
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {

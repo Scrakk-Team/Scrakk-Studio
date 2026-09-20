@@ -3,7 +3,7 @@
  *
  * Cada entrada traduce UN contribution point a UN kind SEF. Agregar soporte
  * (snippets, grammars, productIcons…) = nueva carpeta en
- * translators/types/<kind>/ + una línea acá. El pipeline itera el registry:
+ * translators/types/<kind>/ + una línea aquí. El pipeline itera el registry:
  * no conoce kinds concretos.
  */
 

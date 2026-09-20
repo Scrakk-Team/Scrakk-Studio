@@ -3,7 +3,7 @@
  *
  * Una entrada por miembro REAL del módulo `vscode` que se inyecta en el
  * Extension Host (medido, no supuesto: el audit de `registry.ts` recorre el
- * api en runtime y falla si aparece algo sin declarar acá).
+ * api en runtime y falla si aparece algo sin declarar aquí).
  *
  * Los grupos (clases de datos y enums) van en UNA entrada con `covers`: así
  * la tabla es legible y el audit sigue siendo exacto, nombre por nombre.

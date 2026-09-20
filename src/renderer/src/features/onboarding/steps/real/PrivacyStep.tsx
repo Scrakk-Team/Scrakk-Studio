@@ -3,7 +3,7 @@
  *
  * Decisión de producto (cerrada):
  *  - Default APAGADA.
- *  - Se pregunta UNA sola vez (acá y en Ajustes → Privacidad).
+ *  - Se pregunta UNA sola vez (aquí y en Ajustes → Privacidad).
  *  - Alcance global, con excepción por extensión más adelante.
  *
  * Honestidad por delante: hoy Scrakk no envía telemetría propia. El valor

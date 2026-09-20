@@ -132,7 +132,7 @@ export function MessageList({ messages, meId, friends, meName, meAvatar, meProfi
           ))
         : null}
       {messages.length === 0 && !loadingMore ? (
-        <p className={styles.empty}>Todavía no hay mensajes. Escribí el primero.</p>
+        <p className={styles.empty}>Todavía no hay mensajes. Escribe el primero.</p>
       ) : (
         messages.map((message) => {
           const day = dayLabel(message.createdAt)

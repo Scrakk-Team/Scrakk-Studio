@@ -15,7 +15,7 @@
  *
  * La versión anterior sólo miraba string y `.value`: un hover en ARRAY (muy
  * común) se pintaba VACÍO, que se lee como "el server no sabe nada de este
- * símbolo" cuando en realidad había dicho algo. Acá se aplanan todas a UN
+ * símbolo" cuando en realidad había dicho algo. Aquí se aplanan todas a UN
  * documento, con los bloques de código armados y separados por `---` (que es
  * como el IDE ya separa dos hovers de servers distintos).
  */

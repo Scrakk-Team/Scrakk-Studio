@@ -8,7 +8,7 @@
  *
  * Al soltar, ejecuta el resolver (por defecto el de tabs: reordenar o mover
  * entre strips). Los componentes renderizan el ghost / indicadores leyendo
- * el estado acá (subscribe).
+ * el estado aquí (subscribe).
  */
 
 import { tabsStore } from '@features/tabs'
@@ -233,7 +233,7 @@ private overlayRectFor(rect: DOMRect, edge: SplitEdge): { x: number; y: number; 
         const tabId = header.getAttribute('data-drag-tab')
         if (!tabId) return
         // Atributos stale (la tab pudo moverse tras un drag previo): el
-        // resolver igual usa findTab como fuente real; acá validamos que
+        // resolver igual usa findTab como fuente real; aquí validamos que
         // la tab siga existiendo.
         const located = tabsStore.findTab(tabId)
         if (!located) return

@@ -182,7 +182,7 @@ function selectScope(ctx: DefaultMenuContext): void {
     selection?.addRange(range)
     armAllowSelectRestore()
   } catch {
-    // Selección no soportada acá: no-op.
+    // Selección no soportada aquí: no-op.
   }
 }
 

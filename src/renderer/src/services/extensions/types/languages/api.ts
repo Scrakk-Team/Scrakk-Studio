@@ -11,7 +11,7 @@
  *     en el `LanguageRegistry`.
  *
  * Un lenguaje registrado NO tokeniza nada por sí solo: eso lo hace el worker
- * (tree-sitter dinámico) o el motor (los 20 compilados). Acá se declara el
+ * (tree-sitter dinámico) o el motor (los 20 compilados). Aquí se declara el
  * lenguaje, se indexan sus datos y se dice con honestidad qué pieza está.
  */
 
@@ -61,7 +61,7 @@ async function usableGrammars(
     }
 
     // tree-sitter: el parser es binario, así que la lectura es una PRUEBA DE
-    // EXISTENCIA (no se parsea el contenido acá).
+    // EXISTENCIA (no se parsea el contenido aquí).
     const parser = await ctx.readFile(grammar.parser)
     if (parser === null) {
       console.warn(`[languages] ${languageId}: falta el parser ${grammar.parser}`)
@@ -179,7 +179,7 @@ export const languagesHandler: AnyExtensionTypeHandler = {
   ): Promise<RegisteredLanguageRef> {
     const language = await buildLanguage(contribution, ctx)
 
-    // El override del usuario se aplica acá, una sola vez: si el lenguaje está
+    // El override del usuario se aplica aquí, una sola vez: si el lenguaje está
     // desactivado, no se registra y no hay `onLanguage`.
     const override = getLanguageOverride(language.id)
     if (override.disabled) {

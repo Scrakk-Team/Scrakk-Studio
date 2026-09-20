@@ -7,7 +7,7 @@
  * "¿Por qué este archivo se ve así?" Es la única herramienta que separa las
  * capas que deciden el color de un carácter:
  *
- *   1. la gramática embebida del motor (no aparece acá: no pasa por el host),
+ *   1. la gramática embebida del motor (no aparece aquí: no pasa por el host),
  *   2. el paquete de lenguaje instalado (gramática TextMate o tree-sitter
  *      dinámico del `.sef`),
  *   3. el language server (semantic tokens),
@@ -214,7 +214,7 @@ export function TokenInspector(): JSX.Element {
       <div className={styles.panel}>
         <div className={styles.empty}>
           <span>No hay archivo activo.</span>
-          <span>Abrí un archivo del proyecto y volvé a abrir este panel.</span>
+          <span>Abre un archivo del proyecto y vuelve a abrir este panel.</span>
         </div>
       </div>
     )
@@ -232,7 +232,7 @@ export function TokenInspector(): JSX.Element {
           <span>Todavía no hay tokens del host para este archivo.</span>
           <span>
             Pasa si el lenguaje no tiene gramática de extensión ni semantic tokens (el motor pinta
-            con sus gramáticas embebidas), o si el archivo se acaba de abrir: esperá un instante y el
+            con sus gramáticas embebidas), o si el archivo se acaba de abrir: espera un instante y el
             panel se actualiza solo.
           </span>
         </div>

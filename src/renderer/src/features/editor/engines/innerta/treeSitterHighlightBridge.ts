@@ -30,7 +30,7 @@
  * REGLAS DE CONVIVENCIA
  *
  * 1. **Quién gana lo decide `selectGrammarEngine()`** (la preferencia del
- *    usuario: `auto` / `treeSitter` / `textMate`). Acá sólo se respeta: si el
+ *    usuario: `auto` / `treeSitter` / `textMate`). Aquí sólo se respeta: si el
  *    elegido es TextMate, este puente no publica ni levanta el proceso.
  * 2. **Sin `.wasm` no hay nada que hacer.** Un parser nativo (`.so`/`.dll`) NO
  *    se carga: requiere permiso explícito y el worker lo rechaza con ese motivo.

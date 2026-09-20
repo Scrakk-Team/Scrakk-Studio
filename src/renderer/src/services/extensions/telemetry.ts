@@ -31,7 +31,7 @@ export function publishTelemetryEnabled(enabled: boolean = getPersistedTelemetry
     window.api?.extensions?.host?.setTelemetryEnabled?.(enabled)
   } catch {
     // Sin puente: el ajuste sigue guardado en el renderer y se publica en el
-    // próximo arranque. Fallar acá no puede romper el arranque de la app.
+    // próximo arranque. Fallar aquí no puede romper el arranque de la app.
   }
 }
 

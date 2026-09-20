@@ -318,7 +318,7 @@ export function ExtensionTreeView({
 
 /**
  * Icono del nodo. Los assets del paquete sí se sirven (`scrakk-ext://`), pero
- * los `ThemeIcon` son codicons: acá queda un punto neutro hasta que exista el
+ * los `ThemeIcon` son codicons: aquí queda un punto neutro hasta que exista el
  * mapeo a los productIcons del tema (mejor un punto que un hueco raro).
  */
 /**

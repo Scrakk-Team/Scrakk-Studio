@@ -2,7 +2,7 @@
  * Ejecutor de los comandos BUILT-IN de VS Code (lado UI).
  *
  * La tabla (qué se puede y qué no) vive en
- * `@shared/compatibility/vscode/commands/builtin` — DATA pura. Acá está lo que
+ * `@shared/compatibility/vscode/commands/builtin` — DATA pura. Aquí está lo que
  * esa tabla NO puede vivir sin: el código que toca los servicios reales del
  * IDE (layout, editor, ajustes, workspace).
  *
@@ -13,7 +13,7 @@
  *     VS Code, así aparecen y se pueden ejecutar (`runCommand`).
  *  2. La EXTENSIÓN: `vscode.commands.executeCommand('workbench.action.…')`
  *     viaja host → main → renderer (`command/execute`, con ARGS) y se resuelve
- *     acá con `runVSCodeCommand`. Los args importan: `vscode.open` recibe la
+ *     aquí con `runVSCodeCommand`. Los args importan: `vscode.open` recibe la
  *     URI, `workbench.view.extension` el contenedor.
  *
  * ─────────────────────────────────────────────────────────────────────────

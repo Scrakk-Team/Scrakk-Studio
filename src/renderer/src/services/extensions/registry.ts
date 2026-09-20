@@ -3,7 +3,7 @@
  *
  * Patrón de la app (como `services/shortcuts/registry.ts`): un único store
  * con `subscribe()`. Los sistemas de la app (layout, activity bar, tabs)
- * leen acá y se re-renderizan al instalarse/quitarse extensiones.
+ * leen aquí y se re-renderizan al instalarse/quitarse extensiones.
  *
  * El registry NO conoce ni el formato del manifest ni cómo se cargan los
  * componentes: solo guarda contribuciones ya resueltas.

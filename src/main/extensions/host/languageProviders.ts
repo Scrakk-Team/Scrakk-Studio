@@ -13,11 +13,11 @@
  *
  * Con los proveedores inertes (lo que había), esa cadena se cortaba en el
  * medio: el server arrancaba, recibía `didOpen`… y NADIE le preguntaba nada.
- * Acá se registran de verdad y el IDE los consulta (`provider/query`), así que
+ * Aquí se registran de verdad y el IDE los consulta (`provider/query`), así que
  * el hover, el "ir a la definición", las referencias y el formateo del server
  * de una extensión llegan al editor.
  *
- * La DECISIÓN (a qué provider le toca, cómo se serializa) vive acá; el
+ * La DECISIÓN (a qué provider le toca, cómo se serializa) vive aquí; el
  * transporte y el ruteo entre hosts, en `providerBridge` del main (una
  * extensión = un host, y el IDE junta las respuestas de todos).
  *
@@ -240,7 +240,7 @@ function toRange(range: ProviderRange): Range {
 
 /**
  * Serializa el resultado a la forma del LSP (lo que ya consumen el hover, el
- * "ir a definición" y el formateo del IDE). Se hace acá, en el host, porque es
+ * "ir a definición" y el formateo del IDE). Se hace aquí, en el host, porque es
  * el único lugar donde existen las clases REALES del API de VS Code.
  */
 export function serialize(kind: LanguageProviderKind, raw: unknown): unknown {
@@ -303,7 +303,7 @@ function markedStringToText(value: unknown): string {
  * Los dos shapes existen y significan lo mismo para el editor: `Location`
  * (`uri` + `range`) es el clásico y `LocationLink` (`targetUri` +
  * `targetSelectionRange`) es el que devuelven tsserver/rust-analyzer. Sin
- * unificar acá, la mitad de los servers "no irían a la definición".
+ * unificar aquí, la mitad de los servers "no irían a la definición".
  */
 export function serializeLocations(raw: unknown): Array<{ uri: string; range: unknown }> {
   const list = Array.isArray(raw) ? raw : [raw]

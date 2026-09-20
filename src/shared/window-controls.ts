@@ -86,4 +86,10 @@ export interface WindowApi {
   account: AccountApi
   /** Social real: amigos + mensajes directos con Realtime. */
   social: SocialApi
+  /** API global de la carpeta `.scrakk` (user/project): CRUD + watch. */
+  scrakk: import('./scrakk').ScrakkFsApi
+  /** Catálogo de modelos (models.dev): proveedores + modelos, con logos. */
+  modelsDev: import('./modelsDev').ModelsDevApi
+  /** Búsqueda y fetch web (main, sin CORS, con protección SSRF). */
+  web: import('./web').WebApi
 }

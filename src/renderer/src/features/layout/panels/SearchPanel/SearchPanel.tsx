@@ -99,9 +99,9 @@ export function SearchPanel(): JSX.Element {
       </div>
 
       {!root ? (
-        <p className={styles.empty}>Abrí una carpeta para buscar en el workspace.</p>
+        <p className={styles.empty}>Abre una carpeta para buscar en el workspace.</p>
       ) : !query.trim() ? (
-        <p className={styles.empty}>Escribí para buscar en el workspace.</p>
+        <p className={styles.empty}>Escribe para buscar en el workspace.</p>
       ) : searching && matches.length === 0 ? (
         <p className={styles.empty}>Buscando…</p>
       ) : error ? (

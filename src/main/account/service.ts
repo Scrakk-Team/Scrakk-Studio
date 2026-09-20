@@ -88,7 +88,7 @@ export async function requestCode(req: RequestCodeRequest): Promise<AccountResul
     if (status >= 200 && status < 300 && data?.ok !== false) return { ok: true, data: null }
     return fail(mapApiError(status, data?.error), data?.error ?? 'No se pudo enviar el código')
   } catch {
-    return fail('network', 'No pudimos contactar el servidor. Revisá tu conexión.')
+    return fail('network', 'No pudimos contactar el servidor. Revisa tu conexión.')
   }
 }
 
@@ -118,7 +118,7 @@ export async function verifyCode(req: VerifyCodeRequest): Promise<AccountResult<
     }
     login = data
   } catch {
-    return fail('network', 'No pudimos contactar el servidor. Revisá tu conexión.')
+    return fail('network', 'No pudimos contactar el servidor. Revisa tu conexión.')
   }
 
   const userId = login.user?.id
@@ -154,7 +154,7 @@ function normalizeProfile(
 ): { ok: true; value: Normalized } | { ok: false; code: AccountErrorCode; error: string } {
   const displayName = (input.displayName ?? '').trim()
   if (opts.requireName && displayName.length === 0) {
-    return { ok: false, code: 'invalid_input', error: 'Poné tu nombre' }
+    return { ok: false, code: 'invalid_input', error: 'Pon tu nombre' }
   }
   if (displayName.length > ACCOUNT_RULES.displayNameMax) {
     return { ok: false, code: 'invalid_input', error: 'Nombre demasiado largo' }
@@ -272,7 +272,7 @@ async function applyProfile(
   fields: Normalized
 ): Promise<AccountResult<AccountProfile>> {
   const client = await getClientFor(accountId)
-  if (!client) return fail('session_expired', 'Tu sesión expiró. Volvé a entrar.')
+  if (!client) return fail('session_expired', 'Tu sesión expiró. Vuelve a entrar.')
   const account = getAccount(accountId)
   const email = account?.profile.email ?? ''
 

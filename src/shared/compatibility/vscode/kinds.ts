@@ -11,7 +11,7 @@
  * Ya NO es una lista propia: `KIND_TABLE` es una PROYECCIÓN de la tabla única
  * de superficie (`shared/compatibility/surface/`). Era el punto donde antes
  * había dos verdades — esta y el shim del host — y podían divergir. Cambiar
- * el estado de un tipo es cambiar UNA entrada allá; acá no se edita nada.
+ * el estado de un tipo es cambiar UNA entrada allá; aquí no se edita nada.
  */
 
 import { getSurfaceNamespace, kindSupportOf } from '../surface'

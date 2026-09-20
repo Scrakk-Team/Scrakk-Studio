@@ -556,7 +556,7 @@ regenera los fragmentos del wasm (`tools/tui /build-wasm`) y recompila con
 
 ### 12.7 El motor también lee `folds.scm` (lenguajes de fábrica)
 
-Hasta acá el plegado por árbol sólo llegaba por el host (`SetInnertaFoldingRanges`,
+Hasta aquí el plegado por árbol sólo llegaba por el host (`SetInnertaFoldingRanges`,
 que es el camino de la gramática dinámica y del `.sef`). Un lenguaje EMBEBIDO no
 tiene host que le empuje nada, así que plegaba por indentación aunque el árbol
 supiera dónde empieza y termina cada bloque.

@@ -4,7 +4,7 @@
  * ─────────────────────────────────────────────────────────────────────────
  * POR QUÉ ESTÁ SEPARADO DEL PROCESO
  *
- * El proceso (`entry.ts`) es sólo transporte: recibe un mensaje, llama acá y
+ * El proceso (`entry.ts`) es sólo transporte: recibe un mensaje, llama aquí y
  * contesta. Toda la lógica que se puede probar sin levantar un proceso vive en
  * este archivo: carga del `.wasm`, caché de parser y queries, el armado de
  * tokens y los DATOS del árbol (símbolos, plegado, inyecciones, alcances).

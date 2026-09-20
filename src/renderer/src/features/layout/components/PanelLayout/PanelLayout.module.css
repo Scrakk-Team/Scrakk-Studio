@@ -116,7 +116,7 @@
 }
 
 /* Contenido DIVIDIDO de un strip (split de contenido): la barra de tabs es
-   UNA y compartida arriba; acá viven los paneles, uno por tab, separados por
+   UNA y compartida arriba; aquí viven los paneles, uno por tab, separados por
    el ResizeHandle CUADRADO (la misma separación que entre paneles, sin
    redondeo). No hay títulos ni barras por lado. */
 .splitPanes {

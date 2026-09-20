@@ -16,11 +16,11 @@
  * El IDE pregunta por el canal del LSP (`lsp:request`) porque es su única
  * superficie para "dame el hover de esta posición". Este módulo es el que
  * permite que esa misma pregunta llegue a los hosts de extensiones, sin que el
- * `LspManager` sepa que existen: el IPC del LSP consulta acá y AGREGA.
+ * `LspManager` sepa que existen: el IPC del LSP consulta aquí y AGREGA.
  *
  * Por qué un registro de una sola función y no un mapa por extensión: el dueño
  * de los hosts es el IPC del Extension Host (`hostManager`), y ese módulo
- * registra acá UNA función que sabe recorrerlos. Así este archivo no importa
+ * registra aquí UNA función que sabe recorrerlos. Así este archivo no importa
  * nada de extensiones (y no se crea un ciclo con el IPC del LSP).
  *
  * ─────────────────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ export function hasExtensionProviders(): boolean {
  * Consulta a TODAS las extensiones con host y devuelve las que opinan.
  *
  * Las que no registraron un proveedor para ese tipo no aparecen: el host
- * responde `matched: false` y acá se filtra, así el llamador no tiene que
+ * responde `matched: false` y aquí se filtra, así el llamador no tiene que
  * adivinar de quién es cada respuesta.
  */
 export async function queryExtensionProviders(

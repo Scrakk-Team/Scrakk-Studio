@@ -124,7 +124,7 @@ export const BUILTIN_VSCODE_COMMANDS: BuiltinCommandEntry[] = [
     id: 'workbench.action.terminal.toggleTerminal',
     label: 'Mostrar/ocultar la terminal',
     handler: 'terminal.focus',
-    note: 'el toggle real vive en el IDE; acá enfoca (abrir una terminal ya la muestra)'
+    note: 'el toggle real vive en el IDE; aquí enfoca (abrir una terminal ya la muestra)'
   },
   {
     id: 'workbench.action.terminal.new',

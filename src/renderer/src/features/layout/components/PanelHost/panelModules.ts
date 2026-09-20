@@ -13,7 +13,7 @@
  *
  * No es teoría: los loaders de paneles de extensión
  * (`ExtensionViewPanelLoader`, y el `panelComponentLoader` del manifest SEF)
- * ya documentan lo mismo y por eso NO usan `lazy`. Acá es igual para los
+ * ya documentan lo mismo y por eso NO usan `lazy`. Aquí es igual para los
  * paneles built-in: `useState` + import dinámico. Cuando el módulo llega,
  * React re-renderiza como con cualquier setState, y el panel nunca queda
  * colgado.

@@ -6,7 +6,7 @@ Una extensión aporta contribuciones bajo `manifest.contributes`. El loader es
 sin handler se loguea y se saltea; la app nunca se rompe por una extensión
 rota.
 
-Los **diez tipos** que existen hoy:
+Los **doce tipos** que existen hoy:
 
 | Key en `contributes` | Qué aporta | Dónde se monta | Código de la extensión |
 | --- | --- | --- | --- |
@@ -20,6 +20,8 @@ Los **diez tipos** que existen hoy:
 | `encodings` | Encodings de texto | Apertura/guardado de archivos | No |
 | `notifications` | Notificaciones de la extensión | Centro de notificaciones | No |
 | `lspServers` | Language server | Runtime del proceso main | No (lo lanza el IDE) |
+| `tools` | Herramienta de IA (con visual propio opcional) | Chat con IA + Ajustes → Chat | **Sí** |
+| `skills` | Skills (workflows Agent Skills) | Chat con IA + Ajustes → Chat | No (lee `SKILL.md`) |
 
 Cada tipo vive en `services/extensions/types/<kind>/` con la misma estructura:
 `schema.ts` (validación pura) · `api.ts` (handler del registry) · `logic.ts`
@@ -106,7 +108,7 @@ contenido que la extensión declara para cuando su vista está vacía):
       "collapsed": true,
       "hidden": false,
       "welcome": [
-        { "contents": "Nada por acá.\n[Crear](command:pub.ext.create)", "when": "ext.empty" }
+        { "contents": "Nada por aquí.\n[Crear](command:pub.ext.create)", "when": "ext.empty" }
       ]
     }
   ]
@@ -125,7 +127,7 @@ Ver [views/view.md](views/view.md).
 }
 ```
 
-A diferencia de `panels`/`activityBar`/`centerTabs`, acá el `path` apunta a
+A diferencia de `panels`/`activityBar`/`centerTabs`, aquí el `path` apunta a
 **data** (JSON), no a código: el handler la lee del paquete
 (`ctx.readFile`), la normaliza con su schema y la registra. Los temas builtin
 se resuelven embebidos por convención de carpeta.
@@ -149,6 +151,68 @@ porque el loader es genérico, y el hueco es de tipado, no de runtime.
 
 Apunta a la definición de un language server; el registro real ocurre en el
 proceso main y el renderer solo consume su estado.
+
+## tools
+
+Herramientas de IA que la extensión aporta al chat. Se registran en el mismo
+registry que las tools built-in (misma forma, mismo enable/disable, mismo
+visual), pero el código de ejecución vive en el paquete: la tool despacha un
+**comando** que corre en el Extension Host.
+
+```json
+{
+  "tools": [
+    {
+      "name": "acme_deploy",
+      "label": "Deploy",
+      "description": "Despliega el proyecto actual.",
+      "parameters": {
+        "type": "object",
+        "properties": { "environment": { "type": "string", "description": "prod | staging" } },
+        "required": ["environment"]
+      },
+      "command": "acme.deploy",
+      "category": "extension",
+      "dangerLevel": "medium",
+      "enabledByDefault": false,
+      "icon": "server",
+      "visual": "tools/deploy/visual.tsx",
+      "visualCss": "tools/deploy/visual.css"
+    }
+  ]
+}
+```
+
+- `command`: id que la extensión registra con `commands.registerCommand`. El
+  resultado se devuelve al modelo como texto (JSON si es un objeto).
+- `visual` es opcional: un módulo React del paquete que recibe
+  `{ args, result, status }`, igual que las tools internas.
+- `permissions` acepta las mismas reglas del motor de políticas
+  (`path_block`, `size_limit`, …).
+- Una extensión **no puede pisar** una tool built-in: el registry rechaza el
+  nombre duplicado.
+
+Ver [tools.md](tools.md).
+
+## skills
+
+Paquetes de skills (estándar Agent Skills): cada entrada apunta a un `SKILL.md`
+dentro del paquete. El modelo ve nombre + descripción y carga el contenido solo
+cuando lo necesita.
+
+```json
+{
+  "skills": [
+    {
+      "name": "release-notes",
+      "description": "Genera notas de release desde los PRs mergeados.",
+      "path": "skills/release-notes/SKILL.md"
+    }
+  ]
+}
+```
+
+Ver [skills.md](skills.md).
 
 ## Reglas comunes
 

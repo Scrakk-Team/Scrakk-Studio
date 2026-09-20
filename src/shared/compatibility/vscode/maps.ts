@@ -10,14 +10,14 @@
  * IDE pinta árboles), `createWebviewPanel` → "webview no soportada" (hay
  * paneles de webview en el editor).
  *
- * El reporte de cobertura que ve el usuario al instalar sale de acá, así que
+ * El reporte de cobertura que ve el usuario al instalar sale de aquí, así que
  * mentir en este archivo es mentirle al usuario. Ahora:
  *
  *  - El lado DECLARATIVO es una PROYECCIÓN de la tabla única
  *    (`surface/namespaces/contributes`): una sola verdad, sin duplicar.
  *  - El lado de CÓDIGO (muestreo por `includes` del bundle) está escrito a
  *    mano —es una heurística, no una promesa— pero cada fila dice el estado
- *    REAL del host, y hay un test que verifica que acá no diga `none` para
+ *    REAL del host, y hay un test que verifica que aquí no diga `none` para
  *    algo que el host sí implementa.
  */
 

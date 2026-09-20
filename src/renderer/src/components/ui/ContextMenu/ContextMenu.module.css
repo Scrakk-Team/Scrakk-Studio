@@ -83,6 +83,23 @@
   white-space: nowrap;
 }
 
+/* Item de dos líneas: label arriba y sublabel muted abajo. */
+.itemText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sublabel {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .shortcut {
   margin-left: auto;
   padding-left: 16px;

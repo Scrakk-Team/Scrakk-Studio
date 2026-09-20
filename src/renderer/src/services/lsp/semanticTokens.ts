@@ -2,7 +2,7 @@
  * Semantic tokens LSP — decodificador del formato delta del protocolo.
  *
  * El server manda data = [deltaLine, deltaStart, length, type, modifiers, …]
- * (5 números por token). Acá se convierte a posiciones absolutas, listas
+ * (5 números por token). Aquí se convierte a posiciones absolutas, listas
  * para pintar en el engine.
  */
 

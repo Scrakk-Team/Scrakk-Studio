@@ -2,7 +2,7 @@
  * Servers LSP APAGADOS por el usuario (persistido en el renderer).
  *
  * ─────────────────────────────────────────────────────────────────────────
- * POR QUÉ LA DECISIÓN VIVE ACÁ Y SE EMPUJA
+ * POR QUÉ LA DECISIÓN VIVE AQUÍ Y SE EMPUJA
  *
  * El `LspManager` es del main y no tiene storage propio: la preferencia se
  * guarda donde vive el resto de los ajustes del usuario (localStorage) y se

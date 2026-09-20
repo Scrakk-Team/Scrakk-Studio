@@ -3,7 +3,7 @@
  *
  * `window.createStatusBarItem` es de las primeras cosas que hace una extensión
  * de paneles al activarse (contador de anclas, estado de conexión, versión…).
- * El item vive acá (estado del host) y cada mutación se empuja al renderer, que
+ * El item vive aquí (estado del host) y cada mutación se empuja al renderer, que
  * lo dibuja con el lenguaje visual de sus propios chips. El click corre el
  * comando por el registry REAL del IDE.
  *
@@ -36,7 +36,7 @@ export const StatusBarAlignment = { Left: 1, Right: 2 } as const
 
 /**
  * Saca el codicon del texto (`$(bug) 3 problemas` → icono `bug` + resto).
- * VS Code lo renderiza igual; acá la UI necesita el icono aparte.
+ * VS Code lo renderiza igual; aquí la UI necesita el icono aparte.
  */
 export function splitCodicon(text: string): { icon?: string; text: string } {
   const match = /^\s*\$\(([a-zA-Z0-9-]+)\)\s*/.exec(text)

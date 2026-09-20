@@ -14,7 +14,7 @@
  * }
  * ```
  *
- * Reportar acá la versión de Scrakk (`0.x`) hacía que **toda extensión que use
+ * Reportar aquí la versión de Scrakk (`0.x`) hacía que **toda extensión que use
  * la lib real del protocolo muriera al construir su cliente**, con un mensaje
  * que habla de VS Code y no dice nada del host. Se reporta la versión del API
  * que replicamos, que es el dato que el campo promete.

@@ -67,7 +67,7 @@ export function getLiveCodec(id: string): EncodingModuleContract | undefined {
 /**
  * Evalúa el source del módulo y valida el contrato.
  * Soporta: `export default {...}` (ESM transpilado por esbuild a data-URL
- * ya lo trae como módulo ESM real — acá llega el bundle compilado).
+ * ya lo trae como módulo ESM real — aquí llega el bundle compilado).
  */
 function evaluateModule(source: string, id: string): EncodingModuleContract | null {
   try {

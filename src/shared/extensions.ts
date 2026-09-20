@@ -66,7 +66,7 @@ export interface TokenizeRequest {
 export interface TokenizeResult {
   ok: boolean
   error?: string
-  /** Stacks de scope únicos: los tokens apuntan acá por índice. */
+  /** Stacks de scope únicos: los tokens apuntan aquí por índice. */
   scopeSets: string[][]
   /** `start`/`end` en columnas UTF-16 de la línea (0-based). */
   tokens: Array<{ line: number; start: number; end: number; scopes: number }>

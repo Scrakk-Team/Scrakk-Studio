@@ -49,7 +49,7 @@ function pushTokens(mod: InnertaModule, path: string): void {
     .then((result) => {
       const tokens = toHostTokens(result?.data)
       setSourceTokens(mod, path, 'semanticTokens', tokens.length > 0 ? tokens : null)
-      // Procedencia para el panel de inspección. Acá el "scope" es el tipo de
+      // Procedencia para el panel de inspección. Aquí el "scope" es el tipo de
       // la leyenda del server (`keyword`, `variable`): es lo único que el
       // protocolo semántico dice, y confundirlo con un scope TextMate
       // mostraría un dato inventado.

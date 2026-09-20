@@ -110,7 +110,7 @@ export function parseViewContributions(
 /**
  * `welcome` del manifest SEF → entradas válidas.
  *
- * El traductor ya descartó lo que no se podía leer; acá se filtra lo que no
+ * El traductor ya descartó lo que no se podía leer; aquí se filtra lo que no
  * tiene contenido (una entrada vacía no reemplaza el estado vacío del IDE por
  * otro igual de mudo).
  */

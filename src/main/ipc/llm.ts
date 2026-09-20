@@ -34,6 +34,7 @@ function isValidRequest(request: unknown): request is LlmStreamRequest {
     typeof r.model === 'string' &&
     typeof r.apiKey === 'string' &&
     (r.thinkingMode === undefined || typeof r.thinkingMode === 'string') &&
+    (r.variant === undefined || typeof r.variant === 'string') &&
     (r.tools === undefined || Array.isArray(r.tools)) &&
     Array.isArray(r.messages) &&
     r.messages.length > 0 &&
@@ -64,40 +65,60 @@ function sendEvent(sender: WebContents, channel: string, payload: unknown): void
 const activeStreams = new Map<string, AbortController>()
 
 /**
+ * Si el proveedor deja de mandar bytes por este tiempo, se corta con error.
+ * Es un timeout de INACTIVIDAD, no total: una generación larga (o un modelo
+ * que piensa mucho) puede durar lo que necesite mientras siga enviando datos.
+ */
+const IDLE_TIMEOUT_MS = 120_000
+
+/**
  * Corre el fetch en stream (SSE) y emite los deltas por IPC.
  * `choices[0].delta.content` → contenido; `reasoning_content`/`reasoning` →
  * razonamiento (DeepSeek usa el primero, OpenRouter el segundo).
  */
 async function runStream(sender: WebContents, request: LlmStreamRequest): Promise<void> {
-  const { requestId, baseUrl, model, apiKey, headers, messages, thinkingMode, tools } = request
+  const { requestId, baseUrl, model, apiKey, headers, messages, thinkingMode, tools, variant } = request
   const controller = new AbortController()
   activeStreams.set(requestId, controller)
+  let idleTimedOut = false
+  let connectTimedOut = false
 
   try {
     const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
-    const extraBody = buildThinkingBody(model, (thinkingMode as ThinkingMode) ?? 'auto')
+    const extraBody = buildThinkingBody(model, (thinkingMode as ThinkingMode) ?? 'auto', variant)
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        // Primero los del proveedor, después los críticos: el renderer
-        // no puede pisar Content-Type ni Authorization.
-        ...(headers ?? {}),
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        stream: true,
-        // Schemas de tools: el modelo puede invocarlas (function calling).
-        ...(tools && tools.length > 0 ? { tools, tool_choice: 'auto' } : {}),
-        ...extraBody
-      }),
-      // Un proveedor colgado no debe dejar el chat en isBusy para siempre;
-      // el controller propio permite cortar desde el botón "Detener".
-      signal: AbortSignal.any([AbortSignal.timeout(180_000), controller.signal])
-    })
+    // Corte si el proveedor ni siquiera devuelve cabeceras (conexión colgada).
+    const connectTimer = setTimeout(() => {
+      connectTimedOut = true
+      controller.abort()
+    }, IDLE_TIMEOUT_MS)
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          // Primero los del proveedor, después los críticos: el renderer
+          // no puede pisar Content-Type ni Authorization.
+          ...(headers ?? {}),
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          stream: true,
+          // Schemas de tools: el modelo puede invocarlas (function calling).
+          ...(tools && tools.length > 0 ? { tools, tool_choice: 'auto' } : {}),
+          ...extraBody
+        }),
+        // Solo el controller propio (botón "Detener"); el corte por silencio se
+        // maneja por lectura, no con un timeout total.
+        signal: controller.signal
+      })
+    } finally {
+      clearTimeout(connectTimer)
+    }
 
     if (!response.ok) {
       const body = await response.text().catch(() => '')
@@ -126,8 +147,28 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
     // argumentos partidos en chunks: primero id, después name/arguments).
     const streamedToolCalls: Array<LlmToolCall | undefined> = []
 
+    // Lectura con timeout de INACTIVIDAD: si no llega ningún byte en
+    // IDLE_TIMEOUT_MS, se aborta. Cada byte recibido reinicia el reloj.
+    const readWithIdleTimeout = async (): Promise<{ done: boolean; value?: Uint8Array }> => {
+      let timer: ReturnType<typeof setTimeout> | undefined
+      try {
+        return await Promise.race([
+          reader.read(),
+          new Promise<never>((_resolve, reject) => {
+            timer = setTimeout(() => {
+              idleTimedOut = true
+              controller.abort()
+              reject(new Error('idle-timeout'))
+            }, IDLE_TIMEOUT_MS)
+          })
+        ])
+      } finally {
+        if (timer) clearTimeout(timer)
+      }
+    }
+
     while (true) {
-      const { done, value } = await reader.read()
+      const { done, value } = await readWithIdleTimeout()
       if (done) break
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
@@ -194,6 +235,22 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
       reasoning: fullReasoning
     })
   } catch (error) {
+    // Corte por inactividad: el proveedor dejó de enviar datos.
+    if (idleTimedOut) {
+      sendEvent(sender, LLM_IPC.chatStreamError, {
+        requestId,
+        error: 'El proveedor dejó de enviar datos (2 min sin respuesta).'
+      })
+      return
+    }
+    // El proveedor no devolvió cabeceras a tiempo.
+    if (connectTimedOut) {
+      sendEvent(sender, LLM_IPC.chatStreamError, {
+        requestId,
+        error: 'El proveedor no respondió (2 min).'
+      })
+      return
+    }
     // Abort por "Detener": no es un error, se avisa y se conserva lo streamado.
     if (controller.signal.aborted) {
       sendEvent(sender, LLM_IPC.chatStreamStopped, { requestId })
@@ -202,7 +259,7 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
     if (error instanceof Error && error.name === 'TimeoutError') {
       sendEvent(sender, LLM_IPC.chatStreamError, {
         requestId,
-        error: 'El proveedor tardó demasiado en responder (3 min).'
+        error: 'El proveedor tardó demasiado en responder.'
       })
     } else {
       const message = error instanceof Error ? error.message : String(error)

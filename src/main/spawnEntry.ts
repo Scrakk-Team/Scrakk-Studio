@@ -21,7 +21,7 @@
  *
  * La solución de Electron es la de siempre: `asarUnpack` de esos scripts y
  * resolver la ruta a `app.asar.unpacked/…`, que es un archivo REAL en disco.
- * Acá se busca el desempacado y, si no está (dev, o un asar sin desempacar), se
+ * Aquí se busca el desempacado y, si no está (dev, o un asar sin desempacar), se
  * devuelve la ruta de siempre: nadie se queda sin arrancar por esto.
  */
 

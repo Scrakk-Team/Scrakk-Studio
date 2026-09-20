@@ -19,7 +19,7 @@
  *
  * La semántica es la de VS Code (`colorThemeData.ts` → `nameMatcher` y
  * `textMateScopeMatcher.ts` → `createMatchers`), copiada a propósito: un tema
- * de VS Code tiene que resolver IGUAL acá. Diferencias deliberadas: `0` y `-1`
+ * de VS Code tiene que resolver IGUAL aquí. Diferencias deliberadas: `0` y `-1`
  * se devuelven explícitos para poder testear "no matchea".
  * ─────────────────────────────────────────────────────────────────────────
  */
@@ -45,7 +45,7 @@ export const NO_MATCH = -1
 export function scopeMatches(thisScope: string, target: string): boolean {
   if (!thisScope || !target) return false
   // Un capture de tree-sitter se escribe `@variable.parameter`: el `@` marca
-  // que es un capture y NO es parte del nombre. Se normaliza acá (y no en
+  // que es un capture y NO es parte del nombre. Se normaliza aquí (y no en
   // quien construye el stack) para que `@variable.parameter` y
   // `variable.parameter.function.js` matcheen contra los MISMOS selectores:
   // ésa es la unificación que sostiene todo `legend.ts`.

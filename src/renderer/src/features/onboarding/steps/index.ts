@@ -3,7 +3,7 @@
  *
  * Este archivo es el ÚNICO que conoce el orden y el catálogo completo: cada
  * paso vive en su carpeta, sabe pintarse solo y declara si es real o fake.
- * Agregar un paso = crear el componente y sumar una entrada acá; el wizard
+ * Agregar un paso = crear el componente y sumar una entrada aquí; el wizard
  * no cambia (se re-ordena solo por `order`).
  *
  * Fake = maqueta con datos de mentira, SIN servicios reales (tests/onboarding
@@ -34,7 +34,7 @@ export const BUILTIN_ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'theme',
     label: 'Apariencia',
-    title: 'Elegí cómo se ve',
+    title: 'Elige cómo se ve',
     subtitle: 'Los temas se aplican al instante y quedan guardados.',
     icon: 'grid',
     kind: 'real',
@@ -44,7 +44,7 @@ export const BUILTIN_ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'privacy',
     label: 'Privacidad',
-    title: 'Vos decidís qué se comparte',
+    title: 'Tú decides qué se comparte',
     subtitle: 'Una sola vez, sin insistir: se cambia cuando quieras desde Ajustes.',
     icon: 'shield-check',
     kind: 'real',
@@ -55,7 +55,7 @@ export const BUILTIN_ONBOARDING_STEPS: OnboardingStep[] = [
     id: 'keymap',
     label: 'Atajos',
     title: 'Atajos a tu manera',
-    subtitle: 'Si venís de otro editor, arrancá con sus combinaciones.',
+    subtitle: 'Si vienes de otro editor, arrancá con sus combinaciones.',
     icon: 'keyboard',
     kind: 'fake',
     order: 40,
@@ -65,7 +65,7 @@ export const BUILTIN_ONBOARDING_STEPS: OnboardingStep[] = [
     id: 'ready',
     label: 'Listo',
     title: 'Todo listo',
-    subtitle: 'Revisá lo elegido o empezá a usar Scrakk.',
+    subtitle: 'Revisa lo elegido o empieza a usar Scrakk.',
     icon: 'check',
     kind: 'fake',
     order: 50,

@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-/** Módulo crudo de emscripten — EM_JS llama acá (Module._innertaOn*). */
+/** Módulo crudo de emscripten — EM_JS llama aquí (Module._innertaOn*). */
 let rawModule: Record<string, unknown> | null = null
 
 export function getInnertaRawModule(): Record<string, unknown> | null {
@@ -114,7 +114,7 @@ const guardedAdd: AddEventListenerFn = (type, listener, options) => {
 /** Canvas del módulo que se está cargando (se setea por carga en curso). */
 let getGuardedCanvas: () => HTMLCanvasElement | null = () => null
 
-/** Entra al guard: desde acá TODO listener key* con capture que se registre
+/** Entra al guard: desde aquí TODO listener key* con capture que se registre
  *  en `window` queda envuelto (solo corre si el evento va al canvas dado).
  *  Devuelve el getter previo para restaurarlo al salir. */
 function enterKeyboardGuard(getCanvas: () => HTMLCanvasElement | null): () => HTMLCanvasElement | null {
@@ -197,10 +197,10 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
   return {
     init(x: number, y: number, w: number, h: number) {
       // El puerto GLFW de emscripten lee Module['canvas'] durante InitInnerta.
-      // Se asigna acá (no al crear el módulo): así el canvas es el del host
+      // Se asigna aquí (no al crear el módulo): así el canvas es el del host
       // activo aunque el panel se haya remontado (p. ej. StrictMode en dev).
       if (currentCanvas) _raw.canvas = currentCanvas
-      // Guard: glfwInit corre acá y registra sus key handlers globales.
+      // Guard: glfwInit corre aquí y registra sus key handlers globales.
       withKeyboardListenerGuard(() => currentCanvas, () => {
         _raw._InitInnerta(0, x, y, w, h)
         _raw._SetInnertaVisible(1)

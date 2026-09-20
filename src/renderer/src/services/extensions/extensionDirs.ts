@@ -14,7 +14,7 @@
  * sería justo lo que hay que evitar). Esa ruta necesita el directorio.
  *
  * Se llena al cargar cada extensión instalada, así que está disponible para
- * todo lo que corra después del boot. Las builtin no están acá a propósito: su
+ * todo lo que corra después del boot. Las builtin no están aquí a propósito: su
  * data es embebida y no tienen archivos en disco.
  * ─────────────────────────────────────────────────────────────────────────
  */

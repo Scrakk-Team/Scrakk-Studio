@@ -18,7 +18,7 @@
  * referencia por esa ruta.
  *
  * Lo que NO se toca: el código (`main`) de la extensión, si lo tiene. Un
- * language server propio corre por el Extension Host y/o por `lspServers`; acá
+ * language server propio corre por el Extension Host y/o por `lspServers`; aquí
  * sólo se traduce la parte declarativa, que es la que se puede traducir.
  * ─────────────────────────────────────────────────────────────────────────
  */

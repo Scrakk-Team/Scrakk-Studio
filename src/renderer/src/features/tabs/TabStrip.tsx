@@ -30,7 +30,7 @@ interface TabStripProps {
   stripId: StripId
   /**
    * Ícono decorativo por tab (el strip es agnóstico: la tab pudo traer su
-   * propio icon, o el host resuelve el default por kind acá).
+   * propio icon, o el host resuelve el default por kind aquí).
    */
   iconFor?: (tab: TabSpec) => ComponentType<{ size?: number }> | undefined
   /** Al activar una tab (default: tabsStore.activateTab). */
@@ -108,7 +108,7 @@ function TabItem({
   const closeRef = useRef<HTMLSpanElement | null>(null)
 
   // Dirty de la tab de archivo: punto que reemplaza la X al hover (VS Code).
-  // Estado vive en la sesión del archivo; acá solo se suscribe y refleja.
+  // Estado vive en la sesión del archivo; aquí solo se suscribe y refleja.
   const filePath = tab.kind === 'file' ? tab.filePath : undefined
   const [dirty, setDirty] = useState<boolean>(() => (filePath ? isFileDirty(filePath) : false))
   useEffect(() => {

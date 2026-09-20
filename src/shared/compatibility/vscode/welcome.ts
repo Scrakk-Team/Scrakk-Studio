@@ -9,7 +9,7 @@
  * el caso de Comment Anchors ("Searching for anchors…" con su botón) y de
  * media docena de paneles que se explican solos.
  *
- * Acá vive el PARSER de ese contenido, y es data pura a propósito: el mismo
+ * Aquí vive el PARSER de ese contenido, y es data pura a propósito: el mismo
  * texto se lee en el traductor (que lo mete en el manifest SEF) y en la UI
  * (que lo pinta), y ninguno de los dos tiene que saber de markdown de VS Code.
  *
@@ -22,7 +22,7 @@
  *  - Los args van URL-encoded después de `?` y son JSON
  *    (`encodeURIComponent(JSON.stringify(args))`, tal como los emite VS Code).
  *  - El resto de las líneas es texto.
- *  - `when` (clave de contexto) no se evalúa acá: viaja tal cual y lo resuelve
+ *  - `when` (clave de contexto) no se evalúa aquí: viaja tal cual y lo resuelve
  *    la UI, que es quien conoce las claves publicadas por la extensión.
  */
 

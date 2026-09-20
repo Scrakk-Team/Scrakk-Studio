@@ -3,7 +3,7 @@
  *
  * `window.createDiagnosticCollection` / `languages.createDiagnosticCollection`
  * son de las primeras cosas que hace una extensión: ahí publica los problemas
- * que encuentra. Acá se guardan de verdad, por URI y por colección, así que:
+ * que encuentra. Aquí se guardan de verdad, por URI y por colección, así que:
  *
  *  - `languages.getDiagnostics(uri)` devuelve lo que la extensión publicó (hay
  *    extensiones que LEEN diagnósticos de otras y colaboran entre sí),
@@ -12,7 +12,7 @@
  *
  * Lo que hace el IDE con ellos: el host los EMPUJA al main en cada cambio
  * (`diagnostics/change`) y la UI los pinta (panel de Problemas + chip de la
- * barra de estado). Antes se quedaban acá adentro y una extensión que
+ * barra de estado). Antes se quedaban aquí adentro y una extensión que
  * encontraba problemas no los mostraba en ninguna parte.
  */
 

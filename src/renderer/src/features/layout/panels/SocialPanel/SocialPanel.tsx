@@ -20,7 +20,7 @@ import styles from './SocialPanel.module.css'
 
 /**
  * Panel Social. Cada instancia tiene su PROPIO estado y SU propia cuenta
- * (multi-cuenta por panel): cambiar de cuenta acá no afecta a otros paneles.
+ * (multi-cuenta por panel): cambiar de cuenta aquí no afecta a otros paneles.
  *
  * Vistas: onboarding (email + código) → completar perfil → home (perfil +
  * solicitudes + amigos + buscar) → chat / perfil / cuentas.

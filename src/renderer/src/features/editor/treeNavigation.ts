@@ -17,7 +17,7 @@
  *      por llaves.
  *
  * La DECISIÓN (qué palabra, a qué definición, a qué objeto) vive en
- * `treeNavigationLogic.ts`, que es pura y se testea. Acá está lo que toca la
+ * `treeNavigationLogic.ts`, que es pura y se testea. Aquí está lo que toca la
  * app: leer el archivo activo, pedir el cursor y mover el motor.
  *
  * ─────────────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export async function goToDefinitionFromTree(position?: {
   if (name.length === 0) {
     notify({
       title: 'Ir a la definición',
-      message: 'Poné el cursor sobre un símbolo.',
+      message: 'Pon el cursor sobre un símbolo.',
       severity: 'info'
     })
     return false

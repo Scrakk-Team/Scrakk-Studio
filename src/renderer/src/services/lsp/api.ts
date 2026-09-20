@@ -1,7 +1,7 @@
 /**
  * LSP — API pública del renderer.
  *
- * Cliente fino sobre el runtime del proceso main (window.api.lsp). Acá vive
+ * Cliente fino sobre el runtime del proceso main (window.api.lsp). Aquí vive
  * la superficie que el editor, las tools del agente o cualquier panel
  * consumen: workspace sync, requests tipados y diagnósticos en vivo.
  *

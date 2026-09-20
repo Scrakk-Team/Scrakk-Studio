@@ -323,7 +323,7 @@ export function isFileDirty(path: string): boolean {
  * Cada módulo ≈ decenas de MB de heap + 1 contexto GL (límite del browser
  * ~8-16); sin tope, visitar N archivos = N heaps para siempre. Al superar
  * el tope se evicta la sesión más vieja (snapshot de texto, pierde undo).
- * Solo archivos: las terminales no entran acá. (Fase 6 lo expone en Ajustes.)
+ * Solo archivos: las terminales no entran aquí. (Fase 6 lo expone en Ajustes.)
  */
 const MAX_BACKGROUND_MODULES = 6
 /** En modo PC mala el tope baja: 2 módulos de fondo como máximo. */
@@ -407,7 +407,7 @@ function checkAggregateHeap(): void {
     const mb = Math.round(total / (1024 * 1024))
     notify({
       title: 'Memoria del editor alta',
-      message: `Los editores usan ~${mb} MB (techo 1 GB por módulo). Cerrá archivos que no uses para liberar memoria.`,
+      message: `Los editores usan ~${mb} MB (techo 1 GB por módulo). Cierra archivos que no uses para liberar memoria.`,
       severity: 'warn'
     })
   } else if (total < reset) {

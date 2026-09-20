@@ -20,7 +20,7 @@
  * El LSP y la gramática de una extensión publican para el MISMO archivo y en
  * momentos distintos. Con una sola entrada por archivo, la última en llegar
  * borraba el rastro de la otra y el panel mostraba un archivo a medias según el
- * orden de los debounce. Acá cada fuente tiene su entrada y el panel las lista
+ * orden de los debounce. Aquí cada fuente tiene su entrada y el panel las lista
  * en orden de PRIORIDAD — la misma con la que `mergeHostTokens` decide qué token
  * gana, así que lo que se ve arriba del panel es literalmente lo que se pinta.
  *

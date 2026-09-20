@@ -7,7 +7,7 @@
  *   extensiones del usuario (`.sef` instaladas en userData).
  *
  * El registro es declarativo: cada extensión declara sus contribuciones en
- * su `manifest.json`; el loader las resuelve y las registra acá.
+ * su `manifest.json`; el loader las resuelve y las registra aquí.
  */
 
 export { ExtensionRegistry } from './registry'

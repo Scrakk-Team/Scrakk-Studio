@@ -2,7 +2,7 @@
  * GitDecorationsBridge — proveedor global de badges de git, siempre montado.
  *
  * Antes vivía en el GitPanel: sin el panel abierto no había proveedor y los
- * badges no aparecían aunque el toggle estuviera prendido. Acá se registra
+ * badges no aparecían aunque el toggle estuviera prendido. Aquí se registra
  * 1× (montaje en App) y lee el estado vivo del repo activo en cada llamada.
  * Respeta el flag del botón git del header del explorer.
  */

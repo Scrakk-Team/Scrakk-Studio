@@ -58,6 +58,8 @@ export interface LlmStreamRequest {
   messages: LlmChatMessage[]
   /** Modo de pensamiento elegido (auto/off/low/medium/high/on). */
   thinkingMode?: string
+  /** Variante de razonamiento elegida con `/variants` (manda sobre el modo). */
+  variant?: string
   /**
    * Schemas de tools (OpenAI function-calling) para que el modelo las pueda
    * invocar. Se pasan tal cual al body del request.

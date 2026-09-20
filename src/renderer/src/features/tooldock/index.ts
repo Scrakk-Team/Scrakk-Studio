@@ -22,7 +22,7 @@ export {
 } from './registry'
 
 // Auto-registro de items builtin al consumir el feature (import único vía
-// acá para evitar ciclos registry → items → registry).
+// aquí para evitar ciclos registry → items → registry).
 import './items'
 export type {
   ToolDockItem,

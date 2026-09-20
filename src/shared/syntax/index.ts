@@ -9,7 +9,7 @@
  * - `legend.ts`  — leyenda de tokens (LSP ↔ slots del tema), tabla scope →
  *   slot por defecto y el payload delta que come el motor.
  *
- * Nada de acá conoce al editor ni a las extensiones: son funciones puras.
+ * Nada de aquí conoce al editor ni a las extensiones: son funciones puras.
  */
 
 export * from './scopes'

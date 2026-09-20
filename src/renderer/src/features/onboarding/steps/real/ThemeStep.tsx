@@ -3,7 +3,7 @@
  *
  * No hay lista propia: los temas salen del ecosistema de extensiones
  * (`@services/extensions`), el mismo stream que alimenta Ajustes → Apariencia.
- * Elegir acá es exactamente lo mismo que elegir ahí: `activateTheme(id)`
+ * Elegir aquí es exactamente lo mismo que elegir ahí: `activateTheme(id)`
  * aplica y persiste; el tema sobrevive al reinicio.
  *
  * Vista previa honesta: cada tarjeta muestra la paleta REAL del tema, y el
@@ -46,7 +46,7 @@ export function ThemeStep({ choice, setChoice }: StepContext): JSX.Element {
     setActiveId(getActiveThemeId())
   }, [])
 
-  // Stream de temas: builtin, .sef instaladas y activación (todo llega acá).
+  // Stream de temas: builtin, .sef instaladas y activación (todo llega aquí).
   useEffect(() => {
     refresh()
     return subscribeToThemes(refresh)
@@ -98,7 +98,7 @@ export function ThemeStep({ choice, setChoice }: StepContext): JSX.Element {
           {visible.length < themes.length ? ` · ${visible.length} de ${themes.length}` : ''}
         </SectionLabel>
         {visible.length === 0 ? (
-          <OptionCard title="No hay temas que coincidan" description="Probá con otro nombre o quitá el filtro." />
+          <OptionCard title="No hay temas que coincidan" description="Prueba con otro nombre o quitá el filtro." />
         ) : (
           <CardGrid columns={3}>
             {visible.map((theme) => (

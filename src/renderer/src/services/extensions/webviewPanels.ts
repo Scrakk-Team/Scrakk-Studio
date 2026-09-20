@@ -68,7 +68,7 @@ class ExtensionPanelsStore {
 
     if (!previous) {
       // Primera vez: el layout necesita la entrada ANTES de abrir la tab
-      // (el título de la tab sale de acá).
+      // (el título de la tab sale de aquí).
       ExtensionRegistry.registerPanel(this.panelEntry(model), model.extensionId)
       this.ensureTabReconciliation()
     }

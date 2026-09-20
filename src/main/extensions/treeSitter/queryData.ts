@@ -10,7 +10,7 @@
  * está cada función, qué tramos son otro lenguaje, qué se pliega y a qué
  * definición apunta una variable — y todo eso se estaba tirando.
  *
- * Todas las funciones de acá son PURAS (no tocan wasm ni disco): reciben
+ * Todas las funciones de aquí son PURAS (no tocan wasm ni disco): reciben
  * capturas ya extraídas del árbol y texto, y devuelven datos. Por eso se pueden
  * testear con capturas escritas a mano.
  *

@@ -9,7 +9,7 @@
  * MIGRACIÓN A OWEAR (leer antes de tocar)
  *
  * Este archivo es el que MÁS depende de Electron (`process.parentPort`). Si
- * Owear trae otro mecanismo de procesos, se reescribe acá (o se borra) sin
+ * Owear trae otro mecanismo de procesos, se reescribe aquí (o se borra) sin
  * tocar el shim, el `vscodeApi` ni los handlers.
  */
 
@@ -41,7 +41,7 @@ parentPort.on('message', (event) => {
 })
 
 // Errores no capturados de la EXTENSIÓN: se reportan al main (que los ve la
-// UI) en vez de morir en silencio. Van acá y no en el runtime porque son un
+// UI) en vez de morir en silencio. Van aquí y no en el runtime porque son un
 // asunto del proceso.
 process.on('uncaughtException', (error) => {
   peer.emit('fatal', { message: error.message, stack: error.stack })

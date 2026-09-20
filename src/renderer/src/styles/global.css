@@ -124,7 +124,7 @@ body {
 
 /* Foco visible: borde plano, sin glow.
    Los inputs de texto indican foco con el borde de su contenedor
-   (:focus-within), así que acá no se les dibuja anillo extra. */
+   (:focus-within), así que aquí no se les dibuja anillo extra. */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;

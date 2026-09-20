@@ -11,7 +11,7 @@
  * escribe su base de tareas al arrancar) no puede ni empezar: es la diferencia
  * entre "activa" y "se queda en iniciando".
  *
- * Qué NO persiste acá: la decisión de persistir es del main (archivos suyos);
+ * Qué NO persiste aquí: la decisión de persistir es del main (archivos suyos);
  * el host sólo pide `state/write` y `secrets/*` por el bridge. Así el shim
  * sigue sin tocar el disco y sigue siendo testeable.
  */

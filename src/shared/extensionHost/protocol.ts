@@ -109,7 +109,7 @@ export type HostMethod =
  * Es una lista CERRADA a propósito: el resto (`registerCompletionItemProvider`,
  * code lens, tokens semánticos…) se registra sin romper el `activate`, pero el
  * editor no tiene UI para ellos todavía, así que prometer una consulta sería
- * mentir. Agregar uno acá es agregar su serialización y su consumidor.
+ * mentir. Agregar uno aquí es agregar su serialización y su consumidor.
  */
 export type LanguageProviderKind =
   | 'hover'
@@ -556,7 +556,7 @@ export interface FindFilesResult {
  * Un item de la barra de estado, ya serializado para la UI.
  *
  * `null` desde `window.createStatusBarItem` = el item no tiene id propio y lo
- * identifica el host (ver `statusBar.ts`); el `id` de acá es el que usa la UI
+ * identifica el host (ver `statusBar.ts`); el `id` de aquí es el que usa la UI
  * para actualizarlo o quitarlo.
  */
 export interface StatusBarItemModel {

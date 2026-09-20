@@ -1,7 +1,7 @@
 /**
  * Git — cliente tipado sobre window.api.git (puente preload → main).
  *
- * Fino a propósito: validación y argv viven en main; acá solo tipado y
+ * Fino a propósito: validación y argv viven en main; aquí solo tipado y
  * guard para entornos sin puente (web/dev) con el mismo shape de error.
  */
 

@@ -38,7 +38,7 @@ function cleanError(message: string | undefined): string {
   if (m.includes('user_not_found')) return 'Ese usuario no existe'
   if (m.includes('invalid_target')) return 'Destino inválido'
   if (m.includes('request_not_found')) return 'La solicitud ya no existe'
-  if (m.includes('rate_limited')) return 'Tenés demasiadas solicitudes pendientes. Esperá un poco.'
+  if (m.includes('rate_limited')) return 'Tienes demasiadas solicitudes pendientes. Espera un poco.'
   return message ?? 'Algo salió mal'
 }
 
@@ -350,7 +350,7 @@ export async function sendMessage(
     const isSameDm =
       (p.sender_id === accountId && p.recipient_id === toUserId) ||
       (p.sender_id === toUserId && p.recipient_id === accountId)
-    if (!isSameDm) return fail('No podés citar un mensaje de otro chat')
+    if (!isSameDm) return fail('No puedes citar un mensaje de otro chat')
   }
   // 1) Subir imágenes ANTES de crear el mensaje: si falla, no queda huérfano.
   const uploads: Array<{ url: string; path: string; mime: string; sizeBytes: number; width: number | null; height: number | null }> = []
@@ -373,7 +373,7 @@ export async function sendMessage(
     .select('id,sender_id,recipient_id,body,created_at,read_at,reply_to,edited_at')
     .single()
   if (error) {
-    if (error.code === '42501') return fail('Solo podés escribirle a tus amigos')
+    if (error.code === '42501') return fail('Solo puedes escribirle a tus amigos')
     return fail(cleanError(error.message))
   }
   const mapped = mapMessage(data as MessageRow)

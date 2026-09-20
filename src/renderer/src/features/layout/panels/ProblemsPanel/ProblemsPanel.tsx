@@ -9,7 +9,7 @@
  *      → host → `diagnostics/change`.
  *
  * El store (`@services/lsp/diagnosticsStore`) guarda cada fuente por separado
- * y acá se lee AGREGADO: un error de un linter y uno de `tsc` sobre la misma
+ * y aquí se lee AGREGADO: un error de un linter y uno de `tsc` sobre la misma
  * línea son dos problemas, no uno que pisa al otro. Cada fila muestra su
  * ORIGEN (`source` del diagnóstico, o el nombre del server/extensión) porque
  * "por qué me marca esto" es la primera pregunta del usuario.

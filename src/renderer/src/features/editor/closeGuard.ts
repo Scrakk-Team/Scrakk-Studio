@@ -5,7 +5,7 @@
  * y ofrece las dos salidas por toast (mismo mecanismo de acciones que el
  * resto del IDE — sin modal nuevo): "Guardar y cerrar" / "Cerrar sin
  * guardar". Todas las rutas de cierre (tab, menú Archivo, comando) pasan
- * por acá para que ninguna tire cambios silenciosamente.
+ * por aquí para que ninguna tire cambios silenciosamente.
  */
 
 import { closeFile } from './editorBus'

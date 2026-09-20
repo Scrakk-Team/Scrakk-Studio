@@ -6,7 +6,7 @@
  * se actualiza solo. Si no hay NINGÚN archivo abierto (solo Bienvenida /
  * paneles), el indicador no se muestra: no hay editor del cual reportar.
  *
- * Coords: el bus entrega 0-based; acá se suma 1 para humanos.
+ * Coords: el bus entrega 0-based; aquí se suma 1 para humanos.
  */
 
 import { useEffect, useState, type JSX } from 'react'

@@ -1,7 +1,7 @@
 /**
  * Construcción del módulo `vscode` que se le inyecta a la extensión.
  *
- * VS Code NO entrega `vscode` desde `node_modules`: lo provee el host. Acá se
+ * VS Code NO entrega `vscode` desde `node_modules`: lo provee el host. Aquí se
  * arma ese namespace apoyado en el `HostBridge` (transporte inyectable), así
  * que es testeable sin proceso, sin stdio y sin Electron.
  *
@@ -182,7 +182,7 @@ export function flattenConfigurationDefaults(
   return out
 }
 
-/** Memento en memoria. v1 no persiste: la persistencia se enchufa acá. */
+/** Memento en memoria. v1 no persiste: la persistencia se enchufa aquí. */
 export function createMemento(seed: Record<string, unknown> = {}): MementoLike {
   const store = new Map<string, unknown>(Object.entries(seed))
   return {
@@ -280,7 +280,7 @@ export interface VscodeApiBundle {
   deliverPanelMessage(id: string, message: unknown): void
   /**
    * Resuelve una vista y dice DE QUÉ TIPO es: `webview` (publica HTML) o
-   * `tree` (sirve nodos). El renderer no adivina: pregunta acá.
+   * `tree` (sirve nodos). El renderer no adivina: pregunta aquí.
    */
   resolveView(viewId: string, initialTitle: string): Promise<'webview' | 'tree'>
   /** Hijos de un nodo del árbol (`null` = raíz). */
@@ -299,7 +299,7 @@ export interface VscodeApiBundle {
   executeLocalCommand(id: string, args: unknown[]): Promise<unknown>
   /**
    * Consulta un proveedor de lenguaje registrado por la extensión
-   * (hover, definición, referencias, formateo…). El IDE pregunta por acá:
+   * (hover, definición, referencias, formateo…). El IDE pregunta por aquí:
    * es lo que hace que el LSP de una extensión se vea en el editor.
    */
   queryProvider(params: ProviderQueryParams): Promise<ProviderQueryResult>
@@ -435,7 +435,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
 
   // ── Documentos del editor (REALES: los manda el IDE) ───────────────────
   // Ver `textDocuments.ts`: el renderer empuja el buffer de cada archivo
-  // abierto y acá se materializa un `TextDocument` de verdad. Es lo que hace
+  // abierto y aquí se materializa un `TextDocument` de verdad. Es lo que hace
   // que una extensión que mira el archivo abierto (Comment Anchors, un
   // contador, un linter) tenga algo que mirar.
   const documentEvents = {
@@ -614,7 +614,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
    * `undefined` si se cerró sin elegir o si lo elegido es un botón de cierre.
    *
    * Lo que viaja al renderer son STRINGS: un `MessageItem`/`MessageOptions` no
-   * cruza el IPC, y por eso se normaliza ACÁ (el bug de Cline fue exactamente
+   * cruza el IPC, y por eso se normaliza Aquí (el bug de Cline fue exactamente
    * no hacerlo: un `{modal, detail}` renderizado como texto del botón).
    */
   async function showMessage(
@@ -1103,7 +1103,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
   const configurationDefaults = options.configurationDefaults ?? {}
 
   // `configurationDefaults` llega YA aplanado desde el main (que es quien
-  // leyó el manifest); acá no se vuelve a interpretar `contributes`.
+  // leyó el manifest); aquí no se vuelve a interpretar `contributes`.
   /**
    * Ajustes: defaults del manifest PISADOS por lo que la extensión ya persistió
    * (`configurationValues`, que el main leyó). Es un mapa de clave plana
@@ -1252,7 +1252,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
 
     // ── Documentos del editor (REALES) ─────────────────────────────────────
     // El IDE empuja cada documento abierto (texto, versión, dirty, lenguaje) y
-    // acá se ve como `TextDocument`. Los eventos son los del editor de verdad.
+    // aquí se ve como `TextDocument`. Los eventos son los del editor de verdad.
     get textDocuments(): TextDocumentImpl[] {
       return documents.all
     },
@@ -1388,7 +1388,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
     isTelemetryEnabled: options.env?.isTelemetryEnabled === true,
     /** Shell del sistema (`env.shell`): lo resuelve el main. */
     shell: options.env?.shell,
-    /** El ajuste cambió en el IDE: el host lo refleja acá. */
+    /** El ajuste cambió en el IDE: el host lo refleja aquí. */
     onDidChangeTelemetryEnabled: telemetryEmitter.event,
     remoteName: undefined,
     uiKind: 1, // UIKind.Desktop
@@ -1683,7 +1683,7 @@ export function createVscodeApi(options: VscodeShimOptions): VscodeApiBundle {
     /**
      * Consulta un proveedor de lenguaje (lo pide el IDE por `provider/query`).
      *
-     * El documento se resuelve acá: si el archivo no está abierto en el
+     * El documento se resuelve aquí: si el archivo no está abierto en el
      * editor, se lee del disco (el jail lo aplica el main) y se materializa
      * como `TextDocument` real — un provider que recibe `undefined` no puede
      * hacer su trabajo, y muchas veces la definición salta a un archivo que

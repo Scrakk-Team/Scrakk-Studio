@@ -12,7 +12,7 @@ interface EmailCodeFormProps {
 
 /**
  * Ingreso por email + código OTP — el MISMO método que el CLI. Un solo flujo
- * sirve para cuentas nuevas y existentes: pedís el código, lo escribís, entrás.
+ * sirve para cuentas nuevas y existentes: pides el código, lo escribes, entras.
  */
 export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProps): JSX.Element {
   const [step, setStep] = useState<'email' | 'code'>('email')

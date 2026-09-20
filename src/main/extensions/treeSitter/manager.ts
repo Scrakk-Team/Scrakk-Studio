@@ -173,7 +173,7 @@ export class TreeSitterManager {
 
   /**
    * Mata el worker. Las peticiones en vuelo se rechazan vía `onExit`, así que
-   * no hay que resolverlas a mano acá.
+   * no hay que resolverlas a mano aquí.
    */
   stop(): void {
     if (this.idleTimer) {

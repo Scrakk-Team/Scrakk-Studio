@@ -11,7 +11,7 @@
  * Cuando Owear reemplace el runtime de ejecución, se reescribe SÓLO el
  * `send`/recepción (hoy `process.parentPort` de Electron). Este archivo, el
  * shim y el `vscodeApi` quedan intactos: no saben de Electron ni de stdio.
- * NO metas acá lógica del shim ni del ciclo de vida de extensiones.
+ * NO metas aquí lógica del shim ni del ciclo de vida de extensiones.
  */
 
 import type {

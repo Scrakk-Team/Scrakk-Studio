@@ -16,7 +16,7 @@
  * que lo dibuja con el mismo canal de subrayados que los diagnósticos.
  *
  * ─────────────────────────────────────────────────────────────────────────
- * POR QUÉ EL PARSEO VIVE ACÁ (y no en la UI)
+ * POR QUÉ EL PARSEO VIVE AQUÍ (y no en la UI)
  *
  * Es el mismo motivo que la severidad de los diagnósticos: la traducción es
  * Node puro y se testea sin levantar el IDE. El renderer recibe DATOS
@@ -77,7 +77,7 @@ export function parseDecorationStyle(text: string | undefined): number {
  * Acepta `#rgb`, `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()` y los NOMBRES que
  * más se usan (una decoración «underline wavy red» es lo más común que hay).
  * Devuelve `undefined` si no se pudo leer: el que decide es el tema, no un
- * fallback inventado acá.
+ * fallback inventado aquí.
  */
 export function parseDecorationColor(input: string | undefined): number | undefined {
   if (!input) return undefined

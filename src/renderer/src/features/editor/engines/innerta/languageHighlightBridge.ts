@@ -2,10 +2,10 @@
  * Puente de resaltado con gramática de extensión (TextMate).
  *
  * ─────────────────────────────────────────────────────────────────────────
- * QUÉ ATRAVIESA ACÁ
+ * QUÉ ATRAVIESA AQUÍ
  *
  *   archivo abierto → lenguaje del registro SEF → gramática del paquete
- *   → tokenizado en el MAIN (scopes) → slots (resueltos acá)
+ *   → tokenizado en el MAIN (scopes) → slots (resueltos aquí)
  *   → tokens del host → motor
  *
  * Si no hay gramática de extensión, NO hace nada: no limpia lo del motor ni
@@ -72,7 +72,7 @@ export function refreshLanguageHighlight(
 
   const run = (): void => {
     // El motor de gramática lo elige el USUARIO (Ajustes → Resaltado) y la
-    // decisión vive en un solo lugar. Si eligió el árbol del paquete, acá no se
+    // decisión vive en un solo lugar. Si eligió el árbol del paquete, aquí no se
     // publica nada: los dos puentes pintarían el mismo rango sin desempate.
     // Se limpia lo nuestro igual, porque el cambio puede venir justo de tener
     // TextMate seleccionado antes (si no, quedaría su color pegado).

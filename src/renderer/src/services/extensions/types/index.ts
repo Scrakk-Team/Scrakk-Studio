@@ -18,6 +18,8 @@ import { notificationsHandler } from './notifications/api'
 import { encodingsHandler } from './encodings/api'
 import { fileIconsHandler } from './fileIcons/api'
 import { productIconsHandler } from './productIcons/api'
+import { toolsHandler } from './tools'
+import { skillsHandler } from './skills'
 
 let registered = false
 
@@ -36,6 +38,8 @@ export function ensureTypesRegistered(): void {
   ExtensionTypeRegistry.registerType(encodingsHandler)
   ExtensionTypeRegistry.registerType(fileIconsHandler)
   ExtensionTypeRegistry.registerType(productIconsHandler)
+  ExtensionTypeRegistry.registerType(toolsHandler)
+  ExtensionTypeRegistry.registerType(skillsHandler)
 }
 
 export { ExtensionTypeRegistry } from './registry'
@@ -92,3 +96,5 @@ export type {
 export type { LspContribution } from './lsp/schema'
 export type { FileIconContribution } from './fileIcons/schema'
 export type { ProductIconContribution } from './productIcons/schema'
+export type { ToolContribution, ToolCategory, ToolDangerLevel } from './tools/schema'
+export type { SkillContribution } from './skills/schema'

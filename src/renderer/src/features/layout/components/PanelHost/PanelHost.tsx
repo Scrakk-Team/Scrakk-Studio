@@ -3,6 +3,7 @@ import { getPanel } from '../../registry'
 import type { PanelEntry, PanelId } from '../../types'
 import { PanelErrorBoundary } from '../PanelErrorBoundary/PanelErrorBoundary'
 import { PanelIdProvider } from '../../state/PanelIdContext'
+import { PanelProfiler } from '@core/perf/panelHealth'
 import { loadPanelComponent, loadedPanel } from './panelModules'
 import styles from './PanelHost.module.css'
 
@@ -13,7 +14,7 @@ interface PanelHostProps {
 /**
  * Host genérico de un panel: resuelve su módulo (import dinámico) y lo monta
  * dentro de su propio ErrorBoundary. Si el componente peta, el error queda
- * acá y no tumba la app: la key aísla el boundary por panel, así que al
+ * aquí y no tumba la app: la key aísla el boundary por panel, así que al
  * cambiar de panel se descarta el error anterior.
  *
  * NO usa `<Suspense>`: el reintento del boundary se perdía y el panel quedaba
@@ -85,8 +86,10 @@ export function PanelModule({ entry }: { entry: PanelEntry }): JSX.Element | nul
   if (!Component) return <div className={styles.loading}>Cargando panel…</div>
 
   return (
-    <PanelIdProvider panelId={entry.id}>
-      <Component />
-    </PanelIdProvider>
+    <PanelProfiler id={entry.id}>
+      <PanelIdProvider panelId={entry.id}>
+        <Component />
+      </PanelIdProvider>
+    </PanelProfiler>
   )
 }

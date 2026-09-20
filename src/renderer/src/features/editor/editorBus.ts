@@ -3,7 +3,7 @@
  *
  * El container de tabs del área central solo muestra "Bienvenida" y los
  * archivos abiertos. Cualquier parte de la app abre un archivo con
- * openFileInEditor(); acá se agrega a openFiles + se activa. EditorPanel
+ * openFileInEditor(); aquí se agrega a openFiles + se activa. EditorPanel
  * consume activePath para cargar el contenido en Innerta; Tabs consume
  * openFiles para dibujar el strip.
  *

@@ -219,7 +219,7 @@ class TerminalSessionImpl implements LiveSession {
     // editor vía setBounds). Sin esto el canvas quedaba con el tamaño de
     // init() y el CSS lo estiraba → texto mini. El RO interno de la vista
     // está desconectado (la sesión maneja el resize por host), así que
-    // setBounds + resize del grid viven acá.
+    // setBounds + resize del grid viven aquí.
     const w = host.clientWidth
     const h = host.clientHeight
     if (w > 0 && h > 0) {

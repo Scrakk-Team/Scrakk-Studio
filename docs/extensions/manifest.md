@@ -1,7 +1,7 @@
 # Manifest
 
 El `manifest.json` es la fuente de verdad de una extensión. Es **declarativo**:
-todo lo que la extensión aporta se describe acá y el loader lo convierte en
+todo lo que la extensión aporta se describe aquí y el loader lo convierte en
 contribuciones registradas (`loader/resolve.ts`).
 
 ```json

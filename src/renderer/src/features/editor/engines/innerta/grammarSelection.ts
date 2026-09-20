@@ -12,7 +12,7 @@
  * Antes cada uno decidía por su cuenta con una regla escondida ("si hay
  * TextMate, el árbol no corre"). Eso hacía imposible que el usuario eligiera, y
  * dejaba dos lugares donde la regla podía divergir. Ahora los dos preguntan
- * acá: `selectGrammarEngine()` devuelve QUIÉN gana, y el que no gana no publica
+ * aquí: `selectGrammarEngine()` devuelve QUIÉN gana, y el que no gana no publica
  * nada (publicar los dos sería pintar dos veces el mismo rango sin desempate).
  *
  * La preferencia (`auto` / `treeSitter` / `textMate`) es del usuario y vive en

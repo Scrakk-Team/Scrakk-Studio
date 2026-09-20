@@ -8,7 +8,7 @@
  *
  * Así que la identidad viaja por CONTEXTO: `PanelHost` provee el id y sólo
  * los paneles que lo necesitan lo leen (los paneles de extensión derivan de
- * acá su contenedor y su vista).
+ * aquí su contenedor y su vista).
  */
 
 import { createContext, useContext, type JSX, type ReactNode } from 'react'

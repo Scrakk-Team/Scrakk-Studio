@@ -2,7 +2,7 @@
  * ExtensionTypeRegistry — registro interno de TIPOS de extensión.
  *
  * Cada tipo de contribución ('panels', 'activityBar', 'centerTabs',
- * 'themes', …) registra acá su handler. El loader genérico pregunta por
+ * 'themes', …) registra aquí su handler. El loader genérico pregunta por
  * kind y delega: así un tipo nuevo se agrega sin tocar la capa extensions.
  *
  * Patrón idéntico al resto de stores de la app: clase única + subscribe.

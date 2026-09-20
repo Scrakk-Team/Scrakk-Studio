@@ -9,7 +9,7 @@
  *     en el renderer, así que el main hace de puente y espera la respuesta.
  *
  * Regla de oro: el renderer NUNCA habla con el proceso de la extensión. Pide
- * por IPC, y acá se valida (permisos, jail de paths) antes de tocar el host.
+ * por IPC, y aquí se valida (permisos, jail de paths) antes de tocar el host.
  */
 
 import { BrowserWindow, app, ipcMain, protocol, type WebContents } from 'electron'
@@ -107,7 +107,7 @@ function safeResolveInside(extensionId: string, relative: string): string | null
 /**
  * `acquireVsCodeApi` para el documento del webview.
  *
- * En VS Code lo provee el host dentro del iframe. Acá se inyecta antes del
+ * En VS Code lo provee el host dentro del iframe. Aquí se inyecta antes del
  * HTML de la extensión. La recepción de mensajes NO necesita shim: el padre
  * hace `postMessage` al iframe y el navegador dispara el `message` normal.
  */

@@ -3,7 +3,7 @@
  *
  * Problema: cuando un panel vive como UNA tab más de un strip multi-tab, no
  * hay PanelFrame arriba y sus acciones de header (`setActions`) quedan
- * invisibles. Solución: el `PanelTitleAutoProvider` publica acá
+ * invisibles. Solución: el `PanelTitleAutoProvider` publica aquí
  * `{title, actions}` con clave `stripId:tabId`; el TabStrip lee la entrada de
  * la tab ACTIVA y su botón ⋯ las muestra en el menú contextual global.
  *

@@ -3,7 +3,7 @@
  *
  * AGREGAR UN ENCODING BUILTIN:
  *   1. Crear `codecs/<familia>.ts` exportando sus IEncodingCodec.
- *   2. Sumarlos al array de acá. Nada más: detect.ts, registry y service
+ *   2. Sumarlos al array de aquí. Nada más: detect.ts, registry y service
  *      los toman por id sin cambios.
  */
 

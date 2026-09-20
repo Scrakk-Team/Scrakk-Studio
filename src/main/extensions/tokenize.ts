@@ -3,9 +3,9 @@
  * extensión de lenguaje pinte de verdad.
  *
  * ─────────────────────────────────────────────────────────────────────────
- * POR QUÉ CORRE ACÁ Y NO EN EL RENDERER
+ * POR QUÉ CORRE AQUÍ Y NO EN EL RENDERER
  *
- * 1. **Los archivos están acá.** Un `.tmLanguage` vive dentro del paquete
+ * 1. **Los archivos están aquí.** Un `.tmLanguage` vive dentro del paquete
  *    instalado (`userData/extensions/<id>/…`). El main ya tiene la ruta y el
  *    permiso; el renderer tendría que pedir el archivo por IPC igual.
  * 2. **La leyenda de Oniguruma es un `.wasm`** (`vscode-oniguruma`): cargarlo
@@ -65,7 +65,7 @@ export interface TokenizeRequest {
   scopeName: string
   /**
    * Todas las gramáticas que se pueden necesitar. El main NO tiene el registro
-   * de lenguajes (vive en el renderer), así que acá llegan las candidatas y el
+   * de lenguajes (vive en el renderer), así que aquí llegan las candidatas y el
    * main se limita a verificar que cada ruta sea legible y esté dentro del
    * directorio de extensiones.
    */
@@ -76,7 +76,7 @@ export interface TokenizeRequest {
 export interface TokenizeResult {
   ok: boolean
   error?: string
-  /** Stacks de scope únicos; los tokens apuntan acá por índice. */
+  /** Stacks de scope únicos; los tokens apuntan aquí por índice. */
   scopeSets: string[][]
   /** `start`/`end` en columnas UTF-16 de la línea (0-based). */
   tokens: Array<{ line: number; start: number; end: number; scopes: number }>
@@ -231,7 +231,7 @@ async function getGrammar(
  * Divide el texto en líneas EXACTAMENTE como lo hace el motor.
  *
  * El buffer de Innerta se arma con `getline` sobre `\n` y descartando un `\r`
- * final, así que la línea N de acá tiene que ser la línea N de allá. Con un
+ * final, así que la línea N de aquí tiene que ser la línea N de allá. Con un
  * `split` propio eso se garantiza; usando `lines` de otra librería, no.
  */
 function splitLines(text: string): string[] {
@@ -312,7 +312,7 @@ export async function tokenizeText(request: TokenizeRequest): Promise<TokenizeRe
           token.scopes.some((s) => s === scope || s.startsWith(scope + '.'))
         )
         if (embedded && scopeByLanguage.has(embedded[1])) {
-          // El tramo va a la segunda pasada: acá NO se emite token con los
+          // El tramo va a la segunda pasada: aquí NO se emite token con los
           // scopes del padre (sería el color equivocado).
           regions.push({ line, start, end, languageId: embedded[1] })
           continue

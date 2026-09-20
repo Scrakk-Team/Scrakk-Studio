@@ -225,7 +225,7 @@ export function WelcomePanel({
               <div className="ad-card">
                 <div className="ad-content">
                   <h3 className="ad-title">Próximamente</h3>
-                  <p className="ad-description">Acá van a aparecer los anuncios.</p>
+                  <p className="ad-description">Aquí van a aparecer los anuncios.</p>
                 </div>
               </div>
             </div>

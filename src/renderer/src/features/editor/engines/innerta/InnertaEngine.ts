@@ -142,7 +142,7 @@ export interface InnertaModule {
    *
    * Es el ÚNICO canal de color para un lenguaje que el motor no tiene
    * compilado: la gramática de una extensión y los semantic tokens del LSP
-   * entran por acá.
+   * entran por aquí.
    */
   setHostTokens?(data: number[], source: number): void
 }
@@ -263,7 +263,7 @@ export class InnertaEngine implements EditorEngine {
 
     const canvas = this.persistentCanvas
     host.appendChild(canvas)
-    // dispose() lo esconde al desmontar; SIEMPRE restaurar visibilidad acá.
+    // dispose() lo esconde al desmontar; SIEMPRE restaurar visibilidad aquí.
     canvas.style.display = ''
 
     // Input del host → engine: una sola vez por canvas (los listeners viven
@@ -351,7 +351,7 @@ export class InnertaEngine implements EditorEngine {
 
           // RO + window resize contra el host ACTUAL: la resolución del módulo
           // puede llegar MUCHO después del primer attach (StrictMode), así que
-          // el RO se arma acá al quedar ready (un solo armado). El fast path
+          // el RO se arma aquí al quedar ready (un solo armado). El fast path
           // de un re-attach posterior lo re-crea si el host cambió.
           this.onResize = (): void => applyBounds()
           window.addEventListener('resize', this.onResize)
@@ -463,13 +463,13 @@ export class InnertaEngine implements EditorEngine {
       this.module.openFile(req.path, req.content)
       applyInnertaTheme(this.module)
       this.pushBookmarks()
-      // Recién ACÁ el engine sabe su archivo. El push de la carga del módulo
+      // Recién Aquí el engine sabe su archivo. El push de la carga del módulo
       // corre antes (con `currentPath` todavía nulo → manda limpiar), y en ese
       // hueco caen los diagnósticos que llegaron mientras el WASM cargaba: sin
       // este push quedaban guardados en la store y sin pintar hasta que
       // pasara cualquier otra cosa (otro publish, un guardado, un undo).
       this.pushUnderlines()
-      // Recién acá existe el módulo: es LA llamada que hace que el primer
+      // Recién aquí existe el módulo: es LA llamada que hace que el primer
       // archivo abierto se pinte con la gramática de su extensión.
       this.startHighlightPipelines(req.path, req.content)
     } else if (req.text !== undefined) {
@@ -491,7 +491,7 @@ export class InnertaEngine implements EditorEngine {
    * Empuja los subrayados del archivo de ESTE engine.
    *
    * Las decoraciones viven por ARCHIVO en la store (diagnósticos de N archivos
-   * abiertos), pero cada módulo WASM es UNA vista: acá se filtran las de este
+   * abiertos), pero cada módulo WASM es UNA vista: aquí se filtran las de este
    * archivo. Sin el filtro, los errores de `a.ts` se subrayarían sobre `b.ts`
    * (el mismo bug que ya tuvo el plegado con los rangos del archivo anterior).
    *

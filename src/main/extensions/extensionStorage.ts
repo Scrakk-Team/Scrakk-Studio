@@ -23,7 +23,7 @@
  * ─────────────────────────────────────────────────────────────────────────
  * MIGRACIÓN A OWEAR (leer antes de tocar)
  *
- * Todo el disco está acá, detrás de una clase con `baseDir` inyectable. Si
+ * Todo el disco está aquí, detrás de una clase con `baseDir` inyectable. Si
  * Owear cambia de runtime, se reescribe este archivo y nada más.
  */
 
@@ -41,7 +41,7 @@ export interface SecretCodec {
 }
 
 /** Lo mínimo de `safeStorage` de Electron que necesitamos (inyectable).
- * Se inyecta en vez de importar `electron` acá para que este módulo se pueda
+ * Se inyecta en vez de importar `electron` aquí para que este módulo se pueda
  * testear en Node sin Electron.
  */
 export interface SafeStorageLike {

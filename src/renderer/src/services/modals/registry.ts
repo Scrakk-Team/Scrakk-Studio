@@ -35,6 +35,11 @@ export interface ModalSpecBase {
   size?: ModalSize
   /** true = no cierra con Esc/click afuera. Default true. */
   dismissable?: boolean
+  /**
+   * Se llama cuando el HOST cierra el modal (Esc, click afuera, toggle).
+   * Sirve para resolver estados pendientes (ej. confirmaciones de tools).
+   */
+  onClose?: () => void
 }
 
 export interface CustomModalSpec extends ModalSpecBase {
@@ -72,6 +77,8 @@ export interface AnchoredModalSpec {
    */
   align?: AnchoredAlign
   render: (ctx: ModalRenderContext) => unknown
+  /** Se llama cuando el host lo cierra (Esc/click afuera/toggle). */
+  onClose?: () => void
 }
 
 /** Alineación horizontal del panel anclado respecto a su ancla. */
@@ -192,6 +199,11 @@ export function closeModal(handleOrId: ModalHandle | string): void {
   if (!entry) return
   active.delete(id)
   entry.resolve?.(null)
+  try {
+    entry.spec.onClose?.()
+  } catch {
+    // Un onClose roto no debe tumbar al host.
+  }
   emit()
 }
 

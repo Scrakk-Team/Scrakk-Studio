@@ -139,7 +139,7 @@ function buildDesired(): Map<string, Map<string, EditorDecoration[]>> {
  *
  * Es un diff y no un "borrar todo y volver a poner": el borrado total haría
  * parpadear el subrayado de TODOS los archivos abiertos en cada keystroke
- * (cada `publishDiagnostics` pasa por acá).
+ * (cada `publishDiagnostics` pasa por aquí).
  */
 export function refreshDiagnosticsDecorations(): void {
   const desired = buildDesired()

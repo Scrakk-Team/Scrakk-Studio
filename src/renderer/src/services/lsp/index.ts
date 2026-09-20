@@ -1,7 +1,7 @@
 /**
  * Servicio LSP del renderer — API pública.
  *
- * El runtime corre en el proceso main (src/main/lsp); acá está la superficie
+ * El runtime corre en el proceso main (src/main/lsp); aquí está la superficie
  * que consume el frontend: api.ts (requests tipados + sync) y
  * diagnosticsStore.ts (cache reactiva de diagnósticos).
  */

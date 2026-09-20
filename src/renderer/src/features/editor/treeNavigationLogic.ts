@@ -97,7 +97,7 @@ export function wordAt(text: string, line: number, col: number): string {
  * Entrada de `locals.scm` → rango comparable.
  *
  * El contrato compartido usa `line`/`column` para el inicio (es el mismo
- * esquema que el resto de las posiciones de la app); las funciones de acá
+ * esquema que el resto de las posiciones de la app); las funciones de aquí
  * trabajan con `startLine`/`startColumn`. Este adaptador es la frontera entre
  * los dos nombres, en UN solo lugar.
  */

@@ -13,7 +13,7 @@
  *   - el motor quiere los rangos de plegado (`folds.scm`).
  *
  * Todos viven en features distintas y ninguno tiene por qué conocer al puente
- * de Innerta. Entonces el puente PUBLICA acá (una entrada por path) y cada
+ * de Innerta. Entonces el puente PUBLICA aquí (una entrada por path) y cada
  * consumidor lee/escucha. Es el mismo patrón que `hostTokens` para el color,
  * pero para el resto del árbol.
  *

@@ -2,7 +2,7 @@
  * Encodings — registro de handlers IPC.
  *
  * Mismo patrón que ipc/fs.ts. Canales definidos en @shared/encodings.
- * Los codecs dinámicos de extensiones se declaran acá pero su conversión
+ * Los codecs dinámicos de extensiones se declaran aquí pero su conversión
  * corre en el renderer (sandbox) — el main solo guarda metadatos.
  */
 

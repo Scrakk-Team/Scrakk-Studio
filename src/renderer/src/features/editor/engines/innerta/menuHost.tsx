@@ -13,13 +13,20 @@ import { createRoot, type Root } from 'react-dom/client'
 let container: HTMLDivElement | null = null
 let root: Root | null = null
 
-export function showContextMenu(x: number, y: number, items: ContextMenuItem[]): void {
+export function showContextMenu(
+  x: number,
+  y: number,
+  items: ContextMenuItem[],
+  placement: 'below' | 'above' = 'below'
+): void {
   if (!container) {
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
   }
-  root?.render(<ContextMenu items={items} x={x} y={y} onClose={() => root?.render(null)} />)
+  root?.render(
+    <ContextMenu items={items} x={x} y={y} placement={placement} onClose={() => root?.render(null)} />
+  )
 }
 
 /**

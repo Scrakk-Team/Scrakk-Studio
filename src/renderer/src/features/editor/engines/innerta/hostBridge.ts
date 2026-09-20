@@ -32,7 +32,7 @@ import { applyEngineBookmark } from '@services/bookmarks'
 /**
  * Tipos del canal ÚNICO de eventos engine→host (HostEvent en HostBridge.h).
  * El engine emite todo por Module._innertaOnEvent(type, a, b, c) — ints
- * puros, sin marshalling. Agregar un evento = 1 entrada acá + 1 case.
+ * puros, sin marshalling. Agregar un evento = 1 entrada aquí + 1 case.
  */
 export const InnertaHostEvent = {
   ContextMenu: 1,
@@ -157,7 +157,7 @@ export function applyInnertaSelection(
  * La diferencia importa: `setFoldingRanges` es `void`, así que anteponerle un
  * `try/catch` convierte "no explotó" en "funcionó", que es exactamente el tipo
  * de verde falso que hace buscar el bug donde no está. El motor expone su
- * contador (`GetInnertaFoldingCount`) y desde acá se COMPARA con lo pedido; en
+ * contador (`GetInnertaFoldingCount`) y desde aquí se COMPARA con lo pedido; en
  * un build sin el getter se cae al comportamiento viejo (no hay dato, no se
  * inventa uno).
  */
@@ -250,7 +250,7 @@ export function attachHostBridge(
       if (disposed) return
       // `contents` puede venir como string, `MarkupContent` o ARRAY de los dos
       // (el API de VS Code acepta las tres y los servers las usan): aplanarlas
-      // acá es la diferencia entre mostrar el hover y un tooltip vacío.
+      // aquí es la diferencia entre mostrar el hover y un tooltip vacío.
       const texts = results
         .map((r) => hoverContentsToText(r.contents))
         .filter((text) => text.length > 0)
@@ -299,7 +299,7 @@ export function attachHostBridge(
   }
 
   // Click en el canvas: ocultar hover y refrescar el cursor al instante
-  // (el engine ya empuja por hook al moverse el cursor; acá se adelanta).
+  // (el engine ya empuja por hook al moverse el cursor; aquí se adelanta).
   const onPointerDown = (): void => {
     hideNow()
     const mod = getModule()

@@ -25,7 +25,7 @@ export function EditorPanel(): JSX.Element {
     const engine = getOrCreateInnertaEngine()
     engineRef.current = engine
     engine.attach(host)
-    // No forzamos engine.focus() acá: robaría el foco a inputs abiertos
+    // No forzamos engine.focus() aquí: robaría el foco a inputs abiertos
     // en otras partes de la app. El canvas recibe foco cuando el usuario
     // interactúa con el editor (click → onPointerDown) o al cargar un
     // archivo (loadFile → canvas.focus).

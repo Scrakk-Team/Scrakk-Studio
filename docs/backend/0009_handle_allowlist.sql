@@ -1,7 +1,7 @@
 -- 0009: allowlist de cuentas oficiales para handles reservados.
 -- Proyecto: scrakk-cli (Supabase)
 --
--- Solo las cuentas listadas acá pueden usar handles reservados. Se decide por
+-- Solo las cuentas listadas aquí pueden usar handles reservados. Se decide por
 -- dueño del perfil (new.id).
 
 create table if not exists public.handle_allowlist (

@@ -14,7 +14,7 @@
  * 3. **Configuración y snippets**: se parsean y se exponen; el editor los
  *    consume cuando los necesite (brackets, comentarios, plegado).
  *
- * Nada de acá ejecuta un parser ni tokeniza: eso es del worker. Acá se
+ * Nada de aquí ejecuta un parser ni tokeniza: eso es del worker. Aquí se
  * DECLARA el lenguaje y se indexan sus datos.
  */
 
@@ -383,7 +383,7 @@ function extensionCount(language: RegisteredLanguage): number {
  * Elige el lenguaje de un archivo por asociación declarada.
  *
  * Orden (el de VS Code): nombre exacto → glob → extensión más larga → nada.
- * `firstLine` NO se evalúa acá: requiere leer el archivo, así que va aparte
+ * `firstLine` NO se evalúa aquí: requiere leer el archivo, así que va aparte
  * (`resolveLanguageByFirstLine`) y solo como último recurso.
  *
  * `disabled` permite excluir lenguajes desactivados por el usuario.
@@ -470,7 +470,7 @@ export async function loadQueryData(
   }
   if (files.length === 0 && queriesDir) {
     // Solo builtin: el handler resuelve el directorio con glob antes de llegar
-    // acá. Si llegó igual, se deja constancia en el log en vez de silencio.
+    // aquí. Si llegó igual, se deja constancia en el log en vez de silencio.
     console.warn(`[languages] queriesDir sin enumerar: ${queriesDir}`)
   }
 

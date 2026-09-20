@@ -7,7 +7,7 @@
  *
  * Este módulo es el registro de esos providers y el traductor
  * `TreeItem` → `TreeNodeModel` (el modelo serializable que come el renderer).
- * La UI NO recibe los elementos originales: los guarda acá y los referencia
+ * La UI NO recibe los elementos originales: los guarda aquí y los referencia
  * por un `id` opaco, porque los argumentos de un `TreeItem.command` (un `Uri`,
  * por ejemplo) no sobreviven a la serialización y las extensiones los esperan
  * intactos al clickear.

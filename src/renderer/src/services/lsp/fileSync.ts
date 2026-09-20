@@ -9,7 +9,7 @@
  * el server conocía el archivo tal como estaba en disco al abrirlo, y después
  * era ciego.
  *
- * Consecuencia medida: escribís `color: ;` en un `.css` y no pasa nada — ni
+ * Consecuencia medida: escribes `color: ;` en un `.css` y no pasa nada — ni
  * subrayado, ni conteo en el chip de Problemas — porque el server nunca supo
  * que el documento cambió. El hover sí seguía andando (esa request lleva el
  * texto del buffer), así que el síntoma era confusísimo: "el LSP anda, el
@@ -30,7 +30,7 @@
  * - **Ventana de 40 ms con leading edge, no un debounce de 250 ms.** Un
  *   debounce clásico espera a que DEJES de tipear: la última tecla de una
  *   palabra quedaba 250 ms en el aire antes de que el server supiera nada.
- *   Acá la primera edición de una ráfaga sale **ya** (0 ms) y lo que se agrupa
+ *   Aquí la primera edición de una ráfaga sale **ya** (0 ms) y lo que se agrupa
  *   es el resto: nunca pasan más de 40 ms entre el buffer y el server, con el
  *   mismo objetivo de no mandar un `didChange` por tecla.
  *   Medido con `tools/_probe-lsp-realtime.mjs`: 740 ms → ver el probe.
@@ -95,7 +95,7 @@ interface TrackedFile {
  * Si una sesión todavía no tiene módulo WASM montado no hay buffer que mandar
  * (su tab nunca se abrió): el `didOpen` de ese caso lo hace la carga del
  * archivo, que lee de disco. Cuando la tab se monte, la primera emisión de
- * `onDidChangeContent` trae el texto y entra por acá.
+ * `onDidChangeContent` trae el texto y entra por aquí.
  */
 export function initLspFileSync(sink: LspFileSyncSink = defaultSink): LspFileSyncHandle {
   const tracked = new Map<string, TrackedFile>()

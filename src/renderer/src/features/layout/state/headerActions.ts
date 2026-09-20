@@ -11,7 +11,7 @@
  * quiere decidir el orden.
  *
  * Diferencias deliberadas con el de la activity bar:
- *  - Acá NO hay "lado": el header es una sola fila, así que la posición es el
+ *  - Aquí NO hay "lado": el header es una sola fila, así que la posición es el
  *    único eje y el drag sólo reordena DENTRO del header (nunca se muda un
  *    botón a otro header).
  *  - Los ids de las acciones son globales y namespaced (`explorer.new-file`,

@@ -28,7 +28,7 @@ function isValidEditorFiles(value: unknown): value is EditorFileTab[] {
 // ── Layout ──────────────────────────────────────────────────────────────────
 // El layout v2 (multi-tab por slot) guarda su forma serializada; la migración
 // del formato v1 (un panel por slot) y la validación viven en
-// features/layout/persistence.ts. Acá solo se lee/escribe el JSON crudo.
+// features/layout/persistence.ts. Aquí solo se lee/escribe el JSON crudo.
 
 export function readLayoutSlotsRaw(): unknown {
   return lsGet(STORAGE_KEYS.LAYOUT_SLOTS)
@@ -93,7 +93,7 @@ export function persistHighlightSource(source: EditorHighlightSource): void {
  *
  * El default `auto` reproduce el comportamiento histórico (TextMate gana) y es
  * el que menos sorprende: es el camino que siguen las extensiones de VS Code.
- * Un valor guardado desconocido cae acá en vez de romper el resaltado.
+ * Un valor guardado desconocido cae aquí en vez de romper el resaltado.
  */
 function isValidGrammarEngine(value: unknown): value is EditorGrammarEngine {
   return value === 'auto' || value === 'treeSitter' || value === 'textMate'

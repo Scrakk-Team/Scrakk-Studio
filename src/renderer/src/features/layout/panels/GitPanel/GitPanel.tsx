@@ -369,7 +369,7 @@ export function GitPanel(): JSX.Element {
     try {
       if (loginMode === 'gh') {
         if (!loginToken.trim()) {
-          setLoginMessage('Pegá un token (ghp_… o github_pat_…).')
+          setLoginMessage('Pega un token (ghp_… o github_pat_…).')
           return
         }
         const res = await gitApi.authLoginGh({
@@ -408,7 +408,7 @@ export function GitPanel(): JSX.Element {
   if (!workspaceRoot) {
     return (
       <div className={styles.git}>
-        <p className={styles.empty}>Abrí una carpeta para usar git.</p>
+        <p className={styles.empty}>Abre una carpeta para usar git.</p>
       </div>
     )
   }

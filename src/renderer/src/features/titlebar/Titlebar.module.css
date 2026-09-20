@@ -9,7 +9,7 @@
   /* Temas flat (chrome monocromo): borde inferior hacia los slots. Solo
      existe cuando el tema lo define (--chrome-border); si no, transparente. */
   border-bottom: 1px solid var(--chrome-border, transparent);
-  /* Región de drag: se puede mover la ventana desde acá. */
+  /* Región de drag: se puede mover la ventana desde aquí. */
   -webkit-app-region: drag;
 }
 

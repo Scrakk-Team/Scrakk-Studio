@@ -1,7 +1,7 @@
 /**
  * Items de barra de estado aportados por extensiones.
  *
- * El host empuja el modelo del item (`status/item`); acá se guardan y la
+ * El host empuja el modelo del item (`status/item`); aquí se guardan y la
  * StatusBar los dibuja MEZCLADOS con los chips propios del IDE — no hay una
  * barra aparte para extensiones, igual que en VS Code.
  *

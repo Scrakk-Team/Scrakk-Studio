@@ -3,7 +3,7 @@ import { lazy, type LazyExoticComponent, type ComponentType } from 'react'
 /**
  * Registro de widgets de la titlebar — el "widgetcontainer".
  *
- * Cualquier componente .tsx puede convertirse en widget: se registra acá con
+ * Cualquier componente .tsx puede convertirse en widget: se registra aquí con
  * su id y el WidgetContainer lo carga de forma perezosa (lazy) dentro del
  * ErrorBoundary de layouts. Si ese widget peta, SOLO ese widget muestra el
  * fallback; el resto de la titlebar sigue viva.

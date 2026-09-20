@@ -200,7 +200,7 @@ export function ExplorerPanel({
   })
 
   // ── Selección ──────────────────────────────────────────────────────────
-  // Apertura centralizada (single-click y doble-click pasan por acá para
+  // Apertura centralizada (single-click y doble-click pasan por aquí para
   // avisar a onOpenFile: dropdowns que se cierran al abrir, etc.).
   const openFile = useCallback(
     (path: string, name: string): void => {
@@ -672,7 +672,7 @@ export function ExplorerPanel({
           </div>
           <h3 className={styles.emptyTitle}>Sin workspace</h3>
           <p className={styles.emptyText}>
-            Abrí una carpeta para explorar tus archivos y trabajar con el agente.
+            Abre una carpeta para explorar tus archivos y trabajar con el agente.
           </p>
           <div className={styles.emptyActions}>
             <button

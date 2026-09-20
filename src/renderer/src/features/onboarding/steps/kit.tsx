@@ -2,10 +2,10 @@
  * Kit visual de los pasos — primitivas compartidas.
  *
  * Existe para que cada paso sea CORTO y consistente: la tarjeta seleccionable,
- * el chip, la tecla y la nota de vista previa viven acá una sola vez. Un paso
+ * el chip, la tecla y la nota de vista previa viven aquí una sola vez. Un paso
  * nuevo se escribe con estas piezas y no con CSS suelto.
  *
- * Solo UI: ningún componente de acá toca servicios.
+ * Solo UI: ningún componente de aquí toca servicios.
  */
 
 import type { JSX, ReactNode } from 'react'

@@ -4,7 +4,7 @@
  * Consulta `repos/{repo}/releases/latest` con fetch nativo de Node y
  * devuelve el payload comparado contra __APP_VERSION__.
  * Modular: la función pura `mapRelease`/comparación vive en shared/version;
- * acá solo está el I/O + registro IPC.
+ * aquí solo está el I/O + registro IPC.
  */
 
 import { ipcMain } from 'electron'

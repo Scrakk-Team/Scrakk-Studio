@@ -33,7 +33,7 @@ export interface ViewsTranslation {
   /** `ruta en el SEF` → contenido (bytes: el paquete trae binarios). */
   assets: Map<string, Uint8Array>
   mapped: MappedApi[]
-  /** Campos extra del manifest SEF (acá: `runtime`). */
+  /** Campos extra del manifest SEF (aquí: `runtime`). */
   manifestExtras: Record<string, unknown>
 }
 
@@ -201,7 +201,7 @@ export function translateViews(
       if (visibility === 'hidden') contribution.hidden = true
 
       // El contenido de la vista vacía viaja con la vista (y sale del mapa:
-      // lo que sobra al final es `viewsWelcome` de vistas que no existen acá).
+      // lo que sobra al final es `viewsWelcome` de vistas que no existen aquí).
       const welcome = welcomeByView.get(rawView.id)
       if (welcome) {
         contribution.welcome = welcome

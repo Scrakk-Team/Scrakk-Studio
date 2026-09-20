@@ -447,7 +447,7 @@ export class LspClient {
   /**
    * Guarda los diagnósticos de UN documento y los empuja al host.
    *
-   * Único camino de escritura: push y pull terminan acá, así que lo que ve el
+   * Único camino de escritura: push y pull terminan aquí, así que lo que ve el
    * editor no depende de por dónde llegó.
    */
   private applyDiagnostics(

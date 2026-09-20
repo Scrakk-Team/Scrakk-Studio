@@ -134,8 +134,8 @@ function resolveCommand(cmd: string): string {
   const resolved = resolveExecutable(cmd)
   if (resolved) return resolved
   throw new Error(
-    `No encontré «${cmd}» en el PATH. Instalalo, o abrí la app desde una terminal, ` +
-      `o poné su directorio en el PATH (se buscan también ~/.local/bin, nvm, fnm, volta, snap y linuxbrew).`
+    `No encontré «${cmd}» en el PATH. Instalalo, o abre la app desde una terminal, ` +
+      `o pon su directorio en el PATH (se buscan también ~/.local/bin, nvm, fnm, volta, snap y linuxbrew).`
   )
 }
 

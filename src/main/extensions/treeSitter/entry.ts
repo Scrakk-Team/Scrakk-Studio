@@ -7,10 +7,10 @@
  * El parser es un `.wasm` de terceros que se ejecuta la primera vez que el
  * usuario abre un archivo de ese lenguaje. Un parser con un bug de memoria (o
  * un `.wasm` de ABI incompatible) puede tirar el proceso entero. En el main eso
- * es la ventana; acá se cae el worker, el manager lo reporta como error de
+ * es la ventana; aquí se cae el worker, el manager lo reporta como error de
  * resaltado y el editor sigue andando con lo que tenía.
  *
- * Toda la lógica está en `tokenizer.ts` (probable sin levantar un proceso); acá
+ * Toda la lógica está en `tokenizer.ts` (probable sin levantar un proceso); aquí
  * sólo se conecta el canal de mensajes.
  *
  * ─────────────────────────────────────────────────────────────────────────

@@ -20,14 +20,14 @@
  *
  * Es el mismo bug que tenía el panel de Problemas: con una lista por archivo,
  * el último que escribe pisa al otro. `tsc` publica y borra los del linter; el
- * linter publica y borra los de `tsc`. Acá cada fuente tiene su entrada y la
+ * linter publica y borra los de `tsc`. Aquí cada fuente tiene su entrada y la
  * lectura AGREGA, así que una extensión y un language server conviven sobre la
  * misma línea (y se pueden apagar por separado).
  *
  * ─────────────────────────────────────────────────────────────────────────
  * MIGRACIÓN A OWEAR (leer antes de tocar)
  *
- * Nada de acá conoce Electron: es un store en memoria + una lista de rangos.
+ * Nada de aquí conoce Electron: es un store en memoria + una lista de rangos.
  * Si Owear cambia el motor de render, se reescribe el puente que empuja los
  * sextupletes (hoy en `features/editor/engines/innerta`), no este archivo.
  */
@@ -86,7 +86,7 @@ export function decorationStyleFromCode(code: number | undefined): DecorationSty
  * Color por defecto de una decoración que no pidió ninguno.
  *
  * VS Code usa el color de decoración del tema; el IDE ya tiene una var para
- * "esto es informativo" y es la única razonable acá: inventar un azul propio
+ * "esto es informativo" y es la única razonable aquí: inventar un azul propio
  * haría que el mismo subrayado se viera distinto según quién lo pidió.
  */
 export const DEFAULT_DECORATION_COLOR_VAR = '--color-info'
@@ -96,7 +96,7 @@ export const DEFAULT_DECORATION_COLOR_FALLBACK = '#3794ff'
  * Fila del payload del host (`editor.setDecorations` de una extensión) →
  * decoración del store.
  *
- * La traducción vive acá y no en el puente del Extension Host para que haya UNA
+ * La traducción vive aquí y no en el puente del Extension Host para que haya UNA
  * sola forma de convertir "estilo + color del motor" en decoración: si mañana
  * el LSP quiere mandar `straight`, no inventa otro camino.
  */
@@ -170,7 +170,7 @@ function sameDecorations(a: readonly EditorDecoration[], b: readonly EditorDecor
  * Reemplaza las decoraciones de UNA fuente para UN archivo.
  *
  * Una lista vacía BORRA esa fuente (es lo que mandan los dos canales cuando el
- * problema desaparece). Los rangos invertidos o inconclusos se descartan acá y
+ * problema desaparece). Los rangos invertidos o inconclusos se descartan aquí y
  * no en el motor: el que conoce las coordenadas es el que las valida.
  *
  * OJO con un rango VACÍO (`start == end`): es legal en el LSP y lo usan servers
@@ -278,7 +278,7 @@ export function getDecorationsAt(path: string, line: number, col: number): Edito
 /**
  * Rangos → sextupletes `(startLine, startCol, endLine, endCol, rgba, style)`.
  *
- * Es el formato que espera `SetInnertaUnderlines` y se empaqueta ACÁ (y no en
+ * Es el formato que espera `SetInnertaUnderlines` y se empaqueta Aquí (y no en
  * cada llamador) a propósito: es la parte que se rompe en silencio si alguien
  * arma el array con otro orden.
  *

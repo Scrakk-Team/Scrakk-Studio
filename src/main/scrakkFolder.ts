@@ -6,7 +6,7 @@
  *  - Proyecto: <root>/.scrakk/<file>.json  (gana sobre usuario)
  *
  * Modularizado: cualquier subsistema (lsp hoy, lo que venga mañana) pide su
- * archivo por nombre; acá vive la única lógica de rutas, lectura, escritura
+ * archivo por nombre; aquí vive la única lógica de rutas, lectura, escritura
  * y merge en capas. El renderer accede vía IPC o vía el storage service para
  * sus propias preferencias.
  */

@@ -2,7 +2,7 @@
  * Capa 1 — Validación del .vsix (seguridad + formato).
  *
  * Un .vsix es un ZIP con un package.json que declara `contributes`.
- * Acá NO se traduce nada: solo se verifica que el archivo sea lo que dice
+ * Aquí NO se traduce nada: solo se verifica que el archivo sea lo que dice
  * ser, con límites anti-zip-bomb y anti-traversal. Cada fallo devuelve un
  * error con código para que la UI explique QUÉ está mal.
  */

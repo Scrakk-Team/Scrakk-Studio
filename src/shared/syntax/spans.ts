@@ -13,7 +13,7 @@
  * — y los semantic tokens reusan el MISMO entero con flags `SEMANTIC_USE_*`
  * en el byte de languageId. Eso significa que un token semántico **pisa sólo
  * lo que declara**: si dice "italic" y no dice color, conserva el color del
- * árbol. Es exactamente lo que hace falta acá, porque tenemos 4 fuentes
+ * árbol. Es exactamente lo que hace falta aquí, porque tenemos 4 fuentes
  * apiladas sobre el mismo rango (ver `scopes.ts`).
  *
  * Entonces: cada fuente aporta spans, cada span declara ASPECTOS (los que
@@ -58,7 +58,7 @@ export interface ResolvedSpan {
   style: TokenStyle
   /** La fuente que ganó en ese tramo. */
   source: SyntaxSource
-  /** Todas las capas que aportaron algo acá (texto, subrayado, fondo…). */
+  /** Todas las capas que aportaron algo aquí (texto, subrayado, fondo…). */
   layers: SyntaxLayer[]
 }
 

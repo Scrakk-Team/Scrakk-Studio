@@ -4,7 +4,7 @@ import type { InnertaModule } from './InnertaEngine'
  * Input del host → Innerta (WASM).
  *
  * El puerto GLFW de emscripten no entrega los eventos del canvas de forma
- * fiable, así que el canvas del editor enruta pointer/keyboard/wheel acá y se
+ * fiable, así que el canvas del editor enruta pointer/keyboard/wheel aquí y se
  * empujan directo a los exports C (InnertaMouse* / InnertaKey / InnertaChar).
  * Los keycodes se convierten de `KeyboardEvent.code` (físico) a GLFW.
  */
@@ -114,7 +114,7 @@ export function wireInnertaInput(
   /**
    * Suelta todos los botones (blur / pointercancel / lostpointercapture).
    * Transporte fiel: el engine filtra releases redundantes por su cuenta
-   * (m_mouseButtonDown), así que re-enviar de más acá es inofensivo y
+   * (m_mouseButtonDown), así que re-enviar de más aquí es inofensivo y
    * auto-sana desincronizaciones (HMR, captura fallida).
    */
   const releaseAllButtons = (): void => {

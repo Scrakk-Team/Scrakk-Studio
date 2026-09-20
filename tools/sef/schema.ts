@@ -56,7 +56,22 @@ export function validateManifest(manifest: Record<string, unknown>): ValidationI
     return issues
   }
   const c = contributes as Record<string, unknown>
-  const KNOWN_KINDS = ['panels', 'activityBar', 'centerTabs', 'themes', 'fileIcons', 'productIcons', 'lspServers', 'commands']
+  const KNOWN_KINDS = [
+    'panels',
+    'views',
+    'activityBar',
+    'centerTabs',
+    'themes',
+    'fileIcons',
+    'productIcons',
+    'lspServers',
+    'languages',
+    'notifications',
+    'encodings',
+    'tools',
+    'skills',
+    'commands'
+  ]
   for (const key of Object.keys(c)) {
     if (!KNOWN_KINDS.includes(key)) {
       issues.push({ field: `contributes.${key}`, message: `tipo desconocido (${KNOWN_KINDS.join(', ')})` })

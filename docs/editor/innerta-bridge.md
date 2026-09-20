@@ -107,7 +107,7 @@ INNERTA_API void INNERTA_CALL SetInnertaDiffDecorations(const wchar_t* /*json*/)
 
 `g_diff_states` se guarda/no se dibuja. Es el caso testigo de por qué el puente
 necesita un handshake de capabilities: una promesa sin implementación no se
-puede distinguir de "no la pedí".
+puede distinguir de "no la pide".
 
 **Actualizado**: `SetInnertaUnderlines` **ya no es un stub**. Era
 `void SetInnertaUnderlines(const wchar_t*) {}` (con su `g_underlines` declarado y
@@ -297,7 +297,7 @@ click vuelve por el canal único). El plan lo generaliza:
 - **Dos implementaciones, en este orden**:
   1. **DOM sobre el gutter** (cero C++): el ancrado por línea sale de `S1`;
      Scrakk pinta las lanes nuevas. Git diff, diagnósticos y decoraciones de
-     extensión entran por acá.
+     extensión entran por aquí.
   2. **Lanes declaradas** (`S5`) cuando una lane necesite espacio propio (el
      engine corre el texto). Requiere C++.
 

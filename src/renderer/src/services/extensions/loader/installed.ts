@@ -88,7 +88,7 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
   }
 
   // La validación de módulos faltantes vive en el schema de cada tipo
-  // (vía hasModule); acá solo se entrega el mapa crudo del bundle.
+  // (vía hasModule); aquí solo se entrega el mapa crudo del bundle.
   const resolver: ComponentResolver = {
     resolveComponent: (path) => () =>
       Promise.resolve({ default: modules[path] as ComponentType }),

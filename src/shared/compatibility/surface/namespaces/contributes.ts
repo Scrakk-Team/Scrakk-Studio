@@ -2,7 +2,7 @@
  * Namespace `contributes` — el lado VSIX de la tabla.
  *
  * Una entrada por contribution point conocido de VS Code. `kinds.ts` se DERIVA
- * de acá (no hay segunda lista), así que cambiar el estado de un tipo es
+ * de aquí (no hay segunda lista), así que cambiar el estado de un tipo es
  * cambiar UNA línea y el reporte de compatibilidad queda consistente.
  *
  * ── POR QUÉ ESTÁN *TODAS*, AUNQUE NO LAS SOPORTEMOS ─────────────────────
@@ -11,7 +11,7 @@
  * desconocido", y eso es peor que decir la verdad: `chatSkills` no es
  * desconocido, es una cosa que sabemos qué es y no soportamos. La diferencia
  * importa para el usuario que instala: "no sé qué es esto" vs "sé qué es y por
- * qué no funciona acá".
+ * qué no funciona aquí".
  *
  * Route:
  *  - 'sef'  → hay traductor en `translators/registry.ts` (lo verifica un test).

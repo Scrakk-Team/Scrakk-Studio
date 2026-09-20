@@ -81,7 +81,7 @@ export function ExtensionWebviewPanel(): JSX.Element {
           break
         case 'panel/close':
           // El panel se cerró del lado de la extensión: el store ya se encarga
-          // de la tab; acá sólo se corta el iframe.
+          // de la tab; aquí sólo se corta el iframe.
           setDocumentUrl(null)
           break
         default:

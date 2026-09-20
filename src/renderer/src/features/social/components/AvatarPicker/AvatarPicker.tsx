@@ -101,7 +101,7 @@ export function AvatarPicker({ value, onChange, name, accountId }: AvatarPickerP
     }
     const dataUrl = await fileToAvatarDataUrl(file)
     if (!dataUrl) {
-      setError('No pudimos procesar esa imagen (probá con PNG/JPG/WebP).')
+      setError('No pudimos procesar esa imagen (prueba con PNG/JPG/WebP).')
       return
     }
     onChange(dataUrl)
@@ -127,7 +127,7 @@ export function AvatarPicker({ value, onChange, name, accountId }: AvatarPickerP
           className={styles.urlInput}
           value={value.startsWith('data:') ? '' : value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="…o pegá un enlace (https://)"
+          placeholder="…o pega un enlace (https://)"
           spellCheck={false}
           aria-label="Enlace de la foto"
         />

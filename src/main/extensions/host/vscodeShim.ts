@@ -6,7 +6,7 @@
  * de compatibilidad del instalador.
  *
  * Una extensión de VS Code NO recibe `vscode` desde `node_modules`: se lo
- * **inyecta el host**. Acá se construye ese módulo, apoyado en un `HostBridge`
+ * **inyecta el host**. Aquí se construye ese módulo, apoyado en un `HostBridge`
  * (transporte inyectable) para que sea testeable sin proceso ni stdio.
  *
  * ─────────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@
  * Este archivo NO sabe de Node, ni de stdio, ni de Electron: sólo llama al
  * `HostBridge`. Cuando Owear reemplace el runtime de ejecución se conserva
  * este shim entero y se cambia el bridge. Por eso nada de `process`, `fs` ni
- * `child_process` acá adentro.
+ * `child_process` aquí adentro.
  */
 
 // El motivo de una API que no está sale de la tabla única de superficie: la
@@ -436,7 +436,7 @@ export class WebviewViewHandle {
 /**
  * Error estándar de una API que el host no cubre.
  *
- * El MOTIVO no se escribe acá: sale de la tabla única de superficie
+ * El MOTIVO no se escribe aquí: sale de la tabla única de superficie
  * (`shared/compatibility/surface`), que es la misma que alimenta el reporte
  * de compatibilidad. Así el error que ve la extensión y lo que promete el
  * cartel de instalación no pueden decir cosas distintas.

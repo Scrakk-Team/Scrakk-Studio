@@ -108,7 +108,7 @@ export function registerLspIpc(): void {
 
   /**
    * Servers apagados por el usuario. El renderer los persiste (Ajustes) y los
-   * empuja acá al arrancar y en cada cambio; el manager los respeta al cargar
+   * empuja aquí al arrancar y en cada cambio; el manager los respeta al cargar
    * configs, así que un server apagado no arranca de verdad.
    */
   ipcMain.handle(

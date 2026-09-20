@@ -29,7 +29,7 @@ export interface PanelEntry {
    * Import DINÁMICO del panel: resuelve al componente (built-in).
    *
    * `PanelHost` lo espera con `useState` + promesa, NUNCA con `React.lazy`:
-   * acá el reintento del `Suspense` se pierde y el panel se queda en
+   * aquí el reintento del `Suspense` se pierde y el panel se queda en
    * "Cargando panel…" hasta cambiar de tab y volver (ver
    * `components/PanelHost/panelModules.ts`). Además es lo que permite
    * precargar (`preloadPanel`) y montar al instante desde el cache.

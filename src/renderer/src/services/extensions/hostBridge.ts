@@ -3,7 +3,7 @@
  *
  * El main rutea a la UI lo que sólo la UI sabe hacer: mostrar una notificación
  * y elegir qué botón se apretó, correr un comando del registry REAL del IDE y
- * abrir un archivo en el editor. Acá se atiende esa petición y se responde con
+ * abrir un archivo en el editor. Aquí se atiende esa petición y se responde con
  * `respondInvoke`.
  *
  * ESTO FALTABA: el main mandaba `extensions:host-invoke` y NADIE escuchaba, así
@@ -47,7 +47,7 @@ function toSeverity(severity: string): 'info' | 'warn' | 'error' {
  * Muestra una notificación y ESPERA la elección. Se resuelve con el índice del
  * botón elegido, o con `{}` si el usuario la cerró sin elegir.
  *
- * Lo que llega del host se NORMALIZA acá (texto a `string`, botones sin texto
+ * Lo que llega del host se NORMALIZA aquí (texto a `string`, botones sin texto
  * afuera): la UI no puede intentar renderizar un objeto como si fuera texto.
  * El bug que originó esto: Cline manda `MessageOptions` (`{modal, detail}`) y
  * ese objeto llegó a la lista de botones, la UI lo renderizó y React tumbó la
@@ -111,7 +111,7 @@ async function handleInvoke(request: HostInvokeRequest): Promise<unknown> {
   if (request.method === 'command/execute') {
     const { id, args } = request.params as { id: string; args?: unknown[] }
     // Los comandos del IDE no llevan argumentos: los que sí (los de las
-    // extensiones) los rutea el main al host dueño, no llegan hasta acá.
+    // extensiones) los rutea el main al host dueño, no llegan hasta aquí.
     //
     // Los ids de VS Code pasan PRIMERO por el mapa de compatibilidad: los
     // args importan (`vscode.open` recibe la URI) y los built-in del entorno
@@ -295,6 +295,6 @@ export function initExtensionHostBridge(): ExtensionHostBridgeHandle {
   }
 }
 
-/** Re-export para el boot: deja claro que los documentos van por acá también. */
+/** Re-export para el boot: deja claro que los documentos van por aquí también. */
 export type { DocumentEvent }
 export type { StatusBarItemModel }

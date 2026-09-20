@@ -13,9 +13,9 @@
  * Los valores son los REALES de VS Code (`vscode.d.ts`). Importa que coincidan:
  * hay extensiones que los guardan en disco, los mandan a sus servidores o los
  * comparan con lo que devuelve el API. Un valor inventado sería una mentira que
- * se descubre lejos de acá.
+ * se descubre lejos de aquí.
  *
- * Lo que NO hay acá: nada de comportamiento. Son datos.
+ * Lo que NO hay aquí: nada de comportamiento. Son datos.
  */
 
 // ── Enums numéricos ───────────────────────────────────────────────────────

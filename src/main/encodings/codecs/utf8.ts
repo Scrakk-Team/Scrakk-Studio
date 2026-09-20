@@ -2,7 +2,7 @@
  * Codec UTF-8 — sin BOM y variante con BOM.
  *
  * Cada familia de encoding vive en su propio archivo: agregar un encoding
- * builtin = crear un archivo acá + exportarlo en codecs/index.ts.
+ * builtin = crear un archivo aquí + exportarlo en codecs/index.ts.
  */
 
 import { BOM_UTF8, stripUtf8BomChar, type IEncodingCodec } from '@shared/encodings'
