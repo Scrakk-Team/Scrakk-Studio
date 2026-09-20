@@ -4,7 +4,7 @@
  * Rol exacto: DETECTAR si la tool tiene visual propio (meta.renderBody /
  * children) y USARLO tal cual, sin card, header, chevron ni diseño propio.
  * El texto simple (y el shimmer mientras carga) vive 100% en cada tool,
- * en su propia carpeta visual/. Acá solo queda el fallback para las tools
+ * en su propia carpeta visual/. Aquí solo queda el fallback para las tools
  * sin visual y el estado de error.
  */
 

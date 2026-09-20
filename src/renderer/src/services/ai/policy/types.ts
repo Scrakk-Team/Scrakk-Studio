@@ -17,9 +17,21 @@ export interface ModeDefinition {
   label: string
   description?: string
   color?: string
+  /** Id de ProductIcon para la UI (opcional). */
+  icon?: string
   prompt: string
   mutationBehavior: ModeMutationBehavior
   shellBehavior: ModeShellBehavior
+  /**
+   * Efectos del modo (espejo de `DefaultModeEffects` de scrakk-cli):
+   * - `acceptEdits`: auto-aprueba ediciones de archivos.
+   * - `bypassPermissions`: aprueba todo (no pregunta).
+   * - `promptPolicy`: qué hacer cuando algo pediría confirmación:
+   *   'ask' (preguntar), 'deny' (negar en silencio), 'auto' (clasificador).
+   */
+  acceptEdits?: boolean
+  bypassPermissions?: boolean
+  promptPolicy?: 'ask' | 'deny' | 'auto'
   toolFilter?: { include?: string[]; exclude?: string[] }
   extensionId?: string
 }

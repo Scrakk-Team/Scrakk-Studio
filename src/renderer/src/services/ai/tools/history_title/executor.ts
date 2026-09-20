@@ -1,9 +1,11 @@
 import type { ExecutionResult, ToolContext } from '../types'
-export async function execute(args: Record<string, unknown>, _ctx: ToolContext): Promise<ExecutionResult> {
+export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
     const title = (args.title as string || '').trim()
     if (!title) return { success: false, content: 'No title provided' }
-    window.dispatchEvent(new CustomEvent('set-chat-title', { detail: { title } }))
+    window.dispatchEvent(
+      new CustomEvent('set-chat-title', { detail: { title, sessionId: ctx.sessionId } })
+    )
     return { success: true, content: `Chat title set to: "${title}"` }
   } catch (error) {
     return { success: false, content: `Error setting title: ${error}` }

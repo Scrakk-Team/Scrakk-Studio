@@ -33,14 +33,14 @@ export const TOOL_PRODUCT_ICON_IDS: Record<string, string> = {
   execute_command: 'terminal',
   get_diagnostics: 'alert',
   history_title: 'history',
-  list_browser_tabs: 'layers',
-  navigate_web: 'compass',
-  open_browser: 'globe',
-  view_web: 'eye',
   lsp: 'server',
   multiple_tools: 'grid',
   create_app_blueprint: 'clipboard',
-  adjust_timeout: 'timer'
+  adjust_timeout: 'timer',
+  list_skills: 'layers',
+  skill: 'bookmark',
+  web_search: 'search',
+  web_fetch: 'globe'
 }
 
 export function ToolCallIcon({ toolName, icon, size = 14 }: ToolCallIconProps): JSX.Element {

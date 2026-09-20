@@ -5,7 +5,7 @@
  * prompt siempre refleja las tools reales registradas — nunca se desincroniza.
  */
 
-import { getToolDefinitions } from '../tools'
+import { getEnabledToolDefinitions } from '../tools'
 
 type JsonSchema = Record<string, unknown>
 
@@ -26,9 +26,9 @@ function formatParam(name: string, schema: JsonSchema | undefined, required: boo
   return `- ${name} (${type}, ${req})${desc ? `: ${desc}` : ''}`
 }
 
-/** Renderiza la lista completa de tools con sus parámetros. */
-export function renderToolsList(): string {
-  const defs = getToolDefinitions()
+/** Renderiza la lista completa de tools habilitadas, con sus parámetros. */
+export function renderToolsList(sessionId: string | null = null): string {
+  const defs = getEnabledToolDefinitions(sessionId)
   if (defs.length === 0) return '(no hay tools disponibles)'
 
   const lines: string[] = []

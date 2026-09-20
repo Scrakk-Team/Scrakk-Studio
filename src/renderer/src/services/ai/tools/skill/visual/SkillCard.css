@@ -1,0 +1,8 @@
+/* skill card styles — inyectadas vía displayCss */
+.skill-card {
+  color: var(--color-text-muted);
+}
+
+.skill-card__lines {
+  color: var(--color-text-secondary);
+}

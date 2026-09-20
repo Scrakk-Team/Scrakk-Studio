@@ -52,7 +52,7 @@ function BlockedIcon(): JSX.Element {
 }
 
 export function ToolCallStatus({ status, errorMessage }: ToolCallStatusProps): JSX.Element | null {
-  // Cargando/executando → nada acá: el shimmer lo pinta el visual de cada tool.
+  // Cargando/executando → nada aquí: el shimmer lo pinta el visual de cada tool.
   if (status === 'pending' || status === 'streaming' || status === 'running') {
     return null
   }

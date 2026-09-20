@@ -25,10 +25,6 @@ const DEFAULT_META: Record<string, ToolMeta> = {
   grep_search: { name: 'grep_search', label: 'Grep Search', description: 'Search text in files', category: 'code', dangerLevel: 'safe', enabledByDefault: true },
   get_diagnostics: { name: 'get_diagnostics', label: 'Get Diagnostics', description: 'Check files for errors', category: 'code', dangerLevel: 'safe', enabledByDefault: true },
   execute_command: { name: 'execute_command', label: 'Execute Command', description: 'Run shell commands', category: 'system', dangerLevel: 'high', enabledByDefault: true },
-  open_browser: { name: 'open_browser', label: 'Open Browser', description: 'Open a URL in the browser', category: 'browser', dangerLevel: 'low', enabledByDefault: true },
-  view_web: { name: 'view_web', label: 'View Web', description: 'Fetch and read web page content', category: 'browser', dangerLevel: 'low', enabledByDefault: true },
-  list_browser_tabs: { name: 'list_browser_tabs', label: 'List Browser Tabs', description: 'List open browser tabs', category: 'browser', dangerLevel: 'safe', enabledByDefault: true },
-  navigate_web: { name: 'navigate_web', label: 'Navigate Web', description: 'Interact with browser tabs', category: 'browser', dangerLevel: 'low', enabledByDefault: true },
   create_app_blueprint: { name: 'create_app_blueprint', label: 'Create Blueprint', description: 'Create app plan/blueprint', category: 'utility', dangerLevel: 'safe', enabledByDefault: true },
   history_title: { name: 'history_title', label: 'Set Title', description: 'Set conversation title', category: 'utility', dangerLevel: 'safe', enabledByDefault: true },
   adjust_timeout: { name: 'adjust_timeout', label: 'Adjust Timeout', description: 'Extend command timeout', category: 'utility', dangerLevel: 'low', enabledByDefault: true },
@@ -162,6 +158,7 @@ class ToolSettingsService {
       { key: 'code', label: 'Code Analysis' },
       { key: 'system', label: 'System' },
       { key: 'browser', label: 'Browser' },
+      { key: 'skills', label: 'Skills' },
       { key: 'utility', label: 'Utility' },
       { key: 'extension', label: 'Extensions' },
     ]

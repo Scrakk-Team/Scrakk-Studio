@@ -15,15 +15,18 @@ import { moveFileTool } from './move_file'
 import { fileSearchTool } from './file_search'
 import { grepSearchTool } from './grep_search'
 import { getDiagnosticsTool } from './get_diagnostics'
-import { openBrowserTool } from './open_browser'
-import { viewWebTool } from './view_web'
-import { listBrowserTabsTool } from './list_browser_tabs'
-import { navigateWebTool } from './navigate_web'
 import { createAppBlueprintTool } from './create_app_blueprint'
 import { historyTitleTool } from './history_title'
 import { adjustTimeoutTool } from './adjust_timeout'
 import { multipleToolsTool } from './multiple_tools'
 import { lspTool } from './lsp'
+import { listSkillsTool } from './list_skills'
+import { skillTool } from './skill'
+import { webSearchTool } from './web_search'
+import { webFetchTool } from './web_fetch'
+import { toolSettingsService } from '../toolSettings'
+import { policyEngine } from '../policy/policy-engine'
+import { modeRegistry } from '../policy/modeRegistry'
 
 registerAll()
 
@@ -41,20 +44,44 @@ function registerAll(): void {
   registry.register(fileSearchTool, opts)
   registry.register(grepSearchTool, opts)
   registry.register(getDiagnosticsTool, opts)
-  registry.register(openBrowserTool, opts)
-  registry.register(viewWebTool, opts)
-  registry.register(listBrowserTabsTool, opts)
-  registry.register(navigateWebTool, opts)
   registry.register(createAppBlueprintTool, opts)
   registry.register(historyTitleTool, opts)
   registry.register(adjustTimeoutTool, opts)
   registry.register(multipleToolsTool, opts)
   registry.register(lspTool, opts)
+  registry.register(listSkillsTool, opts)
+  registry.register(skillTool, opts)
+  registry.register(webSearchTool, opts)
+  registry.register(webFetchTool, opts)
 }
 
 export function getToolDefinitions(keep?: Set<string>): import('./types').ToolDefinition[] {
   if (keep) return registry.getDefinitionsFiltered(keep)
   return registry.getDefinitions()
+}
+
+/**
+ * Definiciones de las tools HABILITADAS (settings globales + override de
+ * sesión + filtro del modo activo). Es lo que se anuncia al modelo en el
+ * system prompt y en el request: una tool deshabilitada no debe existir para
+ * la IA.
+ */
+export function getEnabledToolDefinitions(
+  sessionId: string | null = null
+): import('./types').ToolDefinition[] {
+  const mode = modeRegistry.get(policyEngine.getModeId())
+  const include = mode?.toolFilter?.include
+  const exclude = new Set(mode?.toolFilter?.exclude ?? [])
+
+  const enabled = new Set(
+    registry.getNames().filter((name) => {
+      if (!toolSettingsService.isEnabledForSession(sessionId, name)) return false
+      if (exclude.has(name)) return false
+      if (include && !include.includes(name)) return false
+      return true
+    })
+  )
+  return registry.getDefinitionsFiltered(enabled)
 }
 
 export { ToolRegistry, registry } from './registry'

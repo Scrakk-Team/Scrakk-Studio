@@ -1,0 +1,4 @@
+/* web_search card styles — inyectadas vía displayCss */
+.web-search-card {
+  color: var(--color-text-muted);
+}

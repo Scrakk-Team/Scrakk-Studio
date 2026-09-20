@@ -1,0 +1,8 @@
+/* web_fetch card styles — inyectadas vía displayCss */
+.web-fetch-card {
+  color: var(--color-text-muted);
+}
+
+.web-fetch-card__size {
+  color: var(--color-text-secondary);
+}

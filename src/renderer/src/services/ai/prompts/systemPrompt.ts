@@ -59,7 +59,7 @@ function buildUserInfo(): string {
 }
 
 /** Construye el system prompt completo (identidad + safety + tools + formato). */
-export function buildSystemPrompt(): string {
+export function buildSystemPrompt(sessionId: string | null = null): string {
   // Prompt del modo activo (patrón scrakk: cada modo define su prompt y se
   // re-construye en cada request, así el cambio de modo se aplica al toque).
   const modeId = getModeId()
@@ -84,7 +84,7 @@ export function buildSystemPrompt(): string {
     TOOL_CALLING_GUIDE,
     '</tool_calling>',
     '',
-    `<available_tools>\n${renderToolCallFormat()}\n\n${renderToolsList()}\n</available_tools>`,
+    `<available_tools>\n${renderToolCallFormat()}\n\n${renderToolsList(sessionId)}\n</available_tools>`,
     '',
     OUTPUT_EFFICIENCY,
     '',

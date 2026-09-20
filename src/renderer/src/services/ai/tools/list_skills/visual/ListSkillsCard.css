@@ -1,0 +1,4 @@
+/* list_skills card styles — inyectadas vía displayCss */
+.list-skills-card {
+  color: var(--color-text-muted);
+}

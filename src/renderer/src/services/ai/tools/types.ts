@@ -86,7 +86,7 @@ export interface ToolMeta {
   name: string
   label: string
   description: string
-  category: 'file' | 'code' | 'browser' | 'system' | 'agent' | 'utility' | 'extension'
+  category: 'file' | 'code' | 'browser' | 'system' | 'agent' | 'utility' | 'skills' | 'extension'
   dangerLevel: 'safe' | 'low' | 'medium' | 'high'
   enabledByDefault: boolean
 

@@ -1,11 +1,14 @@
 /**
- * Policy engine — decides whether to allow, deny, or ask user for tool calls.
+ * Policy engine — decide allow / deny / ask por tool call.
  *
- * Resolution order:
- *   1. Custom rules (path_block, command_prefix, etc.)
- *   2. Shell safety analysis (for shell-using tools)
- *   3. Mutation behavior (for file-editing tools)
- *   4. Default: ALLOW
+ * Orden de resolución (espejo de scrakk-cli):
+ *   1. Reglas de permisos del usuario (`permissions.allow/ask/deny`): deny >
+ *      ask > allow. Los efectos del MODO deciden qué hacer con un `ask`.
+ *   2. `bypassPermissions`: aprueba todo.
+ *   3. Shell safety (comandos riesgosos).
+ *   4. Comportamiento de mutación del modo.
+ *   5. `promptPolicy: 'deny'` (dontAsk) convierte una confirmación en negación.
+ *   6. Default: ALLOW.
  */
 
 import { ApprovalMode, PolicyDecision } from './types'
@@ -13,6 +16,12 @@ import type { PolicyRule, PolicyConfig, PolicyCheckResult, ShellSafetyResult, Mo
 import { isDangerousCommand } from './shell-safety'
 import { registry } from '../tools/registry'
 import { modeRegistry, BUILTIN_MODE_IDS } from './modeRegistry'
+import {
+  evaluatePermissionRules,
+  type AccessKind,
+  type PermissionRule
+} from './permissionRules'
+import { autoModeVerdict } from './autoMode'
 
 const DEFAULT_MUTATION_TOOLS = new Set([
   'write_file', 'append_file', 'replace_in_file',
@@ -23,38 +32,95 @@ const DEFAULT_SHELL_TOOLS = new Set([
   'execute_command',
 ])
 
-export class PolicyEngine {
-  private config: PolicyConfig
+interface EngineConfig extends PolicyConfig {
+  /** Id de modo (CLI): default, acceptEdits, plan, auto, dontAsk, bypassPermissions. */
+  modeId: string
+  /** Reglas del usuario cargadas de `.scrakk/permissions.json`. */
+  permissionRules: PermissionRule[]
+}
 
-  constructor(config?: Partial<PolicyConfig>) {
+/** Traduce un tool call a un `AccessKind` (o null si no aplica política). */
+export function accessForToolCall(
+  toolName: string,
+  args: Record<string, unknown>
+): AccessKind | null {
+  const asString = (value: unknown): string | null =>
+    typeof value === 'string' && value.length > 0 ? value : null
+
+  switch (toolName) {
+    case 'execute_command':
+      return { kind: 'bash', command: asString(args.command) ?? '' }
+    case 'read_file':
+      return { kind: 'read', path: asString(args.path) }
+    case 'read_multiple_files': {
+      const files = Array.isArray(args.files) ? args.files : []
+      const first = files.find((f): f is string => typeof f === 'string') ?? null
+      return { kind: 'read', path: first }
+    }
+    case 'write_file':
+    case 'append_file':
+    case 'replace_in_file':
+    case 'delete_file':
+    case 'move_file':
+      return {
+        kind: 'edit',
+        path: asString(args.path) ?? asString(args.destination) ?? ''
+      }
+    case 'grep_search':
+      return { kind: 'grep', path: asString(args.path) }
+    case 'file_search':
+      return { kind: 'grep', path: null }
+    case 'web_fetch':
+      return { kind: 'web_fetch', url: asString(args.url) ?? '' }
+    case 'web_search':
+      return { kind: 'web_search', query: asString(args.query) ?? '' }
+    default:
+      return null
+  }
+}
+
+export class PolicyEngine {
+  private config: EngineConfig
+
+  constructor(config?: Partial<EngineConfig>) {
     this.config = {
       mode: config?.mode ?? ApprovalMode.DEFAULT,
+      modeId: config?.modeId ?? BUILTIN_MODE_IDS[ApprovalMode.DEFAULT],
       rules: config?.rules ?? [],
       shellDangerPatterns: config?.shellDangerPatterns ?? [],
+      permissionRules: config?.permissionRules ?? []
     }
   }
 
   setMode(mode: ApprovalMode): void {
     this.config.mode = mode
+    this.config.modeId = BUILTIN_MODE_IDS[mode]
   }
 
+  /** Mejor esfuerzo: mapea el id de modo actual al enum histórico. */
   getMode(): ApprovalMode {
-    return this.config.mode
+    switch (this.config.modeId) {
+      case 'plan':
+        return ApprovalMode.PLAN
+      case 'acceptEdits':
+      case 'auto_edit':
+        return ApprovalMode.AUTO_EDIT
+      case 'bypassPermissions':
+      case 'all_allow':
+        return ApprovalMode.ALL_ALLOW
+      default:
+        return ApprovalMode.DEFAULT
+    }
   }
 
   setModeId(modeId: string): void {
-    const def = modeRegistry.get(modeId)
-    if (def) {
-      if (def.id === BUILTIN_MODE_IDS[ApprovalMode.PLAN]) this.config.mode = ApprovalMode.PLAN
-      else if (def.id === BUILTIN_MODE_IDS[ApprovalMode.AUTO_EDIT]) this.config.mode = ApprovalMode.AUTO_EDIT
-      else if (def.id === BUILTIN_MODE_IDS[ApprovalMode.ALL_ALLOW]) this.config.mode = ApprovalMode.ALL_ALLOW
-      else if (def.id === BUILTIN_MODE_IDS[ApprovalMode.DEFAULT]) this.config.mode = ApprovalMode.DEFAULT
-      else this.config.mode = ApprovalMode.DEFAULT
+    if (modeRegistry.get(modeId)) {
+      this.config.modeId = modeId
     }
   }
 
   getModeId(): string {
-    return BUILTIN_MODE_IDS[this.config.mode]
+    return this.config.modeId
   }
 
   setRules(rules: PolicyRule[]): void {
@@ -68,6 +134,15 @@ export class PolicyEngine {
 
   getRules(): PolicyRule[] {
     return [...this.config.rules]
+  }
+
+  /** Reglas de permisos del usuario (`permissions.allow/ask/deny`). */
+  setPermissionRules(rules: PermissionRule[]): void {
+    this.config.permissionRules = rules
+  }
+
+  getPermissionRules(): PermissionRule[] {
+    return [...this.config.permissionRules]
   }
 
   isMutationTool(toolName: string): boolean {
@@ -85,14 +160,14 @@ export class PolicyEngine {
   }
 
   private getActiveMode(): ModeDefinition | undefined {
-    return modeRegistry.get(BUILTIN_MODE_IDS[this.config.mode])
+    return modeRegistry.get(this.config.modeId)
   }
 
   async checkTool(
     toolName: string,
     args: Record<string, unknown>,
   ): Promise<PolicyCheckResult> {
-    // Check custom rules
+    // 1) Reglas propias (legacy) del engine.
     const rules = this.getApplicableRules(toolName, args)
     for (const rule of rules) {
       const result = this.evaluateRule(rule, toolName, args)
@@ -101,34 +176,110 @@ export class PolicyEngine {
       }
     }
 
-    // Check shell safety
-    if (this.isShellTool(toolName)) {
-      const shellResult = this.checkShellSafetyWithMode(args)
-      if (shellResult) return shellResult
+    const mode = this.getActiveMode()
+    const modeLabel = mode?.id ?? this.config.modeId
+
+    // Tools deshabilitadas por el modo: no existen en ese modo y ninguna regla
+    // las habilita. Es el "desactivar comandos/herramientas solo en ciertos
+    // modos" (p. ej. Plan excluye mutaciones y shell).
+    if (mode?.toolFilter) {
+      const { include, exclude } = mode.toolFilter
+      const fueraDeInclude = include ? !include.includes(toolName) : false
+      if (exclude?.includes(toolName) || fueraDeInclude) {
+        return {
+          decision: PolicyDecision.DENY,
+          reason: `[${modeLabel}] tool '${toolName}' is disabled in this mode`
+        }
+      }
     }
 
-    // Check mutation behavior
+    // 2) Reglas de permisos del usuario (deny > ask > allow), globales + las
+    //    acotadas al modo activo.
+    const access = accessForToolCall(toolName, args)
+    if (access) {
+      const verdict = evaluatePermissionRules(access, this.config.permissionRules, this.config.modeId)
+      if (verdict === 'deny') {
+        return {
+          decision: PolicyDecision.DENY,
+          reason: `[${modeLabel}] denied by permission policy (${access.kind})`
+        }
+      }
+      if (verdict === 'ask') {
+        if (mode?.bypassPermissions) {
+          return { decision: PolicyDecision.ALLOW, reason: `[${modeLabel}] policy ask bypassed` }
+        }
+        if (mode?.promptPolicy === 'deny') {
+          return { decision: PolicyDecision.DENY, reason: `[${modeLabel}] policy ask denied` }
+        }
+        return {
+          decision: PolicyDecision.ASK_USER,
+          reason: `[${modeLabel}] permission policy requests approval (${access.kind})`
+        }
+      }
+      if (verdict === 'allow') {
+        return { decision: PolicyDecision.ALLOW, reason: `[${modeLabel}] allowed by permission policy` }
+      }
+    }
+
+    // 3) Modo `auto`: fast-paths + heurístico (sin clasificador LLM).
+    if (mode?.promptPolicy === 'auto') {
+      const verdict = autoModeVerdict({ access, toolName })
+      if (verdict === 'allow') {
+        return { decision: PolicyDecision.ALLOW, reason: `[${modeLabel}] auto fast-path` }
+      }
+      return { decision: PolicyDecision.ASK_USER, reason: `[${modeLabel}] auto: needs approval` }
+    }
+
+    // 4) bypassPermissions: no hay nada que preguntar.
+    if (mode?.bypassPermissions) {
+      return { decision: PolicyDecision.ALLOW, reason: `[${modeLabel}] bypassPermissions` }
+    }
+
+    // 5) Shell safety.
+    if (this.isShellTool(toolName)) {
+      const shellResult = this.checkShellSafetyWithMode(args)
+      if (shellResult) return this.applyPromptPolicy(shellResult, mode)
+    }
+
+    // 6) Comportamiento de mutación del modo.
     if (this.isMutationTool(toolName)) {
-      const mode = this.getActiveMode()
       const behavior = mode?.mutationBehavior
       if (behavior === 'never') {
         return {
           decision: PolicyDecision.DENY,
-          reason: `[${mode?.id ?? 'plan'} mode] Tool '${toolName}' is a mutation. Mutation tools are disabled in this mode.`,
+          reason: `[${modeLabel}] Tool '${toolName}' is a mutation. Mutation tools are disabled in this mode.`,
         }
       }
       if (behavior === 'always') {
-        return { decision: PolicyDecision.ALLOW, reason: `[${mode?.id ?? 'all_allow'}] mutation auto-allowed` }
+        return { decision: PolicyDecision.ALLOW, reason: `[${modeLabel}] mutation auto-allowed` }
       }
       if (behavior === 'auto' || behavior === undefined) {
-        return {
-          decision: PolicyDecision.ASK_USER,
-          reason: `[${mode?.id ?? 'default'}] '${toolName}' is a mutation operation. Approve?`,
-        }
+        return this.applyPromptPolicy(
+          {
+            decision: PolicyDecision.ASK_USER,
+            reason: `[${modeLabel}] '${toolName}' is a mutation operation. Approve?`,
+          },
+          mode
+        )
       }
     }
 
     return { decision: PolicyDecision.ALLOW, reason: 'No rules matched' }
+  }
+
+  /** `promptPolicy: 'deny'` (dontAsk) convierte una confirmación en negación. */
+  private applyPromptPolicy(
+    result: PolicyCheckResult,
+    mode: ModeDefinition | undefined
+  ): PolicyCheckResult {
+    if (result.decision === PolicyDecision.ASK_USER && mode?.promptPolicy === 'deny') {
+      return {
+        decision: PolicyDecision.DENY,
+        reason: `[${mode.id}] confirmation denied (dontAsk)`,
+        shellSafety: result.shellSafety
+      }
+    }
+    return result
   }
 
   private getApplicableRules(toolName: string, args: Record<string, unknown>): PolicyRule[] {
