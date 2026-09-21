@@ -56,6 +56,8 @@ publicadas no se editan.
     modos.
 - Las tools deshabilitadas **no llegan al modelo**: no aparecen ni en el prompt
   ni en el request.
+- Los selectores de los apartados usan el **menú contextual global** de la app
+  (nada de `<select>` nativo) con el chevron de proicons.
 
 ### Proveedores (models.dev)
 - Se eliminó la lista de proveedores hardcodeada y ahora el catálogo sale de
@@ -76,6 +78,8 @@ publicadas no se editan.
 - **Selector de comandos** (`/`): panel flotante arriba del input, más ancho y
   con cada comando en una línea.
 - Las tool calls se muestran **después** del texto (orden real del stream).
+- Los mensajes con **tool calls** ya no muestran la barra de **copiar** /
+  **regenerar**: solo aparece en la respuesta final de texto.
 - Título del panel **`Chat: <nombre>`**, actualizado por la tool de título.
 - El texto de las tool cards **no se puede seleccionar**.
 - Iconos de tools centrados.
@@ -84,6 +88,16 @@ publicadas no se editan.
   **botón de 3 puntos** (⋯); el modo permanece visible.
 - La etiqueta del **modo** es clickeable y abre el menú con todos los modos
   (integrados y propios).
+
+### Notificaciones
+- El botón de cerrar usa el ícono **X de proicons** con hover **cuadrado de
+  esquinas redondeadas** (no circular).
+- La **raya inferior** es dinámica por severidad (rojo error, ámbar warning,
+  verde éxito, acento info) y se **vacía según el tiempo restante** antes de
+  cerrarse sola.
+- **Tiempo custom** por notificación (`timeoutMs`; `0` = persistente) con
+  defaults por severidad (info/success 6s, warn 8s, error 10s). Las
+  notificaciones del **LSP** ahora traen su tiempo explícito.
 
 ### Permisos
 - **Modos del CLI**: `default`, `plan`, `acceptEdits`, `auto`, `dontAsk` y
@@ -131,6 +145,25 @@ publicadas no se editan.
 - **Cambiar de chat** es una transición: el click responde al instante aunque
   el historial de la sesión sea grande.
 
+### Mensajes directos (chat social)
+- **Carga por scroll**: al abrir un chat se trae la última página y las
+  anteriores se piden **solo al subir a mano** (antes se encadenaban hasta
+  agotar todo el historial).
+- **Posición al abrir**: va al **último mensaje**; si saliste hace poco y
+  estabas leyendo más arriba, vuelve a esa zona (memoria de scroll por
+  conversación, 10 minutos).
+- Los mensajes **fuera de pantalla no se pintan** (`content-visibility`).
+- Abrir un chat limpia el anterior al instante y muestra el placeholder de
+  carga, en vez de dejar los mensajes del amigo previo.
+
+### Arrastrar archivos y carpetas a tabs
+- Los archivos y carpetas del **explorador** se pueden soltar en cualquier zona
+  de tabs (el sistema de drag de tabs y el nativo del explorador ahora
+  conviven): un archivo se abre como **tab en la zona donde se suelta**, y una
+  carpeta crea una **tab de explorador** sobre esa carpeta.
+- Usa el **mismo indicador** (la rayita) que el drag de tabs.
+- El drag interno del explorador (mover archivos a una carpeta) sigue igual.
+
 ### Extensiones
 - Tipo **`tools`**: herramientas de IA aportadas por un `.sef`, con su carpeta
   `visual/` y ejecución por comando en el Extension Host.
@@ -146,6 +179,29 @@ publicadas no se editan.
 ### Deshabilitado
 - Se retiraron las tools web viejas (`open_browser`, `view_web`,
   `list_browser_tabs`, `navigate_web`): no funcionaban bien.
+
+### Correcciones
+- **Eliminar archivos**: el modal de confirmación se quedaba en "Eliminando…"
+  al borrar un segundo archivo (el estado `busy` sobrevivía entre aperturas) y
+  no dejaba cerrarlo. Ahora se monta por apertura y los errores de borrado se
+  muestran en el modal.
+- **Chat social**: no se podía seleccionar el texto de los mensajes. Ahora se
+  puede seleccionar y copiar (el resto de la UI sigue sin selección).
+- **Social / Realtime**: con el token vencido (por ejemplo, tras dejar la app
+  abierta horas), el canal se reconectaba cada 3s sin backoff: la terminal se
+  llenaba de errores de JWT y el panel parpadeaba. Ahora reconnectiona con
+  **backoff** (2s → 30s), limpia los canales al recrear, descarta el cliente con
+  sesión inválida para reconstruirlo, y el panel agrupa los refrescos de
+  Realtime en vez de recargar ante cada evento.
+- **GPU Intel vieja en Linux**: la app lo detecta sola (generación leída de
+  `/sys`) y, en Gen7 o anterior, usa el driver VA-API correcto (**i965**) y
+  evita **Vulkan** (que no existe en esa generación). En GPUs modernas no cambia
+  nada (no se pierde rendimiento).
+- **Contenido que parpadea o se congela en KDE Wayland**: es un bug de **KWin**
+  (buffer ring / explicit sync; KDE #506731 y #510747) que afecta a **toda** app
+  Chromium/Electron (Firefox no). En KDE + Wayland la app corre por **XWayland**
+  (`--ozone-platform=x11`) para esquivarlo; se desactiva con
+  `SCRAKK_PERF_KDE_X11=0`.
 
 ### Varios
 - Pase de textos y comentarios a **español neutro** en todo el repo.
