@@ -24,12 +24,16 @@ import { flushAllTokens } from './supabaseClient'
 import { loadLocalEnv } from './env'
 import { createMainWindow } from './windows/main-window'
 import { applyPathAugmentation } from './binaries'
+import { applyChromiumSwitches } from './perf/startup'
 
 // PATH ANTES QUE NADA: lanzada desde el menú, la app hereda el PATH pelado de la
 // sesión (sin nvm/fnm/volta/~/.local/bin), y entonces `npm`, `node` y `git` no
 // existen para el LSP, la terminal ni el panel de Git — sin ningún error visible.
 // Se aumenta una sola vez aquí y todo hijo lo hereda. Ver `binaries.ts`.
 applyPathAugmentation()
+
+// Switches de Chromium/Electron (GPU, memoria) ANTES de ready.
+applyChromiumSwitches()
 
 // Nombre de app ANTES de ready: en Linux define el WM_CLASS/app_id.
 // Sin esto, en dev la ventana se agrupa como "electron" y el dock ignora

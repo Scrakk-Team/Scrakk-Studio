@@ -10,6 +10,8 @@
  */
 
 import { app, BrowserWindow, ipcMain } from 'electron'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   perfNow,
   readEnvFlag,
@@ -37,10 +39,91 @@ const t0 = perfNow()
 let reportChannel: string | null = null
 
 /**
+ * true si hay una GPU Intel de generación 7 o anterior (Sandy/Ivy Bridge) en
+ * Linux. Se lee de `/sys` (barato y síncrono, antes de `ready`): vendor Intel
+ * (0x8086) y device id < 0x0300 (Gen7 cae en 0x01xx).
+ *
+ * En esa generación:
+ *  - VA-API intenta el driver **iHD** (Gen9+), que falla; le corresponde
+ *    **i965**. La app lo fija por su cuenta (el usuario no toca nada).
+ *  - **Vulkan no existe**: se evita para que el proceso de GPU no falle
+ *    (parpadeo). WebGL sigue por OpenGL (Mesa).
+ */
+function isLegacyIntelGpu(): boolean {
+  if (process.platform !== 'linux') return false
+  try {
+    const entries = readdirSync('/sys/class/drm')
+    for (const entry of entries) {
+      if (!/^card\d+$/.test(entry)) continue
+      const deviceDir = join('/sys/class/drm', entry, 'device')
+      const vendor = readFileSync(join(deviceDir, 'vendor'), 'utf8').trim()
+      if (vendor !== '0x8086') continue
+      const id = parseInt(readFileSync(join(deviceDir, 'device'), 'utf8').trim(), 16)
+      if (Number.isFinite(id) && id < 0x0300) return true
+    }
+  } catch {
+    // Sin /sys legible: no asumir nada (se usa el camino normal).
+  }
+  return false
+}
+
+/**
+ * KDE + Wayland. KWin tiene bugs de composición (buffer ring / explicit sync)
+ * que congelan y parpadean el contenido de CUALQUIER app Chromium/Electron
+ * (KDE #506731 → #521687, y #510747; Firefox no). Correr por XWayland evita
+ * ese camino: es el workaround que usan otras apps Electron.
+ */
+function isKdeWayland(): boolean {
+  if (process.platform !== 'linux') return false
+  if (process.env.XDG_SESSION_TYPE !== 'wayland') return false
+  return /kde/i.test(process.env.XDG_CURRENT_DESKTOP ?? '')
+}
+
+/**
  * Aplica switches de Chromium/Electron ANTES de app.whenReady.
  * Llamar una sola vez desde el entrypoint del main, lo más arriba posible.
  */
 export function applyChromiumSwitches(): void {
+  const disableFeatures: string[] = []
+
+  // GPU vieja de Intel (Linux): la app se adapta SOLA, sin que el usuario
+  // instale nada. Solo aplica a ese hardware; en GPUs modernas no toca nada
+  // (no se pierde rendimiento).
+  if (process.platform === 'linux' && isLegacyIntelGpu()) {
+    // Driver VA-API correcto para Gen7 (respeta lo que ya haya en el entorno).
+    if (!process.env.LIBVA_DRIVER_NAME) process.env.LIBVA_DRIVER_NAME = 'i965'
+    // Vulkan no aplica en Gen7: se evita el camino roto (WebGL por OpenGL).
+    disableFeatures.push('Vulkan', 'VulkanFromANGLE', 'DefaultANGLEVulkan')
+  }
+
+  // KDE + Wayland: bug de KWin (buffer ring / explicit sync) que congela y
+  // parpadea el contenido de CUALQUIER app Chromium/Electron (KDE #506731 →
+  // #521687, #510747; Firefox no). Correr por XWayland evita ese camino.
+  // Se respeta `ELECTRON_OZONE_PLATFORM_HINT` y se puede desactivar con
+  // `SCRAKK_PERF_KDE_X11=0`.
+  if (
+    isKdeWayland() &&
+    !process.env.ELECTRON_OZONE_PLATFORM_HINT &&
+    process.env.SCRAKK_PERF_KDE_X11 !== '0'
+  ) {
+    app.commandLine.appendSwitch('ozone-platform', 'x11')
+  }
+
+  // Escape manual (soporte/otros equipos): forzar OpenGL y evitar VA-API.
+  if (process.env.SCRAKK_PERF_FORCE_GL === '1') {
+    disableFeatures.push(
+      'Vulkan',
+      'VulkanFromANGLE',
+      'DefaultANGLEVulkan',
+      'VaapiVideoDecoder',
+      'VaapiVideoEncoder'
+    )
+  }
+
+  if (disableFeatures.length > 0) {
+    app.commandLine.appendSwitch('disable-features', [...new Set(disableFeatures)].join(','))
+  }
+
   const profile = resolvePerfProfile()
   // En dev dejamos los defaults de Electron: el HMR necesita todo.
   if (profile === 'dev') return
