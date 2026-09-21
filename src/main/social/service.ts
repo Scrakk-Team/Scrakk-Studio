@@ -7,7 +7,7 @@
  */
 
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
-import { getClientFor } from '../supabaseClient'
+import { getClientFor, dropClient } from '../supabaseClient'
 import { IMAGE_RULES } from '@shared/social'
 import { isR2Configured, sniffMime, uploadToR2 } from '../images/r2'
 import type {
@@ -542,22 +542,52 @@ const channels = new Map<
   { client: SupabaseClient; channel: RealtimeChannel; typingChannel?: RealtimeChannel; status: string }
 >()
 
+/** Reintentos de reconexión con backoff (un timer por cuenta, sin duplicar). */
+const reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>()
+const reconnectAttempts = new Map<string, number>()
+
 /**
- * Garantiza una sesión NO vencida antes de suscribir a Realtime: si el access
- * token está por expirar, lo refresca (y eso actualiza el auth del realtime).
- * Sin esto, al reabrir la app el canal se suscribía con un JWT vencido y no
- * recibía nada hasta recrearlo.
+ * Programa UNA reconexión con backoff exponencial (2s, 4s, 8s… tope 30s).
+ * Antes era un `setTimeout` fijo de 3s: con el JWT vencido, cada intento
+ * fallaba y volvía a agendar al instante → bucle y spam en la terminal.
+ * El timer único también evita apilar reintentos si el watchdog pide `watch`.
  */
-async function ensureFreshSession(supabase: SupabaseClient): Promise<void> {
+function scheduleReconnect(accountId: string, handlers: SocialRealtimeHandlers): void {
+  if (reconnectTimers.has(accountId)) return
+  const attempt = (reconnectAttempts.get(accountId) ?? 0) + 1
+  reconnectAttempts.set(accountId, attempt)
+  const delay = Math.min(30_000, 2_000 * 2 ** Math.min(attempt - 1, 4))
+  const timer = setTimeout(() => {
+    reconnectTimers.delete(accountId)
+    void watchAccount(accountId, handlers)
+  }, delay)
+  reconnectTimers.set(accountId, timer)
+}
+
+function clearReconnect(accountId: string): void {
+  const timer = reconnectTimers.get(accountId)
+  if (timer) clearTimeout(timer)
+  reconnectTimers.delete(accountId)
+  reconnectAttempts.delete(accountId)
+}
+
+/**
+ * Garantiza una sesión NO vencida antes de suscribir a Realtime. Devuelve
+ * `false` si no hay sesión o si el refresh falló: en ese caso NO conviene
+ * suscribir (el canal fallaría y reintentaría en vano).
+ */
+async function ensureFreshSession(supabase: SupabaseClient): Promise<boolean> {
   try {
     const { data } = await supabase.auth.getSession()
     const expiresAt = data.session?.expires_at
-    if (!data.session || !expiresAt) return
-    if (expiresAt * 1000 < Date.now() + 60_000) {
-      await supabase.auth.refreshSession()
+    if (!data.session) return false
+    if (expiresAt && expiresAt * 1000 < Date.now() + 60_000) {
+      const { error } = await supabase.auth.refreshSession()
+      if (error) return false
     }
+    return true
   } catch {
-    /* noop */
+    return false
   }
 }
 
@@ -572,6 +602,7 @@ export async function watchAccount(
     if (existing.status === 'SUBSCRIBED') return
     channels.delete(accountId)
     void existing.client.removeChannel(existing.channel)
+    if (existing.typingChannel) void existing.client.removeChannel(existing.typingChannel)
   }
   if (
     typeof (globalThis as { WebSocket?: unknown }).WebSocket === 'undefined' &&
@@ -585,10 +616,22 @@ export async function watchAccount(
       console.warn('[social-rt] sin cliente para', accountId.slice(0, 8), '→ reintento')
     }
     // El cliente puede no estar listo (token recién guardado): reintentar.
-    setTimeout(() => void watchAccount(accountId, handlers), 2000)
+    scheduleReconnect(accountId, handlers)
     return
   }
-  await ensureFreshSession(supabase)
+  // Sesión vencida y sin poder refrescar: reintentar con backoff en vez de
+  // suscribir un canal condenado.
+  const fresh = await ensureFreshSession(supabase)
+  if (!fresh) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[social-rt] sesión no válida para', accountId.slice(0, 8), '→ reintento')
+    }
+    // El cliente cacheado quedó con una sesión inválida: se descarta para
+    // reconstruirlo desde los tokens guardados en el próximo intento.
+    dropClient(accountId)
+    scheduleReconnect(accountId, handlers)
+    return
+  }
   const uid = accountId
   const channel = supabase
     .channel(`social:${uid}`)
@@ -714,12 +757,18 @@ export async function watchAccount(
     if (process.env.NODE_ENV !== 'production') {
       console.log('[social-rt]', uid.slice(0, 8), status, error?.message ?? '')
     }
+    if (status === 'SUBSCRIBED') {
+      // Conectado: resetear el backoff.
+      clearReconnect(accountId)
+      return
+    }
     if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
       const current = channels.get(accountId)
       if (current && current.channel === channel) {
         channels.delete(accountId)
         void channel.unsubscribe()
-        setTimeout(() => void watchAccount(accountId, handlers), 3000)
+        if (current.typingChannel) void current.client.removeChannel(current.typingChannel)
+        scheduleReconnect(accountId, handlers)
       }
     }
   })
@@ -747,6 +796,7 @@ export async function sendTyping(accountId: string, peerId: string, typing: bool
 }
 
 export function stopWatching(accountId: string): void {
+  clearReconnect(accountId)
   const entry = channels.get(accountId)
   if (!entry) return
   channels.delete(accountId)

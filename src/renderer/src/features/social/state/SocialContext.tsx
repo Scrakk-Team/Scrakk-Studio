@@ -283,9 +283,24 @@ export function SocialProvider({
     await Promise.all([loadSocial(accountId), loadPresence(accountId)])
   }, [accountId, loadSocial, loadPresence])
 
-  reloadRef.current = () => {
-    void refresh()
-  }
+  // Las notificaciones de Realtime (presencia, amigos, solicitudes) pueden
+  // llegar en ráfaga (la tabla `presence` late por cada usuario). Se agrupan
+  // en un solo refresh para no re-renderizar en cadena (el panel "parpadeaba").
+  const refreshTimerRef = useRef<number | null>(null)
+  const scheduleRefresh = useCallback((): void => {
+    if (refreshTimerRef.current !== null) return
+    refreshTimerRef.current = window.setTimeout(() => {
+      refreshTimerRef.current = null
+      void refresh()
+    }, 800)
+  }, [refresh])
+  reloadRef.current = scheduleRefresh
+  useEffect(
+    () => () => {
+      if (refreshTimerRef.current !== null) window.clearTimeout(refreshTimerRef.current)
+    },
+    []
+  )
 
   // Contexto del IDE para la actividad compartida (solo NOMBRES, nunca rutas).
   useEffect(() => {
@@ -630,11 +645,18 @@ export function SocialProvider({
     [accountId, refresh]
   )
 
+  const openChatSeq = useRef(0)
+
   const openChat = useCallback(
     async (friend: Friend): Promise<void> => {
+      const seq = ++openChatSeq.current
       setActivePeer(friend)
       setViewState('chat')
       setHasMore(true)
+      // Limpiar YA: sin esto se veían los mensajes del amigo anterior hasta
+      // que resolvía la consulta. El placeholder de carga cubre la espera.
+      setMessages([])
+      setLoadingMore(true)
       // Abrir el chat limpia los no leídos de ese amigo.
       setUnread((prev) => {
         if (!(friend.id in prev)) return prev
@@ -642,14 +664,20 @@ export function SocialProvider({
         delete next[friend.id]
         return next
       })
-      if (!accountId) return
+      if (!accountId) {
+        setLoadingMore(false)
+        return
+      }
       const result = await social.listMessages(accountId, friend.id, null, 50)
+      // Cambió de chat mientras cargaba: no pisar la conversación nueva.
+      if (seq !== openChatSeq.current) return
       if (result.ok) {
         setMessages(result.data)
         setHasMore(result.data.length >= 50)
       } else {
         setMessages([])
       }
+      setLoadingMore(false)
       void social.markRead(accountId, friend.id)
     },
     [accountId]
@@ -670,7 +698,9 @@ export function SocialProvider({
   }, [accountId, loadingMore, hasMore, messages])
 
   const closeChat = useCallback((): void => {
+    openChatSeq.current += 1
     setActivePeer(null)
+    setLoadingMore(false)
     setViewState('home')
   }, [])
 

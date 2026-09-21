@@ -49,6 +49,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* El texto de los mensajes se puede seleccionar (el resto de la UI no). */
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .header {
@@ -137,6 +140,8 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .mention {
