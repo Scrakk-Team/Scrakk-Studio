@@ -460,7 +460,9 @@ export function engineRegistryEntry({ language, repoName, repoUrl, queries, hasS
 /** Agrega (o reemplaza) la entrada de un lenguaje en el registry, sin tocar el resto. */
 export function upsertRegistry(registry, entry) {
   const languages = Array.isArray(registry?.languages) ? registry.languages.slice() : []
-  const index = languages.findIndex((l) => l.name === entry.name || l.repoName === entry.repoName)
+  // Solo por `name`: `repoName` NO sirve como clave porque un monorepo puede
+  // traer varios lenguajes (hcl + dialects/terraform) y uno pisaba al otro.
+  const index = languages.findIndex((l) => l.name === entry.name)
   if (index >= 0) languages[index] = { ...languages[index], ...entry }
   else languages.push(entry)
   return { languages }
