@@ -236,6 +236,8 @@ function SocialPanelInner(): JSX.Element {
         <ChatHeader peer={activePeer} status={friendsPresence[activePeer.id]?.status} onBack={closeChat} />
         <div className={styles.messages}>
           <MessageList
+            key={activePeer.id}
+            conversationId={activePeer.id}
             messages={messages}
             meId={me.dni}
             friends={friends}

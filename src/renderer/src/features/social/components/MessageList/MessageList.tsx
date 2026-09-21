@@ -1,4 +1,4 @@
-import { useEffect, useRef, type JSX } from 'react'
+import { useEffect, useRef, type JSX, type UIEvent } from 'react'
 import type { DirectMessage, Friend } from '@shared/social'
 import type { MyProfile } from '../../state/types'
 import { MessageBubble } from '../MessageBubble/MessageBubble'
@@ -21,7 +21,24 @@ interface MessageListProps {
   hasMore?: boolean
   loadingMore?: boolean
   onLoadMore?: () => void
+  /** Id de la conversación (amigo): clave de la memoria de scroll. */
+  conversationId?: string
 }
+
+/** Recuerda dónde quedó el usuario en cada conversación. */
+interface ScrollMemory {
+  distanceFromBottom: number
+  atBottom: boolean
+  at: number
+}
+
+const scrollMemory = new Map<string, ScrollMemory>()
+/** Si el usuario salió hace menos que esto, se respeta su posición; si no, al final. */
+const RESTORE_WINDOW_MS = 10 * 60 * 1000
+/** A qué distancia del fondo se considera "está al final". */
+const BOTTOM_THRESHOLD = 120
+/** A qué distancia del techo se pide la página anterior. */
+const LOAD_MORE_THRESHOLD = 120
 
 /** Etiqueta del separador de día ("Hoy", "Ayer" o la fecha corta). */
 function dayLabel(timestamp: string): string {
@@ -54,48 +71,90 @@ const GROUP_WINDOW_MS = 5 * 60 * 1000
  * Lista Discord-style: agrupa mensajes del mismo autor dentro de 5m.
  * Solo el líder del grupo muestra header (nombre + hora).
  */
-export function MessageList({ messages, meId, friends, meName, meAvatar, meProfile, friendsPresence, className, onReply, onEdit, onDelete, hasMore, loadingMore, onLoadMore }: MessageListProps): JSX.Element {
+export function MessageList({ messages, meId, friends, meName, meAvatar, meProfile, friendsPresence, className, onReply, onEdit, onDelete, hasMore, loadingMore, onLoadMore, conversationId }: MessageListProps): JSX.Element {
   const listRef = useRef<HTMLDivElement>(null)
-  const topSentinelRef = useRef<HTMLDivElement>(null)
-  const mountedRef = useRef(false)
   const prevHeightRef = useRef(0)
+  const pendingScrollRef = useRef<
+    { mode: 'bottom' } | { mode: 'restore'; distanceFromBottom: number } | null
+  >(null)
+  const lastProgrammaticAtRef = useRef(0)
+  const saveHandleRef = useRef<number | null>(null)
 
+  // Al cambiar de conversación: decidir dónde posicionarse. Si el usuario salió
+  // hace poco y no estaba al final, se respeta su zona; si no, va al último
+  // mensaje. Se aplica cuando llega el primer lote (efecto de abajo).
+  useEffect(() => {
+    const saved = conversationId ? scrollMemory.get(conversationId) : undefined
+    const recent = saved ? Date.now() - saved.at < RESTORE_WINDOW_MS : false
+    pendingScrollRef.current =
+      recent && saved && !saved.atBottom
+        ? { mode: 'restore', distanceFromBottom: saved.distanceFromBottom }
+        : { mode: 'bottom' }
+    prevHeightRef.current = 0
+    return () => {
+      if (saveHandleRef.current !== null) cancelAnimationFrame(saveHandleRef.current)
+      saveHandleRef.current = null
+    }
+  }, [conversationId])
+
+  // Posicionamiento: aplicar el pendiente, anclar al prepend y seguir el fondo
+  // solo si el usuario ya estaba cerca del final.
   useEffect(() => {
     const el = listRef.current
     if (!el) return
-    if (!mountedRef.current) {
-      mountedRef.current = true
-      el.scrollTop = el.scrollHeight
+    const pending = pendingScrollRef.current
+    if (pending) {
+      if (messages.length === 0) return
+      lastProgrammaticAtRef.current = performance.now()
+      el.scrollTop =
+        pending.mode === 'bottom'
+          ? el.scrollHeight
+          : Math.max(0, el.scrollHeight - el.clientHeight - pending.distanceFromBottom)
+      pendingScrollRef.current = null
+      prevHeightRef.current = 0
       return
     }
-    // If we just prepended (loadingMore finished), keep scroll anchored
+    // Recién se prependió una página: mantener la vista en el mismo mensaje.
     if (prevHeightRef.current && el.scrollHeight !== prevHeightRef.current) {
-      const delta = el.scrollHeight - prevHeightRef.current
-      el.scrollTop += delta
+      lastProgrammaticAtRef.current = performance.now()
+      el.scrollTop += el.scrollHeight - prevHeightRef.current
       prevHeightRef.current = 0
-    } else {
-      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
-      if (distanceFromBottom < 120) el.scrollTop = el.scrollHeight
+      return
+    }
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    if (distanceFromBottom < BOTTOM_THRESHOLD) {
+      lastProgrammaticAtRef.current = performance.now()
+      el.scrollTop = el.scrollHeight
     }
   }, [messages])
 
-  // Infinite scroll up: when sentinel visible, load more
-  useEffect(() => {
-    const el = listRef.current
-    const sentinel = topSentinelRef.current
-    if (!el || !sentinel || !onLoadMore || !hasMore) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && !loadingMore) {
-          prevHeightRef.current = el.scrollHeight
-          onLoadMore()
-        }
-      },
-      { root: el, threshold: 0 }
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [hasMore, loadingMore, onLoadMore])
+  // Guardar la posición recordada y pedir la página anterior SOLO cuando el
+  // usuario sube a mano. Antes se usaba un IntersectionObserver en el centinela
+  // de arriba: con contenido corto quedaba visible y encadenaba páginas hasta
+  // agotar el historial (el "carga todo lo de arriba").
+  const handleScroll = (event: UIEvent<HTMLDivElement>): void => {
+    const el = event.currentTarget
+    // Ignorar el scroll que provocamos nosotros (posicionar/anclar).
+    if (performance.now() - lastProgrammaticAtRef.current < 64) return
+
+    if (conversationId) {
+      if (saveHandleRef.current !== null) cancelAnimationFrame(saveHandleRef.current)
+      saveHandleRef.current = requestAnimationFrame(() => {
+        saveHandleRef.current = null
+        const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+        scrollMemory.set(conversationId, {
+          distanceFromBottom,
+          atBottom: distanceFromBottom < 24,
+          at: Date.now()
+        })
+      })
+    }
+
+    if (el.scrollTop <= LOAD_MORE_THRESHOLD && hasMore && !loadingMore && onLoadMore) {
+      prevHeightRef.current = el.scrollHeight
+      onLoadMore()
+    }
+  }
 
   let lastDay = ''
   let lastSender: string | null = null
@@ -118,8 +177,8 @@ export function MessageList({ messages, meId, friends, meName, meAvatar, meProfi
       className={className ? `${styles.list} ${className}` : styles.list}
       role="log"
       aria-live="polite"
+      onScroll={handleScroll}
     >
-      <div ref={topSentinelRef} style={{ height: 1, flexShrink: 0 }} aria-hidden="true" />
       {loadingMore
         ? Array.from({ length: 3 }).map((_, i) => (
             <div key={`ph-${i}`} className={styles.placeholder}>

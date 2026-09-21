@@ -18,6 +18,10 @@
   flex-direction: column;
   gap: var(--space-2);
   contain: layout style;
+  /* Los mensajes fuera de pantalla no se pintan: con historial largo, solo
+     cuesta lo visible. `contain-intrinsic-size` evita saltos de scroll. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 80px;
 }
 
 /* Separador de día: píldora centrada. */
