@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { tabsStore, TabStrip, type StripAction, type StripId, type TabSpec } from '@features/tabs'
-import { useDropZone } from '@features/dnd'
+import { useDropZone, useResourceDrop } from '@features/dnd'
 import { getPanel } from '../../registry'
-import { activateTabSmart, closeTabSmart, tabIconFor } from '../../actions'
+import { activateTabSmart, closeTabSmart, openResourceTabs, tabIconFor } from '../../actions'
 import { PanelFrame } from '../PanelFrame/PanelFrame'
 import { ResizeHandle } from '../ResizeHandle/ResizeHandle'
 import { TabContentView } from '../TabContentView/TabContentView'
@@ -61,6 +61,10 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
     append: single || splitActive,
     isSplit: true
   })
+  // Drop NATIVO de un recurso del explorador (archivo/carpeta) → tab.
+  const resourceDrop = useResourceDrop(
+    useCallback((items) => openResourceTabs(stripId, items), [stripId])
+  )
   const active =
     (strip.activeId ? strip.tabs.find((t) => t.id === strip.activeId) : null) ??
     strip.tabs[0]
@@ -69,7 +73,13 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
   // contenido (no hay header): la zona con split cubre el placeholder.
   if (!active) {
     return (
-      <div ref={contentZone.ref} className={styles.slotBody}>
+      <div
+        ref={contentZone.ref}
+        className={styles.slotBody}
+        onDragOver={resourceDrop.onDragOver}
+        onDragLeave={resourceDrop.onDragLeave}
+        onDrop={resourceDrop.onDrop}
+      >
         <div className={styles.emptySlot} role="status" aria-live="polite">
           <p className={styles.emptySlotTitle}>Slot vacío</p>
           <p className={styles.emptySlotHint}>Arrastrá una tab o un panel aquí</p>
@@ -79,7 +89,13 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
   }
 
   return (
-    <div ref={bodyZone.ref} className={styles.slotBody}>
+    <div
+      ref={bodyZone.ref}
+      className={styles.slotBody}
+      onDragOver={resourceDrop.onDragOver}
+      onDragLeave={resourceDrop.onDragLeave}
+      onDrop={resourceDrop.onDrop}
+    >
       {single ? (
         <PanelFrame
           title={titleFor(active)}

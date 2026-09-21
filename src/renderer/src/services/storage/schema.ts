@@ -60,10 +60,12 @@ export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
 /** Tab persistida de un slot (solo lo serializable; icon/label por kind se re-resuelven). */
 export interface PersistedTabData {
   id: string
-  kind: 'panel' | 'file' | 'terminal'
+  kind: 'panel' | 'file' | 'terminal' | 'explorer'
   panelId?: string
   filePath?: string
   sessionId?: string
+  /** kind 'explorer': carpeta raíz de la instancia. */
+  rootPath?: string
   label?: string
 }
 

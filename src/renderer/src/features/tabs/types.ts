@@ -11,7 +11,7 @@ import type { ComponentType } from 'react'
  */
 
 /** Qué tipo de contenido monta la tab. */
-export type TabKind = 'welcome' | 'panel' | 'file' | 'terminal'
+export type TabKind = 'welcome' | 'panel' | 'file' | 'terminal' | 'explorer'
 
 /**
  * Especificación de una tab. Se construye con helpers tipados
@@ -32,6 +32,8 @@ export interface TabSpec {
   filePath?: string
   /** Id de sesión viva (kind 'terminal'). */
   sessionId?: string
+  /** Raíz a mostrar (kind 'explorer'): una instancia del explorador por carpeta. */
+  rootPath?: string
   /** Botón de cierre (X). Default: true. Las tabs fijas no tienen X. */
   closable?: boolean
   /** Fija: sin X y no se arrastra (Bienvenida). */

@@ -5,6 +5,7 @@ export {
   panelTab,
   fileTab,
   terminalTab,
+  explorerTab,
   tabPersistsByDefault
 } from './store'
 export { TabStrip, MAX_STRIP_ACTIONS, type StripAction } from './TabStrip'

@@ -109,6 +109,8 @@ function projectTab(tab: TabSpec | null | undefined): PanelId | null {
       return 'innerta-terminal'
     case 'panel':
       return tab.panelId ?? null
+    case 'explorer':
+      return 'explorer'
   }
 }
 

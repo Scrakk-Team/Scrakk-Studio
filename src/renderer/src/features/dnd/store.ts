@@ -21,6 +21,12 @@ export interface DndState {
   y: number
   /** Zona bajo el cursor (null = fuera de cualquier zona válida). */
   target: DropTarget | null
+  /**
+   * Zona bajo el cursor para un drag NATIVO de recurso (archivo/carpeta del
+   * explorador): comparte el indicador de la rayita con el drag de tabs, pero
+   * no mueve ninguna tab al soltar.
+   */
+  resourceTarget: DropTarget | null
   /** El elemento de origen (para feedback visual durante el drag). */
   sourceEl: HTMLElement | null
   /**
@@ -46,6 +52,7 @@ class DndStore {
     x: 0,
     y: 0,
     target: null,
+    resourceTarget: null,
     sourceEl: null,
     overlay: null
   }
@@ -139,8 +146,8 @@ private overlayRectFor(rect: DOMRect, edge: SplitEdge): { x: number; y: number; 
     return index
   }
 
-  private computeTarget(x: number, y: number): DropTarget | null {
-    if (this.state.phase !== 'dragging') return null
+  /** Zona bajo el cursor (sin mirar la fase: también sirve al drag nativo). */
+  private computeTargetAt(x: number, y: number): DropTarget | null {
     const els = document.elementsFromPoint(x, y)
     for (const candidate of els) {
       if (!(candidate instanceof HTMLElement)) continue
@@ -169,6 +176,34 @@ private overlayRectFor(rect: DOMRect, edge: SplitEdge): { x: number; y: number; 
       return { stripId: desc.stripId, index, split: null }
     }
     return null
+  }
+
+  private computeTarget(x: number, y: number): DropTarget | null {
+    if (this.state.phase !== 'dragging') return null
+    return this.computeTargetAt(x, y)
+  }
+
+  /**
+   * Target de un drag NATIVO de recurso (archivo/carpeta del explorador).
+   * Reusa el mismo cálculo de zona/índice que el drag de tabs, así el
+   * indicador (la rayita) es exactamente el mismo.
+   */
+  updateResourceTarget(x: number, y: number): void {
+    const target = this.computeTargetAt(x, y)
+    const prev = this.state.resourceTarget
+    const changed =
+      target?.stripId !== prev?.stripId ||
+      target?.index !== prev?.index ||
+      target?.split !== prev?.split
+    if (!changed) return
+    this.state = { ...this.state, resourceTarget: target }
+    this.emit()
+  }
+
+  clearResourceTarget(): void {
+    if (!this.state.resourceTarget) return
+    this.state = { ...this.state, resourceTarget: null }
+    this.emit()
   }
 
   // ── Sesión ─────────────────────────────────────────────────────────────
@@ -364,6 +399,7 @@ private overlayRectFor(rect: DOMRect, edge: SplitEdge): { x: number; y: number; 
       x: 0,
       y: 0,
       target: null,
+      resourceTarget: null,
       sourceEl: null,
       overlay: null
     }

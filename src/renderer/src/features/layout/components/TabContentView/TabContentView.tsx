@@ -4,6 +4,7 @@ import { PanelHost } from '../PanelHost/PanelHost'
 import { PanelTitleAutoProvider } from '../../state'
 import { getPanel } from '../../registry'
 import { FileTabView } from '@features/editor'
+import { ExplorerView } from '@features/explorer/ExplorerView'
 import { BreadcrumbsBar } from '@features/breadcrumbs'
 import { LiveSessionHost } from '@features/sessions'
 import { getTerminalSession } from '@services/innerta/terminalSession'
@@ -57,5 +58,7 @@ export function TabContentView({ tab, stripId }: { tab: TabSpec; stripId?: Strip
       return spec.sessionId ? (
         <LiveSessionHost key={spec.id} session={getTerminalSession(spec.sessionId)} />
       ) : null
+    case 'explorer':
+      return spec.rootPath ? <ExplorerView key={spec.id} root={spec.rootPath} interactive /> : null
   }
 }

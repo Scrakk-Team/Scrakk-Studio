@@ -22,6 +22,7 @@ import {
   subscribeToDecorations
 } from './decorations'
 import { openFileInEditor } from '@features/editor'
+import { setResourceDragData } from '@features/dnd'
 import { useWorkspaceState, type FileNode } from './hooks/useWorkspaceState'
 import { useFileSelection } from './hooks/useFileSelection'
 import { useWindowedRows } from './hooks/useWindowedRows'
@@ -356,7 +357,11 @@ export function ExplorerPanel({
   const confirmDelete = useCallback(
     async (paths: string[]): Promise<void> => {
       for (const path of paths) {
-        await workspace.deleteEntry(path)
+        const res = await workspace.deleteEntry(path)
+        if (!res.ok) {
+          // Se propaga para que el modal muestre el error y no cierre en falso.
+          throw new Error(res.error ?? `No se pudo eliminar "${path}".`)
+        }
       }
       selection.setSelection([])
     },
@@ -371,13 +376,21 @@ export function ExplorerPanel({
         : [node.path]
       draggedPathsRef.current = paths
       event.dataTransfer.setData('text/plain', node.path)
-      event.dataTransfer.effectAllowed = 'move'
+      // Publica el recurso para el sistema de tabs: soltarlo en una zona de
+      // tabs lo abre como tab (archivo) o crea un explorador (carpeta).
+      setResourceDragData(event.dataTransfer, [
+        { kind: node.isDirectory ? 'folder' : 'file', path: node.path, name: node.name }
+      ])
+      event.dataTransfer.effectAllowed = 'copyMove'
     },
     [selection.selected]
   )
 
   const handleDragOver = useCallback(
     (event: React.DragEvent, node: FileNode): void => {
+      // Drag INTERNO del explorador: lo maneja el explorador aunque el destino
+      // no sea carpeta. Frena el handler del slot, que crearía una tab.
+      if (draggedPathsRef.current.length > 0) event.stopPropagation()
       if (!node.isDirectory) return
       const invalid = draggedPathsRef.current.some((p) => isWithin(node.path, p))
       if (invalid) return
@@ -404,6 +417,7 @@ export function ExplorerPanel({
 
   const handleDrop = useCallback(
     (event: React.DragEvent, node: FileNode): void => {
+      if (draggedPathsRef.current.length > 0) event.stopPropagation()
       event.preventDefault()
       if (!node.isDirectory) return
       void moveDropped(node.path)
@@ -711,8 +725,17 @@ export function ExplorerPanel({
           openMenuFor(event, null, true)
         }}
         onDragOver={(event) => {
-          // Solo el fondo del árbol (no filas): mover al root.
           if (!interactive) return
+          // Drag INTERNO: lo maneja el explorador y nunca debe llegar al slot
+          // (que crearía una tab). El fondo del árbol mueve al root.
+          if (draggedPathsRef.current.length > 0) {
+            event.stopPropagation()
+            if (event.target === event.currentTarget) {
+              event.preventDefault()
+              setDropTarget(workspace.rootPath ?? null)
+            }
+            return
+          }
           if (event.target !== event.currentTarget) return
           event.preventDefault()
           setDropTarget(workspace.rootPath ?? null)
@@ -720,6 +743,7 @@ export function ExplorerPanel({
         onDragLeave={() => setDropTarget(null)}
         onDrop={(event) => {
           if (!interactive) return
+          if (draggedPathsRef.current.length > 0) event.stopPropagation()
           if (event.target !== event.currentTarget) return
           event.preventDefault()
           if (workspace.rootPath) void moveDropped(workspace.rootPath)
@@ -781,11 +805,13 @@ export function ExplorerPanel({
         />
       ) : null}
 
-      <DeleteModal
-        target={deleteTarget}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={confirmDelete}
-      />
+      {deleteTarget ? (
+        <DeleteModal
+          target={deleteTarget}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
 
       <ToolDockHostProvider hostId="explorer">
         <ToolDock />

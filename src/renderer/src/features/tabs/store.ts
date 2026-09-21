@@ -327,6 +327,19 @@ export function terminalTab(sessionId: string, label?: string): TabSpec {
   }
 }
 
+/** Tab del explorador sobre una carpeta arbitraria (una instancia por raíz). */
+export function explorerTab(rootPath: string, name?: string): TabSpec {
+  const label = name ?? rootPath.split(/[/\\]/).filter(Boolean).pop() ?? 'Explorador'
+  return {
+    id: `explorer:${rootPath}`,
+    kind: 'explorer',
+    rootPath,
+    label,
+    closable: true,
+    persist: true
+  }
+}
+
 /** Reglas de persistencia por kind. */
 export function tabPersistsByDefault(tab: TabSpec, stripId: string): boolean {
   switch (tab.kind) {
@@ -338,6 +351,7 @@ export function tabPersistsByDefault(tab: TabSpec, stripId: string): boolean {
       return stripId !== 'center'
     case 'panel':
     case 'terminal':
+    case 'explorer':
       return true
   }
 }

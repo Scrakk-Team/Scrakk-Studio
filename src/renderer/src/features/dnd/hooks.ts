@@ -1,7 +1,8 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { dndStore } from './store'
 import type { DndState } from './store'
 import type { DragPayload, ZoneDescriptor } from './types'
+import { hasResourceDragData, readResourceDragData, type ResourceDragItem } from './resource'
 
 /** Estado vivo de la sesión de drag (re-render por movimiento). */
 export function useDndState(): DndState {
@@ -46,4 +47,51 @@ export function useDropZone(desc: Omit<ZoneDescriptor, 'el'>): {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node, desc.kind, desc.stripId, desc.tabIndex, desc.horizontal, desc.append, desc.isSplit])
   return { ref: setNode }
+}
+
+/**
+ * Acepta el drop NATIVO de un recurso del explorador (archivo/carpeta) sin
+ * tocar el drag por pointer de las tabs. Devuelve handlers para colgar de la
+ * zona y `active` para el highlight.
+ */
+export function useResourceDrop(onDropResource: (items: ResourceDragItem[]) => void): {
+  active: boolean
+  onDragOver: (event: DragEvent<HTMLElement>) => void
+  onDragLeave: (event: DragEvent<HTMLElement>) => void
+  onDrop: (event: DragEvent<HTMLElement>) => void
+} {
+  const [active, setActive] = useState(false)
+
+  const onDragOver = (event: DragEvent<HTMLElement>): void => {
+    if (!hasResourceDragData(event.dataTransfer)) return
+    // Frena el drop nativo del navegador y avisa "copiar".
+    event.preventDefault()
+    event.stopPropagation()
+    event.dataTransfer.dropEffect = 'copy'
+    setActive(true)
+    // Mismo indicador (la rayita) que el drag de tabs.
+    dndStore.updateResourceTarget(event.clientX, event.clientY)
+  }
+
+  const onDragLeave = (event: DragEvent<HTMLElement>): void => {
+    if (!hasResourceDragData(event.dataTransfer)) return
+    // `dragleave` también dispara al pasar por hijos: solo apagar si el puntero
+    // salió de la zona de verdad.
+    const next = event.relatedTarget as Node | null
+    if (next && event.currentTarget.contains(next)) return
+    setActive(false)
+    dndStore.clearResourceTarget()
+  }
+
+  const onDrop = (event: DragEvent<HTMLElement>): void => {
+    if (!hasResourceDragData(event.dataTransfer)) return
+    event.preventDefault()
+    event.stopPropagation()
+    setActive(false)
+    dndStore.clearResourceTarget()
+    const items = readResourceDragData(event.dataTransfer)
+    if (items) onDropResource(items)
+  }
+
+  return { active, onDragOver, onDragLeave, onDrop }
 }

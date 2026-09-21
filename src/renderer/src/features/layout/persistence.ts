@@ -22,6 +22,7 @@ import type {
   PersistedSplitTree
 } from '@services/storage'
 import {
+  explorerTab,
   panelTab,
   tabsStore,
   terminalTab,
@@ -74,6 +75,9 @@ function serializeTab(tab: TabSpec): PersistedSlotData['tabs'][number] | null {
       return { id: tab.id, kind: 'file', filePath: tab.filePath, label: tab.label }
     case 'terminal':
       return { id: tab.id, kind: 'terminal', sessionId: tab.sessionId, label: tab.label }
+    case 'explorer':
+      if (!tab.rootPath) return null
+      return { id: tab.id, kind: 'explorer', rootPath: tab.rootPath, label: tab.label }
     case 'welcome':
       return null
   }
@@ -171,6 +175,9 @@ function deserializeTab(raw: PersistedSlotData['tabs'][number]): TabSpec | null 
       }
     case 'terminal':
       return terminalTab(raw.sessionId ?? raw.id, raw.label)
+    case 'explorer':
+      if (!raw.rootPath) return null
+      return explorerTab(raw.rootPath, raw.label)
     default:
       return null
   }

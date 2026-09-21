@@ -16,6 +16,7 @@ import {
   activateFile,
   clearActiveFile,
   getEditorFiles,
+  openFileInEditor,
   reorderOpenFilesTo,
   type EditorFileTab
 } from '@features/editor/editorBus'
@@ -24,7 +25,8 @@ import { requestCloseFile } from '@features/editor/closeGuard'
 import { destroyTerminalSession } from '@services/innerta/terminalSession'
 import { getFileIconUrl } from '@services/fileIcons'
 import { fileIconImageComponent } from '@services/fileIcons/components'
-import { tabsStore, panelTab, terminalTab, welcomeTab, type StripId, type TabSpec } from '@features/tabs'
+import { tabsStore, panelTab, terminalTab, welcomeTab, explorerTab, type StripId, type TabSpec } from '@features/tabs'
+import type { ResourceDragItem } from '@features/dnd/resource'
 import { ExtensionRegistry } from '@services/extensions'
 import { getPanel } from './registry'
 import { splitTreeStore } from './splitTree'
@@ -36,6 +38,7 @@ export const TERMINAL_PANEL_ID = 'innerta-terminal'
 /** Iconos UI por defecto (identidad estable: no recrearlos por render). */
 const HOME_ICON = productIcon('home')
 const FILE_ICON = productIcon('file')
+const FOLDER_ICON = productIcon('folder')
 
 const SLOTS: SlotId[] = ['left', 'center', 'right', 'bottom']
 
@@ -159,6 +162,59 @@ export function openTerminalTab(slot: SlotId): void {
 export function openNewTerminalTab(slot: SlotId): void {
   const stripId = targetStripOf(slot)
   tabsStore.spawnTab(stripId, terminalTab(nextTerminalSessionId(), 'Terminal'))
+}
+
+/**
+ * Suelta un recurso del explorador (archivo/carpeta) sobre una strip:
+ * - archivo  → tab de archivo en ESA strip (y abre la sesión del editor).
+ * - carpeta  → tab de explorador sobre esa carpeta (una instancia por raíz).
+ *
+ * Es la contraparte de `useResourceDrop`: el drag NATIVO del explorador cae en
+ * el sistema de tabs sin tocar el drag por pointer de las tabs.
+ */
+export function openResourceTabs(
+  stripId: StripId,
+  items: ResourceDragItem[],
+  index?: number
+): void {
+  let at = index
+  for (const item of items) {
+    if (item.kind === 'folder') {
+      const id = `explorer:${item.path}`
+      const existing = tabsStore.findTab(id)
+      if (existing) {
+        tabsStore.activateTab(existing.stripId, id)
+        continue
+      }
+      tabsStore.spawnTab(
+        stripId,
+        explorerTab(item.path, item.name),
+        at === undefined ? undefined : { index: at }
+      )
+    } else {
+      const id = `file:${item.path}`
+      const existing = tabsStore.findTab(id)
+      if (existing) {
+        tabsStore.activateTab(existing.stripId, id)
+        activateFile(item.path)
+        continue
+      }
+      tabsStore.spawnTab(
+        stripId,
+        {
+          id,
+          kind: 'file',
+          filePath: item.path,
+          label: item.name,
+          closable: true,
+          persist: true
+        },
+        at === undefined ? undefined : { index: at }
+      )
+      openFileInEditor(item.path, item.name)
+    }
+    if (at !== undefined) at += 1
+  }
 }
 
 // ── Cierre / activación inteligente ────────────────────────────────────────
@@ -531,5 +587,7 @@ export function tabIconFor(tab: TabSpec): ComponentType<{ size?: number }> | und
     }
     case 'terminal':
       return undefined
+    case 'explorer':
+      return FOLDER_ICON
   }
 }

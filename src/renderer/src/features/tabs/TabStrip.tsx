@@ -220,6 +220,8 @@ function defaultLabel(tab: TabSpec): string {
       return 'Terminal'
     case 'panel':
       return tab.panelId ?? 'Panel'
+    case 'explorer':
+      return tab.rootPath?.split(/[/\\]/).filter(Boolean).pop() ?? 'Explorador'
   }
 }
 
@@ -279,9 +281,15 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
     [onClose, stripId]
   )
 
+  const dragTarget = drag.phase === 'dragging' ? drag.target : null
   const target =
-    drag.phase === 'dragging' && drag.target?.stripId === stripId ? drag.target : null
-  const showGap = !!target && draggingTabId !== null && !target.split
+    dragTarget?.stripId === stripId
+      ? dragTarget
+      : drag.resourceTarget?.stripId === stripId
+        ? drag.resourceTarget
+        : null
+  // La rayita también aparece para el drag nativo del explorador (mismo indicador).
+  const showGap = !!target && !target.split
 
   if (tabs.length === 0) return null
 
