@@ -164,6 +164,27 @@ publicadas no se editan.
 - Usa el **mismo indicador** (la rayita) que el drag de tabs.
 - El drag interno del explorador (mover archivos a una carpeta) sigue igual.
 
+### Chat social — emojis, slowmode y contador
+- **Selector de emojis** en el composer (búsqueda, categorías y recientes); un
+  mensaje que es **solo emojis** se agranda.
+- **Slowmode** estilo Discord: 5 mensajes / 5 s con una frase simpática al
+  pasarse; en la base queda un backstop más holgado
+  (`docs/backend/0018_message_rate_limit.sql`).
+- **Contador** en el botón Social de la ActivityBar (no leídos + solicitudes).
+
+### Editor — ir a la definición
+- **Ctrl/Cmd + hover** subraya el símbolo con una línea plana (mismo sistema de
+  decoraciones) **al instante** (sin timers); **Ctrl/Cmd + click** lleva a la
+  definición.
+- Resolución en capas: `locals.scm` → `tags.scm` (clases/funciones) → **símbolos
+  del LSP** (prefetcheados una vez por archivo, para que el subrayado sea
+  síncrono) → `textDocument/definition` (solo si hace falta, y para el click).
+- **Cursor** del editor: **I-beam** sobre el texto y **flecha** sobre el gutter
+  (números, chevrons, bookmark); con Ctrl sobre un símbolo resoluble pasa a
+  **manita**. El motor expone `GetInnertaTextXOffset()` (nuevo export del WASM)
+  para saber dónde arranca el texto.
+- Se quitó **“Ir a definición”** del menú contextual del editor; **F12** sigue.
+
 ### Extensiones
 - Tipo **`tools`**: herramientas de IA aportadas por un `.sef`, con su carpeta
   `visual/` y ejecución por comando en el Extension Host.
@@ -189,7 +210,7 @@ publicadas no se editan.
   puede seleccionar y copiar (el resto de la UI sigue sin selección).
 - **Social / Realtime**: con el token vencido (por ejemplo, tras dejar la app
   abierta horas), el canal se reconectaba cada 3s sin backoff: la terminal se
-  llenaba de errores de JWT y el panel parpadeaba. Ahora reconnectiona con
+  llenaba de errores de JWT y el panel parpadeaba. Ahora reconecta con
   **backoff** (2s → 30s), limpia los canales al recrear, descarta el cliente con
   sesión inválida para reconstruirlo, y el panel agrupa los refrescos de
   Realtime en vez de recargar ante cada evento.
