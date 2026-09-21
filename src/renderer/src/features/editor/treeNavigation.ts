@@ -32,40 +32,24 @@
 import { notify } from '@services/notifications'
 import { getEditorFiles } from './editorBus'
 import { getEditorCursor } from './cursorBus'
-import { getFileSessionText } from './fileSession'
 import { getDynamicSyntax } from '@services/extensions/dynamicSyntax'
 import {
   applyInnertaSelection,
   revealInnertaPosition
 } from './engines/innerta/hostBridge'
+import { resolveTreeTarget } from './definitionNavigation'
 import {
   nextTextObject,
-  resolveDefinition,
   spanSize,
-  wordAt,
   type Span
 } from './treeNavigationLogic'
-
-/** El texto del archivo activo, o `null` si no se puede leer. */
-async function activeFileText(path: string): Promise<string | null> {
-  const live = getFileSessionText(path)
-  if (typeof live === 'string') return live
-  try {
-    const res = await window.api.fs.readFile(path)
-    return res.success ? (res.content ?? null) : null
-  } catch {
-    return null
-  }
-}
 
 /**
  * Comando “Ir a la definición” resuelto con el árbol.
  *
- * Devuelve `true` si navegó. `false` significa “este lenguaje no trae
- * `locals.scm` (o todavía no tokenizó)”: el llamador decide si cae al LSP.
- *
- * `position` permite resolver desde un punto que NO es el cursor — es el caso
- * del click derecho, donde la posición del menú es la del mouse.
+ * Devuelve `true` si navegó. `false` significa “el árbol no sabe”: el llamador
+ * decide si cae al LSP. Delega en el resolutor compartido (`locals.scm` y
+ * `tags.scm`) para no duplicar la lógica.
  */
 export async function goToDefinitionFromTree(position?: {
   line: number
@@ -73,34 +57,11 @@ export async function goToDefinitionFromTree(position?: {
 }): Promise<boolean> {
   const { activePath } = getEditorFiles()
   if (!activePath) return false
-  const syntax = getDynamicSyntax(activePath)
-  if (!syntax || syntax.locals.length === 0) return false
-
   const cursor = position ?? getEditorCursor()
   if (!cursor) return false
-  const text = await activeFileText(activePath)
-  if (text === null) return false
-
-  const name = wordAt(text, cursor.line, cursor.col)
-  if (name.length === 0) {
-    notify({
-      title: 'Ir a la definición',
-      message: 'Pon el cursor sobre un símbolo.',
-      severity: 'info'
-    })
-    return false
-  }
-
-  const target = resolveDefinition(syntax.locals, name, { line: cursor.line, column: cursor.col })
-  if (!target) {
-    notify({
-      title: 'Ir a la definición',
-      message: `El árbol no encontró la definición de “${name}”.`,
-      severity: 'info'
-    })
-    return false
-  }
-  return revealInnertaPosition(activePath, target.line, target.column)
+  const target = await resolveTreeTarget(cursor)
+  if (!target) return false
+  return revealInnertaPosition(target.path, target.line, target.column)
 }
 
 /** Último rango al que se expandió la selección, por archivo. */

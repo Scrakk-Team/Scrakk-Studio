@@ -18,6 +18,7 @@
  */
 
 import type { DynamicLocalEntry, DynamicTextObject } from '@shared/extensions'
+import type { DocumentSymbol } from '@services/symbolExtractor'
 
 /** Rango de líneas/columnas (0-based, columnas UTF-16). */
 export interface Span {
@@ -114,8 +115,7 @@ export function resolveDefinition(
   locals: DynamicLocalEntry[],
   name: string,
   position: { line: number; column: number }
-): DynamicLocalEntry | null {
-  if (name.length === 0) return null
+): DynamicLocalEntry | null {  if (name.length === 0) return null
   const definitions = locals.filter((entry) => entry.kind === 'definition' && entry.name === name)
   if (definitions.length === 0) return null
 
@@ -175,4 +175,44 @@ export function nextTextObject(
     .filter((object) => (previous ? spanSize(object) > spanSize(previous) : true))
     .sort((a, b) => spanSize(a) - spanSize(b))
   return candidates[0] ?? null
+}
+
+/** Aplana el árbol de símbolos (clases/funciones/métodos anidados). */
+function flattenSymbols(symbols: DocumentSymbol[]): DocumentSymbol[] {
+  const out: DocumentSymbol[] = []
+  const walk = (list: DocumentSymbol[]): void => {
+    for (const symbol of list) {
+      out.push(symbol)
+      if (symbol.children && symbol.children.length > 0) walk(symbol.children)
+    }
+  }
+  walk(symbols)
+  return out
+}
+
+/**
+ * A qué SÍMBOLO (clase/función/método/…) apunta un nombre, usando `tags.scm`.
+ *
+ * Es el respaldo del árbol cuando el lenguaje NO trae `locals.scm` (locals
+ * resuelve ámbitos finos; los símbolos resuelven declaraciones):
+ *  1. el símbolo que CONTIENE la posición (estás parado en su declaración),
+ *  2. el más cercano HACIA ARRIBA del cursor (la clase/función ya declarada),
+ *  3. cualquiera con ese nombre.
+ */
+export function resolveSymbolDefinition(
+  symbols: DocumentSymbol[],
+  name: string,
+  position: { line: number; column: number }
+): DocumentSymbol | null {
+  if (name.length === 0) return null
+  const matches = flattenSymbols(symbols).filter((symbol) => symbol.name === name)
+  if (matches.length === 0) return null
+  const containing = matches.find(
+    (symbol) => symbol.line <= position.line && (symbol.endLine ?? symbol.line) >= position.line
+  )
+  if (containing) return containing
+  const above = matches
+    .filter((symbol) => symbol.line <= position.line)
+    .sort((a, b) => b.line - a.line)[0]
+  return above ?? matches[0]
 }

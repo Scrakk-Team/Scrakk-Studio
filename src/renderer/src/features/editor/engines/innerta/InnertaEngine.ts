@@ -35,6 +35,12 @@ export interface InnertaModule {
   /** WASM: hit-test para hover → { line, col } (0-based). */
   hitTest?(x: number, y: number): { line: number; col: number }
   /**
+   * WASM: X donde arranca el texto (= ancho del gutter). El host lo usa para
+   * saber cuándo el puntero está sobre el gutter y no pintar el I-beam ahí.
+   * Opcional: si el WASM no lo expone, devuelve `null`.
+   */
+  getTextXOffset?(): number | null
+  /**
    * WASM: posición actual del cursor del editor → { line, col } (0-based).
    * Opcional: si el engine no lo expone (versiones viejas del WASM) devuelve
    * null. Es la contraparte de lectura de `SetInnertaCursor` (C++).

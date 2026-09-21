@@ -27,17 +27,17 @@ import { loadPermissionSettings } from '@services/ai/policy/permissionSettings'
 import { loadModeSettings } from '@services/ai/policy/modeSettings'
 import { commandRegistry, type Command } from '@services/commands'
 import { setWorkspaceRoot } from '@features/explorer'
-import { getEditorFiles, openFileInEditor, requestCloseFile } from '@features/editor'
+import { getEditorFiles, requestCloseFile } from '@features/editor'
 import { getEditorCursor } from '@features/editor/cursorBus'
 import { notify } from '@services/notifications'
 import { registerTokenInspectorCommand } from '@features/editor/inspect'
 import { captureEditorScreenshot } from '@features/editor/screenshot'
 import { saveActiveFile } from '@features/editor/save'
+import { expandSelectionFromTree } from '@features/editor/treeNavigation'
 import {
-  expandSelectionFromTree,
-  goToDefinitionFromTree
-} from '@features/editor/treeNavigation'
-import { lspGoToDefinition } from '@services/lsp'
+  goToDefinitionTarget,
+  resolveDefinitionTarget
+} from '@features/editor/definitionNavigation'
 import {
   getMinimapVisible,
   setMinimapVisibleEverywhere
@@ -206,13 +206,14 @@ export function App() {
         keybinding: 'f12',
         run: () => {
           void (async () => {
-            if (await goToDefinitionFromTree()) return
             const { activePath } = getEditorFiles()
             const cursor = getEditorCursor()
             if (!activePath || !cursor) return
-            const locations = await lspGoToDefinition(activePath, cursor.line, cursor.col)
-            const first = locations[0]
-            if (!first) {
+            const target = await resolveDefinitionTarget(activePath, {
+              line: cursor.line,
+              col: cursor.col
+            })
+            if (!target) {
               notify({
                 title: 'Ir a la definición',
                 message: 'Sin definición en el cursor.',
@@ -220,8 +221,7 @@ export function App() {
               })
               return
             }
-            const target = decodeURIComponent(first.uri.replace(/^file:\/\//, ''))
-            openFileInEditor(target, target.split(/[/\\]/).pop() ?? target)
+            goToDefinitionTarget(target)
           })()
         }
       },

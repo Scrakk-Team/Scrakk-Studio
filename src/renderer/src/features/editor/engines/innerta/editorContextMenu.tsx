@@ -19,11 +19,9 @@
 import type { ContextMenuItem } from '@ui'
 import type { InnertaModule } from './InnertaEngine'
 import { showContextMenu } from './menuHost'
-import { lspGoToDefinition, lspFormatting, lspNotifyFileChanged } from '@services/lsp'
+import { lspFormatting, lspNotifyFileChanged } from '@services/lsp'
 import { getDocumentEncoding } from '@services/encodings'
 import { notify } from '@services/notifications'
-import { openFileInEditor } from '@features/editor'
-import { goToDefinitionFromTree } from '@features/editor/treeNavigation'
 
 // GLFW: C=67, V=86, A=65; mods: ctrl=0x02
 const GLFW_KEY_C = 67
@@ -59,40 +57,6 @@ function pasteIntoEngine(module: InnertaModule | null): void {
       // Sin permiso de lectura: la tecla va igual (clipboard interno previo).
       sendEngineCombo(module, { key: GLFW_KEY_V, mods: GLFW_MOD_CTRL })
     })
-}
-
-/** Posición documento (0-based) para LSP: click si hay hit, si no el cursor. */
-function positionForLsp(
-  module: InnertaModule | null,
-  local?: { x: number; y: number }
-): { line: number; col: number } {
-  if (module && local) {
-    const hit = module.hitTest?.(local.x, local.y)
-    if (hit && hit.line >= 0) return hit
-  }
-  const cursor = module?.getCursor?.()
-  if (cursor) return cursor
-  return { line: 0, col: 0 }
-}
-
-async function goToDefinition(
-  path: string,
-  module: InnertaModule | null,
-  local?: { x: number; y: number }
-): Promise<void> {
-  const { line, col } = positionForLsp(module, local)
-  // Primero el ÁRBOL: si el lenguaje trae `locals.scm`, resuelve en memoria y
-  // respeta ámbitos (el parámetro y no la primera coincidencia del archivo).
-  // El LSP queda como respaldo para los lenguajes sin query de locales.
-  if (await goToDefinitionFromTree({ line, col })) return
-  const locations = await lspGoToDefinition(path, line, col)
-  const first = locations[0]
-  if (!first) {
-    notify({ title: 'Ir a definición', message: 'Sin definición encontrada en el cursor.', severity: 'info' })
-    return
-  }
-  const targetPath = decodeURIComponent(first.uri.replace(/^file:\/\//, ''))
-  openFileInEditor(targetPath, targetPath.split(/[/\\]/).pop() ?? targetPath)
 }
 
 // ── Formateo: aplicar TextEdits del LSP sobre el buffer ─────────────────────
@@ -193,9 +157,7 @@ export function openEditorContextMenu(
   module: InnertaModule | null,
   path: string | null,
   clientX: number,
-  clientY: number,
-  /** Coords canvas-locales del click (para hit-test → posición LSP real). */
-  local?: { x: number; y: number }
+  clientY: number
 ): void {
   const items: ContextMenuItem[] = [
     {
@@ -215,12 +177,8 @@ export function openEditorContextMenu(
       onClick: () => sendEngineCombo(module, { key: GLFW_KEY_A, mods: GLFW_MOD_CTRL })
     },
     {
-      label: 'Ir a definición',
-      disabled: !path,
-      onClick: () => void goToDefinition(path!, module, local)
-    },
-    {
       label: 'Formatear documento',
+      separatorBefore: true,
       disabled: !path || !module,
       onClick: () => void formatDocument(path!, module)
     }

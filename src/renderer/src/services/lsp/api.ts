@@ -168,8 +168,35 @@ export async function lspDocumentSymbol(filePath: string): Promise<LspSymbolInfo
   return symbols
 }
 
-/** workspace/symbol (broadcast a todos los servers corriendo). */
-export async function lspWorkspaceSymbol(query: string): Promise<LspSymbolInformation[]> {
+/**
+ * Nombres de TODOS los símbolos del documento (recursivo, con hijos), para el
+ * subrayado de definición: saber si un nombre está declarado en el archivo sin
+ * pedir `textDocument/definition` en cada hover.
+ */
+export async function lspDocumentSymbolNames(filePath: string): Promise<Set<string>> {
+  const res = await lspRequest(
+    'textDocument/documentSymbol',
+    { textDocument: { uri: pathToFileUri(filePath) } },
+    { filePath }
+  )
+  const names = new Set<string>()
+  const visit = (node: unknown): void => {
+    if (!node || typeof node !== 'object') return
+    const record = node as { name?: unknown; children?: unknown }
+    if (typeof record.name === 'string' && record.name.length > 0) names.add(record.name)
+    if (Array.isArray(record.children)) {
+      for (const child of record.children) visit(child)
+    }
+  }
+  for (const entry of res.results) {
+    if (Array.isArray(entry.result)) {
+      for (const symbol of entry.result) visit(symbol)
+    }
+  }
+  return names
+}
+
+/** workspace/symbol (broadcast a todos los servers corriendo). */export async function lspWorkspaceSymbol(query: string): Promise<LspSymbolInformation[]> {
   const res = await lspRequest('workspace/symbol', { query }, { broadcast: true })
   const symbols: LspSymbolInformation[] = []
   for (const entry of res.results) {

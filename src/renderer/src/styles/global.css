@@ -150,6 +150,14 @@ textarea:focus-visible {
   box-shadow: none !important;
 }
 
+/* Editor Innerta: sobre el texto el cursor es I-beam (parece que detecta
+   texto). Las tabs de archivo usan `.file-tab-view-host`, que no tenía la
+   regla (estaba solo en el CSS del panel viejo). El hover con Ctrl lo pisa a
+   `pointer` desde el bridge. */
+.file-tab-view-host canvas.scrakk-innerta-canvas {
+  cursor: text;
+}
+
 button {
   font: inherit;
   color: inherit;

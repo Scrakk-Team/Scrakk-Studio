@@ -23,11 +23,23 @@
 
 import type { InnertaModule } from './InnertaEngine'
 import { getInnertaRawModule } from './innertaLoader'
-import { diagnosticHoverText, diagnosticsAt, hoverContentsToText, lspHover } from '@services/lsp'
+import { diagnosticHoverText, diagnosticsAt, hoverContentsToText, lspGoToDefinition, lspHover } from '@services/lsp'
 import { showTooltip, hideTooltip } from '@services/tooltips'
+import { setDecorations, themeColor } from '@services/decorations'
 import { openEditorContextMenu } from './editorContextMenu'
 import { setEditorCursor } from '../../cursorBus'
+import { getFileSessionText } from '../../fileSession'
 import { applyEngineBookmark } from '@services/bookmarks'
+import {
+  goToDefinitionTarget,
+  hasLspSymbolName,
+  knowsLspSymbolNames,
+  primeLspSymbolNames,
+  resolveDefinitionTarget,
+  resolveTreeTargetFromBuffer,
+  wordRangeAt
+} from '../../definitionNavigation'
+import { wordAt } from '../../treeNavigationLogic'
 
 /**
  * Tipos del canal ÚNICO de eventos engine→host (HostEvent en HostBridge.h).
@@ -66,7 +78,7 @@ function rawOf(module: InnertaModule | null): Record<string, unknown> | null {
   return own ?? getInnertaRawModule()
 }
 
-const HOVER_DWELL_MS = 350
+const HOVER_DWELL_MS = 120
 
 // ── Registro de engines VIVOS (para actuar sobre el editor activo) ─────────
 //
@@ -218,6 +230,9 @@ export function attachHostBridge(
 
   const canvas = canvasOf(hostEl) ?? hostEl
   const raw = rawOf(getModule())
+  // Cursor base del editor: I-beam (parece que detecta texto). El bridge lo
+  // pisa a `pointer` sobre un símbolo con definición y lo restaura acá.
+  canvas.style.cursor = 'text'
 
   // Path de ESTE engine — setPath() lo actualiza (NO es global).
   let activePath: string | null = null
@@ -273,26 +288,162 @@ export function attachHostBridge(
     })
   }
 
+  // ── Definición (hover con Ctrl/Cmd + click) + cursor ─────────────────────
+  const DEFINITION_SOURCE = 'definition-hover'
+  let ctrlHeld = false
+  let definitionKey = ''
+  let definitionToken = 0
+  let lastOverText = true
+  let cursorState: 'text' | 'default' | 'pointer' = 'text'
+
+  /** Cursor del canvas: I-beam sobre el texto, flecha en el gutter/afuera. */
+  const setCursor = (state: 'text' | 'default' | 'pointer'): void => {
+    if (cursorState === state) return
+    cursorState = state
+    canvas.style.cursor = state
+  }
+
+  const clearDefinitionUnderline = (): void => {
+    definitionKey = ''
+    definitionToken++
+    if (activePath) setDecorations(DEFINITION_SOURCE, activePath, [])
+  }
+
+  const paintDefinition = (path: string, line: number, startCol: number, endCol: number): void => {
+    setDecorations(DEFINITION_SOURCE, path, [
+      {
+        startLine: line,
+        startCol,
+        endLine: line,
+        endCol,
+        color: themeColor('--color-accent', '#3794ff'),
+        style: 'underline'
+      }
+    ])
+    setCursor('pointer')
+  }
+
+  /**
+   * Subraya el símbolo bajo (line,col) si tiene definición. Se llama EN CADA
+   * pointermove (sin timers): el árbol resuelve síncrono desde el buffer vivo y
+   * pinta al instante; el LSP se pide ya y se descarta si el símbolo cambió.
+   */
+  const underlineDefinition = (line: number, col: number): void => {
+    const path = activePath
+    if (!path) return
+    const text = getFileSessionText(path)
+    const range = typeof text === 'string' ? wordRangeAt(text, line, col) : null
+    if (typeof text !== 'string' || !range) {
+      clearDefinitionUnderline()
+      setCursor(lastOverText ? 'text' : 'default')
+      return
+    }
+
+    // 1) Árbol en memoria: instantáneo.
+    if (resolveTreeTargetFromBuffer(path, line, col)) {
+      paintDefinition(path, line, range.startCol, range.endCol)
+      return
+    }
+
+    // 2) Símbolos del LSP ya prefetcheados: existencia instantánea.
+    const name = wordAt(text, line, col)
+    if (hasLspSymbolName(path, name)) {
+      paintDefinition(path, line, range.startCol, range.endCol)
+      return
+    }
+    // Si todavía no se prefetcheó, se dispara (y este hover cae al LSP).
+    if (!knowsLspSymbolNames(path)) primeLspSymbolNames(path)
+
+    // 3) LSP: asincrónico; se pinta solo si el símbolo sigue siendo el mismo.
+    const token = ++definitionToken
+    const expectedKey = `${line}:${col}`
+    void lspGoToDefinition(path, line, col)
+      .then((locations) => {
+        if (disposed || token !== definitionToken || definitionKey !== expectedKey) return
+        if (!locations[0]) {
+          clearDefinitionUnderline()
+          setCursor(lastOverText ? 'text' : 'default')
+          return
+        }
+        paintDefinition(path, line, range.startCol, range.endCol)
+      })
+      .catch(() => {
+        /* el server no respondió: se deja como está */
+      })
+  }
+
+  const onDefinitionKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Control' || event.key === 'Meta') ctrlHeld = true
+  }
+
+  const onDefinitionKeyUp = (event: KeyboardEvent): void => {
+    if (event.key === 'Control' || event.key === 'Meta') {
+      ctrlHeld = false
+      clearDefinitionUnderline()
+      setCursor(lastOverText ? 'text' : 'default')
+    }
+  }
+
+  const onDefinitionBlur = (): void => {
+    ctrlHeld = false
+    clearDefinitionUnderline()
+    setCursor('text')
+  }
+
+  window.addEventListener('keydown', onDefinitionKeyDown)
+  window.addEventListener('keyup', onDefinitionKeyUp)
+  window.addEventListener('blur', onDefinitionBlur)
+
   const onPointerMove = (event: PointerEvent): void => {
     // Movimiento real → cancelar hover pendiente y esconder el visible.
     clearTimers()
 
     const mod = getModule()
     if (disposed || !mod?.hitTest) return
+    const rect = canvas.getBoundingClientRect()
+    const localX = Math.round(event.clientX - rect.left)
+    const localY = Math.round(event.clientY - rect.top)
+    const hit = mod.hitTest(localX, localY)
+    // El texto arranca en `textXOffset`; todo lo de su izquierda es el gutter.
+    // Si el WASM no expone el offset (viejo), se cae al criterio de línea.
+    const textX = mod.getTextXOffset?.() ?? null
+    const overText = hit.line >= 0 && (textX === null || localX + 0.5 >= textX)
+    lastOverText = overText
+
+    // Con Ctrl/Cmd apretado el comportamiento es el de un editor: subrayar el
+    // símbolo y dejar el puntero listo para el click. Sin tooltip.
+    if (ctrlHeld) {
+      if (!overText) {
+        clearDefinitionUnderline()
+        setCursor('default')
+        return
+      }
+      const key = `${hit.line}:${hit.col}`
+      if (key !== definitionKey) {
+        definitionKey = key
+        underlineDefinition(hit.line, hit.col)
+      }
+      return
+    }
+
+    clearDefinitionUnderline()
+    setCursor(overText ? 'text' : 'default')
+    if (!overText) return
 
     hoverTimer = setTimeout(() => {
       if (disposed) return
-      const rect = canvas.getBoundingClientRect()
-      const localX = Math.round(event.clientX - rect.left)
-      const localY = Math.round(event.clientY - rect.top)
-      const hit = mod.hitTest!(localX, localY)
-      if (hit.line < 0) return
-      showTooltipFor(hit.line, hit.col, event.clientX, event.clientY)
+      const current = getModule()
+      if (!current?.hitTest) return
+      const fresh = current.hitTest(localX, localY)
+      if (fresh.line < 0) return
+      showTooltipFor(fresh.line, fresh.col, event.clientX, event.clientY)
     }, HOVER_DWELL_MS)
   }
 
   const onPointerLeave = (): void => {
     clearTimers()
+    clearDefinitionUnderline()
+    setCursor('text')
     // Delay: si el tooltip markdown es interactivo (scroll de tablas/código),
     // dejar entrar el puntero antes de matarlo.
     hideDelay = setTimeout(hideTooltip, 300)
@@ -300,9 +451,27 @@ export function attachHostBridge(
 
   // Click en el canvas: ocultar hover y refrescar el cursor al instante
   // (el engine ya empuja por hook al moverse el cursor; aquí se adelanta).
-  const onPointerDown = (): void => {
+  const onPointerDown = (event: PointerEvent): void => {
     hideNow()
     const mod = getModule()
+    // Ctrl/Cmd + click: ir a la definición (no mueve el caret).
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault()
+      event.stopPropagation()
+      const path = activePath
+      if (!path || !mod?.hitTest) return
+      const rect = canvas.getBoundingClientRect()
+      const hit = mod.hitTest(
+        Math.round(event.clientX - rect.left),
+        Math.round(event.clientY - rect.top)
+      )
+      if (hit.line < 0) return
+      clearDefinitionUnderline()
+      void resolveDefinitionTarget(path, { line: hit.line, col: hit.col }).then((target) => {
+        if (!disposed && target) goToDefinitionTarget(target)
+      })
+      return
+    }
     if (!mod || typeof mod.getCursor !== 'function') return
     const cursor = mod.getCursor()
     if (cursor) setEditorCursor(cursor)
@@ -311,11 +480,7 @@ export function attachHostBridge(
   const onContext = (event: MouseEvent): void => {
     event.preventDefault()
     event.stopPropagation()
-    const rect = canvas.getBoundingClientRect()
-    openEditorContextMenu(getModule(), activePath, event.clientX, event.clientY, {
-      x: Math.round(event.clientX - rect.left),
-      y: Math.round(event.clientY - rect.top)
-    })
+    openEditorContextMenu(getModule(), activePath, event.clientX, event.clientY)
   }
 
   canvas.addEventListener('pointermove', onPointerMove, { passive: true })
@@ -336,12 +501,8 @@ export function attachHostBridge(
       switch (type) {
         case InnertaHostEvent.ContextMenu: {
           const rect = canvas.getBoundingClientRect()
-          // `a`/`b` ya son coords canvas-locales (el C++ emite mx/my) — sirven
-          // directo para el hit-test de "Ir a definición".
-          openEditorContextMenu(getModule(), activePath, rect.left + a, rect.top + b, {
-            x: a,
-            y: b
-          })
+          // `a`/`b` son coords canvas-locales (el C++ emite mx/my).
+          openEditorContextMenu(getModule(), activePath, rect.left + a, rect.top + b)
           break
         }
         case InnertaHostEvent.BookmarkToggled: {
@@ -371,6 +532,8 @@ export function attachHostBridge(
     setPath(path: string | null): void {
       activePath = path
       entry.path = path
+      // Prefetchea los símbolos del archivo para que el hover sea instantáneo.
+      if (path) primeLspSymbolNames(path)
     },
     syncCursor(): void {
       const mod = getModule()
@@ -383,6 +546,10 @@ export function attachHostBridge(
       disposed = true
       liveEngines.delete(entry)
       hideNow()
+      clearDefinitionUnderline()
+      window.removeEventListener('keydown', onDefinitionKeyDown)
+      window.removeEventListener('keyup', onDefinitionKeyUp)
+      window.removeEventListener('blur', onDefinitionBlur)
       canvas.removeEventListener('pointermove', onPointerMove)
       canvas.removeEventListener('pointerleave', onPointerLeave)
       canvas.removeEventListener('pointerdown', onPointerDown)

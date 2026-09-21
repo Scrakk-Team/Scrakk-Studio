@@ -301,6 +301,17 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       if (packed < 0) return { line: -1, col: -1 }
       return { line: packed >> 16, col: packed & 0xffff }
     },
+    /** X donde arranca el texto (ancho del gutter); `null` si el WASM no lo trae. */
+    getTextXOffset() {
+      const fn = (_raw as Record<string, unknown>)['_GetInnertaTextXOffset']
+      if (typeof fn !== 'function') return null
+      try {
+        const value = (fn as () => number)()
+        return typeof value === 'number' && value >= 0 ? value : null
+      } catch {
+        return null
+      }
+    },
     /**
      * Posición del cursor. Opcional: si el WASM no exporta
      * `_GetInnertaCursor`, retorna `null` (la UI muestra "Ln —, Col —").
@@ -672,6 +683,17 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
       const packed = _raw._InnertaHitTest(x, y) as number
       if (packed < 0) return { line: -1, col: -1 }
       return { line: packed >> 16, col: packed & 0xffff }
+    },
+    /** X donde arranca el texto (ancho del gutter); `null` si el WASM no lo trae. */
+    getTextXOffset() {
+      const fn = (_raw as Record<string, unknown>)['_GetInnertaTextXOffset']
+      if (typeof fn !== 'function') return null
+      try {
+        const value = (fn as () => number)()
+        return typeof value === 'number' && value >= 0 ? value : null
+      } catch {
+        return null
+      }
     },
     getCursor() {
       const fn = (_raw as Record<string, unknown>)['_GetInnertaCursor']

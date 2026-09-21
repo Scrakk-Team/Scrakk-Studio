@@ -16,6 +16,7 @@ import { getEditorFiles } from './editorBus'
 import { getFileSession } from './fileSession'
 import { writeEncoded, getDocumentEncoding, notifyEncodingListeners } from '@services/encodings'
 import { notifyLspDocumentSaved } from '@services/lsp'
+import { invalidateLspSymbolNames } from './definitionNavigation'
 
 export interface SaveResult {
   ok: boolean
@@ -46,6 +47,8 @@ export async function saveFileByPath(path: string): Promise<SaveResult> {
     // `didSave`: hay servers que sólo validan al guardar, y sin este aviso sus
     // diagnósticos no aparecían hasta reabrir el archivo.
     void notifyLspDocumentSaved(path)
+    // La tabla de símbolos del hover puede haber cambiado.
+    invalidateLspSymbolNames(path)
     return { ok: true, path }
   }
   return { ok: false, error: result.error ?? 'Error al guardar' }
@@ -82,5 +85,6 @@ export async function saveActiveFileWith(
   const { setEncoding } = await import('@services/encodings')
   setEncoding(activePath, encoding)
   void notifyLspDocumentSaved(activePath)
+  invalidateLspSymbolNames(activePath)
   return { ok: true, path: activePath }
 }
