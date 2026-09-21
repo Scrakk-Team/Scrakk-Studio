@@ -18,7 +18,8 @@
  *
  *   python javascript typescript tsx c cpp rust go java json html css bash
  *   c_sharp ruby lua toml yaml markdown php php_only zig kotlin swift dart
- *   sql dockerfile graphql elixir vue plaintext
+ *   sql dockerfile graphql elixir vue scss less hcl terraform prisma svelte
+ *   cmake plaintext
  *
  * Los alias (`json5`, `scss`, `xhtml`…) apuntan al id del motor que más se le
  * acerca: es la gramática disponible, no una promesa de soporte exacto.
@@ -112,7 +113,43 @@ export const SUPPORTED_LANGUAGES: LanguageDefinition[] = [
   {
     id: 'css',
     name: 'CSS',
-    extensions: ['css', 'scss', 'less']
+    extensions: ['css']
+  },
+  {
+    id: 'scss',
+    name: 'SCSS',
+    extensions: ['scss']
+  },
+  {
+    id: 'less',
+    name: 'Less',
+    extensions: ['less']
+  },
+  {
+    id: 'hcl',
+    name: 'HCL',
+    extensions: ['hcl']
+  },
+  {
+    id: 'terraform',
+    name: 'Terraform',
+    extensions: ['tf', 'tfvars']
+  },
+  {
+    id: 'prisma',
+    name: 'Prisma',
+    extensions: ['prisma']
+  },
+  {
+    id: 'svelte',
+    name: 'Svelte',
+    extensions: ['svelte']
+  },
+  {
+    id: 'cmake',
+    name: 'CMake',
+    extensions: ['cmake'],
+    filenames: ['cmakelists.txt']
   },
   {
     id: 'html',
