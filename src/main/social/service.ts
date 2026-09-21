@@ -374,6 +374,7 @@ export async function sendMessage(
     .single()
   if (error) {
     if (error.code === '42501') return fail('Solo puedes escribirle a tus amigos')
+    if (error.message.includes('msg_ratelimited')) return fail('msg_ratelimited')
     return fail(cleanError(error.message))
   }
   const mapped = mapMessage(data as MessageRow)

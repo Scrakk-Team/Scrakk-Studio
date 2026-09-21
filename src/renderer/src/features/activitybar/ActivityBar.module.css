@@ -110,6 +110,27 @@
   opacity: 0.35;
 }
 
+/* Contador (no leídos / pendientes) en la esquina del botón. */
+.badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border: 1.5px solid var(--activitybar-bg, var(--color-surface));
+  border-radius: var(--radius-capsule);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* Fantasma del drag: sigue al cursor, sin interactividad. */
 .ghost {
   position: fixed;

@@ -235,5 +235,10 @@ export interface SocialApi {
 /** Reglas compartidas (main revalida). */
 export const SOCIAL_RULES = {
   searchMin: 2,
-  messageMax: 4000
+  messageMax: 4000,
+  /**
+   * Slowmode de mensajes (como Discord): ventana deslizante. El cliente bloquea
+   * al pasarse con un mensaje simpático; la DB tiene un backstop más holgado.
+   */
+  slowmode: { windowMs: 5000, max: 5 }
 } as const

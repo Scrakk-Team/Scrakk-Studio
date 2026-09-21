@@ -12,6 +12,7 @@ import {
 import { account as accountService } from '@services/account'
 import { social } from '@services/social'
 import { notify } from '@services/notifications'
+import { setActivityBadge, clearActivityBadge } from '@features/activitybar/badges'
 import { getEditorFiles, subscribeToEditorFiles } from '@features/editor/editorBus'
 import type { AccountList, AccountProfile } from '@shared/account'
 import type {
@@ -24,7 +25,20 @@ import type {
   SocialUser,
   UserPresence
 } from '@shared/social'
+import { SOCIAL_RULES } from '@shared/social'
 import type { MyProfile, SocialView } from './types'
+
+/** Frases del slowmode (estilo Discord), en español neutro. */
+const SLOWMODE_MESSAGES = [
+  'Tranquilo, se te va a quemar el teclado 🔥',
+  'Más despacio, campeón',
+  'Respira… el teclado no corre',
+  'Ehh, muy rápido. Espera un toque',
+  'Slowmode: deja que el server respire',
+  '¿Todo bien con el teclado?',
+  'Un mensaje a la vez, sin apuro',
+  'Baja un cambio 🙃'
+]
 
 /** Clave donde la app guarda la raíz del workspace (misma que breadcrumbs). */
 const WORKSPACE_ROOT_KEY = 'scrakk-studio:root-path'
@@ -214,6 +228,16 @@ export function SocialProvider({
   activePeerRef.current = activePeer
   const reloadRef = useRef<() => void>(() => {})
 
+  // Slowmode (como Discord): ventana deslizante de envíos por sesión.
+  const sendTimesRef = useRef<number[]>([])
+  const slowmodeMessage = useCallback((): string | null => {
+    const windowMs = SOCIAL_RULES.slowmode.windowMs
+    const now = Date.now()
+    sendTimesRef.current = sendTimesRef.current.filter((at) => now - at < windowMs)
+    if (sendTimesRef.current.length < SOCIAL_RULES.slowmode.max) return null
+    return SLOWMODE_MESSAGES[Math.floor(Math.random() * SLOWMODE_MESSAGES.length)]
+  }, [])
+
   const me = useMemo(() => {
     if (!account) return null
     const base = toMyProfile(account)
@@ -252,6 +276,20 @@ export function SocialProvider({
     }
     return out
   }, [friends, presenceMap])
+
+  // Badge del ícono Social: no leídos + solicitudes entrantes. Cada panel
+  // aporta lo suyo y el store los suma (multi-cuenta).
+  const badgeSourceId = useRef(`social-${Math.random().toString(36).slice(2)}`).current
+  const unreadTotal = useMemo(
+    () =>
+      Object.values(unread).reduce((sum, count) => sum + count, 0) +
+      requests.filter((request) => request.direction === 'incoming').length,
+    [unread, requests]
+  )
+  useEffect(() => {
+    setActivityBadge('social', badgeSourceId, unreadTotal)
+    return () => clearActivityBadge('social', badgeSourceId)
+  }, [unreadTotal, badgeSourceId])
 
   const loadAccounts = useCallback(async (): Promise<AccountList | null> => {
     const result = await accountService.listAccounts()
@@ -709,13 +747,26 @@ export function SocialProvider({
       const peer = activePeerRef.current
       const id = accountIdRef.current
       if (!peer || !id) return { ok: false, error: 'No hay conversación abierta' }
+      // Slowmode: se evalúa antes de tocar la red.
+      const slow = slowmodeMessage()
+      if (slow) return { ok: false, error: slow }
       const result = await social.sendMessage(id, peer.id, body, replyTo?.id ?? null, attachments)
-      if (!result.ok) return { ok: false, error: result.error }
+      if (!result.ok) {
+        // Backstop de la DB: mismo mensaje simpático que el slowmode del cliente.
+        if (result.error === 'msg_ratelimited') {
+          return {
+            ok: false,
+            error: SLOWMODE_MESSAGES[Math.floor(Math.random() * SLOWMODE_MESSAGES.length)]
+          }
+        }
+        return { ok: false, error: result.error }
+      }
+      sendTimesRef.current.push(Date.now())
       setMessages((prev) => [...prev, result.data])
       setReplyTo(null)
       return { ok: true }
     },
-    [replyTo]
+    [replyTo, slowmodeMessage]
   )
 
   const editMessage = useCallback(

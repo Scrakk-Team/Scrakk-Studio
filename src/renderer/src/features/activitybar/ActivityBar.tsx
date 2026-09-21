@@ -28,6 +28,7 @@ import {
   subscribeToButtonLayout,
   allActivityButtons
 } from './layout'
+import { getActivityBadge, subscribeToActivityBadges } from './badges'
 import styles from './ActivityBar.module.css'
 
 /** Umbral en px antes de promover a drag (un click simple no dragea). */
@@ -54,6 +55,8 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
     return ExtensionRegistry.subscribe(() => setVersion((v) => v + 1))
   }, [])
   useEffect(() => subscribeToButtonLayout(() => setVersion((v) => v + 1)), [])
+  // Y cuando una feature publica un badge (no leídos, pendientes) para un botón.
+  useEffect(() => subscribeToActivityBadges(() => setVersion((v) => v + 1)), [])
   // Y cuando una extensión cambia una clave de contexto: los botones con
   // `when` (vistas que se esconden según el estado) aparecen o se van.
   useEffect(() => subscribeToExtensionContextKeys(() => setVersion((v) => v + 1)), [])
@@ -177,6 +180,7 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
         // El panel sigue al botón: si se mudó de barra, abre en ese slot.
         const active = slots[side] === button.panelId
         const isGhost = ghost?.id === button.id
+        const badge = getActivityBadge(button.id)
         return (
           <button
             key={button.id}
@@ -213,6 +217,9 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
             ) : (
               <button.icon size={20} />
             )}
+            {badge > 0 ? (
+              <span className={styles.badge}>{badge > 99 ? '99+' : badge}</span>
+            ) : null}
           </button>
         )
       })}
