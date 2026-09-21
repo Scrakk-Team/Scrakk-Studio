@@ -43,6 +43,18 @@ function renderWithMentions(body: string): (string | JSX.Element)[] {
   return parts.length > 0 ? parts : [body]
 }
 
+/** Cuenta emojis cuando el mensaje es SOLO emojis (para el tamaño "jumbo"). */
+function emojiOnlyCount(body: string): number {
+  const trimmed = body.trim()
+  if (!trimmed) return 0
+  if (/[A-Za-z0-9@#]/.test(trimmed)) return 0
+  const clusters = trimmed.split(/\s+/).filter(Boolean)
+  if (clusters.length === 0 || clusters.length > 3) return 0
+  return clusters.every((cluster) => /\p{Extended_Pictographic}/u.test(cluster))
+    ? clusters.length
+    : 0
+}
+
 /**
  * Discord-style message: avatar per group, no cards, hour only on leader.
  * Optimized with memo: only re-renders when props change.
@@ -61,6 +73,7 @@ export const MessageBubble = memo(function MessageBubble({
 }: MessageBubbleProps): JSX.Element {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState(message.body)
+  const jumbo = emojiOnlyCount(message.body)
 
   const handleEdit = () => {
     if (!editing) {
@@ -160,7 +173,18 @@ export const MessageBubble = memo(function MessageBubble({
             </button>
           </div>
         ) : (
-          <div className={styles.body}>{renderWithMentions(message.body)}</div>
+          <div
+            className={[
+              styles.body,
+              jumbo === 1 ? styles.jumbo1 : null,
+              jumbo === 2 ? styles.jumbo2 : null,
+              jumbo === 3 ? styles.jumbo3 : null
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {renderWithMentions(message.body)}
+          </div>
         )}
         {message.attachments && message.attachments.length > 0 ? (
           <div className={styles.attachGrid}>

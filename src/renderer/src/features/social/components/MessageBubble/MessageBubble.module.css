@@ -144,6 +144,11 @@
   -webkit-user-select: text;
 }
 
+/* Mensaje que es SOLO emojis: se agranda (estilo Discord). */
+.jumbo1 { font-size: 48px; line-height: 1.1; }
+.jumbo2 { font-size: 40px; line-height: 1.1; }
+.jumbo3 { font-size: 32px; line-height: 1.1; }
+
 .mention {
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   color: var(--color-accent);

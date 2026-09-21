@@ -1,0 +1,104 @@
+/* Popover del selector de emojis (se posiciona desde el composer). */
+
+.panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: 288px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  overflow: hidden;
+}
+
+.head {
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.search {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  outline: none;
+}
+
+.search::placeholder {
+  color: var(--color-text-muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--color-hover);
+}
+
+.tabActive {
+  background: var(--color-hover);
+  outline: 1px solid var(--color-border-strong);
+  outline-offset: -1px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.emoji:hover {
+  background: var(--color-hover);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 12px;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}

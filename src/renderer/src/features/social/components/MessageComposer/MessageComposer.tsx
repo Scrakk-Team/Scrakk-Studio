@@ -11,6 +11,7 @@ import {
 import { ProductIcon } from '@services/productIcons/components'
 import { IconButton } from '@ui'
 import { IMAGE_RULES, type DirectMessage, type Friend, type ImageUpload } from '@shared/social'
+import { EmojiPicker } from '../../emoji/EmojiPicker'
 import styles from './MessageComposer.module.css'
 
 interface MessageComposerProps {
@@ -83,12 +84,26 @@ export function MessageComposer({
   const [pending, setPending] = useState<PendingImage[]>([])
   const [attachError, setAttachError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const [showEmoji, setShowEmoji] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const emojiRef = useRef<HTMLDivElement>(null)
   const typingTimeout = useRef<number | null>(null)
   const lastTyping = useRef(false)
 
   const canSend = !disabled && !sending && (value.trim().length > 0 || pending.length > 0)
+
+  // Cerrar el selector de emojis al clickear afuera.
+  useEffect(() => {
+    if (!showEmoji) return undefined
+    const onDown = (event: PointerEvent): void => {
+      if (emojiRef.current && !emojiRef.current.contains(event.target as Node)) {
+        setShowEmoji(false)
+      }
+    }
+    window.addEventListener('pointerdown', onDown)
+    return () => window.removeEventListener('pointerdown', onDown)
+  }, [showEmoji])
 
   useEffect(() => {
     const el = textareaRef.current
@@ -276,6 +291,23 @@ export function MessageComposer({
     scheduleTypingOff()
   }
 
+  const insertEmoji = (char: string): void => {
+    const el = textareaRef.current
+    if (!el) {
+      setValue((prev) => prev + char)
+      return
+    }
+    const cursor = el.selectionStart ?? value.length
+    const before = value.slice(0, cursor)
+    const after = value.slice(cursor)
+    setValue(before + char + after)
+    setTimeout(() => {
+      el.focus()
+      const pos = before.length + char.length
+      el.selectionStart = el.selectionEnd = pos
+    }, 0)
+  }
+
   const filteredFriends = friends.filter((f) => {
     if (!mentionQuery) return true
     return (f.handle ?? '').toLowerCase().includes(mentionQuery) || (f.displayName ?? '').toLowerCase().includes(mentionQuery)
@@ -333,6 +365,22 @@ export function MessageComposer({
         </div>
       ) : null}
       <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.emojiWrap} ref={emojiRef}>
+          <IconButton
+            type="button"
+            shape="rounded"
+            label="Emojis"
+            size="sm"
+            className={styles.attach}
+            onClick={() => setShowEmoji((prev) => !prev)}
+            disabled={disabled}
+          >
+            <span className={styles.emojiGlyph} aria-hidden="true">
+              😊
+            </span>
+          </IconButton>
+          {showEmoji ? <EmojiPicker onPick={insertEmoji} /> : null}
+        </div>
         <IconButton
           type="button"
           shape="rounded"
