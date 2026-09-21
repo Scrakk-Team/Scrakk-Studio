@@ -36,23 +36,37 @@
   animation: notif-in 140ms var(--ease-out);
 }
 
-/* Acento de severidad SOLO abajo (como la tab activa): el borde de la card
-   queda siempre neutro. */
-.card.error::after,
-.card.warn::after,
-.card.success::after {
-  content: '';
+/* Raya inferior: color por severidad y "vacío" según el tiempo restante.
+   Va como elemento (no ::after) para animar la duración por notificación. */
+.progress {
   position: absolute;
   left: var(--space-3);
   right: var(--space-3);
   bottom: 6px;
   height: 2px;
   border-radius: 2px;
+  transform-origin: left center;
+  background: var(--color-accent);
 }
 
-.card.error::after { background: #f85149; }
-.card.warn::after { background: #d29922; }
-.card.success::after { background: #3fb950; }
+.card.success .progress { background: #3fb950; }
+.card.warn .progress { background: #d29922; }
+.card.error .progress { background: #f85149; }
+.card.info .progress { background: var(--color-accent); }
+
+/* Con timeout: la raya se vacía (escala 1 → 0) en `timeoutMs`. */
+.progressTimed {
+  animation: notif-progress linear forwards;
+}
+
+@keyframes notif-progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressTimed { animation: none; }
+}
 
 @keyframes notif-in {
   from { opacity: 0; transform: translateY(-6px); }
@@ -101,7 +115,8 @@
   width: 18px;
   height: 18px;
   border: none;
-  border-radius: var(--radius-sm);
+  /* Cuadrado con esquinas redondeadas (no circular): 5px sobre 18px. */
+  border-radius: 5px;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;

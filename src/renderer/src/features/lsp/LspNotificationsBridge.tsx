@@ -35,6 +35,9 @@ export function LspNotificationsBridge(): JSX.Element | null {
         message: event.error ?? 'fallo desconocido',
         severity: 'error',
         corner: 'br',
+        // Tiempo explícito: la raya inferior muestra cuánto queda antes de
+        // cerrarse sola. Los botones siguen disponibles mientras esté.
+        timeoutMs: 12000,
         actions: [
           { label: 'Ver servidores', run: () => openSettingsModal('servers') },
           {
@@ -67,7 +70,8 @@ export function notifyInstallResult(
       message: result.error,
       severity: 'error',
       corner: 'br',
-        actions: [{ label: 'Ver servidores', run: () => openSettingsModal('servers') }]
+      timeoutMs: 12000,
+      actions: [{ label: 'Ver servidores', run: () => openSettingsModal('servers') }]
     })
   }
 }

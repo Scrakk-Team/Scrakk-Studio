@@ -33,7 +33,11 @@ export interface NotifyInput {
   severity?: NotificationSeverity
   /** Esquina de pantalla: 'tl' | 'tr' | 'bl' | 'br'. Default: 'tr'. */
   corner?: NotificationCorner
-  /** Auto-cerrar en ms; 0 = persistente. Default: 6000 (info/success), 0 en error. */
+  /**
+   * Auto-cerrar en ms. **0 = persistente** (hay que cerrarla a mano). Si no se
+   * pasa, se usa el default por severidad: info/success 6s, warn 8s, error 10s.
+   * La raya inferior de la notificación se vacía a lo largo de este tiempo.
+   */
   timeoutMs?: number
   /** Máximo 3 botones con callbacks arbitrarios. */
   actions?: Array<{ label: string; run: () => void }>
@@ -41,6 +45,14 @@ export interface NotifyInput {
   image?: NotificationImage
   /** Se llama si la notificación se cierra SIN elegir un botón. */
   onClose?: () => void
+}
+
+/** Tiempo por defecto hasta auto-cerrar, por severidad (ms; 0 = persistente). */
+const DEFAULT_TIMEOUT_MS: Record<NotificationSeverity, number> = {
+  info: 6000,
+  success: 6000,
+  warn: 8000,
+  error: 10000
 }
 
 /** Muestra una notificación y devuelve su id. */
@@ -51,7 +63,7 @@ export function notify(input: NotifyInput): string {
     detail: input.detail,
     severity: input.severity,
     corner: input.corner,
-    timeoutMs: input.timeoutMs ?? (input.severity === 'error' ? 0 : 6000),
+    timeoutMs: input.timeoutMs ?? DEFAULT_TIMEOUT_MS[input.severity ?? 'info'],
     actions: input.actions,
     image: input.image,
     onClose: input.onClose
