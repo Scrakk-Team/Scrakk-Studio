@@ -185,6 +185,16 @@ publicadas no se editan.
   para saber dónde arranca el texto.
 - Se quitó **“Ir a definición”** del menú contextual del editor; **F12** sigue.
 
+### Editor — nuevos lenguajes
+- **Gramáticas nuevas embebidas en el motor**: **Prisma**, **HCL**,
+  **Terraform** (dialecto propio, no el de HCL), **CMake**, **Svelte**, **SCSS**
+  y **Less**, cada una con sus queries (resaltado, plegado, indentación e
+  inyecciones; Svelte además con `locals`).
+- La detección de archivos ya no manda `.scss` y `.less` al CSS genérico: cada
+  uno usa su gramática.
+- Los servidores LSP que ya existían siguen aplicando (Terraform, CMake, Svelte,
+  Prisma; el de CSS cubre SCSS/LESS).
+
 ### Extensiones
 - Tipo **`tools`**: herramientas de IA aportadas por un `.sef`, con su carpeta
   `visual/` y ejecución por comando en el Extension Host.
