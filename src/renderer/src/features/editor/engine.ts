@@ -88,13 +88,17 @@ export function getOrCreateInnertaEngine(): EditorEngine {
  * Cambiar de tab activa otra sesión: sin instanciar un módulo por archivo
  * (patrón de un editor real, p. ej. Zed). El número de módulos pasa a ser
  * "uno por panel visible", no "uno por archivo abierto".
+ *
+ * AISLADO a propósito: cada panel necesita su PROPIO módulo WASM + canvas. El
+ * loader no aislado (`getInnertaModule`) es singleton (un canvas global), así
+ * que dos paneles compartirían módulo y el segundo quedaría vacío.
  */
 const paneEngines = new Map<string, InnertaEngine>()
 
 export function getOrCreatePaneEngine(paneId: string): InnertaEngine {
   let engine = paneEngines.get(paneId)
   if (!engine) {
-    engine = new InnertaEngine()
+    engine = new InnertaEngine({ isolated: true })
     paneEngines.set(paneId, engine)
   }
   return engine
