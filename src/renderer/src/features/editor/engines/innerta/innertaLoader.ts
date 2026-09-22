@@ -398,6 +398,18 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       ;(_raw._SetInnertaSessionCleanRevision as (p: number, r: number) => void)(ptr, revision >>> 0)
       _raw._free(ptr)
     },
+    /**
+     * Pares de auto-cierre del lenguaje. Los declara el LENGUAJE (el host los
+     * resuelve de su config); el motor no tiene tabla propia ni heurísticas.
+     */
+    setAutoPairs(openers, closers) {
+      if (typeof _raw._SetInnertaAutoPairs !== 'function') return
+      const openPtr = toUtf32Ptr(_raw, openers)
+      const closePtr = toUtf32Ptr(_raw, closers)
+      ;(_raw._SetInnertaAutoPairs as (a: number, b: number) => void)(openPtr, closePtr)
+      _raw._free(openPtr)
+      _raw._free(closePtr)
+    },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el
       // heap lineal REAL del módulo, no una estimación.
@@ -821,6 +833,18 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
       const ptr = toUtf32Ptr(_raw, id)
       ;(_raw._SetInnertaSessionCleanRevision as (p: number, r: number) => void)(ptr, revision >>> 0)
       _raw._free(ptr)
+    },
+    /**
+     * Pares de auto-cierre del lenguaje. Los declara el LENGUAJE (el host los
+     * resuelve de su config); el motor no tiene tabla propia ni heurísticas.
+     */
+    setAutoPairs(openers, closers) {
+      if (typeof _raw._SetInnertaAutoPairs !== 'function') return
+      const openPtr = toUtf32Ptr(_raw, openers)
+      const closePtr = toUtf32Ptr(_raw, closers)
+      ;(_raw._SetInnertaAutoPairs as (a: number, b: number) => void)(openPtr, closePtr)
+      _raw._free(openPtr)
+      _raw._free(closePtr)
     },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el

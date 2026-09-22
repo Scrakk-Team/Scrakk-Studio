@@ -8,6 +8,7 @@ import { clearLanguageHighlight, refreshLanguageHighlight } from './languageHigh
 import { clearDynamicHighlight, refreshDynamicHighlight } from './treeSitterHighlightBridge'
 import { applyInnertaFolds } from './hostBridge'
 import { GRAMMAR_ENGINE_EVENT } from './grammarSelection'
+import { autoPairsForPath } from './languageConfig'
 import { resetHostTokens } from './hostTokens'
 import { getBookmarksForPath, subscribeToBookmarks } from '@services/bookmarks'
 import { getDecorations, packDecorations, subscribeToDecorations } from '@services/decorations'
@@ -128,6 +129,11 @@ export interface InnertaModule {
   isSessionDirty?(id: string): boolean
   /** Marca la revisión de una sesión como persistida. */
   setSessionCleanRevision?(id: string, revision: number): void
+  /**
+   * Pares de auto-cierre del LENGUAJE (`openers`/`closers` alineados). Sin
+   * pares, el motor no auto-cierra nada.
+   */
+  setAutoPairs?(openers: string, closers: string): void
   /**
    * WASM: bytes del heap lineal (HEAP8). 0 si el build no lo expone.
    * Sirve para medir RAM real del editor sin estimaciones.
@@ -689,6 +695,18 @@ export class InnertaEngine implements EditorEngine {
     // anterior y arranca los canales del nuevo.
     this.startHighlightPipelines(id, text)
     requestAnimationFrame(() => this.bridge?.syncCursor())
+    this.applyAutoPairs(id)
+  }
+
+  /**
+   * Pares de auto-cierre del lenguaje → motor. Los resuelve la config del
+   * lenguaje (o su tabla real); sin pares, el motor no auto-cierra nada.
+   */
+  private applyAutoPairs(path: string): void {
+    void autoPairsForPath(path).then((pairs) => {
+      if (this.currentPath !== path || !this.module) return
+      this.module.setAutoPairs?.(pairs?.openers ?? '', pairs?.closers ?? '')
+    })
   }
 
   /**
