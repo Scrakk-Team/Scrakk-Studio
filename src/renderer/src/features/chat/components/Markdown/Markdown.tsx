@@ -79,6 +79,8 @@ const components: Components = {
 
 interface MarkdownProps {
   content: string
+  /** Clase extra para el contenedor (p. ej. tipografía compacta fuera del chat). */
+  className?: string
 }
 
 /**
@@ -93,13 +95,13 @@ interface MarkdownProps {
  * caro del chat). Esto además estabiliza las props de CodeBlock y su memo
  * sí evita re-resaltados.
  */
-export const Markdown = memo(function Markdown({ content }: MarkdownProps): JSX.Element {
+export const Markdown = memo(function Markdown({ content, className }: MarkdownProps): JSX.Element {
   // El parseo de markdown + Prism es lo más caro del chat. Con `content`
   // aplazado, React puede descartar renders intermedios del stream (el texto
   // viejo se mantiene un instante) en vez de bloquear el hilo por token.
   const deferredContent = useDeferredValue(content)
   return (
-    <div className={styles.md}>
+    <div className={className ? `${styles.md} ${className}` : styles.md}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[rehypeRaw, rehypeSanitize]}

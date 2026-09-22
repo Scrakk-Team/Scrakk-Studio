@@ -1,11 +1,41 @@
 import { useState, useEffect } from "react";
 import { ProductIcon } from '@services/productIcons/components'
+import { Markdown } from '@features/chat/components/Markdown'
 import { FileTypeIcon } from '@features/explorer/components/FileTypeIcon'
+import { markSeen, useUpdates } from '@services/updates'
+import type { ReleaseInfo } from '@shared/updates'
 import { loadTips } from "./tips";
+import { loadAnnouncement, parseLatestEntry, type WelcomeAnnouncement } from "./changelog";
 import "./WelcomePanel.css";
 
 /** Consejos desde `tips/*.json` (agregar JSON = agregar consejo). */
 const TIPS = loadTips();
+
+/** Anuncio más nuevo, leído de `docs/changelog/changelog-*.md` en build. */
+const ANNOUNCEMENT = loadAnnouncement();
+
+/**
+ * Anuncio a partir de una release remota (llega por Realtime). El `body` es el
+ * markdown de esa versión; se reusa el mismo parser del changelog para separar
+ * versión, título, resumen y cuerpo.
+ */
+function announcementFromRelease(release: ReleaseInfo): WelcomeAnnouncement {
+  const parsed = parseLatestEntry(release.body ?? '')
+  if (parsed) {
+    return {
+      version: parsed.version || release.version,
+      title: parsed.title,
+      summary: parsed.summary,
+      body: parsed.body
+    }
+  }
+  return {
+    version: release.version,
+    title: release.name ?? `Scrakk Studio ${release.version}`,
+    summary: '',
+    body: release.body ?? ''
+  }
+}
 
 interface WelcomePanelProps {
   onNewFile?: () => void
@@ -28,6 +58,10 @@ export function WelcomePanel({
   const [hoveredAction, setHoveredAction] = useState<string | null>(null);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [infoTab, setInfoTab] = useState<'tips' | 'ads'>('tips');
+  const [announcementOpen, setAnnouncementOpen] = useState(false);
+  const updates = useUpdates();
+  // Release remota (más nueva) si trae notas; si no, el changelog empaquetado.
+  const announcement = updates.latest?.body ? announcementFromRelease(updates.latest) : ANNOUNCEMENT;
   useEffect(() => {
 
     // Cargar workspaces guardados
@@ -181,9 +215,13 @@ export function WelcomePanel({
               role="tab"
               aria-selected={infoTab === 'ads'}
               className={`info-tab ${infoTab === 'ads' ? "active" : ""}`}
-              onClick={() => setInfoTab('ads')}
+              onClick={() => {
+                setInfoTab('ads');
+                markSeen();
+              }}
             >
               Anuncios
+              {updates.hasNews && <span className="info-badge" aria-label="Hay novedades" />}
             </button>
             {infoTab === 'tips' && TIPS.length > 0 && (
               <div className="tips-indicators">
@@ -222,12 +260,50 @@ export function WelcomePanel({
           {infoTab === 'ads' && (
           <div className="welcome-ads-section">
             <div className="ads-slider">
-              <div className="ad-card">
-                <div className="ad-content">
-                  <h3 className="ad-title">Próximamente</h3>
-                  <p className="ad-description">Aquí van a aparecer los anuncios.</p>
+              {announcement ? (
+                <div className={`ad-card ${announcementOpen ? 'open' : ''}`}>
+                  <button
+                    type="button"
+                    className="ad-toggle"
+                    aria-expanded={announcementOpen}
+                    onClick={() => setAnnouncementOpen((open) => !open)}
+                  >
+                    <div className="ad-content">
+                      <h3 className="ad-title">
+                        v{announcement.version} — {announcement.title}
+                      </h3>
+                      <p className="ad-description">{announcement.summary}</p>
+                    </div>
+                    <ProductIcon
+                      id={announcementOpen ? 'chevron-down' : 'chevron-right'}
+                      size={14}
+                      aria-hidden="true"
+                      className="ad-chevron"
+                    />
+                  </button>
+                  {announcementOpen && (
+                    <div className="ad-body">
+                      <Markdown content={announcement.body} className="ad-markdown" />
+                      {updates.latest?.htmlUrl && (
+                        <button
+                          type="button"
+                          className="ad-release-link"
+                          onClick={() => window.open(updates.latest?.htmlUrl, '_blank')}
+                        >
+                          Ver release en GitHub
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="ad-card">
+                  <div className="ad-content">
+                    <h3 className="ad-title">Sin anuncios</h3>
+                    <p className="ad-description">Todavía no hay un changelog publicado.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           )}

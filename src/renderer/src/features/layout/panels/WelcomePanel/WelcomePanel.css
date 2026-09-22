@@ -471,6 +471,10 @@
 }
 
 .info-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 4px 10px;
   border: none;
   border-radius: 6px;
@@ -494,6 +498,34 @@
   color: var(--text-color, var(--color-text));
 }
 
+/* Punto de "hay novedades" en el botón Anuncios. */
+.info-badge {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tree-color, var(--color-accent));
+  flex-shrink: 0;
+}
+
+/* Enlace a la release dentro del anuncio expandido. */
+.ad-release-link {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--hover-bg, var(--color-hover));
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.ad-release-link:hover {
+  background: var(--color-active, var(--color-hover));
+  color: var(--text-color, var(--color-text));
+}
+
 .info-tabs .tips-indicators {
   margin-left: auto;
 }
@@ -508,9 +540,28 @@
 .ad-card {
   min-width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+}
+
+/* Encabezado clickeable: resumen arriba; al hacer clic se expande el md. */
+.ad-toggle {
+  width: 100%;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
   padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ad-toggle:hover {
+  background: var(--bg-secondary, var(--color-surface));
 }
 
 .ad-content {
@@ -518,8 +569,13 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  text-align: center;
-  max-width: 500px;
+  text-align: left;
+  min-width: 0;
+}
+
+.ad-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .ad-title {
@@ -534,6 +590,22 @@
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
+}
+
+.ad-body {
+  max-height: 240px;
+  overflow: auto;
+  padding: 10px 14px;
+  border-top: 1px solid var(--color-border, #262626);
+  text-align: left;
+}
+
+/* Tipografía compacta del changelog dentro de la tarjeta: el .md del chat
+   tiene 15px, pero con dos clases esta regla gana por especificidad. */
+.ad-body .ad-markdown {
+  font-size: 11.5px;
+  line-height: 1.5;
+  gap: 3px;
 }
 
 
