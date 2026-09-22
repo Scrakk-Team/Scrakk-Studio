@@ -104,6 +104,11 @@ publicadas no se editan. El archivo va por versión:
   (usuario y proyecto). Al primer arranque se crea un primario **Asistente** y
   un subagente **Explorador** (read-only) usando el propio sistema, no builtins.
 - `modes.json` se migra solo a `primary.json`.
+- **El subagente es un chat propio**: `@nombre <tarea>` **spawnea su chat** en un
+  **modal sin overlay** (nueva variante `plain` del sistema global de modales)
+  que reusa los **mismos componentes de chat**, así se ve **en vivo** cómo
+  trabaja (contenido, razonamiento y tool calls). Mientras está abierto, el
+  input del chat principal queda **bloqueado** (estado `locked`).
 
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
