@@ -34,10 +34,13 @@
     "sef:validate": "node tools/sef/index.ts validate"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "^4.3.5",
+    "@hugeicons/react": "^1.1.10",
     "@proicons/react": "^4.13.7",
     "@supabase/supabase-js": "^2.116.0",
     "electron-updater": "^6.8.9",
     "fflate": "^0.8.3",
+    "motion": "^13.4.1",
     "node-pty": "^1.1.0",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.2.8",

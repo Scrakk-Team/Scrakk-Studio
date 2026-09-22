@@ -87,6 +87,18 @@
   font-size: var(--text-xs);
 }
 
+/* Slots del código OTP: centrados dentro del campo. */
+.codeSlotsWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.status {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
 .primaryBtn {
   display: inline-flex;
   align-items: center;

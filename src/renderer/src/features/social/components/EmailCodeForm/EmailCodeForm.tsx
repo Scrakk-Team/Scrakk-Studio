@@ -1,6 +1,7 @@
-import { useState, type ChangeEvent, type FormEvent, type JSX } from 'react'
+import { useCallback, useState, type ChangeEvent, type FormEvent, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { ACCOUNT_RULES } from '@shared/account'
+import CodeSlots, { type CodeSlotsStatus } from '../CodeSlots/CodeSlots'
 import styles from './EmailCodeForm.module.css'
 
 interface EmailCodeFormProps {
@@ -13,11 +14,14 @@ interface EmailCodeFormProps {
 /**
  * Ingreso por email + código OTP — el MISMO método que el CLI. Un solo flujo
  * sirve para cuentas nuevas y existentes: pides el código, lo escribes, entras.
+ * El código se ingresa con <CodeSlots /> (slots animados) y se verifica solo
+ * al completar los 6 dígitos.
  */
 export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProps): JSX.Element {
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
+  const [status, setStatus] = useState<CodeSlotsStatus>('idle')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,15 +38,22 @@ export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProp
     else setError(result.error ?? 'No se pudo enviar el código')
   }
 
-  const submitCode = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault()
-    if (!ACCOUNT_RULES.code.test(code) || busy) return
-    setBusy(true)
-    setError(null)
-    const result = await onVerifyCode(email.trim(), code)
-    setBusy(false)
-    if (!result.ok) setError(result.error ?? 'Código inválido o expirado')
-  }
+  const verify = useCallback(
+    async (candidate: string): Promise<void> => {
+      if (!ACCOUNT_RULES.code.test(candidate) || busy) return
+      setBusy(true)
+      setError(null)
+      const result = await onVerifyCode(email.trim(), candidate)
+      setBusy(false)
+      if (result.ok) {
+        setStatus('success')
+      } else {
+        setError(result.error ?? 'Código inválido o expirado')
+        setStatus('error')
+      }
+    },
+    [busy, email, onVerifyCode]
+  )
 
   if (step === 'email') {
     return (
@@ -82,7 +93,7 @@ export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProp
   }
 
   return (
-    <form className={styles.form} onSubmit={submitCode}>
+    <div className={styles.form}>
       <div className={styles.head}>
         <ProductIcon id="key" size={18} className={styles.headIcon} />
         <div className={styles.headText}>
@@ -93,28 +104,47 @@ export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProp
         </div>
       </div>
 
-      <label className={styles.field}>
+      <div className={styles.field}>
         <span className={styles.label}>Código</span>
-        <input
-          className={styles.codeInput}
-          value={code}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-          placeholder="000000"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          autoFocus
-        />
-      </label>
+        <div className={styles.codeSlotsWrap}>
+          <CodeSlots
+            length={6}
+            value={code}
+            status={status}
+            disabled={busy}
+            autoFocus
+            onChange={(next) => {
+              setCode(next)
+              if (status !== 'idle') setStatus('idle')
+            }}
+            onComplete={(candidate) => void verify(candidate)}
+            accentColor="var(--color-accent)"
+            inkColor="var(--color-text)"
+            slotColor="var(--color-surface-raised)"
+            digitColor="var(--color-on-accent)"
+            dangerColor="var(--color-danger)"
+            slotSize={36}
+            gap={5}
+            radius={10}
+            ariaLabel="Código de verificación"
+          />
+        </div>
+      </div>
 
       {error ? <p className={styles.error}>{error}</p> : null}
-
-      <button type="submit" className={styles.primaryBtn} disabled={!ACCOUNT_RULES.code.test(code) || busy}>
-        <ProductIcon id={busy ? 'refresh' : 'check'} size={14} />
-        {busy ? 'Verificando…' : 'Entrar'}
-      </button>
+      {busy ? <p className={styles.status}>Verificando…</p> : null}
 
       <div className={styles.footerLinks}>
-        <button type="button" className={styles.linkBtn} onClick={() => { setStep('email'); setCode(''); setError(null) }}>
+        <button
+          type="button"
+          className={styles.linkBtn}
+          onClick={() => {
+            setStep('email')
+            setCode('')
+            setStatus('idle')
+            setError(null)
+          }}
+        >
           Cambiar email
         </button>
         <button
@@ -126,6 +156,6 @@ export function EmailCodeForm({ onRequestCode, onVerifyCode }: EmailCodeFormProp
           Reenviar código
         </button>
       </div>
-    </form>
+    </div>
   )
 }
