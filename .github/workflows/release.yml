@@ -149,10 +149,14 @@ jobs:
             --arg body "$BODY" \
             --arg html_url "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}" \
             '{tag:$tag,version:$version,name:$name,body:$body,html_url:$html_url}')"
-          curl -fsS -X POST "${SUPABASE_URL}/rest/v1/releases" \
+          STATUS="$(curl -sS -o /tmp/sb-response.txt -w "%{http_code}" -X POST "${SUPABASE_URL}/rest/v1/releases" \
             -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
             -H "Content-Type: application/json" \
             -H "Prefer: resolution=merge-duplicates,return=minimal" \
-            -d "$PAYLOAD"
-          echo "release ${VERSION} registrada en Supabase"
+            -d "$PAYLOAD")"
+          if [ "$STATUS" -ge 400 ]; then
+            echo "::error::Supabase respondió $STATUS: $(cat /tmp/sb-response.txt)"
+            exit 1
+          fi
+          echo "release ${VERSION} registrada en Supabase ($STATUS)"

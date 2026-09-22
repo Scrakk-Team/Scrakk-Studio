@@ -1,0 +1,81 @@
+name: Updates seed
+
+# Re-registra en Supabase una release YA publicada (el mismo paso que hace
+# `release.yml` al final). Sirve para:
+#   - reintentar si el paso original falló (por ejemplo, key inválida);
+#   - corregir la fila sin cortar una versión nueva.
+#
+# Uso:  gh workflow run updates-seed.yml            (usa el último tag)
+#       gh workflow run updates-seed.yml -f tag=v0.1.1
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de la release (ej. v0.1.1). Vacío = último tag.'
+        required: false
+        default: ''
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolver tag
+        id: tag
+        shell: bash
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="$(git describe --tags --abbrev=0)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "tag: $TAG (version ${TAG#v})"
+
+      - name: Preparar notas
+        id: notes
+        shell: bash
+        run: |
+          FILE="docs/changelog/changelog-${{ steps.tag.outputs.version }}.md"
+          if [ -f "$FILE" ]; then
+            sed -n '/^## /,$p' "$FILE" > release-notes.md
+          else
+            echo "::warning::no existe $FILE; se usa el tag como cuerpo"
+            echo "${{ steps.tag.outputs.tag }}" > release-notes.md
+          fi
+
+      - name: Upsert en Supabase
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://ufcwwigmzgmyyfauymim.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::falta el secret SUPABASE_SERVICE_ROLE_KEY"
+            exit 1
+          fi
+          TAG="${{ steps.tag.outputs.tag }}"
+          VERSION="${{ steps.tag.outputs.version }}"
+          BODY="$(cat release-notes.md)"
+          PAYLOAD="$(jq -n \
+            --arg tag "$TAG" \
+            --arg version "$VERSION" \
+            --arg name "$TAG" \
+            --arg body "$BODY" \
+            --arg html_url "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}" \
+            '{tag:$tag,version:$version,name:$name,body:$body,html_url:$html_url}')"
+          STATUS="$(curl -sS -o /tmp/sb-response.txt -w "%{http_code}" -X POST "${SUPABASE_URL}/rest/v1/releases" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates,return=minimal" \
+            -d "$PAYLOAD")"
+          if [ "$STATUS" -ge 400 ]; then
+            echo "::error::Supabase respondió $STATUS: $(cat /tmp/sb-response.txt)"
+            exit 1
+          fi
+          echo "release ${VERSION} registrada en Supabase ($STATUS)"
