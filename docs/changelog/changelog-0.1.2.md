@@ -109,6 +109,11 @@ publicadas no se editan. El archivo va por versión:
   que reusa los **mismos componentes de chat**, así se ve **en vivo** cómo
   trabaja (contenido, razonamiento y tool calls). Mientras está abierto, el
   input del chat principal queda **bloqueado** (estado `locked`).
+- El chat del subagente se monta **DENTRO del panel de chat** (portal scoped
+  del sistema de modales), no como modal centrado sobre la ventana.
+- Las **tool calls** llegan **en vivo**: el proceso main las emite mientras el
+  modelo las escribe (antes solo al terminar el stream), así la card aparece en
+  tiempo real y no recién al cortar la respuesta.
 - Los subagentes que lanza **la IA** (tool `task`) también quedan como sesión
   observable: la card trae un botón **Abrir** que muestra su chat en vivo.
 
