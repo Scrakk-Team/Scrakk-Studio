@@ -1,15 +1,15 @@
-/* LspChip — bloque full-bleed pegado al borde izquierdo, con el MISMO
-   color de la statusbar (sin fondo accent). Sin hover. */
+/* LspChip — chip de la izquierda. Mismo hover que los botones de la derecha:
+   cuadrado con esquinas redondeadas (radio chico), inset y `--color-hover`. */
 
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  /* Ocupa TODA la altura de la statusbar (28px): sin espacios arriba/abajo. */
-  align-self: stretch;
+  align-self: center;
+  height: 22px;
   padding: 0 var(--space-2);
   border: none;
-  border-radius: 0;
+  border-radius: 6px;
   /* Fondo TRANSPARENTE, como el resto de los chips de la barra.
      Antes copiaba `--statusbar-bg` / `--color-surface` para simular el fondo
      de la barra, y en los temas con imagen (glass) eso se ve: la barra es
@@ -19,11 +19,9 @@
      qué variable usó el tema. */
   background: transparent;
   color: var(--color-text-secondary);
-  margin-left: calc(-1 * var(--space-2));
 }
 
-/* Hover: mismo efecto que el resto de chips de la statusbar
-   (EncodingChip/SearchBar): fondo --color-hover, full-bleed. */
+/* Hover: mismo efecto que el resto de chips de la statusbar. */
 .chip:hover {
   background: var(--color-hover);
   color: var(--color-text);

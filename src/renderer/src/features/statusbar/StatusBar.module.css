@@ -28,11 +28,10 @@
   align-self: stretch;
 }
 
-/* Grupo derecho: marca el grupo de la derecha (layouts + campana +
-   ajustes). Los botones quedan con el padding normal de la barra; solo el
-   hover del ÚLTIMO chip se extiende hasta la ventana (ver abajo). */
+/* Grupo derecho (layouts + campana + ajustes): SIN offset. La barra ya deja
+   su padding, así la esquina redondeada de la ventana no corta el hover del
+   último botón. */
 .groupRight {
-  /* Sin offsets: posición normal, separada del borde. */
 }
 
 /* Separador vertical entre items del grupo: raya centrada, sin llegar
@@ -100,19 +99,19 @@ button.item:active {
   color: var(--color-text-muted);
 }
 
-/* Botones de la derecha (campana, ajustes): MISMO bloque que LspChip —
-   full-bleed a 28px, sin radio, fondo transparente que se funde con la
-   barra. Mismo hover (--color-hover) y mismo active. Idénticos entre sí. */
+/* Botones de la derecha (campana, ajustes): cuadrados con esquinas
+   redondeadas (radio chico, no cápsula), centrados en la barra. */
 .chipBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: stretch;
-  width: 32px;
+  align-self: center;
+  width: 24px;
+  height: 22px;
   flex-shrink: 0;
   padding: 0;
   border: none;
-  border-radius: 0;
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -130,32 +129,4 @@ button.item:active {
 .chipBtn[aria-expanded='true'] {
   background: var(--color-hover);
   color: var(--color-text);
-}
-
-/* El último chip queda separado del borde, pero su hover se extiende
-   hasta la ventana (cubre el padding de la barra) y se corta con ella,
-   como el del LspChip del lado izquierdo. */
-.groupRight > .chipBtn:last-child {
-  position: relative;
-}
-
-.groupRight > .chipBtn:last-child:hover::after,
-.groupRight > .chipBtn:last-child[aria-expanded='true']::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: var(--space-2);
-  background: var(--color-hover);
-}
-
-.groupRight > .chipBtn:last-child:active::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: var(--space-2);
-  background: var(--color-active);
 }

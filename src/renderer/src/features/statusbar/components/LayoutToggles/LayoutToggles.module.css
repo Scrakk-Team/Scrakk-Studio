@@ -10,11 +10,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
+  width: 24px;
   height: 20px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;

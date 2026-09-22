@@ -1,12 +1,14 @@
-/* Chips de extensiones: mismo lenguaje visual que los chips propios. */
+/* Chips de extensiones: mismo hover que el resto de la statusbar (cuadrado
+   con esquinas redondeadas, radio chico, `--color-hover`). */
 
 .item {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 0 6px;
-  height: 100%;
+  padding: 0 var(--space-2);
+  height: 22px;
   border: 0;
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-muted, #9aa0a6);
   font: inherit;
@@ -18,7 +20,7 @@
 
 .item:hover:not(:disabled) {
   color: var(--color-text, #e6e6e6);
-  background: var(--color-surface-hover, rgb(255 255 255 / 6%));
+  background: var(--color-hover, rgb(255 255 255 / 7%));
 }
 
 .item:disabled {

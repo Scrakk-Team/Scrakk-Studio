@@ -4,9 +4,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 20px;
+  height: 22px;
   padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   color: var(--color-text-secondary);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: var(--text-xs);

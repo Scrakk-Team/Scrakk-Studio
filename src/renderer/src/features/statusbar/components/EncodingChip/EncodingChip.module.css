@@ -3,10 +3,10 @@
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 20px;
+  height: 22px;
   padding: 0 var(--space-2);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-secondary);
   font-family: inherit;
