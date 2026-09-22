@@ -47,6 +47,7 @@ import { createRequire } from 'node:module'
 import { app } from 'electron'
 import { Registry, parseRawGrammar, type IGrammar, type StateStack } from 'vscode-textmate'
 import * as oniguruma from 'vscode-oniguruma'
+import { resolveLangsDir } from '../langs'
 
 /** Una gramática que el renderer ya identificó (rutas absolutas). */
 export interface TokenizeGrammarRef {
@@ -140,6 +141,9 @@ function loadOniguruma(): Promise<void> {
  */
 export async function assertGrammarPathAllowed(filePath: string): Promise<void> {
   const roots = [path.join(app.getPath('userData'), 'extensions')]
+  // Pack de lenguajes preinstalado (`langs/`): mismo contrato que una extensión.
+  const langsDir = resolveLangsDir()
+  if (langsDir) roots.push(langsDir)
   const resolved = path.resolve(filePath)
   for (const root of roots) {
     const prefix = root.endsWith(path.sep) ? root : root + path.sep

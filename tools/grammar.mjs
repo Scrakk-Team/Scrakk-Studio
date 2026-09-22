@@ -1138,7 +1138,14 @@ Opciones:
   --ext <ext,ext>       extensiones de archivo (default: las del repo o de una
                         extensión de lenguaje instalada; si no hay, hay que pasarlas)
   --inherits <langs>    lenguajes base a fusionar en las queries (javascript)
-  --target app|engine|both   a dónde va (default: app)
+  --target app|engine|both|langs
+                        a dónde va (default: app)
+                          app    → paquete SEF (.sef) instalable
+                          engine → fuentes al motor + rebuild (--build)
+                          langs  → carpeta desempaquetada por lenguaje
+                                   (<out>/<id>/) + índice <out>/index.json
+                                   para que el IDE la lea on-demand
+                                   (SIN recompilar el motor)
   --install             instala el paquete en la app (userData/extensions)
   --queries <dir>       DIRECTORIO de queries cuando el link es un .wasm suelto
                         (las categorías se piden con --categories)
@@ -1475,11 +1482,97 @@ async function main() {
     for (const [name, data] of files) zipInput[name] = new Uint8Array(data)
     const zipped = zipSync(zipInput)
 
-    const outDir = path.resolve(options.list.out ?? path.join(PROJECT_ROOT, 'dist', 'grammars'))
-    fs.mkdirSync(outDir, { recursive: true })
-    const sefPath = path.join(outDir, `${packageId.replace(/\./g, '-')}.sef`)
-    fs.writeFileSync(sefPath, zipped)
-    log(`paquete: ${sefPath} (${zipped.length} bytes, sha256 del parser ${sha256.slice(0, 12)}…)`)
+    if (options.target !== 'langs') {
+      const outDir = path.resolve(options.list.out ?? path.join(PROJECT_ROOT, 'dist', 'grammars'))
+      fs.mkdirSync(outDir, { recursive: true })
+      const sefPath = path.join(outDir, `${packageId.replace(/\./g, '-')}.sef`)
+      fs.writeFileSync(sefPath, zipped)
+      log(`paquete: ${sefPath} (${zipped.length} bytes, sha256 del parser ${sha256.slice(0, 12)}…)`)
+    }
+
+    // ── Destino `langs`: carpeta desempaquetada por lenguaje ───────────────
+    //
+    // Cada lenguaje queda como `<out>/<id>/` (manifest + grammars/<id>.wasm +
+    // queries/*.scm) y un `<out>/index.json` con la lista. El IDE los lee
+    // on-demand: actualizar un lenguaje = regenerar SU carpeta, sin recompilar
+    // el motor.
+    if (options.target === 'langs') {
+      const langsDir = path.resolve(options.list.out ?? path.join(PROJECT_ROOT, 'langs'))
+      const pkgDir = path.join(langsDir, language)
+      fs.rmSync(pkgDir, { recursive: true, force: true })
+      for (const [name, data] of files) {
+        const dest = path.join(pkgDir, name)
+        fs.mkdirSync(path.dirname(dest), { recursive: true })
+        fs.writeFileSync(dest, data)
+      }
+
+      const indexFile = path.join(langsDir, 'index.json')
+      let index = { version: 1, languages: [] }
+      try {
+        index = JSON.parse(fs.readFileSync(indexFile, 'utf8'))
+      } catch {
+        // Sin índice previo (o corrupto): se arranca uno nuevo.
+      }
+      const langs = Array.isArray(index.languages) ? index.languages : []
+      const langDecl = manifest.contributes.languages[0]
+      const grammar = langDecl.grammars[0]
+      const entry = {
+        id: language,
+        name: langDecl.aliases?.[0] ?? language,
+        aliases: langDecl.aliases ?? [language],
+        extensions: langDecl.extensions ?? [],
+        parser: grammar.parser,
+        queries: grammar.queries,
+        abi: grammar.abi,
+        sha256: grammar.sha256
+      }
+      const at = langs.findIndex((l) => l.id === language)
+      if (at >= 0) langs[at] = entry
+      else langs.push(entry)
+      langs.sort((a, b) => a.id.localeCompare(b.id))
+      fs.writeFileSync(indexFile, `${JSON.stringify({ ...index, version: 1, languages: langs }, null, 2)}\n`)
+
+      // Manifiesto de PACK: `langs/` es UNA extensión con N lenguajes, así el
+      // IDE la registra por el camino normal (`contributes.languages`) sin
+      // tocar el motor. Rutas relativas al directorio del pack.
+      const packFile = path.join(langsDir, 'manifest.json')
+      let pack = {
+        id: 'scrakk.langs',
+        name: 'Lenguajes (tree-sitter)',
+        version: '1.0.0',
+        author: 'scrakk-grammar',
+        description: 'Gramáticas tree-sitter, una por lenguaje, cargadas on-demand.',
+        contributes: { languages: [] }
+      }
+      try {
+        pack = JSON.parse(fs.readFileSync(packFile, 'utf8'))
+      } catch {
+        // Sin manifiesto previo: se arranca uno nuevo.
+      }
+      const declaration = {
+        id: language,
+        aliases: langDecl.aliases?.length ? langDecl.aliases : [language],
+        extensions: langDecl.extensions ?? [],
+        grammars: [
+          {
+            kind: 'treeSitter',
+            parser: `${language}/grammars/${language}.wasm`,
+            queries: (grammar.queries ?? []).map((q) => `${language}/${q}`),
+            ...(grammar.abi ? { abi: grammar.abi } : {}),
+            ...(grammar.sha256 ? { sha256: grammar.sha256 } : {})
+          }
+        ]
+      }
+      const declared = Array.isArray(pack.contributes?.languages) ? pack.contributes.languages : []
+      const declaredAt = declared.findIndex((l) => l.id === language)
+      if (declaredAt >= 0) declared[declaredAt] = declaration
+      else declared.push(declaration)
+      declared.sort((a, b) => a.id.localeCompare(b.id))
+      pack.contributes = { ...(pack.contributes ?? {}), languages: declared }
+      fs.writeFileSync(packFile, `${JSON.stringify(pack, null, 2)}\n`)
+
+      log(`lenguaje → ${pkgDir} (${langs.length} en el índice)`)
+    }
 
     if (options.target === 'app' || options.target === 'both') {
       if (options.flags.has('install')) {

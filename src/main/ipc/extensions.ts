@@ -30,6 +30,7 @@ import {
 import { convertVsix } from '@shared/compatibility'
 import { tokenizeText } from '../extensions/tokenize'
 import { treeSitterManager } from '../extensions/treeSitter/manager'
+import { resolveLangsDir } from '../langs'
 
 const EXTENSION_ID_RE = /^[a-z0-9][a-z0-9._-]*$/i
 
@@ -233,6 +234,24 @@ export function registerExtensionsIpc(): void {
         // Carpeta sin manifest válido: se ignora.
       }
     }
+
+    // Pack de lenguajes PREINSTALADO (`langs/`): se expone como una extensión
+    // más. Su `manifest.json` declara `contributes.languages` con todas las
+    // gramáticas, así que el renderer lo registra igual que un .sef instalado.
+    const langsDir = resolveLangsDir()
+    if (langsDir) {
+      try {
+        const manifest = JSON.parse(
+          await fs.readFile(path.join(langsDir, 'manifest.json'), 'utf-8')
+        ) as Record<string, unknown>
+        if (typeof manifest.id === 'string') {
+          installed.push({ ...manifestInfo(langsDir, manifest), source: 'sef' })
+        }
+      } catch {
+        // Pack sin manifest válido: se ignora (los lenguajes del motor siguen).
+      }
+    }
+
     return installed
   })
 
