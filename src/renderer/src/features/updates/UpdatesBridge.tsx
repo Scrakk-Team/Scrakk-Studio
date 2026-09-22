@@ -20,11 +20,16 @@ import {
  */
 export function UpdatesBridge(): JSX.Element | null {
   useEffect(() => {
-    const offRelease = window.api.updates.onRelease((release) => {
+    // Si el preload es viejo (app sin reiniciar tras tocar main/preload), no
+    // están las suscripciones: no romper la UI, sólo no recibir el push.
+    const updates = window.api?.updates
+    if (!updates?.onRelease || !updates.onUpdaterState) return
+
+    const offRelease = updates.onRelease((release) => {
       applyRelease(release, true)
       notifyAvailable(release)
     })
-    const offState = window.api.updates.onUpdaterState((state) => {
+    const offState = updates.onUpdaterState((state) => {
       applyUpdaterState(state)
       if (state.status === 'downloaded') notifyDownloaded(state)
     })

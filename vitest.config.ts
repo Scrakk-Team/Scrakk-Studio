@@ -26,7 +26,8 @@ export default defineConfig({
   // Define de build que el engine Innerta lee en import-time; sin esto
   // cualquier test que toque la cadena del editor muere con ReferenceError.
   define: {
-    __APP_VERSION__: JSON.stringify('0.0.0-test')
+    __APP_VERSION__: JSON.stringify('0.0.0-test'),
+    __BUILD_ID__: JSON.stringify('test')
   },
   test: {
     include: ['tests/**/*.test.ts'],

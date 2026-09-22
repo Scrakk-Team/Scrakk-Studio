@@ -16,7 +16,14 @@ import { externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 
 const APP_VERSION = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8')).version as string
-const appDefine = { __APP_VERSION__: JSON.stringify(APP_VERSION) }
+// Marca de build. En prod la sobreescribe electron-vite.prod con 'local' si no
+// hay SCRAKK_BUILD_ID; en dev queda 'dev' (antes no se definía y el renderer
+// tiraba "ReferenceError: __BUILD_ID__ is not defined").
+const BUILD_ID = process.env['SCRAKK_BUILD_ID'] ?? 'dev'
+const appDefine = {
+  __APP_VERSION__: JSON.stringify(APP_VERSION),
+  __BUILD_ID__: JSON.stringify(BUILD_ID)
+}
 
 const sharedAlias = {
   '@shared': resolve(__dirname, '..', 'src/shared')

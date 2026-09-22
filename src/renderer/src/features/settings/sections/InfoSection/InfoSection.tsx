@@ -58,7 +58,7 @@ export function InfoSection(): JSX.Element {
       <p><strong>Scrakk Studio</strong> — Editor de código.</p>
       <p>React + TypeScript + Electron. Sistema de paneles resizables y extensiones.</p>
       <p className={styles.version}>
-        v{updates.currentVersion} · build {__BUILD_ID__}
+        v{updates.currentVersion} · build {typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'dev'}
       </p>
 
       <div className={styles.updates}>
