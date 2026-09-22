@@ -25,6 +25,8 @@ publicadas no se editan. El archivo va por versión:
 - Los cachés por archivo (símbolos del LSP, resaltado, encoding) ahora tienen
   **tope y descarte del más viejo**: antes crecían con cada archivo abierto
   hasta cerrar la tab.
+- Cada panel tiene su **propio módulo** (aislado): se pueden tener **varios
+  editores a la vez** (splits) sin que compartan canvas.
 
 ### Terminal
 - Al **cambiar de workspace**, las terminales abiertas se reubican en el
@@ -65,8 +67,17 @@ publicadas no se editan. El archivo va por versión:
 - Cada split guarda su **ratio**: el tamaño se conserva al recargar la app.
 - Los splits viejos de **contenido dividido** (`splitDir`) se migran solos a
   grupos reales al abrir la app.
+- Un grupo **vacío** muestra un botón **Cerrar slot** que lo cierra (colapsa
+  el split al grupo hermano o cierra el slot entero).
 
 ### Correcciones
+- **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
+  editor quedaba **vacío** porque los paneles compartían un único módulo WASM y
+  canvas. Ahora **cada panel monta su motor aislado**.
+- **Mover una tab de archivo entre paneles**: el motor podía quedarse **sin
+  cargar** (la espera del módulo no se resolvía nunca y el panel de origen
+  acumulaba motores). Ahora la espera termina siempre y el panel que queda
+  **vacío libera su motor** (WASM + contexto GL).
 - **Bienvenida → Consejos**: el indicador de puntos (que marca en qué consejo
   vas) se aplastaba y quedaba **superpuesto** cuando el panel no tenía ancho.
   Ahora no se encoge, baja de línea si hace falta y, si sigue sin caber, se
