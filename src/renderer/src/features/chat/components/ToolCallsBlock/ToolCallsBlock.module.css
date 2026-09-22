@@ -30,13 +30,15 @@
 
 /* Caja del icono: alto = una línea de texto (1lh) y el glyph centrado.
    Sin esto el icono (13px) quedaba pegado al borde superior de una línea
-   de 18px y se veía "flotando" arriba del texto. */
+   de 18px y se veía "flotando" arriba del texto. El icono usa el MISMO color
+   que el texto de la tool (--color-text-muted). */
 .toolIconBox {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 1lh;
   flex-shrink: 0;
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
   line-height: var(--leading-normal);
   /* Ajuste fino: el glyph apoya 0.5px por encima del centro exacto. */
