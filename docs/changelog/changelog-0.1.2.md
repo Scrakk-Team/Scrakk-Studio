@@ -46,9 +46,10 @@ publicadas no se editan. El archivo va por versión:
   lenguaje (`@indent.begin/@indent.end/@indent.dedent`) más la unidad del
   lenguaje. Se fue la heurística (sangría previa + `{`); sin dato del lenguaje se
   conserva la sangría actual.
-- **Multi-cursor**: carets extra con `Ctrl+Alt+↑/↓`; tipear, borrar y Enter se
-  aplican en **todos**, las flechas los mueven juntos y `Esc` (o un click
-  simple) vuelve a uno solo.
+- **Multi-cursor**: carets extra con `Ctrl+Alt+↑/↓`, `Alt+Click` (caret donde
+  clickeás) y `Ctrl+D` (agrega la siguiente ocurrencia de la palabra, con
+  envolvimiento); tipear, borrar y Enter se aplican en **todos**, las flechas los
+  mueven juntos y `Esc` (o un click simple) vuelve a uno solo.
 
 ### Terminal
 - Al **cambiar de workspace**, las terminales abiertas se reubican en el
@@ -103,6 +104,15 @@ publicadas no se editan. El archivo va por versión:
   **slots animados** (`CodeSlots`, de React Bits): los dígitos aterrizan uno a
   uno, el error **drena y limpia** los slots y el acierto los funde con un
   check. Verifica solo al completar los 6 dígitos.
+
+### Herramientas (tipos)
+- Las tools se agrupan por **Familias → Tipos** en Ajustes → Chat →
+  Herramientas: **Entorno** (Archivos, Código, Sistema, Navegador, Skills,
+  Utilidades) y **Agénticos** (Subagentes).
+- Cada tool declara su `type`; ya **no hay un union hardcodeado**. El catálogo
+  es **extensible**: una extensión `.sef` puede aportar su propio
+  **pack/familia** y sus tipos (`family`/`type` en el manifest).
+- Toggle por **grupo** (encender/apagar todo un tipo) además del toggle por tool.
 
 ### Agentes (UI)
 - Se **unificaron modos y subagentes** en un solo concepto: **Agentes**, con
