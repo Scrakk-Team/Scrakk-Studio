@@ -8,7 +8,8 @@ import { clearLanguageHighlight, refreshLanguageHighlight } from './languageHigh
 import { clearDynamicHighlight, refreshDynamicHighlight } from './treeSitterHighlightBridge'
 import { applyInnertaFolds } from './hostBridge'
 import { GRAMMAR_ENGINE_EVENT } from './grammarSelection'
-import { autoPairsForPath } from './languageConfig'
+import { autoPairsForPath, indentUnitFor } from './languageConfig'
+import { detectLanguageFromPath } from '@features/editor/languages'
 import { resetHostTokens } from './hostTokens'
 import { getBookmarksForPath, subscribeToBookmarks } from '@services/bookmarks'
 import { getDecorations, packDecorations, subscribeToDecorations } from '@services/decorations'
@@ -134,6 +135,10 @@ export interface InnertaModule {
    * pares, el motor no auto-cierra nada.
    */
   setAutoPairs?(openers: string, closers: string): void
+  /** Unidad de indentación del lenguaje (`\t` o N espacios). */
+  setIndentUnit?(unit: string): void
+  /** Nivel de indentación por línea (calculado de `indents.scm`). */
+  setIndentLevels?(levels: number[]): void
   /**
    * WASM: bytes del heap lineal (HEAP8). 0 si el build no lo expone.
    * Sirve para medir RAM real del editor sin estimaciones.
@@ -699,10 +704,17 @@ export class InnertaEngine implements EditorEngine {
   }
 
   /**
-   * Pares de auto-cierre del lenguaje → motor. Los resuelve la config del
-   * lenguaje (o su tabla real); sin pares, el motor no auto-cierra nada.
+   * Config del LENGUAJE → motor: pares de auto-cierre e indentación (unidad y,
+   * cuando el tokenizador responde, los niveles de `indents.scm`).
    */
   private applyAutoPairs(path: string): void {
+    const languageId = detectLanguageFromPath(path)
+    if (this.module) {
+      // La unidad es del lenguaje; los niveles llegan con el tokenizado (hasta
+      // entonces se conserva la sangría actual, no se adivina).
+      this.module.setIndentUnit?.(indentUnitFor(languageId))
+      this.module.setIndentLevels?.([])
+    }
     void autoPairsForPath(path).then((pairs) => {
       if (this.currentPath !== path || !this.module) return
       this.module.setAutoPairs?.(pairs?.openers ?? '', pairs?.closers ?? '')

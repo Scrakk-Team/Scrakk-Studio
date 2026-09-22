@@ -337,6 +337,12 @@ export function refreshDynamicHighlight(
             }`
           : 'motor sin getter de plegado'
 
+        // ── Indentación: niveles de `indents.scm` → motor (tecla Enter) ─────
+        // El motor NO adivina: si no llegan niveles, conserva la sangría.
+        if (data.indentLevels && data.indentLevels.length > 0) {
+          mod.setIndentLevels?.(data.indentLevels)
+        }
+
         // Una línea por pasada, en `debug`: es la ÚNICA forma de saber qué hizo
         // el árbol con un archivo (cuántos símbolos, si el motor aceptó los
         // folds). Sin esto, un lenguaje sin queries se ve igual que uno con

@@ -205,6 +205,11 @@ export interface DynamicSyntaxData {
   locals: DynamicLocalEntry[]
   textObjects: DynamicTextObject[]
   /**
+   * Nivel de indentación por línea (`indents.scm`), con una entrada extra para
+   * la línea virtual siguiente a la última. Es lo que usa el motor al Enter.
+   */
+  indentLevels?: number[]
+  /**
    * Categorías que REALMENTE se aplicaron.
    *
    * Sin esto, "el outline está vacío" no se puede distinguir de "la extensión

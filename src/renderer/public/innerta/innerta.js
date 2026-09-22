@@ -8431,6 +8431,8 @@ var _GetInnertaCursor = Module['_GetInnertaCursor'] = makeInvalidEarlyAccess('_G
 var _SetInnertaScrollOffset = Module['_SetInnertaScrollOffset'] = makeInvalidEarlyAccess('_SetInnertaScrollOffset');
 var _OpenInnertaFile = Module['_OpenInnertaFile'] = makeInvalidEarlyAccess('_OpenInnertaFile');
 var _GoToInnertaWelcome = Module['_GoToInnertaWelcome'] = makeInvalidEarlyAccess('_GoToInnertaWelcome');
+var _SetInnertaIndentUnit = Module['_SetInnertaIndentUnit'] = makeInvalidEarlyAccess('_SetInnertaIndentUnit');
+var _SetInnertaIndentLevels = Module['_SetInnertaIndentLevels'] = makeInvalidEarlyAccess('_SetInnertaIndentLevels');
 var _SetInnertaAutoPairs = Module['_SetInnertaAutoPairs'] = makeInvalidEarlyAccess('_SetInnertaAutoPairs');
 var _SetInnertaLanguage = Module['_SetInnertaLanguage'] = makeInvalidEarlyAccess('_SetInnertaLanguage');
 var _CreateInnertaSession = Module['_CreateInnertaSession'] = makeInvalidEarlyAccess('_CreateInnertaSession');
@@ -8545,6 +8547,8 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['SetInnertaScrollOffset'] != 'undefined', 'missing Wasm export: SetInnertaScrollOffset');
   assert(typeof wasmExports['OpenInnertaFile'] != 'undefined', 'missing Wasm export: OpenInnertaFile');
   assert(typeof wasmExports['GoToInnertaWelcome'] != 'undefined', 'missing Wasm export: GoToInnertaWelcome');
+  assert(typeof wasmExports['SetInnertaIndentUnit'] != 'undefined', 'missing Wasm export: SetInnertaIndentUnit');
+  assert(typeof wasmExports['SetInnertaIndentLevels'] != 'undefined', 'missing Wasm export: SetInnertaIndentLevels');
   assert(typeof wasmExports['SetInnertaAutoPairs'] != 'undefined', 'missing Wasm export: SetInnertaAutoPairs');
   assert(typeof wasmExports['SetInnertaLanguage'] != 'undefined', 'missing Wasm export: SetInnertaLanguage');
   assert(typeof wasmExports['CreateInnertaSession'] != 'undefined', 'missing Wasm export: CreateInnertaSession');
@@ -8655,6 +8659,8 @@ function assignWasmExports(wasmExports) {
   _SetInnertaScrollOffset = Module['_SetInnertaScrollOffset'] = createExportWrapper('SetInnertaScrollOffset', wasmExports['SetInnertaScrollOffset'], 1);
   _OpenInnertaFile = Module['_OpenInnertaFile'] = createExportWrapper('OpenInnertaFile', wasmExports['OpenInnertaFile'], 1);
   _GoToInnertaWelcome = Module['_GoToInnertaWelcome'] = createExportWrapper('GoToInnertaWelcome', wasmExports['GoToInnertaWelcome'], 0);
+  _SetInnertaIndentUnit = Module['_SetInnertaIndentUnit'] = createExportWrapper('SetInnertaIndentUnit', wasmExports['SetInnertaIndentUnit'], 1);
+  _SetInnertaIndentLevels = Module['_SetInnertaIndentLevels'] = createExportWrapper('SetInnertaIndentLevels', wasmExports['SetInnertaIndentLevels'], 2);
   _SetInnertaAutoPairs = Module['_SetInnertaAutoPairs'] = createExportWrapper('SetInnertaAutoPairs', wasmExports['SetInnertaAutoPairs'], 2);
   _SetInnertaLanguage = Module['_SetInnertaLanguage'] = createExportWrapper('SetInnertaLanguage', wasmExports['SetInnertaLanguage'], 1);
   _CreateInnertaSession = Module['_CreateInnertaSession'] = createExportWrapper('CreateInnertaSession', wasmExports['CreateInnertaSession'], 1);

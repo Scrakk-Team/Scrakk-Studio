@@ -54,6 +54,7 @@ import {
 } from './scopes'
 import {
   buildFoldRanges,
+  buildIndentLevels,
   buildInjectionRanges,
   buildLocalEntries,
   buildSymbols,
@@ -80,7 +81,8 @@ const APPLIED_CATEGORIES: QueryCategory[] = [
   'folds',
   'injections',
   'locals',
-  'textobjects'
+  'textobjects',
+  'indents'
 ]
 
 function defaultResolve(id: string): string {
@@ -457,6 +459,7 @@ export function createTreeSitterTokenizer(
         injections,
         locals: buildLocalEntries(capturesByCategory.get('locals') ?? [], request.text),
         textObjects: buildTextObjects(capturesByCategory.get('textobjects') ?? [], request.text),
+        indentLevels: buildIndentLevels(matchesByCategory.get('indents') ?? [], request.text),
         appliedCategories: APPLIED_CATEGORIES.filter((category) => {
           if (!capturesByCategory.has(category)) return false
           if (category === 'highlights') return rootCaptures.length > 0

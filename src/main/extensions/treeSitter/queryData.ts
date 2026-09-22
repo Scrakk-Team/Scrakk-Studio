@@ -254,6 +254,54 @@ export function buildFoldRanges(
   return [...byStart.values()].sort((a, b) => a.startLine - b.startLine)
 }
 
+// ── Indentación (indents.scm) ─────────────────────────────────────────────
+
+/**
+ * Capturas de `indents.scm` → nivel de indentación por LÍNEA.
+ *
+ * nvim declara `@indent.begin` (bloque que indenta), `@indent.end` (dónde
+ * termina), `@indent.dedent` y `@indent.branch` (el `case`/`else` que se alinea).
+ * El nivel de cada línea es el de la anterior + bloques abiertos − cerrados.
+ * Se devuelve una entrada EXTRA para la "línea virtual" siguiente a la última:
+ * es la que usa el motor al apretar Enter al final del archivo.
+ */
+export function buildIndentLevels(matches: RawMatch[], text: string): number[] {
+  const starts = lineStarts(text)
+  const lineCount = starts.length
+  const openAt = new Map<number, number>()
+  const closeAt = new Map<number, number>()
+  const dedentAt = new Map<number, number>()
+
+  for (const match of matches) {
+    for (const capture of match.captures) {
+      const name = capture.name
+      const range = rangeOf(capture, starts)
+      if (name === 'indent.begin' || name.startsWith('indent.begin.')) {
+        openAt.set(range.startLine, (openAt.get(range.startLine) ?? 0) + 1)
+      } else if (name === 'indent.end' || name.startsWith('indent.end.')) {
+        closeAt.set(range.endLine, (closeAt.get(range.endLine) ?? 0) + 1)
+      } else if (
+        name === 'indent.dedent' ||
+        name.startsWith('indent.dedent.') ||
+        name === 'indent.branch'
+      ) {
+        dedentAt.set(range.startLine, (dedentAt.get(range.startLine) ?? 0) + 1)
+      }
+    }
+  }
+
+  const levels: number[] = []
+  let level = 0
+  for (let line = 0; line <= lineCount; line += 1) {
+    // Cierres y dedents aplican a ESTA línea (el `}` se alinea con su bloque).
+    level = Math.max(0, level - (closeAt.get(line) ?? 0) - (dedentAt.get(line) ?? 0))
+    levels.push(level)
+    // Lo que abre en esta línea indenta las SIGUIENTES.
+    level += openAt.get(line) ?? 0
+  }
+  return levels
+}
+
 // ── Inyecciones (injections.scm) ──────────────────────────────────────────
 
 /** Propiedad booleana de un match: `injection.combined` (valor `null`). */

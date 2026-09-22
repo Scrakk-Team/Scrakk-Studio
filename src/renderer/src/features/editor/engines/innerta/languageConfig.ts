@@ -90,6 +90,19 @@ const DEFAULTS: Record<string, LanguageDefaults> = {
   markdown: { pairs: BRACES_ONLY, blockComment: ['<!--', '-->'] }
 }
 
+/** Unidades de indentación REALES por lenguaje (el resto usa 4 espacios). */
+const INDENT_UNITS: Record<string, string> = {
+  go: '\t',
+  make: '\t',
+  dockerfile: '\t'
+}
+
+/** Unidad de indentación del lenguaje (`\t` o N espacios). */
+export function indentUnitFor(languageId: string | null): string {
+  if (!languageId) return '    '
+  return INDENT_UNITS[languageId] ?? '    '
+}
+
 const fileCache = new Map<string, Promise<LanguageConfiguration | null>>()
 
 async function readConfiguration(path: string): Promise<LanguageConfiguration | null> {

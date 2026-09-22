@@ -410,6 +410,26 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       _raw._free(openPtr)
       _raw._free(closePtr)
     },
+    /** Unidad de indentación del lenguaje (`\t` o N espacios). */
+    setIndentUnit(unit) {
+      if (typeof _raw._SetInnertaIndentUnit !== 'function') return
+      const ptr = toUtf32Ptr(_raw, unit)
+      ;(_raw._SetInnertaIndentUnit as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    /** Nivel de indentación por línea (`indents.scm`); -1 = sin dato. */
+    setIndentLevels(levels) {
+      if (typeof _raw._SetInnertaIndentLevels !== 'function') return
+      const arr = Int32Array.from(levels)
+      const ptr = arr.length > 0 ? (_raw._malloc as (n: number) => number)(arr.byteLength) : 0
+      if (ptr === 0) {
+        ;(_raw._SetInnertaIndentLevels as (p: number, n: number) => void)(0, 0)
+        return
+      }
+      ;((_raw.HEAP32) as Int32Array).set(arr, ptr >> 2)
+      ;(_raw._SetInnertaIndentLevels as (p: number, n: number) => void)(ptr, arr.length)
+      _raw._free(ptr)
+    },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el
       // heap lineal REAL del módulo, no una estimación.
@@ -845,6 +865,26 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
       ;(_raw._SetInnertaAutoPairs as (a: number, b: number) => void)(openPtr, closePtr)
       _raw._free(openPtr)
       _raw._free(closePtr)
+    },
+    /** Unidad de indentación del lenguaje (`\t` o N espacios). */
+    setIndentUnit(unit) {
+      if (typeof _raw._SetInnertaIndentUnit !== 'function') return
+      const ptr = toUtf32Ptr(_raw, unit)
+      ;(_raw._SetInnertaIndentUnit as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    /** Nivel de indentación por línea (`indents.scm`); -1 = sin dato. */
+    setIndentLevels(levels) {
+      if (typeof _raw._SetInnertaIndentLevels !== 'function') return
+      const arr = Int32Array.from(levels)
+      const ptr = arr.length > 0 ? (_raw._malloc as (n: number) => number)(arr.byteLength) : 0
+      if (ptr === 0) {
+        ;(_raw._SetInnertaIndentLevels as (p: number, n: number) => void)(0, 0)
+        return
+      }
+      ;((_raw.HEAP32) as Int32Array).set(arr, ptr >> 2)
+      ;(_raw._SetInnertaIndentLevels as (p: number, n: number) => void)(ptr, arr.length)
+      _raw._free(ptr)
     },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el
