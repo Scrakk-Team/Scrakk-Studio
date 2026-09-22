@@ -1,8 +1,8 @@
 /* Árbol de splits (estilo VS Code): los lados se reparten el espacio con el
-   mismo ResizeHandle que separa los slots. Cada lado es una tarjeta con su
-   borde (igual que los slots exteriores) pero SIN redondeo: en el split se
-   ven los DOS bordes de separación flanqueando el handle, como entre
-   paneles. */
+   mismo ResizeHandle que separa los slots. Cada hoja es una tarjeta con su
+   borde (igual que los slots exteriores) pero SIN redondeo: entre dos grupos
+   se ven DOS bordes con el ResizeHandle en el medio. */
+
 .split {
   display: flex;
   flex: 1;
@@ -45,3 +45,8 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/* Cada hoja conserva su borde en los CUATRO lados (mismo color que el resto
+   de paneles): entre dos grupos quedan DOS bordes con el ResizeHandle en el
+   medio, igual que la separación entre slots. El handle solo cierra el
+   perímetro en sus lados (ver ResizeHandle.module.css). */

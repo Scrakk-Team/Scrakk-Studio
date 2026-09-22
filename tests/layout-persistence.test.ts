@@ -28,7 +28,7 @@ import {
   defaultSlots,
   MAIN_TERMINAL_SESSION,
   toStripId,
-  normalizeLegacySplits
+  migrateContentSplits
 } from '../src/renderer/src/features/layout/persistence'
 import type { StripState } from '../src/renderer/src/features/tabs/types'
 
@@ -122,47 +122,44 @@ describe('split del contenido (splitDir)', () => {
     expect(parsed.right!.splitDir).toBe('row')
   })
 
-  it('colapsa árboles de split v3 (estilo VS Code) a una strip con contenido dividido', () => {
-    // Estado que producía el sistema viejo: slot 'right' partido en dos
-    // hojas con strips propias.
+  it('eleva el contenido dividido legacy a GRUPOS REALES del árbol', () => {
+    // Estado del modelo viejo: un strip con `splitDir` (barra compartida,
+    // un panel por tab).
     const slots: Record<string, StripState | null> = {
       right: {
         stripId: 'right',
-        tabs: [{ id: 'panel:chat', kind: 'panel', panelId: 'chat', label: 'Chat' }],
-        activeId: 'panel:chat'
-      },
-      'split:x': {
-        stripId: 'split:x',
         tabs: [
+          { id: 'panel:chat', kind: 'panel', panelId: 'chat', label: 'Chat' },
           { id: 'term:main', kind: 'terminal', sessionId: 'main', label: 'Terminal' }
         ],
-        activeId: 'term:main'
+        activeId: 'term:main',
+        splitDir: 'row'
       }
     }
     const tree = {
       left: null,
       center: null,
-      right: {
-        type: 'split' as const,
-        id: 's1',
-        dir: 'row' as const,
-        ratio: 0.5,
-        children: [
-          { type: 'leaf' as const, stripId: 'right' },
-          { type: 'leaf' as const, stripId: 'split:x' }
-        ]
-      },
+      right: { type: 'leaf' as const, stripId: 'right' },
       bottom: null
     }
 
-    const { slots: merged, tree: mergedTree } = normalizeLegacySplits(slots, tree)
-    // Las hojas se fusionaron en la MISMA strip del slot (barra compartida).
-    expect(merged.right!.tabs.map((t) => t.id)).toEqual(['panel:chat', 'term:main'])
-    expect(merged.right!.activeId).toBe('panel:chat')
-    // El contenido queda dividido (un panel por tab), dirección row.
-    expect(merged.right!.splitDir).toBe('row')
-    // La strip hoja desapareció y el árbol quedó como leaf simple.
-    expect(merged['split:x']).toBeUndefined()
-    expect(mergedTree.right).toEqual({ type: 'leaf', stripId: 'right' })
+    const { slots: migrated, tree: migratedTree, migrated: changed } = migrateContentSplits(
+      slots,
+      tree
+    )
+    expect(changed).toBe(true)
+    // Dos grupos REALES: la primera tab en el primer lado, el resto en el otro.
+    expect(migrated.right!.tabs.map((t) => t.id)).toEqual(['panel:chat'])
+    expect(migrated['right:split-1']!.tabs.map((t) => t.id)).toEqual(['term:main'])
+    expect(migrated['right:split-1']!.activeId).toBe('term:main')
+    // El árbol quedó partido con la MISMA dirección.
+    expect(migratedTree.right).toMatchObject({ type: 'split', dir: 'row' })
+    // Ya no queda "contenido dividido" legacy.
+    expect(migrated.right!.splitDir).toBeUndefined()
+
+    // Idempotente: volver a migrar un árbol ya partido no cambia nada.
+    const again = migrateContentSplits(migrated, migratedTree)
+    expect(again.migrated).toBe(false)
+    expect(again.tree.right).toEqual(migratedTree.right)
   })
 })

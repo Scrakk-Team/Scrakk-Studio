@@ -132,3 +132,18 @@
 .handle[data-square='true'] .capsule {
   border-radius: 0;
 }
+
+/* Split interno: la separación NO la dibuja el handle — la hacen los bordes
+   de las dos hojas que lo flanquean (mismo color que el resto de paneles),
+   con el resize en el medio. El handle solo CIERRA EL PERÍMETRO del slot en
+   sus lados perpendiculares al split, para que el borde exterior no quede con
+   un hueco de 8px justo donde está el handle. */
+.handle[data-square='true'][data-direction='vertical'] {
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+}
+
+.handle[data-square='true'][data-direction='horizontal'] {
+  border-left: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+}

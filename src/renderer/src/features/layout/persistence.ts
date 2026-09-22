@@ -326,69 +326,68 @@ export function parsePersistedSlots(): Record<SlotId, StripState | null> | null 
   return out
 }
 
-/** Hoja(s) de un árbol persistido (DFS, orden visual). */
-function collectLeafIds(node: SplitTreeNode): StripId[] {
-  if (node.type === 'leaf') return [node.stripId]
-  return [...collectLeafIds(node.children[0]), ...collectLeafIds(node.children[1])]
-}
-
 /**
- * Normalización de SPLITS LEGACY (formato v3 con árbol de splits por slot,
- * estilo VS Code): cada slot partido se colapsa a UNA sola strip (la del
- * slot) fusionando las tabs de sus hojas en orden visual, y esa strip queda
- * marcada con `splitDir` (contenido dividido en paneles bajo la barra
- * compartida). Los árboles ya no vuelven a partirse: el split vive DENTRO
- * del strip. Devuelve slots + árbol listos para hidratar.
+ * Migración de CONTENIDO DIVIDIDO (legacy) a GRUPOS REALES del árbol.
+ *
+ * En el modelo viejo un strip podía marcar `splitDir` y mostrar un panel por
+ * tab bajo una barra compartida. Ahora los splits son hojas del árbol: cada
+ * strip raíz con `splitDir` se eleva a un split de dos hojas con la MISMA
+ * dirección (la primera tab en un lado, el resto en el otro). Los árboles ya
+ * partidos se respetan tal cual. Idempotente.
  */
-export function normalizeLegacySplits(
+export function migrateContentSplits(
   slots: Record<StripId, StripState | null>,
   tree: SlotRoots
-): { slots: Record<StripId, StripState | null>; tree: SlotRoots } {
+): { slots: Record<StripId, StripState | null>; tree: SlotRoots; migrated: boolean } {
   const nextSlots: Record<StripId, StripState | null> = { ...slots }
   const nextTree: SlotRoots = { ...tree }
+  let migrated = false
   for (const slot of SLOT_IDS) {
     const root = nextTree[slot]
-    if (!root || root.type === 'leaf') continue
-    const leafIds = collectLeafIds(root)
-    const merged: TabSpec[] = []
-    let activeId: string | null = null
-    for (const leafId of leafIds) {
-      const strip = nextSlots[leafId]
-      if (!strip) continue
-      for (const tab of strip.tabs) {
-        if (!merged.some((t) => t.id === tab.id)) merged.push(tab)
-      }
-      if (!activeId && strip.activeId && merged.some((t) => t.id === strip.activeId)) {
-        activeId = strip.activeId
-      }
-      // La strip del slot (si es hoja) se fusiona como las demás.
-      if (leafId !== slot) delete nextSlots[leafId]
+    if (!root || root.type !== 'leaf') continue
+    const strip = nextSlots[root.stripId]
+    if (!strip || !strip.splitDir || strip.tabs.length < 2) continue
+    const [first, ...rest] = strip.tabs
+    if (!first || rest.length === 0) continue
+    const secondId = `${slot}:split-1`
+    if (nextSlots[secondId]) continue
+    const active = strip.activeId
+    nextSlots[root.stripId] = { stripId: root.stripId, tabs: [first], activeId: first.id }
+    nextSlots[secondId] = {
+      stripId: secondId,
+      tabs: rest,
+      activeId: active && rest.some((t) => t.id === active) ? active : rest[0].id
     }
-    if (merged.length === 0) {
-      nextTree[slot] = null
-      continue
+    nextTree[slot] = {
+      type: 'split',
+      id: `split:${slot}:1`,
+      dir: strip.splitDir,
+      ratio: 0.5,
+      children: [
+        { type: 'leaf', stripId: root.stripId },
+        { type: 'leaf', stripId: secondId }
+      ]
     }
-    if (!activeId) activeId = merged[0].id
-    nextSlots[slot] = { stripId: slot, tabs: merged, activeId, splitDir: root.dir }
-    nextTree[slot] = { type: 'leaf', stripId: slot }
+    migrated = true
   }
-  return { slots: nextSlots, tree: nextTree }
+  return { slots: nextSlots, tree: nextTree, migrated }
 }
 
 /**
  * Estado inicial del layout: lo persistido (migrado si hace falta) o el
- * default. Si vino legacy, lo re-guarda en formato v3. Los splits v3 legacy
- * (árbol de strips) se normalizan a strips únicas con contenido dividido.
+ * default. Los splits son GRUPOS REALES del árbol; el contenido dividido
+ * legacy (`splitDir`) se eleva a un árbol de dos hojas.
  */
 export function hydrateLayout(): {
   slots: Record<StripId, StripState | null>
   tree: SlotRoots
+  migrated: boolean
 } {
   const parsed = parsePersistedLayout()
   if (!parsed) {
-    return { slots: defaultSlots(), tree: splitTreeStore.defaultRoots() }
+    return { slots: defaultSlots(), tree: splitTreeStore.defaultRoots(), migrated: false }
   }
-  return normalizeLegacySplits(parsed.slots, parsed.tree)
+  return migrateContentSplits(parsed.slots, parsed.tree)
 }
 
 /** Persiste los slots del layout (forma v2, legacy — tests). */
@@ -468,7 +467,7 @@ export function bootLayoutStrips(): void {
   if (booted) return
   booted = true
   const raw = readLayoutSlotsRaw()
-  const { slots, tree } = hydrateLayout()
+  const { slots, tree, migrated } = hydrateLayout()
   // Hidrata TODAS las strips que el árbol referencia (los 4 slots con nombre
   // en v1/v2; + las hojas de splits en v3).
   const hydrated: Record<StripId, StripState> = {}
@@ -480,8 +479,9 @@ export function bootLayoutStrips(): void {
   }
   tabsStore.hydrate(hydrated)
   splitTreeStore.hydrate(tree)
-  // Persistir migración (v1/v2 → v3) si el raw no era v3.
-  if (!isV3Layout(raw)) {
+  // Persistir migración (v1/v2 → v3, o contenido dividido → grupos reales)
+  // si el raw no era v3 o si hubo que elevar splits legacy.
+  if (!isV3Layout(raw) || migrated) {
     persistLayoutSnapshot()
   }
 }

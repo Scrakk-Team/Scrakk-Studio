@@ -39,12 +39,16 @@ interface SlotSectionProps {
 }
 
 /**
- * Clase de la tarjeta exterior de un slot: cuando la strip del slot tiene
- * el CONTENIDO DIVIDIDO (split), la tarjeta no dibuja su propio borde — la
- * separación la marcan las líneas internas de los paneles. Si no, el borde
- * normal de la tarjeta es el correcto.
+ * Clase de la tarjeta exterior de un slot: cuando el slot está PARTIDO (su
+ * raíz es un split real o, legacy, su strip tiene contenido dividido), la
+ * tarjeta no dibuja su propio borde — la separación la marcan los bordes de
+ * las hojas. Si no, el borde normal de la tarjeta es el correcto.
  */
 function cardClass(className: string, slot: SlotId): string {
+  const root = splitTreeStore.getRoot(slot)
+  if (root && root.type === 'split') {
+    return `${className} ${styles.cardNoBorder}`
+  }
   const strip = tabsStore.getStrip(slot)
   if (strip && strip.splitDir && strip.tabs.length >= 2) {
     return `${className} ${styles.cardNoBorder}`

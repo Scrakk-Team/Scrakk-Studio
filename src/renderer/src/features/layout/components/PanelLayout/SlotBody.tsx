@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
 import { tabsStore, TabStrip, type StripAction, type StripId, type TabSpec } from '@features/tabs'
 import { useDropZone, useResourceDrop } from '@features/dnd'
 import { getPanel } from '../../registry'
 import { activateTabSmart, closeTabSmart, openResourceTabs, tabIconFor } from '../../actions'
+import { splitTreeStore } from '../../splitTree'
 import { PanelFrame } from '../PanelFrame/PanelFrame'
 import { ResizeHandle } from '../ResizeHandle/ResizeHandle'
 import { TabContentView } from '../TabContentView/TabContentView'
@@ -69,8 +71,8 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
     (strip.activeId ? strip.tabs.find((t) => t.id === strip.activeId) : null) ??
     strip.tabs[0]
 
-  // Slot abierto pero VACÍO: placeholder con mensaje. Todo el área es
-  // contenido (no hay header): la zona con split cubre el placeholder.
+  // Slot abierto pero VACÍO: placeholder con mensaje + cerrar. Todo el área
+  // es contenido (no hay header): la zona con split cubre el placeholder.
   if (!active) {
     return (
       <div
@@ -80,9 +82,18 @@ export function SlotBody({ stripId, alwaysStrip = false, onAddTab, actions }: Sl
         onDragLeave={resourceDrop.onDragLeave}
         onDrop={resourceDrop.onDrop}
       >
-        <div className={styles.emptySlot} role="status" aria-live="polite">
+        <div className={styles.emptySlot}>
           <p className={styles.emptySlotTitle}>Slot vacío</p>
           <p className={styles.emptySlotHint}>Arrastrá una tab o un panel aquí</p>
+          <button
+            type="button"
+            className={styles.emptySlotClose}
+            title="Cerrar este slot"
+            onClick={() => splitTreeStore.removeStrip(stripId)}
+          >
+            <ProductIcon id="close" size={12} aria-hidden="true" />
+            Cerrar slot
+          </button>
         </div>
       </div>
     )

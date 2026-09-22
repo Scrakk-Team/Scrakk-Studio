@@ -1,17 +1,20 @@
 import { tabsStore } from '@features/tabs'
 import { dndStore, defaultDropResolver } from '@features/dnd'
 import type { DragPayload, DropTarget } from '@features/dnd'
+import { splitTreeStore } from './splitTree'
 
 /**
  * Resolver de drop del layout: el default de tabs (reordenar / mover entre
- * strips) + los SPLITS del CONTENIDO de un strip.
+ * grupos) + los SPLITS reales del árbol (estilo VS Code).
  *
- * Un drop sobre un borde con `target.split` NO parte en strips nuevas: la
- * tab se mueve por la API NORMAL de tabs a la MISMA strip (la barra de tabs
- * queda compartida arriba, p. ej. Chat ⇄ Terminal) y el contenido de esa
- * strip pasa a mostrarse DIVIDIDO (un panel por tab) con `splitDir`. Nunca
- * se duplica: la tab sale de su origen. El indicador de split (SplitOverlay)
- * se ve durante el drag; la partición se ejecuta SOLO al soltar.
+ * Un drop sobre un borde con `target.split` PARTE la hoja (grupo) apuntada:
+ * `splitTreeStore.splitStrip` reemplaza esa hoja por un split con un GRUPO
+ * NUEVO en el lado indicado, y la tab arrastrada se muda ahí. Cada grupo
+ * tiene su propia barra de tabs; el ResizeHandle del árbol ajusta el ratio
+ * entre los dos lados (y anida sin límite).
+ *
+ * El indicador de split (SplitOverlay) se ve durante el drag; la partición
+ * se ejecuta SOLO al soltar.
  */
 export function layoutDropResolver(payload: DragPayload, target: DropTarget): void {
   if (payload.type !== 'tab' || !target.split) {
@@ -22,24 +25,20 @@ export function layoutDropResolver(payload: DragPayload, target: DropTarget): vo
   const targetStrip = tabsStore.getStrip(target.stripId)
   if (!found || !targetStrip) return
 
-  // 'row' = paneles lado a lado (bordes izquierda/derecha);
-  // 'column' = apilados (bordes arriba/abajo).
-  const dir: 'row' | 'column' =
-    target.split === 'left' || target.split === 'right' ? 'row' : 'column'
-  // El lado NUEVO (la tab drageada) va primero si cae a izquierda/arriba;
-  // si cae a derecha/abajo, se agrega al final (derecha del contenido).
-  const atStart = target.split === 'left' || target.split === 'top'
-  const toIndex = atStart ? 0 : targetStrip.tabs.length
+  // Partir un grupo de UNA sola tab contra sí mismo no aporta nada.
+  if (found.stripId === target.stripId && targetStrip.tabs.length < 2) return
 
-  if (found.stripId === target.stripId) {
-    // Ya vive en la strip: solo reordenar a su lado + activar el split.
-    if (found.index !== toIndex) {
-      tabsStore.reorderTab(target.stripId, found.index, toIndex)
-    }
-  } else {
-    tabsStore.moveTabToStrip(found.stripId, payload.tabId, target.stripId, toIndex)
+  // Un grupo vacío se LLENA (no se parte): no tiene sentido crear otro al lado.
+  if (targetStrip.tabs.length === 0) {
+    tabsStore.moveTabToStrip(found.stripId, payload.tabId, target.stripId, 0)
+    return
   }
-  tabsStore.setSplit(target.stripId, dir)
+
+  // Grupo NUEVO real: se parte la hoja del árbol y la tab se muda a la hoja
+  // nueva. Si la hoja no está en el árbol (layout no hidratado), no se toca.
+  const newStripId = splitTreeStore.splitStrip(target.stripId, target.split)
+  if (!newStripId) return
+  tabsStore.moveTabToStrip(found.stripId, payload.tabId, newStripId, 0)
 }
 
 /** Instala el resolver del layout (una sola vez, en el arranque). */

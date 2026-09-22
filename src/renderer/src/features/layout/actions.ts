@@ -40,8 +40,6 @@ const HOME_ICON = productIcon('home')
 const FILE_ICON = productIcon('file')
 const FOLDER_ICON = productIcon('folder')
 
-const SLOTS: SlotId[] = ['left', 'center', 'right', 'bottom']
-
 /**
  * TODAS las strips vivas (las 4 raíces + las hojas de splits). El layout
  * multi-split ya no puede asumir que las tabs viven en los strips de slot:
@@ -315,14 +313,16 @@ export function reconcileFileTabs(): void {
   const { openFiles, activePath } = getEditorFiles()
 
   // 1) Tabs de archivo cuyo archivo ya no está abierto → cerrar + destruir.
-  for (const slot of SLOTS) {
-    const strip = tabsStore.getStrip(slot)
+  // Se escanean TODAS las strips (los grupos pueden estar anidados en splits),
+  // no solo los 4 slots.
+  for (const stripId of allStripIds()) {
+    const strip = tabsStore.getStrip(stripId)
     if (!strip) continue
     for (const tab of [...strip.tabs]) {
       if (tab.kind !== 'file' || !tab.filePath) continue
       if (!openFiles.some((f) => f.path === tab.filePath)) {
         destroyFileSession(tab.filePath)
-        tabsStore.closeTab(slot, tab.id)
+        tabsStore.closeTab(stripId, tab.id)
       }
     }
   }
