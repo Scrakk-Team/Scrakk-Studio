@@ -1,39 +1,6 @@
 /* task card styles — injected via displayCss */
 .task-card {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  min-width: 0;
+  display: inline;
   font-size: 11px;
-}
-
-.task-card__agent {
-  flex-shrink: 0;
-  color: var(--color-text);
-  font-weight: 500;
-}
-
-.task-card__prompt {
   color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.task-card__open {
-  flex-shrink: 0;
-  margin-left: auto;
-  padding: 1px 8px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-hover);
-  color: var(--color-text-secondary);
-  font-family: inherit;
-  font-size: 10px;
-  cursor: pointer;
-}
-
-.task-card__open:hover {
-  background: var(--color-active);
-  color: var(--color-text);
 }

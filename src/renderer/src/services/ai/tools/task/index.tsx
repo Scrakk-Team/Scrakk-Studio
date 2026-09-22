@@ -15,16 +15,15 @@ export const taskTool: Tool = {
     name: 'task',
     label: 'Task',
     description: 'Launch a subagent',
-    category: 'agent',
+    category: 'utility',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'people',
     headerArgKey: 'subagent_type',
-    expandable: false,
-    plain: true,
+    expandable: true,
     displayCss,
-    renderBody: (args, result, status, execution) => (
-      <TaskCard args={args} result={result} status={status} execution={execution} />
+    renderBody: (args, result, status) => (
+      <TaskCard args={args} result={result} status={status} />
     )
   },
   execute
