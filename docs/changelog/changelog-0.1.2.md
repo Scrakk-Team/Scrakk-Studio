@@ -114,8 +114,9 @@ publicadas no se editan. El archivo va por versión:
 - Las **tool calls** llegan **en vivo**: el proceso main las emite mientras el
   modelo las escribe (antes solo al terminar el stream), así la card aparece en
   tiempo real y no recién al cortar la respuesta.
-- Los subagentes que lanza **la IA** (tool `task`) también quedan como sesión
-  observable: la card trae un botón **Abrir** que muestra su chat en vivo.
+- La tool `task` es un **tool normal** (card normal: shimmer mientras corre y su
+  línea de resultado). Al correr, el chat del subagente se **abre solo dentro
+  del panel de chat** para verlo en vivo; solo hay uno abierto a la vez.
 
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
