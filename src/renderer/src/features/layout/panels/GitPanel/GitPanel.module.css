@@ -1,5 +1,13 @@
-/* GitPanel — mismo lenguaje que Explorer/Historial: filas sm, surface,
-   acento al 12-14%, radius-sm/input. */
+/* ==========================================================================
+   GitPanel — control de versiones.
+   Lenguaje tomado del resto de la app:
+   · filas densas del Explorer (hover plano, radius-sm, sin bordes).
+   · tarjetas y campos de Ajustes/chat (borde 1px, radius-md/input).
+   · tipografía calmada: weight 400/500, sin MAYÚSCULAS, números tabulares.
+   Estética plana: sin sombras, sin glow, sin gradientes.
+   Hover directo: sin transiciones en ningún punto del panel (evita el
+   retardo percibido al pasar el cursor).
+   ========================================================================== */
 
 .git {
   display: flex;
@@ -9,118 +17,206 @@
   min-height: 0;
   overflow-y: auto;
   padding: var(--space-3);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Anula también los hovers de componentes hijos (explorer embebido). */
+.git,
+.git *,
+.git *::before,
+.git *::after {
+  transition: none !important;
+}
+
+/* Excepción: los campos conservan la transición del borde al enfocar.
+   No es hover, así que no añade retardo al cursor. */
+.git .commitBox,
+.git .input,
+.git .commitInput {
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out) !important;
 }
 
 .placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin: auto 0;
-  padding: var(--space-3);
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
 }
 
 .icon {
-  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-hover);
+  color: var(--color-text-muted);
 }
 
 .empty {
   margin: 0;
   padding: var(--space-2);
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
   text-align: center;
 }
 
 .error {
   margin: 0;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid #f87171;
+  border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 40%, transparent);
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, #f87171 10%, transparent);
-  color: #f87171;
+  background: color-mix(in srgb, var(--color-danger, #f87171) 10%, transparent);
+  color: var(--color-danger, #f87171);
   font-size: var(--text-xs);
 }
 
-/* Selector de repo */
-.repoSwitcher {
+/* ── Cabecera: rama + sync en un solo bloque sin bordes ─────────────────── */
+
+.statusBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.branchPicker {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: 7px var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-input);
-  background: var(--color-surface-raised);
-  color: var(--color-text);
+  gap: 6px;
+  flex: 1 1 140px;
+  min-width: 0;
+  height: 26px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
   font-family: inherit;
+  font-size: var(--text-xs);
   cursor: pointer;
 }
 
-.repoSwitcher:hover {
-  border-color: var(--color-border-strong);
-}
-
-.repoName {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  text-align: left;
-}
-
-.repoBranch {
-  flex-shrink: 0;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-/* Barra de sync */
-.syncBar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 6px var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-input);
-  background: var(--color-surface-raised);
-}
-
-.syncBranch {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--text-sm);
+.branchPicker:hover {
+  background: var(--color-hover);
   color: var(--color-text);
 }
 
+.branchName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.repoTag {
+  flex-shrink: 0;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.branchChevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--color-text-muted);
+}
+
+.ahead,
+.behind {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+}
+
 .ahead {
-  color: #3fb950;
-  font-size: 11px;
+  background: color-mix(in srgb, var(--color-success, #3fb950) 16%, transparent);
+  color: var(--color-success, #3fb950);
 }
 
 .behind {
-  color: #d29922;
-  font-size: 11px;
+  background: color-mix(in srgb, var(--color-warning, #d29922) 18%, transparent);
+  color: var(--color-warning, #d29922);
 }
 
 .syncActions {
   display: flex;
   align-items: center;
   gap: 2px;
-  flex-shrink: 0;
+  margin-left: auto;
 }
 
-/* Secciones colapsables */
+.syncBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.syncBtn:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.syncBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Etiqueta de zona (jerarquía visual entre bloques) ──────────────────── */
+
+.zone {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 calc(-1 * var(--space-1));
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.zone::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ── Secciones colapsables ──────────────────────────────────────────────── */
+
 .section {
   display: flex;
   flex-direction: column;
@@ -130,9 +226,9 @@
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: 6px;
   width: 100%;
-  padding: 5px var(--space-1);
+  padding: 5px 6px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -143,25 +239,40 @@
 
 .sectionHeader:hover {
   background: var(--color-hover);
-  color: var(--color-text);
+  color: var(--color-text-secondary);
+}
+
+/* Abierta: un punto más de contraste, sin peso extra ni mayúsculas. */
+.sectionHeader[aria-expanded='true'] {
+  color: var(--color-text-secondary);
 }
 
 .sectionTitle {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: inherit;
 }
 
 .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: auto;
-  min-width: 20px;
-  text-align: center;
+  min-width: 18px;
+  height: 18px;
   padding: 0 6px;
   border-radius: var(--radius-capsule);
   background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.sectionHeader:hover .count,
+.sectionHeader[aria-expanded='true'] .count {
+  background: var(--color-active);
   color: var(--color-text-secondary);
-  font-size: 11px;
 }
 
 .sectionBody {
@@ -171,39 +282,22 @@
 }
 
 .subTitle {
-  margin: var(--space-1) 0 0;
+  margin: var(--space-2) 0 2px;
+  padding: 0 6px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   color: var(--color-text-muted);
 }
 
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
+/* ── Filas ──────────────────────────────────────────────────────────────── */
 
-.groupHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2px var(--space-1);
-}
-
-.groupTitle {
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
-/* Filas */
 .row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: 7px var(--space-2);
+  padding: 6px var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -221,12 +315,12 @@ button.row:hover {
 }
 
 .rowCurrent {
-  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   color: var(--color-text);
 }
 
 .rowRemote {
-  opacity: 0.85;
+  opacity: 0.82;
 }
 
 .rowCommit {
@@ -254,7 +348,8 @@ button.row:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 400;
+  color: var(--color-text);
 }
 
 .rowMeta {
@@ -268,13 +363,13 @@ button.row:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
+  font-size: 11px;
+  color: var(--color-text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .rowBtn {
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 22px;
@@ -284,12 +379,14 @@ button.row:hover {
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted);
+  opacity: 0;
   cursor: pointer;
 }
 
 .row:hover .rowBtn,
-.row:focus-within .rowBtn {
-  display: inline-flex;
+.row:focus-within .rowBtn,
+.rowBtn:focus-visible {
+  opacity: 1;
 }
 
 .rowBtn:hover {
@@ -297,66 +394,58 @@ button.row:hover {
   color: var(--color-text);
 }
 
-.rowBtnDanger:hover {
-  background: rgba(248, 113, 113, 0.12);
-  color: #f87171;
-}
-
-.xy {
-  flex-shrink: 0;
-  width: 22px;
-  text-align: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-accent);
-}
-
 .track {
   flex-shrink: 0;
   font-size: 10px;
+  font-weight: 500;
   color: var(--color-text-muted);
 }
 
-.badge {
-  flex-shrink: 0;
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
-  color: var(--color-accent);
-  font-size: 10px;
-  font-weight: 600;
-}
-
+.badge,
 .badgeMuted {
   flex-shrink: 0;
   padding: 1px 6px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-capsule);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.badge {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent);
+}
+
+.badgeMuted {
   background: var(--color-hover);
   color: var(--color-text-muted);
-  font-size: 10px;
-  font-weight: 600;
 }
+
+/* ── Puntos de estado (auth, checks) ────────────────────────────────────── */
 
 .dot {
   flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  margin-top: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--color-accent);
 }
 
+/* En commits el punto vive en la primera línea del bloque. */
+.rowCommit .dot {
+  margin-top: 6px;
+}
+
 .dotOk {
-  background: #3fb950;
+  background: var(--color-success, #3fb950);
 }
 
 .dotWarn {
-  background: #d29922;
+  background: var(--color-warning, #d29922);
 }
 
 .dotFail {
-  background: #f85149;
+  background: var(--color-danger, #f85149);
 }
 
 .dotIdle {
@@ -376,24 +465,64 @@ button.row:hover {
   flex-shrink: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--text-xs);
+  font-weight: 500;
   color: var(--color-accent);
-  font-weight: 700;
 }
 
-/* Detalle de commit / PR */
+/* ── Historial: línea de tiempo ─────────────────────────────────────────── */
+
+.logList {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.commitItem {
+  position: relative;
+}
+
+/* Raíl continuo detrás de los puntos (centro del punto: 11.5px). */
+.commitItem::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.commitItem:first-child::before {
+  top: 15px;
+}
+
+.commitItem:last-child::before {
+  bottom: auto;
+  height: 15px;
+}
+
+.commitItem:only-child::before {
+  display: none;
+}
+
+/* ── Detalle de commit / PR ─────────────────────────────────────────────── */
+
 .commitDetail {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  margin: 0 0 var(--space-1) 22px;
-  padding: var(--space-2);
-  border-left: 2px solid var(--color-border);
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2) 22px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
 }
 
 .commitFull {
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -421,7 +550,7 @@ button.row:hover {
   flex-shrink: 0;
   width: 14px;
   text-align: center;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-accent);
 }
 
@@ -435,7 +564,7 @@ button.row:hover {
 .commitActions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
@@ -443,11 +572,12 @@ button.row:hover {
   display: flex;
 }
 
-/* Inputs y botones */
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
+
 .input {
   width: 100%;
-  height: 28px;
-  padding: 0 var(--space-2);
+  height: 30px;
+  padding: 0 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-bg);
@@ -457,14 +587,28 @@ button.row:hover {
   outline: none;
 }
 
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
 .input:focus {
   border-color: var(--color-accent);
 }
 
+/* Commit: idéntico al input del chat (borde transparente que aparece al
+   enfocar, sin resize, botones a la derecha). */
 .commitBox {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  background: var(--activitybar-bg, var(--color-surface));
+}
+
+.commitBox:focus-within {
+  border-color: var(--color-border-strong);
 }
 
 .commitInput {
@@ -479,31 +623,53 @@ button.row:hover {
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--text-sm);
+  line-height: var(--leading-normal);
   outline: none;
+}
+
+.commitInput::placeholder {
+  color: var(--color-text-muted);
 }
 
 .commitInput:focus {
   border-color: var(--color-accent);
 }
 
-.commitActions {
-  display: flex;
-  gap: var(--space-1);
+/* Dentro de la tarjeta de commit el textarea va desnudo (como el chat). */
+.commitBox .commitInput {
+  min-height: 40px;
+  padding: var(--space-1);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  resize: none;
 }
+
+.commitBox .commitInput:focus {
+  border: none;
+}
+
+/* Botones del commit a la derecha, como el toolbar del chat. */
+.commitBox .commitActions {
+  justify-content: flex-end;
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
 
 .primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px var(--space-3);
+  height: 28px;
+  padding: 0 12px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-sm);
   background: var(--color-accent);
   color: var(--color-on-accent);
   font-family: inherit;
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -521,18 +687,20 @@ button.row:hover {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 6px var(--space-2);
+  height: 28px;
+  padding: 0 12px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-sm);
   background: var(--color-hover);
   color: var(--color-text-secondary);
   font-family: inherit;
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .ghost:hover:not(:disabled) {
+  background: var(--color-active);
   color: var(--color-text);
 }
 
@@ -545,20 +713,22 @@ button.row:hover {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  height: 24px;
+  padding: 0 9px;
   border: none;
-  border-radius: var(--radius-capsule);
+  border-radius: var(--radius-sm);
   background: var(--color-hover);
   color: var(--color-text-secondary);
   font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
 }
 
 button.mini:hover:not(:disabled) {
+  background: var(--color-active);
   color: var(--color-text);
 }
 
@@ -568,8 +738,8 @@ button.mini:hover:not(:disabled) {
 }
 
 .miniDanger:hover:not(:disabled) {
-  background: rgba(248, 113, 113, 0.12);
-  color: #f87171;
+  background: color-mix(in srgb, var(--color-danger, #f87171) 12%, transparent);
+  color: var(--color-danger, #f87171);
 }
 
 .add {
@@ -577,14 +747,15 @@ button.mini:hover:not(:disabled) {
   align-items: center;
   gap: var(--space-1);
   align-self: flex-start;
-  padding: 5px var(--space-2);
+  height: 26px;
+  padding: 0 10px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-secondary);
   font-family: inherit;
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -626,27 +797,32 @@ button.mini:hover:not(:disabled) {
   align-items: center;
   gap: var(--space-1);
   flex-wrap: wrap;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
 }
 
-/* Explorer spawneado (solo lectura) dentro del panel. */
+/* Explorer spawneado (solo lectura) dentro del panel. Mismo borde tenue que
+   las tarjetas de panel (no el borde pleno de los inputs). */
 .embeddedTree {
-  height: 280px;
+  height: 260px;
   min-height: 0;
   display: flex;
-  border: 1px solid var(--color-border);
+  border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-bg);
 }
 
-/* Auth */
+/* ── Auth ───────────────────────────────────────────────────────────────── */
+
 .authList {
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .authRow {
@@ -654,39 +830,48 @@ button.mini:hover:not(:disabled) {
   align-items: center;
   gap: var(--space-2);
   padding: 5px var(--space-2);
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
 
 .loginBox {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2);
+  gap: var(--space-2);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
 }
 
+/* Segmented control gh / HTTPS. */
 .loginTabs {
   display: flex;
   gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--color-hover);
 }
 
 .loginTab {
   flex: 1;
-  padding: 5px;
+  padding: 4px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-muted);
   font-family: inherit;
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 }
 
+.loginTab:hover {
+  color: var(--color-text);
+}
+
 .loginTabActive {
-  background: var(--color-hover);
+  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -703,7 +888,8 @@ button.mini:hover:not(:disabled) {
   flex-wrap: wrap;
 }
 
-/* PRs */
+/* ── Pull requests ──────────────────────────────────────────────────────── */
+
 .prToolbar {
   display: flex;
   gap: var(--space-1);
@@ -712,8 +898,8 @@ button.mini:hover:not(:disabled) {
 .prForm {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2);
+  gap: var(--space-2);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);

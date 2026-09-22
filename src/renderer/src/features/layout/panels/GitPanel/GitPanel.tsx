@@ -458,39 +458,30 @@ export function GitPanel(): JSX.Element {
 
   return (
     <div className={styles.git}>
-      {/* Selector de repo */}
-      <button
-        type="button"
-        className={styles.repoSwitcher}
-        title={state.toplevel}
-        onClick={(event) => openRepoMenu(event.clientX, event.clientY)}
-      >
-        <ProductIcon id="folder" size={14} />
-        <span className={styles.repoName}>{baseNameOf(state.toplevel)}</span>
-        <span className={styles.repoBranch}>{state.branch ?? 'sin rama'}</span>
-        <ProductIcon id="chevron-down" size={12} />
-      </button>
-
-      {state.error ? (
-        <p className={styles.error} role="alert">
-          {state.error}
-        </p>
-      ) : null}
-
-      {/* Sync */}
-      <div className={styles.syncBar}>
-        <span className={styles.syncBranch} title={state.upstream ?? 'sin upstream'}>
+      {/* Estado: rama/remoto actual + acciones de sync, en un solo bloque. */}
+      <div className={styles.statusBar}>
+        <button
+          type="button"
+          className={styles.branchPicker}
+          title={state.toplevel}
+          onClick={(event) => openRepoMenu(event.clientX, event.clientY)}
+        >
           <ProductIcon id="source-control" size={13} />
-          {state.branch ?? '—'}
+          <span className={styles.branchName}>{state.branch ?? 'sin rama'}</span>
           {state.ahead ? <span className={styles.ahead}>↑{state.ahead}</span> : null}
           {state.behind ? <span className={styles.behind}>↓{state.behind}</span> : null}
-        </span>
+          {repos.length > 1 ? (
+            <span className={styles.repoTag}>{baseNameOf(state.toplevel)}</span>
+          ) : null}
+          <ProductIcon id="chevron-down" size={12} className={styles.branchChevron} />
+        </button>
         <span className={styles.syncActions}>
           <button
             type="button"
-            className={styles.mini}
+            className={styles.syncBtn}
             disabled={syncing !== null}
             title="Fetch --all --prune"
+            aria-label="Fetch"
             onClick={() => void doSync('fetch')}
           >
             <ProductIcon id="refresh" size={13} />
@@ -498,9 +489,10 @@ export function GitPanel(): JSX.Element {
           </button>
           <button
             type="button"
-            className={styles.mini}
+            className={styles.syncBtn}
             disabled={syncing !== null}
             title="Pull --ff-only"
+            aria-label="Pull"
             onClick={() => void doSync('pull')}
           >
             <ProductIcon id="download" size={13} />
@@ -508,9 +500,10 @@ export function GitPanel(): JSX.Element {
           </button>
           <button
             type="button"
-            className={styles.mini}
+            className={styles.syncBtn}
             disabled={syncing !== null}
             title={state.upstream ? 'Push' : 'Push --set-upstream'}
+            aria-label="Push"
             onClick={() => void doSync('push')}
           >
             <ProductIcon id="arrow-up" size={13} />
@@ -519,16 +512,11 @@ export function GitPanel(): JSX.Element {
         </span>
       </div>
 
-      <Section
-        title="Archivos"
-        open={sections.files}
-        onToggle={() => toggleSection('files')}
-      >
-        <div className={styles.embeddedTree}>
-          <ExplorerView key={activeRoot} root={activeRoot} interactive={false} />
-        </div>
-        <p className={styles.hint}>Solo lectura, con badges de git (A/M/??/D/R).</p>
-      </Section>
+      {state.error ? (
+        <p className={styles.error} role="alert">
+          {state.error}
+        </p>
+      ) : null}
 
       <Section
         title="Cambios"
@@ -536,17 +524,6 @@ export function GitPanel(): JSX.Element {
         open={sections.changes}
         onToggle={() => toggleSection('changes')}
       >
-        {activeRoot ? (
-          <ChangedTree
-            root={activeRoot}
-            staged={state.staged}
-            unstaged={state.unstaged}
-            untracked={state.untracked}
-            onStage={(paths) => withRoot((root) => stagePaths(root, paths))}
-            onUnstage={(paths) => withRoot((root) => unstagePaths(root, paths))}
-            onDiscard={(paths) => withRoot((root) => discardPaths(root, paths))}
-          />
-        ) : null}
         <div className={styles.commitBox}>
           <textarea
             className={styles.commitInput}
@@ -578,7 +555,20 @@ export function GitPanel(): JSX.Element {
             </button>
           </div>
         </div>
+        {activeRoot ? (
+          <ChangedTree
+            root={activeRoot}
+            staged={state.staged}
+            unstaged={state.unstaged}
+            untracked={state.untracked}
+            onStage={(paths) => withRoot((root) => stagePaths(root, paths))}
+            onUnstage={(paths) => withRoot((root) => unstagePaths(root, paths))}
+            onDiscard={(paths) => withRoot((root) => discardPaths(root, paths))}
+          />
+        ) : null}
       </Section>
+
+      <div className={styles.zone}>Repositorio</div>
 
       <Section
         title="Ramas"
@@ -726,11 +716,12 @@ export function GitPanel(): JSX.Element {
         {state.log.length === 0 ? (
           <p className={styles.empty}>Sin commits (¿repo vacío?).</p>
         ) : (
-          state.log.map((commit) => {
+          <div className={styles.logList}>
+            {state.log.map((commit) => {
             const expanded = expandedSha === commit.sha
             const detail = commitDetail.get(commit.sha)
             return (
-              <div key={commit.sha}>
+              <div key={commit.sha} className={styles.commitItem}>
                 <div
                   className={[styles.row, styles.rowCommit].join(' ')}
                   role="button"
@@ -796,7 +787,8 @@ export function GitPanel(): JSX.Element {
                 ) : null}
               </div>
             )
-          })
+            })}
+          </div>
         )}
       </Section>
 
@@ -1020,6 +1012,8 @@ export function GitPanel(): JSX.Element {
         )}
       </Section>
 
+      <div className={styles.zone}>Integración</div>
+
       <Section
         title="Cuenta"
         open={sections.account}
@@ -1099,6 +1093,19 @@ export function GitPanel(): JSX.Element {
           }}
           onMerge={(number, method) => activeRoot && void mergePr(activeRoot, number, method)}
         />
+      </Section>
+
+      <div className={styles.zone}>Workspace</div>
+
+      <Section
+        title="Archivos (solo lectura)"
+        open={sections.files}
+        onToggle={() => toggleSection('files')}
+      >
+        <div className={styles.embeddedTree}>
+          <ExplorerView key={activeRoot} root={activeRoot} interactive={false} />
+        </div>
+        <p className={styles.hint}>Con badges de git (A/M/??/D/R).</p>
       </Section>
     </div>
   )
