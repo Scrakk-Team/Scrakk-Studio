@@ -37,6 +37,19 @@ publicadas no se editan. El archivo va por versión:
 - El pack `langs/` se registra como **una extensión** más, así que los lenguajes
   siguen funcionando sin instalar nada.
 
+### Editor — edición
+- **Auto-pairing por lenguaje**: los pares de cierre los declara el lenguaje (su
+  `language-configuration` o su tabla real); el motor ya no tiene una tabla fija
+  ni heurísticas (se fue el caso especial del apóstrofe). Sin pares declarados no
+  hay auto-cierre.
+- **Auto-indent real**: la sangría de la línea nueva sale del `indents.scm` del
+  lenguaje (`@indent.begin/@indent.end/@indent.dedent`) más la unidad del
+  lenguaje. Se fue la heurística (sangría previa + `{`); sin dato del lenguaje se
+  conserva la sangría actual.
+- **Multi-cursor**: carets extra con `Ctrl+Alt+↑/↓`; tipear, borrar y Enter se
+  aplican en **todos**, las flechas los mueven juntos y `Esc` (o un click
+  simple) vuelve a uno solo.
+
 ### Terminal
 - Al **cambiar de workspace**, las terminales abiertas se reubican en el
   proyecto nuevo (`cd`) y las nuevas nacen en la carpeta correcta. Antes
