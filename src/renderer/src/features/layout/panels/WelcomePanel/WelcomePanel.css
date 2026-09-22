@@ -37,6 +37,8 @@
   max-width: 560px;
   padding: 48px 32px;
   gap: 32px;
+  /* Permite que las acciones consulten el ancho real del panel. */
+  container-type: inline-size;
 }
 
 /* Actions Grid */
@@ -354,6 +356,64 @@
   }
 }
 
+/* Muy angosto: las 3 acciones se vuelven texto simple (sin tarjeta ni
+   ícono), con el atajo alineado a la derecha. */
+@container (max-width: 240px) {
+  .welcome-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding-top: 0;
+  }
+
+  .welcome-action-wrapper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .action-badge {
+    position: static;
+    order: 2;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .welcome-action-card {
+    flex: 1;
+    width: auto;
+    padding: 6px 4px;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .welcome-action-card:hover,
+  .welcome-action-card.hovered {
+    background: transparent;
+  }
+
+  .welcome-action-card:active {
+    transform: none;
+  }
+
+  .action-icon {
+    display: none;
+  }
+
+  .action-title {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .welcome-action-card:hover .action-title,
+  .welcome-action-card.hovered .action-title {
+    color: var(--text-color);
+  }
+}
+
 /* Info: consejos + anuncios en un contenedor surface, compactos. */
 .welcome-info-container {
   width: 100%;
@@ -364,6 +424,8 @@
   border: none;
   border-radius: 8px;
   background: var(--bg-secondary, var(--color-surface));
+  /* Permite que los hijos consulten el ancho real del panel (no la ventana). */
+  container-type: inline-size;
 }
 
 /* Tips Section (compacta) */
@@ -402,14 +464,34 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  /* No se encoge: si no cabe, el flex padre lo baja de línea. */
+  flex-shrink: 0;
   padding: 5px 8px;
   border-radius: 999px;
   background: var(--bg-secondary);
 }
 
+.tips-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Resumen compacto cuando el panel no da ancho (ver container query). */
+.tips-count {
+  display: none;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
 .tip-indicator {
+  flex-shrink: 0;
   width: 6px;
   height: 6px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
   background: var(--text-secondary);
 }
@@ -467,7 +549,9 @@
 .info-tabs {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 2px;
+  row-gap: 4px;
 }
 
 .info-tab {
@@ -528,6 +612,17 @@
 
 .info-tabs .tips-indicators {
   margin-left: auto;
+}
+
+/* Panel angosto: los puntos no caben → se resumen a "n/total". */
+@container (max-width: 340px) {
+  .tips-dots {
+    display: none;
+  }
+
+  .tips-count {
+    display: inline;
+  }
 }
 
 .ads-slider {

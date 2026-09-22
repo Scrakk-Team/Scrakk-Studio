@@ -225,14 +225,19 @@ export function WelcomePanel({
             </button>
             {infoTab === 'tips' && TIPS.length > 0 && (
               <div className="tips-indicators">
-                {TIPS.map((tip, index) => (
-                  <button
-                    key={tip.id}
-                    className={`tip-indicator ${index === currentTipIndex ? "active" : ""}`}
-                    onClick={() => setCurrentTipIndex(index)}
-                    aria-label={`Ir al consejo ${index + 1}`}
-                  />
-                ))}
+                <div className="tips-dots">
+                  {TIPS.map((tip, index) => (
+                    <button
+                      key={tip.id}
+                      className={`tip-indicator ${index === currentTipIndex ? "active" : ""}`}
+                      onClick={() => setCurrentTipIndex(index)}
+                      aria-label={`Ir al consejo ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <span className="tips-count" aria-hidden="true">
+                  {currentTipIndex + 1}/{TIPS.length}
+                </span>
               </div>
             )}
           </div>
