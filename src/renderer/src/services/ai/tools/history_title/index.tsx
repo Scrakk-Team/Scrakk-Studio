@@ -15,7 +15,7 @@ export const historyTitleTool: Tool = {
     name: 'history_title',
     label: 'Title',
     description: 'Set conversation title',
-    category: 'utility',
+    type: 'utility',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'history',

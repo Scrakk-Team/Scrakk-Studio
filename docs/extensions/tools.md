@@ -23,7 +23,10 @@ mismo registry que las tools internas (`services/ai/tools`): aparecen en Ajustes
           "required": ["environment"]
         },
         "command": "acme.deploy",
-        "category": "extension",
+        "family": "acme",
+        "familyLabel": "Acme Tools",
+        "type": "acme-deploy",
+        "typeLabel": "Deploy",
         "dangerLevel": "medium",
         "enabledByDefault": false,
         "icon": "server",
@@ -42,7 +45,11 @@ mismo registry que las tools internas (`services/ai/tools`): aparecen en Ajustes
 | `command` | Sí | Comando que la extensión registra y que ejecuta la tool. |
 | `parameters` | No | JSON Schema de los argumentos (OpenAI function-calling). |
 | `label` | No | Etiqueta visible en el chat y en Ajustes. |
-| `category` | No | `file` · `code` · `browser` · `system` · `agent` · `utility` · `skills` · `extension`. Default: `extension`. |
+| `type` | No | Id del grupo (ToolType) donde aparece. Si no existe, se crea solo. Default: `extension`. |
+| `typeLabel` | No | Etiqueta visible del tipo (cuando la extensión lo crea). |
+| `family` | No | Id del pack/familia de tools. Si no existe, se crea (así un `.sef` aporta su propio grupo). Default: `extensions`. |
+| `familyLabel` | No | Etiqueta visible de la familia. |
+| `familyIcon` | No | Id de productIcon de la familia. |
 | `dangerLevel` | No | `safe` · `low` · `medium` · `high`. Default: `medium`. |
 | `enabledByDefault` | No | Default: `true`. |
 | `icon` | No | Id de productIcon. |

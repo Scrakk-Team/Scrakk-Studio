@@ -15,7 +15,7 @@ export const fileSearchTool: Tool = {
     name: 'file_search',
     label: 'File search',
     description: 'Search files by name',
-    category: 'code',
+    type: 'code',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'search',

@@ -96,5 +96,5 @@ export type {
 export type { LspContribution } from './lsp/schema'
 export type { FileIconContribution } from './fileIcons/schema'
 export type { ProductIconContribution } from './productIcons/schema'
-export type { ToolContribution, ToolCategory, ToolDangerLevel } from './tools/schema'
+export type { ToolContribution, ToolDangerLevel } from './tools/schema'
 export type { SkillContribution } from './skills/schema'

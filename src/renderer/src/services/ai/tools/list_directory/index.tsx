@@ -15,7 +15,7 @@ export const listDirectoryTool: Tool = {
     name: 'list_directory',
     label: 'List',
     description: 'List directory contents',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'folder',

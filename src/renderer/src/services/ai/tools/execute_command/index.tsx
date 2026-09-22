@@ -16,7 +16,7 @@ export const executeCommandTool: Tool = {
     name: 'execute_command',
     label: 'Terminal',
     description: 'Execute a terminal command',
-    category: 'system',
+    type: 'system',
     dangerLevel: 'high',
     enabledByDefault: true,
     icon: 'terminal',

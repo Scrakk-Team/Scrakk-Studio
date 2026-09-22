@@ -15,7 +15,7 @@ export const webFetchTool: Tool = {
     name: 'web_fetch',
     label: 'Web Fetch',
     description: 'Fetch a URL as markdown',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'globe',

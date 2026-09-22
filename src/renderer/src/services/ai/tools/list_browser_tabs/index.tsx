@@ -15,7 +15,7 @@ export const listBrowserTabsTool: Tool = {
     name: 'list_browser_tabs',
     label: 'Browser tabs',
     description: 'List browser tabs',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'layers',

@@ -9,6 +9,7 @@
  */
 
 import { registry, type ExecutionResult, type Tool } from '@services/ai/tools'
+import { toolCatalog, EXTENSIONS_FAMILY, EXTENSION_TOOL_TYPE } from '@services/ai/tools/catalog'
 import type { ComponentType, JSX } from 'react'
 import type { ExtensionTypeContext } from '../handler'
 import { ExtensionToolVisual, type ToolVisualProps } from './ExtensionToolVisual'
@@ -43,6 +44,25 @@ export function buildExtensionTool(contribution: ToolContribution, ctx: Extensio
   const parameters = contribution.parameters ?? { type: 'object', properties: {} }
   const visual = contribution.visual
 
+  // Pack/familia + tipo: la extensión puede declararlos; si no existen, se
+  // crean solos en el catálogo (así un `.sef` aporta su propio grupo de tools).
+  const familyId = contribution.family ?? EXTENSIONS_FAMILY
+  if (contribution.family && !toolCatalog.getFamily(familyId)) {
+    toolCatalog.registerFamily({
+      id: familyId,
+      label: contribution.familyLabel ?? contribution.family,
+      icon: contribution.familyIcon,
+      order: 100
+    })
+  }
+  const typeId = contribution.type ?? EXTENSION_TOOL_TYPE
+  toolCatalog.ensureType({
+    id: typeId,
+    label: contribution.typeLabel ?? contribution.type,
+    family: familyId,
+    order: 100
+  })
+
   return {
     name: contribution.name,
     extensionId,
@@ -59,7 +79,7 @@ export function buildExtensionTool(contribution: ToolContribution, ctx: Extensio
       name: contribution.name,
       label: contribution.label ?? contribution.name,
       description: contribution.description,
-      category: contribution.category ?? 'extension',
+      type: typeId,
       dangerLevel: contribution.dangerLevel ?? 'medium',
       enabledByDefault: contribution.enabledByDefault !== false,
       icon: contribution.icon,

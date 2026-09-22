@@ -15,7 +15,7 @@ export const viewWebTool: Tool = {
     name: 'view_web',
     label: 'View web',
     description: 'Fetch web page content',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'low',
     enabledByDefault: true,
         icon: 'eye',

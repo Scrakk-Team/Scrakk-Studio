@@ -15,7 +15,7 @@ export const lspTool: Tool = {
     name: 'lsp',
     label: 'LSP',
     description: 'Language Server operations',
-    category: 'code',
+    type: 'code',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'server',

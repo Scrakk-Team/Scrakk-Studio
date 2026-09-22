@@ -15,7 +15,7 @@ export const writeFileTool: Tool = {
     name: 'write_file',
     label: 'Write file',
     description: 'Create or overwrite a file',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'medium',
     enabledByDefault: true,
         icon: 'pencil',

@@ -15,7 +15,7 @@ export const navigateWebTool: Tool = {
     name: 'navigate_web',
     label: 'Navigate',
     description: 'Interact with a browser tab',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'low',
     enabledByDefault: true,
         icon: 'compass',

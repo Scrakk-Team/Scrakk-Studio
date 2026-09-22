@@ -15,7 +15,7 @@ export const replaceInFileTool: Tool = {
     name: 'replace_in_file',
     label: 'Edit',
     description: 'Replace text in a file',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'medium',
     enabledByDefault: true,
         icon: 'refresh',

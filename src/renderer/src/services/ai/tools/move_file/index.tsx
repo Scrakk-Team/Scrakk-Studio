@@ -15,7 +15,7 @@ export const moveFileTool: Tool = {
     name: 'move_file',
     label: 'Move',
     description: 'Move or rename a file',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'medium',
     enabledByDefault: true,
         icon: 'arrow-right',

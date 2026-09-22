@@ -15,7 +15,7 @@ export const taskTool: Tool = {
     name: 'task',
     label: 'Task',
     description: 'Launch a subagent',
-    category: 'utility',
+    type: 'subagent',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'people',

@@ -15,7 +15,7 @@ export const readMultipleFilesTool: Tool = {
     name: 'read_multiple_files',
     label: 'Read multiple',
     description: 'Read multiple files at once',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'file-multiple',

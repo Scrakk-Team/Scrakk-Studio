@@ -15,7 +15,7 @@ export const multipleToolsTool: Tool = {
     name: 'multiple_tools',
     label: 'Multiple tools',
     description: 'Execute tools in sequence',
-    category: 'utility',
+    type: 'utility',
     dangerLevel: 'medium',
     enabledByDefault: true,
         icon: 'grid',

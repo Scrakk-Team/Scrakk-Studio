@@ -13,22 +13,22 @@ interface ToolSettings {
 const STORAGE_KEY = 'scrakk-studio:tool-settings'
 
 const DEFAULT_META: Record<string, ToolMeta> = {
-  read_file: { name: 'read_file', label: 'Read File', description: 'Read file contents', category: 'file', dangerLevel: 'safe', enabledByDefault: true },
-  read_multiple_files: { name: 'read_multiple_files', label: 'Read Multiple Files', description: 'Read multiple files at once', category: 'file', dangerLevel: 'safe', enabledByDefault: true },
-  write_file: { name: 'write_file', label: 'Write File', description: 'Create or overwrite files', category: 'file', dangerLevel: 'high', enabledByDefault: true },
-  append_file: { name: 'append_file', label: 'Append File', description: 'Append content to existing files', category: 'file', dangerLevel: 'medium', enabledByDefault: true },
-  replace_in_file: { name: 'replace_in_file', label: 'Replace in File', description: 'Replace text in files', category: 'file', dangerLevel: 'high', enabledByDefault: true },
-  delete_file: { name: 'delete_file', label: 'Delete File', description: 'Delete files from the project', category: 'file', dangerLevel: 'high', enabledByDefault: true },
-  move_file: { name: 'move_file', label: 'Move/Rename File', description: 'Move or rename files', category: 'file', dangerLevel: 'medium', enabledByDefault: true },
-  list_directory: { name: 'list_directory', label: 'List Directory', description: 'List directory contents', category: 'file', dangerLevel: 'safe', enabledByDefault: true },
-  file_search: { name: 'file_search', label: 'File Search', description: 'Search files by pattern', category: 'code', dangerLevel: 'safe', enabledByDefault: true },
-  grep_search: { name: 'grep_search', label: 'Grep Search', description: 'Search text in files', category: 'code', dangerLevel: 'safe', enabledByDefault: true },
-  get_diagnostics: { name: 'get_diagnostics', label: 'Get Diagnostics', description: 'Check files for errors', category: 'code', dangerLevel: 'safe', enabledByDefault: true },
-  execute_command: { name: 'execute_command', label: 'Execute Command', description: 'Run shell commands', category: 'system', dangerLevel: 'high', enabledByDefault: true },
-  create_app_blueprint: { name: 'create_app_blueprint', label: 'Create Blueprint', description: 'Create app plan/blueprint', category: 'utility', dangerLevel: 'safe', enabledByDefault: true },
-  history_title: { name: 'history_title', label: 'Set Title', description: 'Set conversation title', category: 'utility', dangerLevel: 'safe', enabledByDefault: true },
-  adjust_timeout: { name: 'adjust_timeout', label: 'Adjust Timeout', description: 'Extend command timeout', category: 'utility', dangerLevel: 'low', enabledByDefault: true },
-  multiple_tools: { name: 'multiple_tools', label: 'Multiple Tools', description: 'Execute tools in sequence', category: 'utility', dangerLevel: 'medium', enabledByDefault: true },
+  read_file: { name: 'read_file', label: 'Read File', description: 'Read file contents', type: 'file', dangerLevel: 'safe', enabledByDefault: true },
+  read_multiple_files: { name: 'read_multiple_files', label: 'Read Multiple Files', description: 'Read multiple files at once', type: 'file', dangerLevel: 'safe', enabledByDefault: true },
+  write_file: { name: 'write_file', label: 'Write File', description: 'Create or overwrite files', type: 'file', dangerLevel: 'high', enabledByDefault: true },
+  append_file: { name: 'append_file', label: 'Append File', description: 'Append content to existing files', type: 'file', dangerLevel: 'medium', enabledByDefault: true },
+  replace_in_file: { name: 'replace_in_file', label: 'Replace in File', description: 'Replace text in files', type: 'file', dangerLevel: 'high', enabledByDefault: true },
+  delete_file: { name: 'delete_file', label: 'Delete File', description: 'Delete files from the project', type: 'file', dangerLevel: 'high', enabledByDefault: true },
+  move_file: { name: 'move_file', label: 'Move/Rename File', description: 'Move or rename files', type: 'file', dangerLevel: 'medium', enabledByDefault: true },
+  list_directory: { name: 'list_directory', label: 'List Directory', description: 'List directory contents', type: 'file', dangerLevel: 'safe', enabledByDefault: true },
+  file_search: { name: 'file_search', label: 'File Search', description: 'Search files by pattern', type: 'code', dangerLevel: 'safe', enabledByDefault: true },
+  grep_search: { name: 'grep_search', label: 'Grep Search', description: 'Search text in files', type: 'code', dangerLevel: 'safe', enabledByDefault: true },
+  get_diagnostics: { name: 'get_diagnostics', label: 'Get Diagnostics', description: 'Check files for errors', type: 'code', dangerLevel: 'safe', enabledByDefault: true },
+  execute_command: { name: 'execute_command', label: 'Execute Command', description: 'Run shell commands', type: 'system', dangerLevel: 'high', enabledByDefault: true },
+  create_app_blueprint: { name: 'create_app_blueprint', label: 'Create Blueprint', description: 'Create app plan/blueprint', type: 'utility', dangerLevel: 'safe', enabledByDefault: true },
+  history_title: { name: 'history_title', label: 'Set Title', description: 'Set conversation title', type: 'utility', dangerLevel: 'safe', enabledByDefault: true },
+  adjust_timeout: { name: 'adjust_timeout', label: 'Adjust Timeout', description: 'Extend command timeout', type: 'utility', dangerLevel: 'low', enabledByDefault: true },
+  multiple_tools: { name: 'multiple_tools', label: 'Multiple Tools', description: 'Execute tools in sequence', type: 'utility', dangerLevel: 'medium', enabledByDefault: true },
 }
 
 class ToolSettingsService {
@@ -102,7 +102,7 @@ class ToolSettingsService {
         name,
         label: name,
         description: '',
-        category: 'utility',
+        type: 'utility',
         dangerLevel: 'low',
         enabledByDefault: true,
       }
@@ -150,18 +150,6 @@ class ToolSettingsService {
 
   clearSessionOverrides(sessionId: string): void {
     this.sessionOverrides.delete(sessionId)
-  }
-
-  getCategoryOrder(): Array<{ key: string; label: string }> {
-    return [
-      { key: 'file', label: 'File Operations' },
-      { key: 'code', label: 'Code Analysis' },
-      { key: 'system', label: 'System' },
-      { key: 'browser', label: 'Browser' },
-      { key: 'skills', label: 'Skills' },
-      { key: 'utility', label: 'Utility' },
-      { key: 'extension', label: 'Extensions' },
-    ]
   }
 }
 

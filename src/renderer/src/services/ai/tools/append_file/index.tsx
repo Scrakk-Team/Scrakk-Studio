@@ -15,7 +15,7 @@ export const appendFileTool: Tool = {
     name: 'append_file',
     label: 'Append',
     description: 'Append content to a file',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'medium',
     enabledByDefault: true,
         icon: 'plus',

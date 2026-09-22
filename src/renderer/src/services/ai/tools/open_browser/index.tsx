@@ -15,7 +15,7 @@ export const openBrowserTool: Tool = {
     name: 'open_browser',
     label: 'Open browser',
     description: 'Open a URL in the browser',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'low',
     enabledByDefault: true,
         icon: 'globe',

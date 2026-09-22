@@ -15,7 +15,7 @@ export const webSearchTool: Tool = {
     name: 'web_search',
     label: 'Web Search',
     description: 'Search the web',
-    category: 'browser',
+    type: 'browser',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'search',

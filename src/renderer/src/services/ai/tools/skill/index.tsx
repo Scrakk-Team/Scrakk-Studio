@@ -15,7 +15,7 @@ export const skillTool: Tool = {
     name: 'skill',
     label: 'Load Skill',
     description: 'Load a skill by name',
-    category: 'skills',
+    type: 'skills',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'bookmark',

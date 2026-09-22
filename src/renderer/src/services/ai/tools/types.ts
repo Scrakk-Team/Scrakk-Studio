@@ -54,6 +54,8 @@ export interface ToolContext {
   projectRoot: string
   sessionId: string | null
   signal?: AbortSignal
+  /** Id del tool call en curso (lo usa `task` para linkear su sesión). */
+  toolCallId?: string
 }
 
 export type PermissionType =
@@ -88,7 +90,12 @@ export interface ToolMeta {
   name: string
   label: string
   description: string
-  category: 'file' | 'code' | 'browser' | 'system' | 'agent' | 'utility' | 'skills' | 'extension'
+  /**
+   * Id del ToolType (grupo/categoría) al que pertenece la tool.
+   * Los tipos viven en `services/ai/tools/catalog.ts` y son extensibles
+   * (una extensión `.sef` puede definir su propio pack/familia + tipos).
+   */
+  type: string
   dangerLevel: 'safe' | 'low' | 'medium' | 'high'
   enabledByDefault: boolean
 
@@ -110,7 +117,7 @@ export interface ToolMeta {
     args: Record<string, unknown>,
     result?: string,
     status?: string,
-    execution?: { runId?: string }
+    execution?: { runId?: string; toolCallId?: string }
   ) => React.ReactNode
 }
 

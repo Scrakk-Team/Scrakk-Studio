@@ -15,7 +15,7 @@ export const getDiagnosticsTool: Tool = {
     name: 'get_diagnostics',
     label: 'Diagnostics',
     description: 'Get code diagnostics',
-    category: 'code',
+    type: 'code',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'alert',

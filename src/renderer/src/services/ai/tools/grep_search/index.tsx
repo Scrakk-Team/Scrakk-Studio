@@ -15,7 +15,7 @@ export const grepSearchTool: Tool = {
     name: 'grep_search',
     label: 'Grep search',
     description: 'Search text within files',
-    category: 'code',
+    type: 'code',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'clipboard-search',

@@ -13,20 +13,9 @@ import type { PermissionRule, ToolMeta } from '@services/ai/tools'
 import type { ParseContext } from '../handler'
 
 export type ToolDangerLevel = ToolMeta['dangerLevel']
-export type ToolCategory = ToolMeta['category']
 
 const NAME_RE = /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/
 const DANGER_LEVELS: ToolDangerLevel[] = ['safe', 'low', 'medium', 'high']
-const CATEGORIES: ToolCategory[] = [
-  'file',
-  'code',
-  'browser',
-  'system',
-  'agent',
-  'utility',
-  'skills',
-  'extension'
-]
 
 export interface ToolContribution {
   /** Nombre de la función que ve el modelo (único). */
@@ -38,7 +27,16 @@ export interface ToolContribution {
   parameters?: Record<string, unknown>
   /** Comando de la extensión que ejecuta la tool. */
   command: string
-  category?: ToolCategory
+  /**
+   * Grupo de la tool. La extensión puede declarar su PROPIO pack:
+   * `family` (id) + `familyLabel`, y un `type` (id) + `typeLabel`.
+   * Si no existen, se crean solos (catálogo extensible).
+   */
+  type?: string
+  typeLabel?: string
+  family?: string
+  familyLabel?: string
+  familyIcon?: string
   dangerLevel?: ToolDangerLevel
   enabledByDefault?: boolean
   /** Id de productIcon. */
@@ -103,9 +101,11 @@ export function parseToolContributions(
           ? (c.parameters as Record<string, unknown>)
           : undefined,
       command: c.command,
-      category: CATEGORIES.includes(c.category as ToolCategory)
-        ? (c.category as ToolCategory)
-        : 'extension',
+      type: typeof c.type === 'string' && c.type.trim() ? c.type.trim() : undefined,
+      typeLabel: typeof c.typeLabel === 'string' ? c.typeLabel : undefined,
+      family: typeof c.family === 'string' && c.family.trim() ? c.family.trim() : undefined,
+      familyLabel: typeof c.familyLabel === 'string' ? c.familyLabel : undefined,
+      familyIcon: typeof c.familyIcon === 'string' ? c.familyIcon : undefined,
       dangerLevel: DANGER_LEVELS.includes(c.dangerLevel as ToolDangerLevel)
         ? (c.dangerLevel as ToolDangerLevel)
         : 'medium',

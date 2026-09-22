@@ -15,7 +15,7 @@ export const adjustTimeoutTool: Tool = {
     name: 'adjust_timeout',
     label: 'Timeout',
     description: 'Extend command timeout',
-    category: 'utility',
+    type: 'utility',
     dangerLevel: 'low',
     enabledByDefault: true,
         icon: 'timer',

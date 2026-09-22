@@ -15,7 +15,7 @@ export const readFileTool: Tool = {
     name: 'read_file',
     label: 'Read',
     description: 'Read file contents',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'file-text',

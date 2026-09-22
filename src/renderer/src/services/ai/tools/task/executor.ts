@@ -1,5 +1,5 @@
 import type { ExecutionResult, ToolContext } from '../types'
-import { agentRegistry, startSubagentSession, subagentSessions } from '../../agents'
+import { agentRegistry, linkToolCall, startSubagentSession, subagentSessions } from '../../agents'
 
 /**
  * Ejecuta un subagente como una SESIÓN observable (su chat queda registrado y
@@ -30,6 +30,8 @@ export async function execute(
     signal: ctx.signal,
     sessionId: ctx.sessionId
   })
+  // Liga el tool call con la sesión para poder abrirla desde la card.
+  linkToolCall(ctx.toolCallId, sessionId)
   const session = await subagentSessions.waitFor(sessionId)
 
   const lastAssistant = [...session.messages]

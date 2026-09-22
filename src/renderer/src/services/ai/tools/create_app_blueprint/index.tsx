@@ -15,7 +15,7 @@ export const createAppBlueprintTool: Tool = {
     name: 'create_app_blueprint',
     label: 'Blueprint',
     description: 'Create an app blueprint',
-    category: 'utility',
+    type: 'utility',
     dangerLevel: 'safe',
     enabledByDefault: true,
         icon: 'clipboard',

@@ -15,7 +15,7 @@ export const listSkillsTool: Tool = {
     name: 'list_skills',
     label: 'List Skills',
     description: 'List the available skills',
-    category: 'skills',
+    type: 'skills',
     dangerLevel: 'safe',
     enabledByDefault: true,
     icon: 'layers',

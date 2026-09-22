@@ -15,7 +15,7 @@ export const deleteFileTool: Tool = {
     name: 'delete_file',
     label: 'Delete',
     description: 'Delete a file',
-    category: 'file',
+    type: 'file',
     dangerLevel: 'high',
     enabledByDefault: true,
         icon: 'trash',
