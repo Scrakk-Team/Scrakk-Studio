@@ -46,7 +46,8 @@ vi.mock('@features/editor/engine', () => ({
     mocks.paneCalls.push(paneId)
     return mocks.engine
   }),
-  listPaneEngines: vi.fn(() => [mocks.engine])
+  listPaneEngines: vi.fn(() => [mocks.engine]),
+  releasePaneEngineIfEmpty: vi.fn()
 }))
 
 import {

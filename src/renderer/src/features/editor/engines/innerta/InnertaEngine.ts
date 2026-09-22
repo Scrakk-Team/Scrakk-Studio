@@ -356,6 +356,7 @@ export class InnertaEngine implements EditorEngine {
           // módulo huérfano; el próximo attach crea uno nuevo.
           if (this.modulePromise !== moduleLoader) {
             module.shutdown()
+            this.settleReadyWaiters()
             return
           }
           // Sin host al resolver (cleanup de StrictMode antes de terminar la
@@ -363,6 +364,8 @@ export class InnertaEngine implements EditorEngine {
           if (!this.host) {
             this.modulePromise = null
             module.shutdown()
+            // Despertar a quien esperaba: al re-attach se reintenta.
+            this.settleReadyWaiters()
             return
           }
           this.module = module
@@ -463,9 +466,7 @@ export class InnertaEngine implements EditorEngine {
           for (const req of flush) this.apply(req)
 
           // Quien esperaba el módulo para activar una sesión, sigue ahora.
-          const waiters = this.sessionReadyWaiters
-          this.sessionReadyWaiters = []
-          for (const resolve of waiters) resolve()
+          this.settleReadyWaiters()
 
           // Refrescar el Ln/Col al conectar (abrir archivo = cursor en
           // 1:1 antes del primer click) y al quedar listo.
@@ -474,8 +475,14 @@ export class InnertaEngine implements EditorEngine {
         .catch((err: unknown) => {
           // Sin artefacto: placeholder visual + aviso (solo si la sesión
           // sigue viva — un catch stale tras destroy no debe dibujar nada).
-          if (this.modulePromise !== moduleLoader || !this.host) return
+          if (this.modulePromise !== moduleLoader || !this.host) {
+            this.settleReadyWaiters()
+            return
+          }
           this.modulePromise = null
+          // Despertar a quien esperaba el módulo: sin esto `whenReady()`
+          // quedaba pendiente para siempre y el archivo nunca cargaba.
+          this.settleReadyWaiters()
           const msg = document.createElement('div')
           msg.className = 'scrakk-innerta-missing'
           msg.textContent = 'InnertaEngine (ITE): ' + String(err)
@@ -591,6 +598,18 @@ export class InnertaEngine implements EditorEngine {
   /** ¿Este módulo ya tiene la sesión de ese archivo? */
   hasFileSession(id: string): boolean {
     return this.fileSessions.has(id)
+  }
+
+  /** ¿Queda alguna sesión viva en este módulo? */
+  hasFileSessions(): boolean {
+    return this.fileSessions.size > 0
+  }
+
+  /** Resuelve a los que esperaban el módulo (listo, falló o se destruyó). */
+  private settleReadyWaiters(): void {
+    const waiters = this.sessionReadyWaiters
+    this.sessionReadyWaiters = []
+    for (const resolve of waiters) resolve()
   }
 
   /** Id (path) del archivo activo en este módulo, o null. */
@@ -888,6 +907,8 @@ export class InnertaEngine implements EditorEngine {
     // Invalidar la promesa viva: si el módulo resuelve después (StrictMode /
     // carga lenta), el .then ve el mismatch y apaga el módulo huérfano.
     this.modulePromise = null
+    // Nadie puede quedar esperando un módulo que ya no va a llegar.
+    this.settleReadyWaiters()
     if (this.inputHandle) {
       try {
         this.inputHandle.dispose()

@@ -13,7 +13,7 @@
  * El motor por panel se crea la primera vez que ese panel muestra un archivo.
  */
 
-import { getOrCreatePaneEngine, listPaneEngines } from './engine'
+import { getOrCreatePaneEngine, listPaneEngines, releasePaneEngineIfEmpty } from './engine'
 import type { InnertaEngine } from './engines/innerta/InnertaEngine'
 import { readEncoded, setDetected } from '@services/encodings'
 import { lspNotifyFileChanged } from '@services/lsp'
@@ -46,6 +46,8 @@ class FileSessionImpl implements FileSession {
   readonly path: string
   /** Motor del panel donde vive esta sesión. */
   private engine: InnertaEngine | null = null
+  /** Panel (strip) donde vive ahora. */
+  private paneId = 'center'
   private loading = false
   /** Texto de una sesión que venía de un panel viejo (mover la tab). */
   private carriedText: string | null = null
@@ -65,10 +67,15 @@ class FileSessionImpl implements FileSession {
     // lleva el texto (se pierde el undo de ese salto, documentado).
     if (this.engine && this.engine !== engine) {
       const previous = this.engine
+      const previousPane = this.paneId
       const text = previous.fileSessionText(this.path)
       if (typeof text === 'string') this.carriedText = text
       previous.dropFileSession(this.path)
+      // Si el panel anterior quedó sin archivos, se libera su módulo (GL +
+      // WASM): antes quedaba vivo para siempre y el drag acumulaba motores.
+      releasePaneEngineIfEmpty(previousPane)
     }
+    this.paneId = paneId
     this.engine = engine
     engine.attach(host)
     this.subscribeEngine()
@@ -164,6 +171,8 @@ class FileSessionImpl implements FileSession {
     this.unsubRevision?.()
     this.unsubRevision = null
     this.engine?.dropFileSession(this.path)
+    // Última tab del panel: liberar el motor (WASM + GL).
+    releasePaneEngineIfEmpty(this.paneId)
     this.engine = null
     this.carriedText = null
     this.dirtyListeners.clear()

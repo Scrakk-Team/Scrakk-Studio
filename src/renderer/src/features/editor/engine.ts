@@ -104,3 +104,16 @@ export function getOrCreatePaneEngine(paneId: string): InnertaEngine {
 export function listPaneEngines(): InnertaEngine[] {
   return [...paneEngines.values()]
 }
+
+/**
+ * Libera el motor de un panel si ya no le quedan sesiones (al mover la última
+ * tab fuera de ese panel, o al cerrarla): sin esto cada panel visitado dejaba
+ * su módulo WASM + contexto GL vivos para siempre.
+ */
+export function releasePaneEngineIfEmpty(paneId: string): void {
+  const engine = paneEngines.get(paneId)
+  if (!engine) return
+  if (engine.hasFileSessions()) return
+  engine.destroy?.()
+  paneEngines.delete(paneId)
+}
