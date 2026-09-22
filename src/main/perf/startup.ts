@@ -154,8 +154,9 @@ export function applyChromiumSwitches(): void {
   if (profile === 'dev') return
 
   if (readEnvFlag('capMainHeap')) {
-    // Limita la heap de V8 del main. Evita que sesiones largas escale
-    // a 1+ GB. Switch oficial de Node, soportado por Electron.
+    // Opt-in (default OFF). `--js-flags` se propaga a TODOS los procesos,
+    // incluido el renderer: con un tope bajo (256 MB) el renderer moría con
+    // V8 OOM al abrir varios archivos. Si se activa, elegir un tope holgado.
     const mb = getMainHeapCapMb()
     app.commandLine.appendSwitch('js-flags', `--max-old-space-size=${mb}`)
   }

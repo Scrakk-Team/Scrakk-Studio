@@ -45,7 +45,13 @@ export interface PerfFlags {
   wasmStreamingCompile: boolean
   /** Comprimir WASM con brotli/gzip en el build. */
   compressWasm: boolean
-  /** Limitar memoria V8 del main en prod (--max-old-space-size). */
+  /**
+   * Limitar memoria V8 con `--max-old-space-size`.
+   *
+   * OJO: `--js-flags` se propaga a TODOS los procesos, incluido el renderer.
+   * Dejarlo activo con 256 MB mataba el renderer (V8 OOM) al abrir varios
+   * archivos. Por eso queda **opt-in** (default false).
+   */
   capMainHeap: boolean
   /** React.lazy sobre modales (Settings/LSP/Providers). */
   lazyModals: boolean
@@ -72,7 +78,7 @@ export const PERF_DEFAULTS: PerfFlags = {
   fsSearchWorker: false,
   wasmStreamingCompile: true,
   compressWasm: true,
-  capMainHeap: true,
+  capMainHeap: false,
   lazyModals: true,
   manualChunks: true,
   cssContain: true,

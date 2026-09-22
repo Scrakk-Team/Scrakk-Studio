@@ -84,6 +84,21 @@ export interface SnapshotGroup {
 const snapshots = new Map<string, Map<InspectableSource, HighlightSnapshot>>()
 const listeners = new Set<() => void>()
 
+/**
+ * Tope de archivos con snapshots vivos. Sin tope, cada archivo abierto dejaba
+ * su resaltado guardado hasta cerrar la tab. Al pasarse se descarta el más
+ * viejo (Map = orden de inserción).
+ */
+const MAX_SNAPSHOT_FILES = 30
+
+function trimSnapshots(): void {
+  while (snapshots.size > MAX_SNAPSHOT_FILES) {
+    const oldest = snapshots.keys().next().value
+    if (oldest === undefined) break
+    snapshots.delete(oldest)
+  }
+}
+
 function emit(): void {
   for (const listener of [...listeners]) {
     try {
@@ -102,6 +117,7 @@ export function recordHighlightSnapshot(snapshot: HighlightSnapshot): void {
     snapshots.set(snapshot.path, bySource)
   }
   bySource.set(snapshot.source, snapshot)
+  trimSnapshots()
   emit()
 }
 

@@ -104,12 +104,29 @@ export function resolveTreeTargetFromBuffer(
 const lspSymbolNames = new Map<string, Set<string>>()
 const lspSymbolRequests = new Map<string, Promise<void>>()
 
+/**
+ * Tope de archivos con símbolos cacheados. Sin tope, cada archivo abierto
+ * dejaba su Set de nombres vivo hasta cerrar la tab (memoria que crecía con
+ * cada archivo). Al pasarse, se descarta el más viejo (Map = orden de uso).
+ */
+const MAX_LSP_SYMBOL_FILES = 30
+
+function cacheLspSymbolNames(path: string, names: Set<string>): void {
+  lspSymbolNames.delete(path)
+  lspSymbolNames.set(path, names)
+  while (lspSymbolNames.size > MAX_LSP_SYMBOL_FILES) {
+    const oldest = lspSymbolNames.keys().next().value
+    if (oldest === undefined) break
+    lspSymbolNames.delete(oldest)
+  }
+}
+
 /** Prefetchea los nombres de símbolos del archivo (una vez por archivo). */
 export function primeLspSymbolNames(path: string): void {
   if (lspSymbolNames.has(path) || lspSymbolRequests.has(path)) return
   const request = lspDocumentSymbolNames(path)
     .then((names) => {
-      if (names.size > 0) lspSymbolNames.set(path, names)
+      if (names.size > 0) cacheLspSymbolNames(path, names)
     })
     .catch(() => {
       /* sin server: no se cachea (se reintenta la próxima) */

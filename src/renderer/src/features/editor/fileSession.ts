@@ -234,22 +234,28 @@ class FileSessionImpl implements FileSession {
 
   /**
    * Evicción LRU: snapshot del buffer + destroy del módulo (heap + GL).
-   * Rehidrata instantáneo al re-abrir (sin disco). Se pierde el undo de la
-   * sesión — documentado: el tope existe para no OOMear en PCs débiles.
-   * Devuelve false si no había nada evictable (p.ej. módulo aún cargando).
+   *
+   * El texto se retiene **solo si hay cambios sin guardar** (no se pueden
+   * perder). Un archivo limpio se re-lee de disco al reabrir: mismo contenido
+   * y sin retener memoria (antes cada archivo abierto guardaba su texto para
+   * siempre y el heap del renderer crecía con cada uno).
+   *
+   * Se pierde el undo de la sesión — documentado: el tope existe para no
+   * OOMear en PCs débiles. Devuelve false si no había nada evictable
+   * (p. ej. módulo aún cargando).
    */
   evictModule(): boolean {
     const text = this.engine?.getText?.()
     if (typeof text !== 'string') return false
-    this.evictedText = text
-    // El dirty de la sesión sobrevive (this.dirty + pendingInitialClean al
-    // restaurar): un archivo con cambios sin guardar NUNCA se ve limpio
-    // tras la evicción.
+    const dirty = this.isDirty()
+    this.evictedText = dirty ? text : null
     this.unsubRevision?.()
     this.unsubRevision = null
     this.engine?.destroy?.()
     this.engine = null
-    this.loaded = true
+    // Limpio → `loaded=false`: `load()` re-lee de disco. Sucio → true: el
+    // snapshot ES el estado a restaurar.
+    this.loaded = dirty
     return true
   }
 

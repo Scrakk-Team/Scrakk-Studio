@@ -8,6 +8,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   readEncoded: vi.fn(),
+  revisionCbs: [] as Array<(revision: number) => void>,
+  lastRevision: 0,
   engines: [] as Array<{
     attach: ReturnType<typeof vi.fn>
     dispose: ReturnType<typeof vi.fn>
@@ -29,7 +31,14 @@ vi.mock('@features/editor/engine', () => ({
       dispose: vi.fn(),
       destroy: vi.fn(),
       loadFile: vi.fn(),
-      getText: vi.fn(() => 'buffer-text')
+      getText: vi.fn(() => 'buffer-text'),
+      // Dirty: la sesión compara su revisión contra la confirmada. Las
+      // revisiones se emiten desde el test con `emitRevision()`.
+      getRevision: vi.fn(() => mocks.lastRevision),
+      onRevision: vi.fn((cb: (revision: number) => void) => {
+        mocks.revisionCbs.push(cb)
+        return () => {}
+      })
     }
     mocks.engines.push(engine)
     return engine
@@ -43,6 +52,8 @@ const host = (): HTMLElement => ({} as HTMLElement)
 
 beforeEach(() => {
   mocks.engines.length = 0
+  mocks.revisionCbs.length = 0
+  mocks.lastRevision = 0
   mocks.readEncoded.mockResolvedValue({ success: true, text: 'disk-content', detected: {} })
 })
 
@@ -52,6 +63,24 @@ async function openAndHide(path: string): Promise<void> {
   session.attach(h)
   await flush()
   await flush()
+  session.detach(h)
+}
+
+/** Abre, deja el archivo CON CAMBIOS (dirty) y lo oculta. */
+async function openHideAndEdit(path: string): Promise<void> {
+  const h = host()
+  const session = getFileSession(path)
+  session.attach(h)
+  await flush()
+  await flush()
+  const cb = mocks.revisionCbs.at(-1)
+  if (cb) {
+    // Primera revisión = la carga (clean); la segunda = edición (dirty).
+    mocks.lastRevision = 1
+    cb(1)
+    mocks.lastRevision = 2
+    cb(2)
+  }
   session.detach(h)
 }
 
@@ -73,14 +102,14 @@ describe('LRU de módulos en background', () => {
     expect(mocks.readEncoded).toHaveBeenCalledTimes(8)
   })
 
-  it('reabrir una evictada rehidrata del snapshot (sin disco)', async () => {
+  it('reabrir una evictada LIMPIA re-lee de disco (no retiene texto)', async () => {
     for (let i = 1; i <= 8; i++) {
       await openAndHide(`/reh/f${i}.ts`)
     }
     const readsBefore = mocks.readEncoded.mock.calls.length
     const enginesBefore = mocks.engines.length
 
-    // Re-abrir f1 (evictada): nuevo engine + loadFile con el snapshot.
+    // Re-abrir f1 (evictada y limpia): nuevo engine + lectura de disco.
     const h = host()
     getFileSession('/reh/f1.ts').attach(h)
     await flush()
@@ -88,7 +117,25 @@ describe('LRU de módulos en background', () => {
 
     expect(mocks.engines).toHaveLength(enginesBefore + 1)
     const fresh = mocks.engines[mocks.engines.length - 1]
-    expect(fresh.loadFile).toHaveBeenCalledWith('/reh/f1.ts', 'buffer-text')
+    expect(fresh.loadFile).toHaveBeenCalledWith('/reh/f1.ts', 'disk-content')
+    expect(mocks.readEncoded.mock.calls.length).toBe(readsBefore + 1)
+  })
+
+  it('reabrir una evictada CON CAMBIOS rehidrata del snapshot (sin disco)', async () => {
+    // h1 con cambios: al evictar NO se puede perder, se guarda el snapshot.
+    await openHideAndEdit('/dirty/h1.ts')
+    for (let i = 2; i <= 8; i++) {
+      await openAndHide(`/dirty/h${i}.ts`)
+    }
+    const readsBefore = mocks.readEncoded.mock.calls.length
+
+    const h = host()
+    getFileSession('/dirty/h1.ts').attach(h)
+    await flush()
+    await flush()
+
+    const fresh = mocks.engines[mocks.engines.length - 1]
+    expect(fresh.loadFile).toHaveBeenCalledWith('/dirty/h1.ts', 'buffer-text')
     expect(mocks.readEncoded.mock.calls.length).toBe(readsBefore)
   })
 
@@ -105,6 +152,6 @@ describe('LRU de módulos en background', () => {
     await flush()
     await flush()
     const fresh = mocks.engines[mocks.engines.length - 1]
-    expect(fresh.loadFile).toHaveBeenCalledWith('/del/g1.ts', 'buffer-text')
+    expect(fresh.loadFile).toHaveBeenCalledWith('/del/g1.ts', 'disk-content')
   })
 })

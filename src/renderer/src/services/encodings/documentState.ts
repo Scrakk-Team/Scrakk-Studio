@@ -22,6 +22,17 @@ export interface DocumentEncoding {
 const docs = new Map<string, DocumentEncoding>()
 const listeners = new Set<Listener>()
 
+/** Tope de documentos con encoding recordado (se descarta el más viejo). */
+const MAX_DOCS = 200
+
+function trimDocs(): void {
+  while (docs.size > MAX_DOCS) {
+    const oldest = docs.keys().next().value
+    if (oldest === undefined) break
+    docs.delete(oldest)
+  }
+}
+
 type Listener = () => void
 
 function emit(): void {
@@ -42,6 +53,7 @@ export function setDetected(path: string, text: string, detected: DetectedEncodi
     lossy: detected.lossy,
     lineEnding: detectLineEnding(text)
   })
+  trimDocs()
   emit()
 }
 
