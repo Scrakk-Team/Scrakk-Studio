@@ -109,6 +109,31 @@ export function applyChromiumSwitches(): void {
     app.commandLine.appendSwitch('ozone-platform', 'x11')
   }
 
+  // GPU en Linux: hay drivers (por ejemplo AMD con RADV) y sandboxes de
+  // usuario restringidos que hacen crashear el proceso de GPU (SIGSEGV:
+  // "GPU process exited unexpectedly", "Failed to send GpuControl.
+  // CreateCommandBuffer") y la ventana queda en blanco. Por defecto se
+  // desactiva el sandbox de la GPU y se permite **SwiftShader** como respaldo
+  // de WebGL (el motor Innerta dibuja el editor en un canvas: sin esto, si la
+  // GPU falla, el canvas queda vacío).
+  //
+  // Escape manual para soporte: SCRAKK_GPU=auto|gl|swiftshader|vulkan.
+  if (process.platform === 'linux') {
+    const gpuMode = (process.env.SCRAKK_GPU ?? 'auto').toLowerCase()
+    if (gpuMode === 'swiftshader') {
+      app.commandLine.appendSwitch('disable-gpu')
+      app.commandLine.appendSwitch('enable-unsafe-swiftshader')
+    } else if (gpuMode === 'gl') {
+      app.commandLine.appendSwitch('use-gl', 'angle')
+      app.commandLine.appendSwitch('use-angle', 'gl')
+      app.commandLine.appendSwitch('disable-gpu-sandbox')
+      app.commandLine.appendSwitch('enable-unsafe-swiftshader')
+    } else if (gpuMode !== 'vulkan') {
+      app.commandLine.appendSwitch('disable-gpu-sandbox')
+      app.commandLine.appendSwitch('enable-unsafe-swiftshader')
+    }
+  }
+
   // Escape manual (soporte/otros equipos): forzar OpenGL y evitar VA-API.
   if (process.env.SCRAKK_PERF_FORCE_GL === '1') {
     disableFeatures.push(
