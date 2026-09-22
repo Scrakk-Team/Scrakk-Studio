@@ -15,6 +15,12 @@ interface PtyProc {
 
 const terms = new Map<string, PtyProc>()
 
+/** Entero positivo o el fallback (node-pty rechaza 0/NaN al crear o resized). */
+function positiveInt(value: unknown, fallback: number): number {
+  const n = Math.floor(Number(value))
+  return Number.isFinite(n) && n > 0 ? n : fallback
+}
+
 function getShell(shell?: string): string {
   if (shell && shell.startsWith('/')) return shell
   if (shell === 'zsh') return '/bin/zsh'
@@ -29,6 +35,10 @@ export function registerTerminalIpc(): void {
     if (terms.has(id)) return { success: true }
     const sh = getShell(shell)
     const work = cwd || process.env.HOME || '/'
+    // La vista puede medir 0×0 (canvas sin layout todavía): node-pty exige
+    // positivos, así que se cae a 80×24.
+    const initialCols = positiveInt(cols, 80)
+    const initialRows = positiveInt(rows, 24)
     // PTY real con node-pty: convierte \n -> \r\n automáticamente, señales, resize.
     const { npm_config_prefix: _omit, ...cleanEnv } = process.env as Record<string, string | undefined>
     const proc = pty.spawn(sh, [], {
@@ -37,11 +47,11 @@ export function registerTerminalIpc(): void {
       env: {
         ...cleanEnv,
         TERM: 'xterm-256color',
-        COLUMNS: String(cols ?? 80),
-        LINES: String(rows ?? 24)
+        COLUMNS: String(initialCols),
+        LINES: String(initialRows)
       } as Record<string, string>,
-      cols: cols ?? 80,
-      rows: rows ?? 24
+      cols: initialCols,
+      rows: initialRows
     }) as unknown as PtyProc
 
     terms.set(id, proc)
@@ -68,7 +78,12 @@ export function registerTerminalIpc(): void {
 
   ipcMain.handle(TERMINAL_IPC.resize, async (_event, req: TerminalResizeRequest) => {
     const proc = terms.get(req.id)
-    if (proc) proc.resize(req.cols, req.rows)
+    if (!proc) return
+    // La vista emite resize antes de tener tamaño: node-pty tira
+    // "resizing must be done using positive cols and rows". Se ignora.
+    const cols = positiveInt(req.cols, 0)
+    const rows = positiveInt(req.rows, 0)
+    if (cols > 0 && rows > 0) proc.resize(cols, rows)
   })
 
   ipcMain.handle(TERMINAL_IPC.destroy, async (_event, req: TerminalDestroyRequest) => {
