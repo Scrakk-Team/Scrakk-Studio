@@ -34,6 +34,17 @@ function getTerminalApi(): TerminalApi | null {
   )
 }
 
+/** Misma key que el Explorer/workspaces: raíz del proyecto abierto. */
+const ROOT_KEY = 'scrakk-studio:root-path'
+
+function readWorkspaceRoot(): string | undefined {
+  try {
+    return localStorage.getItem(ROOT_KEY) ?? undefined
+  } catch {
+    return undefined
+  }
+}
+
 class TerminalSessionImpl implements LiveSession {
   readonly id: string
   private canvas: HTMLCanvasElement | null = null
@@ -136,12 +147,7 @@ class TerminalSessionImpl implements LiveSession {
 
     // PTY real con las dims del host actual (si ya hay uno, usar sus dims).
     // cwd = proyecto abierto (si hay); si no, el main cae a HOME.
-    let cwd: string | undefined
-    try {
-      cwd = localStorage.getItem('scrakk-studio:root-path') ?? undefined
-    } catch {
-      cwd = undefined
-    }
+    const cwd = readWorkspaceRoot()
     const { cols, rows } = this.getRealDims()
     void api.create({ id: this.ptyId, shell: 'bash', cwd, cols, rows })
     view.resize(cols, rows)
@@ -231,6 +237,22 @@ class TerminalSessionImpl implements LiveSession {
     }
     const { cols, rows } = this.getRealDims()
     if (cols > 0 && rows > 0) this.view.resize(cols, rows)
+  }
+
+  /**
+   * Reubica el shell en `root` (cambio de workspace).
+   *
+   * Se escribe `cd` al PTY en vez de recrearlo: no se pierde el historial ni
+   * los procesos de fondo. Si la sesión todavía no arrancó, no hace falta:
+   * al crear la PTY va a tomar el root nuevo.
+   */
+  retarget(root: string): void {
+    if (!this.started || this.disposed || !root) return
+    const api = getTerminalApi()
+    if (!api) return
+    // Comilla simple segura (el path puede tener espacios o comillas).
+    const quoted = root.replace(/'/g, `'\\''`)
+    void api.write({ id: this.ptyId, data: `cd -- '${quoted}'\r` })
   }
 
   /** Menú contextual propio de la terminal (click derecho sobre su canvas). */
@@ -451,4 +473,18 @@ export function destroyTerminalSession(id: string): void {
 /** Ids de sesiones de terminal vivas. */
 export function listTerminalSessions(): string[] {
   return [...sessions.keys()]
+}
+
+/** Reubica TODAS las terminales vivas en `root` (al cambiar de workspace). */
+export function retargetTerminalSessions(root: string): void {
+  for (const session of sessions.values()) session.retarget(root)
+}
+
+// Al cambiar de proyecto, las terminales abiertas se reubican en el nuevo
+// root (una terminal nueva ya nace con el root actual, vía readWorkspaceRoot).
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('workspace-changed', (event: Event) => {
+    const path = (event as CustomEvent<{ path?: string }>).detail?.path
+    if (typeof path === 'string' && path.length > 0) retargetTerminalSessions(path)
+  })
 }

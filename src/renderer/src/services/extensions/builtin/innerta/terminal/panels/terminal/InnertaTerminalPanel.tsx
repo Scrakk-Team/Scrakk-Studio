@@ -30,6 +30,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
     let cancelled = false
     let unsubData: (() => void) | null = null
     let unsubExit: (() => void) | null = null
+    let unsubWorkspace: (() => void) | null = null
 
     // Guardar la promesa: si el cleanup corre ANTES de que resuelva (StrictMode
     // desmonta y remonta), el view se puede disponer igual al resolver — si no,
@@ -199,7 +200,24 @@ export default function InnertaTerminalPanel(): JSX.Element {
 
       // Calcular cols/rows REALES del canvas usando getRealDims()
       const { cols: termCols, rows: termRows } = getRealDims()
-      void api.create({ id: termId, shell: 'bash', cwd: undefined, cols: termCols, rows: termRows })
+      // cwd = proyecto abierto (mismo key que el Explorer); si no hay, HOME.
+      let initialCwd: string | undefined
+      try {
+        initialCwd = localStorage.getItem('scrakk-studio:root-path') ?? undefined
+      } catch {
+        initialCwd = undefined
+      }
+      void api.create({ id: termId, shell: 'bash', cwd: initialCwd, cols: termCols, rows: termRows })
+      // Cambio de workspace: reubicar esta terminal en el proyecto nuevo (no se
+      // recrea el PTY: no se pierde el historial).
+      const onWorkspaceChanged = (event: Event): void => {
+        const path = (event as CustomEvent<{ path?: string }>).detail?.path
+        if (typeof path !== 'string' || path.length === 0) return
+        const quoted = path.replace(/'/g, `'\\''`)
+        void api.write({ id: termId, data: `cd -- '${quoted}'\r` })
+      }
+      window.addEventListener('workspace-changed', onWorkspaceChanged)
+      unsubWorkspace = () => window.removeEventListener('workspace-changed', onWorkspaceChanged)
       // Sincronizar VtParser con las mismas dims que el PTY
       view.resize(termCols, termRows)
       unsubData = api.onData((payload) => {
@@ -230,6 +248,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
       cancelled = true
       unsubData?.()
       unsubExit?.()
+      unsubWorkspace?.()
       const api = (window as unknown as { api?: { terminal?: { destroy: (r: unknown) => Promise<void> } } }).api?.terminal
       if (api) void api.destroy({ id: termId })
       if (viewRef.current) {
