@@ -263,6 +263,16 @@ publicadas no se editan. El archivo va por versión:
 - **Desarrollo**: la sección **Acerca de** tiraba `ReferenceError: __BUILD_ID__
   is not defined` al abrirla en modo dev (la marca de build sólo se definía en
   el perfil de producción). Ahora se define en ambos perfiles.
+- **App empaquetada en Linux**: el paquete salía sin el binario de `node-pty`
+  (`pty.node`) y la app no arrancaba ("Failed to load native module: pty.node").
+  El build ahora compila `node-pty` en Linux y falla si el binario no quedó.
+- **Terminal**: al montar la terminal se mandaba un resize de 0×0 y node-pty
+  lanzaba "resizing must be done using positive cols and rows". Ahora se ignora
+  y el PTY arranca en 80×24 si todavía no hay medidas.
+- **GPU en Linux (AMD o sandbox restringido)**: el proceso de GPU crasheaba
+  (SIGSEGV, "GPU process exited unexpectedly") y la ventana quedaba en blanco.
+  Ahora arranca sin el sandbox de GPU y con **SwiftShader** como respaldo de
+  WebGL; escape manual: `SCRAKK_GPU=auto|gl|swiftshader|vulkan`.
 
 ### Varios
 - Pase de textos y comentarios a **español neutro** en todo el repo.
