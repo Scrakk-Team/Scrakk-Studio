@@ -1,0 +1,53 @@
+{
+  "language": "php",
+  "symbol": "php",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-php/php",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:15:28.505Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "93351ae3e207258f40f117a071788ace3fa5c3606e664b6995bf05e436076ef2"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "d40a985257abfd073013bfa7c57036440eeee8e55fd61ee195161deec27f1131"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "1436c95be1f08798688ef320761db688085cbb5299e13053db4208efa37fd568"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "90b05994f83d4342bd39643d3a7554baf2ed88a96260727bce75ca81b68db8e6"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "6ffd432eec554eace6bbc3e957406aed428ca23a0e1859f8cc1dc5817f1d71cb"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

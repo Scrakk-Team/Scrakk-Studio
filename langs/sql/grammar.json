@@ -1,0 +1,47 @@
+{
+  "language": "sql",
+  "symbol": "sql",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-sql",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:19:46.790Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "25b2a7b5e60f04012c28a5cf2a224311bdb213361ba2c6439bd50ea3fafb0c64"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e623f01991542b9fa72383225a6fdec1da1b8d7696dd652d10e78d2ff186d089"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "21163ae316e615e2b96da4ce0f4bcbc9f46a7ef28b5c09d8701a1d28ea28e8ef"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "c90c797ffe6ccee5912eab2c9b8644ba0db0477ed93cbfefa10c574552348b32"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "locals",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

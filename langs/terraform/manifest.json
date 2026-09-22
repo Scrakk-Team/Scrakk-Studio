@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.terraform",
+  "name": "terraform (tree-sitter)",
+  "version": "1.0.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de terraform compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-hcl/dialects/terraform",
+  "contributes": {
+    "languages": [
+      {
+        "id": "terraform",
+        "aliases": [
+          "terraform"
+        ],
+        "extensions": [
+          ".tf",
+          ".tfvars"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/terraform.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "658ac4b44b2f46d8b4eb87f3b9c3bfaa3d30a4148bcb892b8c16c163636ade38"
+          }
+        ]
+      }
+    ]
+  }
+}

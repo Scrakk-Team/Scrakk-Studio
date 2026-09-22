@@ -1,0 +1,47 @@
+{
+  "language": "vue",
+  "symbol": "vue",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-vue",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:20:37.772Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "99e926eb8a29af154f0d2423317114e0feac5f5f9b878f7785f5942362c8c0be"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "306d2be99e83e824c8a87e91384406cfb8acec75567b1f9b569d3df1c57d30f2"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "36aef211d764a8ebe1ce54e66f887418d908333de22cfa2a790673b588d00bb7"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "8faf8bbc1c7886281be14b2c0513af41af223e71b868b24c96a6cad8c0ae30bb"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "locals",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

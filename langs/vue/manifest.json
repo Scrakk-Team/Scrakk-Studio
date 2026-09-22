@@ -1,0 +1,34 @@
+{
+  "id": "scrakk.grammar.vue",
+  "name": "vue (tree-sitter)",
+  "version": "0.2.1",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de vue compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-vue",
+  "contributes": {
+    "languages": [
+      {
+        "id": "vue",
+        "aliases": [
+          "vue"
+        ],
+        "extensions": [
+          ".vue"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/vue.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "41fc0e493d26f9393fc09bc12a66822539c7fe27ef01d9f761a19ec4183c5497"
+          }
+        ]
+      }
+    ]
+  }
+}

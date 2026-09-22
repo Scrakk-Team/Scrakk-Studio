@@ -1,0 +1,53 @@
+{
+  "language": "zig",
+  "symbol": "zig",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-zig",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:15:35.737Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "70e39a7151fbbd0a2f6e340d7ae81dcc9ba6ec8a863d60ede8196ba17f9c8bcb"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "6c68bd360ae39e7e04e64ca647d925a0eae1dc9ce98de6088b8af34956f5c6a0"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "a2d345afc59d9a9b514984f9101030bfb774631f2e4ae2ee4ace83dbb3171be5"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "53b983a97e1f73efd1e911ec64a4e89e822acf5d2ecf6a4461409aa6ded11af4"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "f2b6ad718383b3de29ea930d95f6c7b7035fe0ad454a0b6d48a206e4d5f35bfe"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

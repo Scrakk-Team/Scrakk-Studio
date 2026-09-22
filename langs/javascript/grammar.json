@@ -1,0 +1,73 @@
+{
+  "language": "javascript",
+  "symbol": "javascript",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-javascript",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:11:19.448Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights-jsx.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "0cad1712acaf40804bc5dc7c8476858752c1f549cdf7d8c63c747317be0f8fa6"
+    },
+    {
+      "file": "queries/highlights-params.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "bbe7a58cacfb1c954cb0eab44779fd80421ed59b762b975723447207635de50d"
+    },
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "d3630ae6dc9b2b27b230b5f8bb92b05cd491fb12bff353dae62a0a6d780461ee"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "bea345407ce1f24bccf2b3c1a128acc14e19301327074285368586e793dcb86d"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "c1dd2cfa1400d397fa974208fc9edfe817be4a3c8b42bb99af5c8d193b1bb753"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "6ef988cce5a428a15b5460e3ee96f1478705f965fc6e848a91a18bfa6c6f0212"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "1632980700708555857c0a8b6759340e70d9509af606c8d80ee6feebc6c10d57"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "22768fb4d89d9a8cc0492a02e6e8acb884c3259105459487095d48c2feb97dfa"
+    }
+  ],
+  "missingCategories": [
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

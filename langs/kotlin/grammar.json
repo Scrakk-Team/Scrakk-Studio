@@ -1,0 +1,51 @@
+{
+  "language": "kotlin",
+  "symbol": "kotlin",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-kotlin",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:16:13.928Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "34523c8d1508a3932095f1e591aa866c1abc0a046bcc569f9d92642327d9c152"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "f827831a76ca93c2ba2b2b5ef76163dc1bd76c6d706be102c16d7fac933752bf"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "c97567b90fc0d306f594d9820bf3e89bd5db19fab4efcae32f31831602c4786e"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "8e7a33f68e154cfff250089e2a6984c42e0c421f55d5d024a647058fe676e7f8"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "c06f293c744792f157488f7e55bcbe5a026c586842525577db44c06ccd8c9b02"
+    }
+  ],
+  "missingCategories": [
+    "textobjects",
+    "indents"
+  ],
+  "categoriesWithoutConsumer": [],
+  "inherits": []
+}

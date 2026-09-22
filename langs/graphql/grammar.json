@@ -1,0 +1,49 @@
+{
+  "language": "graphql",
+  "symbol": "graphql",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-graphql",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:20:01.030Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/graphql/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "439c35df9b072a9eeb7c2a284c0c27943b8273dbe100ed51c754bfb38e316067"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e8bc96da2faabe257a32d805d3954e200215d94a85fce4d521530c89e0969244"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "6a21858f84185db21e22130f75bee727348de4fb70dbf682c7ecc4eea0eb579c"
+    },
+    {
+      "file": "queries/graphql/formatter.scm",
+      "category": "unknown",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "fbb368bafff8d613eb891a833631c995d8cf3c9a3cc95fc48393fbcac5114d4f"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "folds",
+    "locals",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "unknown"
+  ],
+  "inherits": []
+}

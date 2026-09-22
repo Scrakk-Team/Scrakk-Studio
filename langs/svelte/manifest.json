@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.svelte",
+  "name": "svelte (tree-sitter)",
+  "version": "1.0.2",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de svelte compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-svelte",
+  "contributes": {
+    "languages": [
+      {
+        "id": "svelte",
+        "aliases": [
+          "svelte"
+        ],
+        "extensions": [
+          ".svelte"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/svelte.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "949a92fb2be9f4619ad9da44011b4500b40f50366e7810552a341366f89ca727"
+          }
+        ]
+      }
+    ]
+  }
+}

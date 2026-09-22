@@ -1,0 +1,36 @@
+{
+  "id": "scrakk.grammar.java",
+  "name": "java (tree-sitter)",
+  "version": "0.23.5",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de java compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-java",
+  "contributes": {
+    "languages": [
+      {
+        "id": "java",
+        "aliases": [
+          "java"
+        ],
+        "extensions": [
+          ".java"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/java.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "0ab8b117700048c56582d43c0dcc5813cc9c46f2121a82bfec7cda74a709f608"
+          }
+        ]
+      }
+    ]
+  }
+}

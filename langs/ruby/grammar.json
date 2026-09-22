@@ -1,0 +1,59 @@
+{
+  "language": "ruby",
+  "symbol": "ruby",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-ruby",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:12:41.380Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "0858de9feece6dcd3408a541f995a34918d587ac2c552096026b0e47e2b332e6"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "ebf4e176d6eb031f2fc7b535cd4e80ac87933f34a659b5e0b8fd920b89a9e63b"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "f00178e94b9c2ea672fd4ee2e60ac5d7d90be59c72e86292e22620358ac9dbb0"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "ed1e7dc07a95b87aef267e7f9715c6717a70f09efbd7b6f48bbd51c7b7510cf3"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "6872cdab99e4c4efeeaecb3575fa7e98205043f1187a8e3b6d3de4bf1a8ba8b9"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "0167860e77a1e79373a19bab66a6fe1b0e7843f1a94066c7ac570a3a055dc307"
+    }
+  ],
+  "missingCategories": [
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

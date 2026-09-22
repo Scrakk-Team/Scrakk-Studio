@@ -1,0 +1,42 @@
+{
+  "id": "scrakk.grammar.cpp",
+  "name": "cpp (tree-sitter)",
+  "version": "0.23.4",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de cpp compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-cpp",
+  "contributes": {
+    "languages": [
+      {
+        "id": "cpp",
+        "aliases": [
+          "cpp"
+        ],
+        "extensions": [
+          ".cpp",
+          ".cc",
+          ".cxx",
+          ".c++",
+          ".hpp",
+          ".hxx",
+          ".hh"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/cpp.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "0e5ae1d0084c115d98aeee6ebabcefad1a175577c91978d74ca0934ac708f53d"
+          }
+        ]
+      }
+    ]
+  }
+}

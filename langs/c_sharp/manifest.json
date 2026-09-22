@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.c_sharp",
+  "name": "c_sharp (tree-sitter)",
+  "version": "0.23.5",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de c_sharp compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-c-sharp",
+  "contributes": {
+    "languages": [
+      {
+        "id": "c_sharp",
+        "aliases": [
+          "c_sharp"
+        ],
+        "extensions": [
+          ".cs"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/c_sharp.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "0c9205570201ff819e885534431d5d658cec3a32728f84200de2b36b4f4f2803"
+          }
+        ]
+      }
+    ]
+  }
+}

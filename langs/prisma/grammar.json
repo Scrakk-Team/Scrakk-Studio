@@ -1,0 +1,39 @@
+{
+  "language": "prisma",
+  "symbol": "prisma",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-prisma",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:13:18.501Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "f9757fed5c619051337404cb6d52f3cbbd8c3bdf8fa03e30a27a77ce2f2d9807"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "21abdfe2d72b4b69db423a60e6377b8ec9348fa191feb93e1240c9dc908eb00f"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "bd214aece19e0750ae53aa2051fb99666dd3102a2b14b1647742410c2686c806"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "locals",
+    "textobjects",
+    "indents"
+  ],
+  "categoriesWithoutConsumer": [],
+  "inherits": []
+}

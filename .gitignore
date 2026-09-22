@@ -6,10 +6,6 @@ out/
 dist/
 .vite/
 
-# Lenguajes tree-sitter compilados (uno por carpeta). Se generan con
-# `node tools/build-langs.mjs`; no se versionan (pesan y se regeneran).
-langs/
-
 # Rust nativo (scrakk-search)
 native/search/target/
 native/search/npm/

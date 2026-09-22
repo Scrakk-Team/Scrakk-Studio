@@ -1,0 +1,41 @@
+{
+  "id": "scrakk.grammar.javascript",
+  "name": "javascript (tree-sitter)",
+  "version": "0.25.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de javascript compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-javascript",
+  "contributes": {
+    "languages": [
+      {
+        "id": "javascript",
+        "aliases": [
+          "javascript"
+        ],
+        "extensions": [
+          ".js",
+          ".mjs",
+          ".cjs",
+          ".jsx"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/javascript.wasm",
+            "queries": [
+              "queries/highlights-jsx.scm",
+              "queries/highlights-params.scm",
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "158ca1e647b3a60caefe1d7280ccf352fc781c5d6f87ef49844353ab1963321c"
+          }
+        ]
+      }
+    ]
+  }
+}

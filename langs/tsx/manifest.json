@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.tsx",
+  "name": "tsx (tree-sitter)",
+  "version": "1.0.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de tsx compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-typescript/tsx",
+  "contributes": {
+    "languages": [
+      {
+        "id": "tsx",
+        "aliases": [
+          "tsx"
+        ],
+        "extensions": [
+          ".tsx"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/tsx.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "1dc1c6bcc5c8bf724120a5107c1bf2706c571348400e9e89dd116866312db83e"
+          }
+        ]
+      }
+    ]
+  }
+}

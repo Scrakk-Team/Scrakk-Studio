@@ -1,0 +1,36 @@
+{
+  "id": "scrakk.grammar.lua",
+  "name": "lua (tree-sitter)",
+  "version": "0.5.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de lua compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-lua",
+  "contributes": {
+    "languages": [
+      {
+        "id": "lua",
+        "aliases": [
+          "lua"
+        ],
+        "extensions": [
+          ".lua"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/lua.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "72908357dc282a23ce9a97049137265fd7f88804d9cfa4081b8612eea2113d2b"
+          }
+        ]
+      }
+    ]
+  }
+}

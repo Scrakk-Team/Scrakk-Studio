@@ -1,0 +1,47 @@
+{
+  "language": "cmake",
+  "symbol": "cmake",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-cmake",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:13:23.974Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "935161098bf9e335d4984496626a46d13a650df9145871a9578fe0e25a3e9a6c"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "e1610c4b058fc5b3b646c4dffcc7327ceaa1a049cdd2058471eb845bd2f08d4d"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "dfe61366bf376b6717a3849eb219620aa1988fc58ae977738ecaaca4308e247b"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "07c501dd07e082ece7a320596ef24a2fe3cd36c1bfbb6d7a74c35273ac446d0a"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "locals",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

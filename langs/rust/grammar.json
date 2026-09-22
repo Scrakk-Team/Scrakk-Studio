@@ -1,0 +1,59 @@
+{
+  "language": "rust",
+  "symbol": "rust",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-rust",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:11:32.356Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "0f0343107f14a7690157f51090a979eb8f8bfe4eada7c61763ddb4c54b1311d1"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "723146f179bc0edfba2f51731c99afce8bed3b677dfb4435c303859fae299ba5"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "a31540dbd462ba6699a5e494764aee2bbfdaea560915d708f6da4d4df4ad3ec5"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "f22867fdebde5cb091861c08d34690dc2540f4318068bf81be9f6b0d348ab8c1"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e990d25ccf16b731621cda0536b517267396b02c33b2e6e3b3b3c6dfb6f4c000"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "7060269eabc738bafd64ee8f686450b0f2f0b847e6e006ec2d4cb9c7ad6770bc"
+    }
+  ],
+  "missingCategories": [
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

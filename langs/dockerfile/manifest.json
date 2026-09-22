@@ -1,0 +1,34 @@
+{
+  "id": "scrakk.grammar.dockerfile",
+  "name": "dockerfile (tree-sitter)",
+  "version": "0.2.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de dockerfile compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-dockerfile",
+  "contributes": {
+    "languages": [
+      {
+        "id": "dockerfile",
+        "aliases": [
+          "dockerfile"
+        ],
+        "extensions": [
+          ".dockerfile",
+          ".docker",
+          ".containerfile"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/dockerfile.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "3e3cfb3de6f8cb63904cc6715744948cd842e6c8c4a459e7a5ebbf137aeb1004"
+          }
+        ]
+      }
+    ]
+  }
+}

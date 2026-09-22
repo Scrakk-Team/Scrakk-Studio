@@ -1,0 +1,72 @@
+{
+  "language": "swift",
+  "symbol": "swift",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-swift",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:18:56.424Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "8ec97ea3fb576bc4db25cc49d8425e659de745a83bb7abceb732a11474aad6b6"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "fd541e467fd2667ed7cfdf604b0f3b3d1ac2632791972840eaedd0b99a581e58"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "430a7d71c30212e1e0e21eb1b3ed71959fb71bf74a6fea27a0efbf491ebda1c7"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "6d3884e3f785d621128356a23ac81dfc438d9a853b8ee24b8070dc2caaf631ca"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "4f00b0b392dce70a0127b67d1c7858f1074768125f3c1702b22acd036e5c9ba0"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "8c025f8b671167e87f371ef230cd68c953361c5a6f735cbb89985f791ffa7da0"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "a8086f55963e0c79c91ded41c5dacc8da8ec8753f05b4db3ea70ce56e4281fa4"
+    },
+    {
+      "file": "queries/outline.scm",
+      "category": "unknown",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "8646875169da813e8e273deb1e4a84627a11317c07cdad9dd6594279c4b73edd"
+    }
+  ],
+  "missingCategories": [],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "unknown"
+  ],
+  "inherits": []
+}

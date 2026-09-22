@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.zig",
+  "name": "zig (tree-sitter)",
+  "version": "1.1.2",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de zig compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-zig",
+  "contributes": {
+    "languages": [
+      {
+        "id": "zig",
+        "aliases": [
+          "zig"
+        ],
+        "extensions": [
+          ".zig"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/zig.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "3e9e7480ae19e9d57ddd7a655fcdeab709539a6c85f087dc2f34ec809d27e5db"
+          }
+        ]
+      }
+    ]
+  }
+}

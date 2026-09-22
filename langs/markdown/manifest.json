@@ -1,0 +1,37 @@
+{
+  "id": "scrakk.grammar.markdown",
+  "name": "markdown (tree-sitter)",
+  "version": "1.0.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de markdown compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-markdown/tree-sitter-markdown",
+  "contributes": {
+    "languages": [
+      {
+        "id": "markdown",
+        "aliases": [
+          "markdown"
+        ],
+        "extensions": [
+          ".md",
+          ".markdown",
+          ".mdown",
+          ".mkd"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/markdown.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "eb9e70744200469cc989fb1547e219aa528fa206e301f3bcac870c98a5ec0459"
+          }
+        ]
+      }
+    ]
+  }
+}

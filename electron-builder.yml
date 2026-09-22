@@ -41,6 +41,15 @@ asarUnpack:
   - out/main/tree-sitter-worker.js
   - out/main/*.node
 
+# Lenguajes tree-sitter PREINSTALADOS: una carpeta por lenguaje con su wasm +
+# queries. El IDE los lee on-demand como una extensión; el motor ya NO trae
+# gramáticas embebidas (se regeneran con `node tools/build-langs.mjs`).
+extraResources:
+  - from: langs
+    to: langs
+    filter:
+      - '**/*'
+
 # node-pty se reconstruye contra Electron; si el entorno no tiene toolchain,
 # se puede forzar false y usar el binario ya compilado en node_modules.
 npmRebuild: false

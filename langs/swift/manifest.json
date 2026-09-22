@@ -1,0 +1,38 @@
+{
+  "id": "scrakk.grammar.swift",
+  "name": "swift (tree-sitter)",
+  "version": "0.7.3",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de swift compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-swift",
+  "contributes": {
+    "languages": [
+      {
+        "id": "swift",
+        "aliases": [
+          "swift"
+        ],
+        "extensions": [
+          ".swift"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/swift.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm",
+              "queries/textobjects.scm",
+              "queries/outline.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "140b623258665fe6616c415af676f2d8a7d41a37af8aac59648bde60e0db6fc5"
+          }
+        ]
+      }
+    ]
+  }
+}

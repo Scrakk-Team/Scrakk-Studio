@@ -1,0 +1,47 @@
+{
+  "language": "css",
+  "symbol": "css",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-css",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:12:58.074Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "23f7948a3817a0d06d7120158c3bee4ec5b58daa77e524985a4738b364db17b2"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e8bc96da2faabe257a32d805d3954e200215d94a85fce4d521530c89e0969244"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "27753670bbafb11b56c19daec2598e26993aad7bcefe68d697051fd2c52c1df0"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "91fe5062c2bb1af135a2e3ed11d79dd20b5776c9e6b34496b4eceba5ac816685"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "locals",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

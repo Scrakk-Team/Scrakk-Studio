@@ -1,0 +1,33 @@
+{
+  "language": "dockerfile",
+  "symbol": "dockerfile",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-dockerfile",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:19:55.840Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "665444fb7c8099602c78f9563525dedc23bb227fb0a6323820eb10be2592b318"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "528e6508f127cf583b2d8770e171f884b39fbcb31fe9b59b24daaf04248b7112"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "folds",
+    "locals",
+    "textobjects",
+    "indents"
+  ],
+  "categoriesWithoutConsumer": [],
+  "inherits": []
+}

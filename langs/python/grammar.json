@@ -1,0 +1,59 @@
+{
+  "language": "python",
+  "symbol": "python",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-python",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:11:25.762Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "a6708f209381618e2b398972c8f1ccd892f0c064eab35a2a3f911c3e22e79a7e"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "8558299709200b21d496890e4799153dc069bf302ce1545d23f70a0869c8b65d"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "370635358588e6d66e6065dd9fb1e21d864e8eb125abbf4728e573bc06ef4921"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "d0f3e577878167bfabc30e526e497bce58d1699b9bcabf8ab3a50698efb5ca3e"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "7ea0eb74ffee66415a3b6fd51b47873b411bc80d8eb4dfb7aa6ffa0cf7fad1f3"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "50781d783a18a566581d8280c53e150454d1e3523cfcd4f1401bb3a228a98e80"
+    }
+  ],
+  "missingCategories": [
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

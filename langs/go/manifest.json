@@ -1,0 +1,36 @@
+{
+  "id": "scrakk.grammar.go",
+  "name": "go (tree-sitter)",
+  "version": "0.25.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de go compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-go",
+  "contributes": {
+    "languages": [
+      {
+        "id": "go",
+        "aliases": [
+          "go"
+        ],
+        "extensions": [
+          ".go"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/go.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "1fa7761b6b690bedc62fa73ae5bb07907e35fce11fa667de11ffa4d0408e188f"
+          }
+        ]
+      }
+    ]
+  }
+}

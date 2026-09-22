@@ -1,0 +1,27 @@
+{
+  "language": "less",
+  "symbol": "less_external_scanner_create",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-less",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:13:08.757Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "1905e29214ebc35e32696a67157d6d821943b5edd2e56814795cc7e4881e194d"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "folds",
+    "injections",
+    "locals",
+    "textobjects",
+    "indents"
+  ],
+  "categoriesWithoutConsumer": [],
+  "inherits": []
+}

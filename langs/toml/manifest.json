@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.toml",
+  "name": "toml (tree-sitter)",
+  "version": "0.7.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de toml compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-toml",
+  "contributes": {
+    "languages": [
+      {
+        "id": "toml",
+        "aliases": [
+          "toml"
+        ],
+        "extensions": [
+          ".toml"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/toml.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "4a98e33fe5e235dc20106491cc4c8fef6cc6f1ca8c8bafc1b7f1dfafe6094c6e"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "language": "dart",
+  "symbol": "dart",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-dart",
+  "abi": 15,
+  "builtAt": "2026-09-22T19:19:07.719Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "900c653c4f6ba486ddf2914b6997b803bbd4066317ec5eefc5e22375ff626762"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e8bc96da2faabe257a32d805d3954e200215d94a85fce4d521530c89e0969244"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e353c0e1c4838ad2b14810c7358007c825e740313922032917e2dcfc43cd46ae"
+    },
+    {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "8fe038cc09d042897d6e7e927e44aca273821115f82b1ae74766936cc77738ba"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "d384432be9fe066f6ef103e87288e4a797847189bdc414f977be71043d1cb0cf"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "90ead46e1d45e1e2098c6eed8b8563e9a8613eb048f95df75ce5ce1d24a6ebec"
+    },
+    {
+      "file": "queries/test.scm",
+      "category": "unknown",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "3db1a0d439b7d1226ca9aedb3f86af681bf27e35c73aa79c67f2d81a74dad6b1"
+    }
+  ],
+  "missingCategories": [
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "unknown"
+  ],
+  "inherits": []
+}

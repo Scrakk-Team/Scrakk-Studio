@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.php",
+  "name": "php (tree-sitter)",
+  "version": "1.0.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de php compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-php/php",
+  "contributes": {
+    "languages": [
+      {
+        "id": "php",
+        "aliases": [
+          "php"
+        ],
+        "extensions": [
+          ".php"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/php.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "69d1473c6b0cdf1c8aaf544fbb2c6f4dca9e97a0f52ff44f958e44701c794bfb"
+          }
+        ]
+      }
+    ]
+  }
+}

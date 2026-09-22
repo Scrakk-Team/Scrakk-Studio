@@ -1,0 +1,34 @@
+{
+  "id": "scrakk.grammar.sql",
+  "name": "sql (tree-sitter)",
+  "version": "0.3.11",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de sql compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-sql",
+  "contributes": {
+    "languages": [
+      {
+        "id": "sql",
+        "aliases": [
+          "sql"
+        ],
+        "extensions": [
+          ".sql"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/sql.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "0838493e44ff2bc36b44f6880f8f1e24a03504583586a4574e556dde503edd4c"
+          }
+        ]
+      }
+    ]
+  }
+}

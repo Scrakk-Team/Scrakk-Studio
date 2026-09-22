@@ -1,0 +1,34 @@
+{
+  "id": "scrakk.grammar.scss",
+  "name": "scss (tree-sitter)",
+  "version": "0.0.1",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de scss compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-scss",
+  "contributes": {
+    "languages": [
+      {
+        "id": "scss",
+        "aliases": [
+          "scss"
+        ],
+        "extensions": [
+          ".scss"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/scss.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-13",
+            "sha256": "ab320813e14cc14a779afafc363539a99527aba55084ed22aa176ca81764ce8f"
+          }
+        ]
+      }
+    ]
+  }
+}

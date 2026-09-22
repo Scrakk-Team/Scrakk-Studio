@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.graphql",
+  "name": "graphql (tree-sitter)",
+  "version": "0.0.1",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de graphql compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-graphql",
+  "contributes": {
+    "languages": [
+      {
+        "id": "graphql",
+        "aliases": [
+          "graphql"
+        ],
+        "extensions": [
+          ".graphql",
+          ".gql"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/graphql.wasm",
+            "queries": [
+              "queries/graphql/highlights.scm",
+              "queries/injections.scm",
+              "queries/indents.scm",
+              "queries/graphql/formatter.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "3a9f1bdb77d00a9e777ba3658f5fd9cc7fb7eae7840fd7b1648f741c8033a8fe"
+          }
+        ]
+      }
+    ]
+  }
+}

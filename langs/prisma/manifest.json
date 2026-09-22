@@ -1,0 +1,33 @@
+{
+  "id": "scrakk.grammar.prisma",
+  "name": "prisma (tree-sitter)",
+  "version": "1.6.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de prisma compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-prisma",
+  "contributes": {
+    "languages": [
+      {
+        "id": "prisma",
+        "aliases": [
+          "prisma"
+        ],
+        "extensions": [
+          ".prisma"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/prisma.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "750a77b956a863b6cbd6cf848aa03587cb06a1341b066043d1dcaa9540e910c8"
+          }
+        ]
+      }
+    ]
+  }
+}

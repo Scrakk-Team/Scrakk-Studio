@@ -1,0 +1,31 @@
+{
+  "id": "scrakk.grammar.less",
+  "name": "less (tree-sitter)",
+  "version": "1.0.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de less compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-less",
+  "contributes": {
+    "languages": [
+      {
+        "id": "less",
+        "aliases": [
+          "less"
+        ],
+        "extensions": [
+          ".less"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/less.wasm",
+            "queries": [
+              "queries/highlights.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "8104ba60875f47f9cda8248af7c550d9c27f72bf4e65a17d6b90ad336d22fda3"
+          }
+        ]
+      }
+    ]
+  }
+}

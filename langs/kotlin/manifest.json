@@ -1,0 +1,36 @@
+{
+  "id": "scrakk.grammar.kotlin",
+  "name": "kotlin (tree-sitter)",
+  "version": "0.4.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de kotlin compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-kotlin",
+  "contributes": {
+    "languages": [
+      {
+        "id": "kotlin",
+        "aliases": [
+          "kotlin"
+        ],
+        "extensions": [
+          ".kt",
+          ".kts"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/kotlin.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "2fc6a3a90f51b09810d3bad3b76ebb11e685b42c594e5d6e13e3e04718000009"
+          }
+        ]
+      }
+    ]
+  }
+}

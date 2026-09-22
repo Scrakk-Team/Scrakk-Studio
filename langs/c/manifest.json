@@ -1,0 +1,37 @@
+{
+  "id": "scrakk.grammar.c",
+  "name": "c (tree-sitter)",
+  "version": "0.24.2",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de c compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-c",
+  "contributes": {
+    "languages": [
+      {
+        "id": "c",
+        "aliases": [
+          "c"
+        ],
+        "extensions": [
+          ".c",
+          ".h"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/c.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "09b197078de798a782e7160dc2cff7b98e90432f874c487dac92f3e305e0722c"
+          }
+        ]
+      }
+    ]
+  }
+}

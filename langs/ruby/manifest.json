@@ -1,0 +1,37 @@
+{
+  "id": "scrakk.grammar.ruby",
+  "name": "ruby (tree-sitter)",
+  "version": "0.23.1",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de ruby compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-ruby",
+  "contributes": {
+    "languages": [
+      {
+        "id": "ruby",
+        "aliases": [
+          "ruby"
+        ],
+        "extensions": [
+          ".rb",
+          ".rake"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/ruby.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "c377a4e31a6d85da11ca1a869af965eb5777b77acc866531f1e6b08f50381258"
+          }
+        ]
+      }
+    ]
+  }
+}

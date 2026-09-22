@@ -1,0 +1,38 @@
+{
+  "id": "scrakk.grammar.python",
+  "name": "python (tree-sitter)",
+  "version": "0.25.0",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de python compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-python",
+  "contributes": {
+    "languages": [
+      {
+        "id": "python",
+        "aliases": [
+          "python"
+        ],
+        "extensions": [
+          ".py",
+          ".pyw",
+          ".pyi"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/python.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "72776f10fd71c26e03b5a71629790c8b3e744422bbb693d393f1a6d2e8dae6a6"
+          }
+        ]
+      }
+    ]
+  }
+}

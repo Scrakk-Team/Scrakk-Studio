@@ -1,0 +1,35 @@
+{
+  "id": "scrakk.grammar.cmake",
+  "name": "cmake (tree-sitter)",
+  "version": "0.7.5",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de cmake compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-cmake",
+  "contributes": {
+    "languages": [
+      {
+        "id": "cmake",
+        "aliases": [
+          "cmake"
+        ],
+        "extensions": [
+          ".cmake",
+          ".cmakelists.txt"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/cmake.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-14",
+            "sha256": "f487d80993db3ace496853257edccf0bf6a6994df7e41bae6ed2622e0bd2f602"
+          }
+        ]
+      }
+    ]
+  }
+}

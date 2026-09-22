@@ -1,0 +1,53 @@
+{
+  "language": "svelte",
+  "symbol": "svelte",
+  "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-svelte",
+  "abi": 14,
+  "builtAt": "2026-09-22T19:13:20.679Z",
+  "generatedBy": "tools/grammar.mjs",
+  "queries": [
+    {
+      "file": "queries/highlights.scm",
+      "category": "highlights",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "275d2708ca960d5bb750deb127af5274e9da2ed184617e0368565fefcbbcafa8"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "78cc392ede48e5dbc53e616372c395b35f143e7e9a4c48c6fc7b0dbc8a02d4d6"
+    },
+    {
+      "file": "queries/locals.scm",
+      "category": "locals",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "94aa95d53e2031e8852dd37c4dfc4c6834a54eedfb23d9b73f255590329a23e8"
+    },
+    {
+      "file": "queries/folds.scm",
+      "category": "folds",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "e45036058fd55ca192d69c46b9d07dbedc9936f5b181b0fd21a0e16e2a29c7af"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "upstream",
+      "origin": "repo",
+      "sha256": "c546d71a9f0cd1f748f33fc8559545d5cbc350f8d0336a7512f67bbe46cf05d6"
+    }
+  ],
+  "missingCategories": [
+    "tags",
+    "textobjects"
+  ],
+  "categoriesWithoutConsumer": [
+    "indents"
+  ],
+  "inherits": []
+}

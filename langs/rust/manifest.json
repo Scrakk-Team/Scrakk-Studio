@@ -1,0 +1,36 @@
+{
+  "id": "scrakk.grammar.rust",
+  "name": "rust (tree-sitter)",
+  "version": "0.24.2",
+  "author": "scrakk-grammar",
+  "description": "Gramática tree-sitter de rust compilada a wasm desde /home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-rust",
+  "contributes": {
+    "languages": [
+      {
+        "id": "rust",
+        "aliases": [
+          "rust"
+        ],
+        "extensions": [
+          ".rs"
+        ],
+        "grammars": [
+          {
+            "kind": "treeSitter",
+            "parser": "grammars/rust.wasm",
+            "queries": [
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/locals.scm",
+              "queries/tags.scm",
+              "queries/folds.scm",
+              "queries/indents.scm"
+            ],
+            "abi": "tree-sitter-abi-15",
+            "sha256": "92249db4f32f83f1c1d39f54276de4dfb13d552951845f5befadf3d135382680"
+          }
+        ]
+      }
+    ]
+  }
+}
