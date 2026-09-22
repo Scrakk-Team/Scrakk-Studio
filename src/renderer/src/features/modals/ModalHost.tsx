@@ -72,7 +72,7 @@ function CustomBody({ id, spec }: { id: string; spec: CustomModalSpec }): JSX.El
     if (target) {
       return createPortal(
         <div className={styles.plainScoped} role="dialog" aria-label={spec.title}>
-          {rendered}
+          <div className={styles.plainPanel}>{rendered}</div>
         </div>,
         target
       )

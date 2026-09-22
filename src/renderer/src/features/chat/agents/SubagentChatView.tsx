@@ -1,16 +1,15 @@
 /**
- * SubagentChatView — el CHAT del subagente, montado dentro del modal global.
+ * SubagentChatView — el SUBAGENTE en un modal (dentro del panel de chat).
  *
- * Reusa los componentes reales del chat (`MessageList`, `ChatInput`) para que
- * se vea EXACTAMENTE como el chat principal: el subagente es un chat más. El
- * input va en estado `locked`: estás dentro de él, no escribís.
+ * No es un chat completo: muestra el transcript del subagente (contenido,
+ * razonamiento, tool calls y resultados) en vivo, con su título y estado. No
+ * tiene input: un subagente no recibe mensajes.
  */
 
 import { useEffect, useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { subagentSessions } from '@services/ai/agents'
 import { MessageList } from '../components/MessageList/MessageList'
-import { ChatInput } from '../components/ChatInput/ChatInput'
 import type { SpawnTexts } from './types'
 import styles from './SubagentChatView.module.css'
 
@@ -53,14 +52,6 @@ export function SubagentChatView({ sessionId, texts, onClose }: SubagentChatView
         {session ? (
           <MessageList messages={session.messages} isStreaming={status === 'running'} />
         ) : null}
-      </div>
-
-      <div className={styles.footer}>
-        <ChatInput
-          onSend={() => {}}
-          state="locked"
-          lockedText={texts?.lockedText ?? 'Estás dentro de un subagente: el chat principal está bloqueado'}
-        />
       </div>
     </div>
   )

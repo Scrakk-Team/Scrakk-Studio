@@ -37,15 +37,19 @@
 }
 
 /* Variante 'plain' con portalSelector: se monta DENTRO de ese contenedor
-   (p. ej. el panel de chat) y llena su área, en vez de flotar centrada. */
+   (p. ej. el panel de chat) y centra el panel ahí, como un modal del chat. */
 .plainScoped {
   position: absolute;
   inset: 0;
   z-index: 30;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--color-bg);
+  display: grid;
+  place-items: center;
+  padding: var(--space-3);
+}
+
+.plainScoped .plainPanel {
+  height: min(520px, 100%);
+  max-width: 100%;
 }
 
 .options {
