@@ -1,5 +1,5 @@
 /**
- * spawnSubagentChat — API global para spawnear el CHAT de un subagente.
+ * spawnSubagentChat / openSubagentChat — API global del chat de un subagente.
  *
  * Abre un modal global `plain` (sin overlay) cuyo contenido es el propio
  * componente de chat del subagente. Mientras está abierto, el input del chat
@@ -20,25 +20,41 @@ export interface SpawnSubagentInput {
   texts?: SpawnTexts
 }
 
+export interface OpenSubagentInput {
+  sessionId: string
+  title?: string
+  texts?: SpawnTexts
+}
+
 export interface SpawnSubagentResult {
   sessionId: string
   modalId: string
 }
 
+/** Abre el chat de una sesión de subagente YA existente. */
+export function openSubagentChat(input: OpenSubagentInput): string {
+  subagentSessions.setViewOpen(true)
+  const handle = showModal({
+    title: input.title ?? 'Subagente',
+    variant: 'plain',
+    render: ({ close }) => (
+      <SubagentChatView sessionId={input.sessionId} texts={input.texts} onClose={close} />
+    ),
+    onClose: () => subagentSessions.setViewOpen(false)
+  })
+  return handle.id
+}
+
+/** Crea la sesión y abre su chat. */
 export function spawnSubagentChat(input: SpawnSubagentInput): SpawnSubagentResult | null {
   const agent = agentRegistry.getSubagent(input.agentId)
   if (!agent) return null
 
   const sessionId = startSubagentSession(agent, input.prompt, { sessionId: input.sessionId })
-  subagentSessions.setViewOpen(true)
-
-  const handle = showModal({
+  const modalId = openSubagentChat({
+    sessionId,
     title: input.texts?.title ?? agent.label,
-    variant: 'plain',
-    render: ({ close }) => (
-      <SubagentChatView sessionId={sessionId} texts={input.texts} onClose={close} />
-    ),
-    onClose: () => subagentSessions.setViewOpen(false)
+    texts: input.texts
   })
-  return { sessionId, modalId: handle.id }
+  return { sessionId, modalId }
 }

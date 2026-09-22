@@ -23,8 +23,8 @@ export const taskTool: Tool = {
     expandable: false,
     plain: true,
     displayCss,
-    renderBody: (args, result, status) => (
-      <TaskCard args={args} result={result} status={status} />
+    renderBody: (args, result, status, execution) => (
+      <TaskCard args={args} result={result} status={status} execution={execution} />
     )
   },
   execute

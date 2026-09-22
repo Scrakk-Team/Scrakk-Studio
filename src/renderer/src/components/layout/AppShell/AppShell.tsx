@@ -2,6 +2,7 @@ import { useEffect, type JSX, type ReactNode } from 'react'
 import { TooltipHost } from '@services/tooltips'
 import { NotificationHost } from '@features/notifications/NotificationHost'
 import { ModalHost } from '@features/modals/ModalHost'
+import { SubagentOpenBridge } from '@features/chat/agents'
 import { ProfileFloatingHost } from '@features/social/components/ProfileFloating/ProfileFloating'
 import { installDefaultContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { ThemeBackground } from './ThemeBackground'
@@ -27,6 +28,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <TooltipHost />
       <NotificationHost />
       <ModalHost />
+      <SubagentOpenBridge />
       <ProfileFloatingHost />
     </div>
   )

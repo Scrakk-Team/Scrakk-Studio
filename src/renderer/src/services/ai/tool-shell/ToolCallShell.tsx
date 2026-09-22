@@ -23,6 +23,8 @@ export interface ToolCallExecution {
   originalContent?: string
   modifiedContent?: string
   partialArgs?: string
+  /** Id de sesión de un subagente lanzado (tool `task`). */
+  runId?: string
 }
 
 interface ToolCallShellProps {
@@ -82,7 +84,7 @@ export function ToolCallShell({ execution, meta, children }: ToolCallShellProps)
   const displayArg = extractDisplayArg(meta?.headerArgKey, args)
 
   // Si la tool tiene visual propio → se usa tal cual (detectar visual y delegar).
-  const visual = children ?? meta?.renderBody?.(args, result, status)
+  const visual = children ?? meta?.renderBody?.(args, result, status, execution)
 
   // Fallback de error (sin visual): ⚠ {label} · {arg}.
   if (status === 'error' && !visual) {

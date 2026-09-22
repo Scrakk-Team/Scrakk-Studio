@@ -46,6 +46,8 @@ export interface ExecutionResult {
   modifiedContent?: string
   blocked?: boolean
   state?: ToolCallStatus
+  /** Id de sesión de un subagente lanzado por esta tool (tool `task`). */
+  runId?: string
 }
 
 export interface ToolContext {
@@ -104,7 +106,12 @@ export interface ToolMeta {
   /** Texto fijo que precede al arg en modo plain (ej. "Leí"). */
   plainText?: string
   /** Custom body renderer — overrides the default details view */
-  renderBody?: (args: Record<string, unknown>, result?: string, status?: string) => React.ReactNode
+  renderBody?: (
+    args: Record<string, unknown>,
+    result?: string,
+    status?: string,
+    execution?: { runId?: string }
+  ) => React.ReactNode
 }
 
 export type ToolMutationBehavior = 'always' | 'never' | 'shell'

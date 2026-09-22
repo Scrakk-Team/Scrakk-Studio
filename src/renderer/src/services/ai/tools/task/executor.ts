@@ -1,9 +1,9 @@
 import type { ExecutionResult, ToolContext } from '../types'
-import { agentRegistry, runHeadlessAgent } from '../../agents'
+import { agentRegistry, startSubagentSession, subagentSessions } from '../../agents'
 
 /**
- * Ejecuta un subagente en aislamiento y devuelve su texto final. No toca la
- * conversación: el resultado entra como contenido de la tool.
+ * Ejecuta un subagente como una SESIÓN observable (su chat queda registrado y
+ * se puede abrir). Devuelve su texto final y el `runId` de la sesión.
  */
 export async function execute(
   args: Record<string, unknown>,
@@ -26,14 +26,28 @@ export async function execute(
     }
   }
 
-  const result = await runHeadlessAgent({
-    agent,
-    prompt,
+  const sessionId = startSubagentSession(agent, prompt, {
     signal: ctx.signal,
     sessionId: ctx.sessionId
   })
-  if (!result.ok && !result.content) {
-    return { success: false, content: `Subagent "${name}" failed: ${result.error ?? 'error'}` }
+  const session = await subagentSessions.waitFor(sessionId)
+
+  const lastAssistant = [...session.messages]
+    .reverse()
+    .find((message) => message.role === 'assistant' && message.content.trim().length > 0)
+  const content = lastAssistant?.content.trim() ?? ''
+  const failed = session.status === 'error'
+
+  if (failed && !content) {
+    return {
+      success: false,
+      content: `Subagent "${name}" failed: ${session.error ?? 'error'}`,
+      runId: sessionId
+    }
   }
-  return { success: result.ok, content: result.content || (result.error ?? '') }
+  return {
+    success: !failed,
+    content: content || (session.error ?? ''),
+    runId: sessionId
+  }
 }

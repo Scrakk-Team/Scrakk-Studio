@@ -43,6 +43,7 @@ export const ToolCallsBlock = memo(function ToolCallsBlock({
           filePath: resultInfo?.filePath,
           originalContent: resultInfo?.originalContent,
           modifiedContent: resultInfo?.modifiedContent,
+          runId: resultInfo?.runId,
         }
 
         return (

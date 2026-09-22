@@ -35,6 +35,8 @@ export interface ToolResultInfo {
   filePath?: string
   originalContent?: string
   modifiedContent?: string
+  /** Id de sesión de un subagente lanzado (tool `task`). */
+  runId?: string
 }
 
 /** Status for tool call rendering. */

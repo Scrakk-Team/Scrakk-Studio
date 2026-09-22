@@ -50,6 +50,7 @@ class SubagentSessionStore {
   private pending = new Map<string, Delta>()
   private rafHandle: number | null = null
   private viewOpen = false
+  private waiters = new Map<string, Array<(session: SubagentSession) => void>>()
 
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener)
@@ -64,6 +65,27 @@ class SubagentSessionStore {
 
   list(): SubagentSession[] {
     return [...this.sessions.values()]
+  }
+
+  /** Espera a que la sesión termine (o resuelve ya si ya terminó). */
+  waitFor(id: string): Promise<SubagentSession> {
+    const session = this.sessions.get(id)
+    if (!session) return Promise.reject(new Error(`Sesión ${id} no existe`))
+    if (session.status !== 'running') return Promise.resolve(session)
+    return new Promise((resolve) => {
+      const list = this.waiters.get(id) ?? []
+      list.push(resolve)
+      this.waiters.set(id, list)
+    })
+  }
+
+  private resolveWaiters(id: string): void {
+    const list = this.waiters.get(id)
+    if (!list) return
+    this.waiters.delete(id)
+    const session = this.sessions.get(id)
+    if (!session) return
+    for (const resolve of list) resolve(session)
   }
 
   /** true mientras el modal del subagente está abierto (bloquea el input). */
@@ -204,6 +226,7 @@ class SubagentSessionStore {
           status: result.ok ? 'done' : 'error',
           error: result.error
         }))
+        this.resolveWaiters(id)
       } catch (error) {
         this.flushNow()
         this.patch(id, (current) => ({
@@ -211,6 +234,7 @@ class SubagentSessionStore {
           status: 'error',
           error: error instanceof Error ? error.message : String(error)
         }))
+        this.resolveWaiters(id)
       }
     })()
 
