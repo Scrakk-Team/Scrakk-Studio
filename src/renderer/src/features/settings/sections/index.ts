@@ -15,7 +15,7 @@ import { PerformanceSection } from './PerformanceSection/PerformanceSection'
 import { ServersSection } from './ServersSection/ServersSection'
 import { HighlightSection } from './HighlightSection/HighlightSection'
 import { InfoSection } from './InfoSection/InfoSection'
-import { ChatSection, ProvidersSection, ToolsSection, SkillsSection, ModesSection, PermissionsSection } from './chat'
+import { ChatSection, ProvidersSection, ToolsSection, SkillsSection, AgentsSection, PermissionsSection } from './chat'
 
 export type SettingsSectionId =
   | 'appearance'
@@ -28,7 +28,7 @@ export type SettingsSectionId =
   | 'chatProviders'
   | 'chatTools'
   | 'chatSkills'
-  | 'chatModes'
+  | 'chatAgents'
   | 'chatPermissions'
   | 'info'
 
@@ -53,7 +53,7 @@ export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
   { id: 'chatProviders', label: 'Proveedores', icon: 'server', parent: 'chat', component: ProvidersSection },
   { id: 'chatTools', label: 'Herramientas', icon: 'grid', parent: 'chat', component: ToolsSection },
   { id: 'chatSkills', label: 'Skills', icon: 'layers', parent: 'chat', component: SkillsSection },
-  { id: 'chatModes', label: 'Modos', icon: 'compass', parent: 'chat', component: ModesSection },
+  { id: 'chatAgents', label: 'Agentes', icon: 'people', parent: 'chat', component: AgentsSection },
   { id: 'chatPermissions', label: 'Permisos', icon: 'shield-check', parent: 'chat', component: PermissionsSection },
   { id: 'info', label: 'Acerca de', icon: 'info', component: InfoSection }
 ]

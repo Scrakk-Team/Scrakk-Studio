@@ -1,0 +1,21 @@
+/* task card styles — injected via displayCss */
+.task-card {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: 11px;
+}
+
+.task-card__agent {
+  flex-shrink: 0;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.task-card__prompt {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

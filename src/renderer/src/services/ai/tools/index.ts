@@ -24,9 +24,11 @@ import { listSkillsTool } from './list_skills'
 import { skillTool } from './skill'
 import { webSearchTool } from './web_search'
 import { webFetchTool } from './web_fetch'
+import { taskTool } from './task'
 import { toolSettingsService } from '../toolSettings'
 import { policyEngine } from '../policy/policy-engine'
 import { modeRegistry } from '../policy/modeRegistry'
+import { subagentsForMode } from '../agents'
 
 registerAll()
 
@@ -53,6 +55,7 @@ function registerAll(): void {
   registry.register(skillTool, opts)
   registry.register(webSearchTool, opts)
   registry.register(webFetchTool, opts)
+  registry.register(taskTool, opts)
 }
 
 export function getToolDefinitions(keep?: Set<string>): import('./types').ToolDefinition[] {
@@ -81,6 +84,8 @@ export function getEnabledToolDefinitions(
       return true
     })
   )
+  // La tool `task` (subagentes) solo existe si hay subagentes disponibles.
+  if (subagentsForMode(policyEngine.getModeId()).length === 0) enabled.delete('task')
   return registry.getDefinitionsFiltered(enabled)
 }
 

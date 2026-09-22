@@ -10,6 +10,8 @@ import {
 } from 'react'
 import { IconButton } from '@ui'
 import { slashCommands, type SlashCommand } from '@services/slash-commands'
+import { subagentsForMode, type AgentProfile } from '@services/ai/agents'
+import { getModeId } from '@services/ai/prompts/modes'
 import { registerChatInputAnchor } from './inputAnchor'
 import styles from './ChatInput.module.css'
 
@@ -33,6 +35,7 @@ interface ChatInputProps {
 export function ChatInput({ onSend, disabled = false, busy = false, onStop }: ChatInputProps): JSX.Element {
   const [value, setValue] = useState('')
   const [suggestions, setSuggestions] = useState<SlashCommand[]>([])
+  const [agentSuggestions, setAgentSuggestions] = useState<AgentProfile[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -52,6 +55,24 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
     }
     update()
     return slashCommands.subscribe(update)
+  }, [value])
+
+  // Mención de subagente: al escribir `@` (sin espacio) se listan los
+  // subagentes habilitados para el modo/agente activo.
+  useEffect(() => {
+    const trimmed = value.trimStart()
+    if (!trimmed.startsWith('@') || trimmed.includes(' ')) {
+      setAgentSuggestions([])
+      return
+    }
+    const query = trimmed.slice(1).toLowerCase()
+    setAgentSuggestions(
+      subagentsForMode(getModeId()).filter(
+        (agent) =>
+          agent.id.toLowerCase().startsWith(query) ||
+          agent.label.toLowerCase().startsWith(query)
+      )
+    )
   }, [value])
 
   // Auto-resize del textarea (hasta un máximo).
@@ -108,6 +129,24 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
             >
               <span className={styles.suggestionName}>/{command.name}</span>
               <span className={styles.suggestionDesc}>{command.description}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {agentSuggestions.length > 0 ? (
+        <div className={styles.suggestions} role="listbox" aria-label="Subagentes">
+          {agentSuggestions.map((agent) => (
+            <button
+              key={agent.id}
+              type="button"
+              className={styles.suggestion}
+              onClick={() => {
+                setValue(`@${agent.id} `)
+                textareaRef.current?.focus()
+              }}
+            >
+              <span className={styles.suggestionName}>@{agent.id}</span>
+              <span className={styles.suggestionDesc}>{agent.description ?? agent.label}</span>
             </button>
           ))}
         </div>

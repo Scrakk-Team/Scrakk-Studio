@@ -1,5 +1,6 @@
 import { createLlmChatService, type ChatMessage, type ChatService, type ChatInsertPayload } from '@services/chat'
 import { isSlashInput, slashCommands } from '@services/slash-commands'
+import { agentRegistry, runHeadlessAgent } from '@services/ai/agents'
 import type { ToolCallInfo, ToolResultInfo } from '@services/chat/types'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useProviders } from '@features/providers'
@@ -312,6 +313,47 @@ export function ChatPanel(): JSX.Element {
         return
       }
 
+      // Mención de subagente: `@agente <tarea>` corre el subagente en
+      // aislamiento y agrega su resultado al chat (no lo ve el modelo principal).
+      const mention = /^@([A-Za-z0-9_-]+)\s+([\s\S]+)$/.exec(trimmed)
+      if (mention) {
+        const agent = agentRegistry.getSubagent(mention[1])
+        if (agent) {
+          const targetId = sessionId ?? createSession()
+          const controller = new AbortController()
+          abortRef.current = controller
+          appendMessage(targetId, {
+            id: crypto.randomUUID(),
+            role: 'user',
+            content: trimmed,
+            timestamp: Date.now()
+          })
+          const placeholderId = crypto.randomUUID()
+          appendMessage(targetId, {
+            id: placeholderId,
+            role: 'assistant',
+            content: `_${agent.label} trabajando…_`,
+            timestamp: Date.now()
+          })
+          setIsBusy(true)
+          const result = await runHeadlessAgent({
+            agent,
+            prompt: mention[2],
+            sessionId: targetId,
+            signal: controller.signal
+          })
+          updateMessage(targetId, placeholderId, (current) => ({
+            ...current,
+            content: result.ok
+              ? `**${agent.label}**\n\n${result.content || '(sin salida)'}`
+              : `⚠ ${agent.label}: ${result.error ?? 'error'}`
+          }))
+          abortRef.current = null
+          setIsBusy(false)
+          return
+        }
+      }
+
       // Si no hay sesión activa (o arrancamos de cero), se crea una.
       const targetId = sessionId ?? createSession()
 
@@ -324,7 +366,7 @@ export function ChatPanel(): JSX.Element {
 
       await streamReply(targetId, trimmed, messages)
     },
-    [isBusy, sessionId, createSession, appendMessage, streamReply, messages]
+    [isBusy, sessionId, createSession, appendMessage, updateMessage, streamReply, messages]
   )
 
   // Regenerar: borra la última respuesta de la IA y vuelve a enviar el último

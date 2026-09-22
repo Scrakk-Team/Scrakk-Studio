@@ -63,15 +63,15 @@ export function ChatSection(): JSX.Element {
       </div>
 
       <div className={styles.intro}>
-        <span className={styles.introTitle}>Modos</span>
-        <span className={styles.hint}>Cuánta autonomía tiene la IA.</span>
+        <span className={styles.introTitle}>Agentes</span>
+        <span className={styles.hint}>Perfiles, permisos y subagentes.</span>
         <div className={styles.linkRow}>
           <button
             type="button"
             className={styles.linkBtn}
-            onClick={() => goTo('chatModes')}
+            onClick={() => goTo('chatAgents')}
           >
-            Abrir modos
+            Abrir agentes
           </button>
         </div>
       </div>

@@ -26,6 +26,7 @@ import { skillRegistry } from '@services/skills'
 import { startProviderCatalog } from '@services/providers'
 import { loadPermissionSettings } from '@services/ai/policy/permissionSettings'
 import { loadModeSettings } from '@services/ai/policy/modeSettings'
+import { loadAgentSettings } from '@services/ai/agents'
 import { commandRegistry, type Command } from '@services/commands'
 import { setWorkspaceRoot } from '@features/explorer'
 import { getEditorFiles, requestCloseFile } from '@features/editor'
@@ -161,8 +162,12 @@ export function App() {
 
   // Modos propios (`.scrakk/modes.json`) y luego las reglas de permisos
   // (`.scrakk/permissions.json`): el modo por defecto puede ser propio.
+  // Después los AGENTES (`.scrakk/agents/*.json`): se registran como modos
+  // primarios y como subagentes, y hacen seed del agente default.
   useEffect(() => {
-    void loadModeSettings().then(() => loadPermissionSettings())
+    void loadModeSettings()
+      .then(() => loadPermissionSettings())
+      .then(() => loadAgentSettings())
   }, [])
 
   // Registro de comandos globales + listener del modal de ajustes.
