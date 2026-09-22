@@ -45,6 +45,12 @@ export interface ModalSpecBase {
 export interface CustomModalSpec extends ModalSpecBase {
   kind: 'custom'
   render: (ctx: ModalRenderContext) => unknown
+  /**
+   * 'panel' (default): modal centrado con overlay.
+   * 'plain': SIN overlay ni sombra — el contenido se centra flotando y deja
+   * interactuar con la app detrás (lo usa el chat spawneado de un subagente).
+   */
+  variant?: 'panel' | 'plain'
 }
 
 /** Rectángulo de anclaje en coords de viewport (del botón que lo abre). */

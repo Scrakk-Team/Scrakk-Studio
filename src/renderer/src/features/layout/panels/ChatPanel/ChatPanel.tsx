@@ -1,6 +1,7 @@
 import { createLlmChatService, type ChatMessage, type ChatService, type ChatInsertPayload } from '@services/chat'
 import { isSlashInput, slashCommands } from '@services/slash-commands'
-import { agentRegistry, runHeadlessAgent } from '@services/ai/agents'
+import { agentRegistry, subagentSessions } from '@services/ai/agents'
+import { spawnSubagentChat } from '@features/chat/agents'
 import type { ToolCallInfo, ToolResultInfo } from '@services/chat/types'
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useProviders } from '@features/providers'
@@ -48,6 +49,14 @@ export function ChatPanel(): JSX.Element {
   // Controller del stream en curso: el botón "Detener" lo aborta. Mientras
   // genera, el input queda escribible (no se deshabilita).
   const abortRef = useRef<AbortController | null>(null)
+
+  // Mientras hay un subagente spawneado abierto, el input principal se bloquea
+  // (estás "dentro" del subagente).
+  const [subagentViewOpen, setSubagentViewOpen] = useState(() => subagentSessions.isViewOpen())
+  useEffect(
+    () => subagentSessions.subscribe(() => setSubagentViewOpen(subagentSessions.isViewOpen())),
+    []
+  )
 
   const messages = activeSession?.messages ?? []
   const sessionId = activeSession?.id
@@ -313,45 +322,27 @@ export function ChatPanel(): JSX.Element {
         return
       }
 
-      // Mención de subagente: `@agente <tarea>` corre el subagente en
-      // aislamiento y agrega su resultado al chat (no lo ve el modelo principal).
+      // Mención de subagente: `@agente <tarea>` spawnea el CHAT del subagente
+      // en un modal sin overlay y agrega la traza al chat principal.
       const mention = /^@([A-Za-z0-9_-]+)\s+([\s\S]+)$/.exec(trimmed)
-      if (mention) {
-        const agent = agentRegistry.getSubagent(mention[1])
-        if (agent) {
-          const targetId = sessionId ?? createSession()
-          const controller = new AbortController()
-          abortRef.current = controller
-          appendMessage(targetId, {
-            id: crypto.randomUUID(),
-            role: 'user',
-            content: trimmed,
-            timestamp: Date.now()
-          })
-          const placeholderId = crypto.randomUUID()
-          appendMessage(targetId, {
-            id: placeholderId,
-            role: 'assistant',
-            content: `_${agent.label} trabajando…_`,
-            timestamp: Date.now()
-          })
-          setIsBusy(true)
-          const result = await runHeadlessAgent({
-            agent,
-            prompt: mention[2],
-            sessionId: targetId,
-            signal: controller.signal
-          })
-          updateMessage(targetId, placeholderId, (current) => ({
-            ...current,
-            content: result.ok
-              ? `**${agent.label}**\n\n${result.content || '(sin salida)'}`
-              : `⚠ ${agent.label}: ${result.error ?? 'error'}`
-          }))
-          abortRef.current = null
-          setIsBusy(false)
-          return
-        }
+      if (mention && agentRegistry.getSubagent(mention[1])) {
+        const targetId = sessionId ?? createSession()
+        appendMessage(targetId, {
+          id: crypto.randomUUID(),
+          role: 'user',
+          content: trimmed,
+          timestamp: Date.now()
+        })
+        spawnSubagentChat({
+          agentId: mention[1],
+          prompt: mention[2],
+          sessionId: targetId,
+          texts: {
+            title: agentRegistry.getSubagent(mention[1])?.label,
+            lockedText: 'Estás dentro de un subagente: el chat principal está bloqueado'
+          }
+        })
+        return
       }
 
       // Si no hay sesión activa (o arrancamos de cero), se crea una.
@@ -405,7 +396,7 @@ export function ChatPanel(): JSX.Element {
           <ChatModeBar />
           <div className={styles.inputGlow}>
             <ModeGlow />
-            <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} />
+            <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} state={subagentViewOpen ? 'locked' : 'active'} />
           </div>
           <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
         </div>
@@ -428,7 +419,7 @@ export function ChatPanel(): JSX.Element {
           <ChatModeBar />
           <div className={styles.inputGlow}>
             <ModeGlow />
-            <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} />
+            <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} state={subagentViewOpen ? 'locked' : 'active'} />
           </div>
           <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
         </div>

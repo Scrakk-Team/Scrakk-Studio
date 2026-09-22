@@ -6,6 +6,35 @@
   gap: var(--space-2);
 }
 
+/* Variante 'plain' de un modal custom: sin overlay ni sombra, el panel flota
+   centrado y el resto de la app queda interactivo (pointer-events: none en el
+   host, auto en el panel). */
+.plainHost {
+  position: fixed;
+  inset: 0;
+  z-index: 340;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  pointer-events: none;
+}
+
+.plainPanel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: min(560px, calc(100vw - 96px));
+  max-height: min(680px, calc(100vh - 96px));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  overflow: hidden;
+  pointer-events: auto;
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
+}
+
 .options {
   display: flex;
   flex-direction: column;

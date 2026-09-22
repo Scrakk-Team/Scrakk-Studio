@@ -20,6 +20,15 @@
   border-color: var(--color-border-strong);
 }
 
+/* Estado bloqueado (spawn de subagente): apagado y sin interacción. */
+.form[data-locked] {
+  opacity: 0.6;
+}
+
+.form[data-locked] .input {
+  cursor: not-allowed;
+}
+
 /* Textarea alto: el input se ve claramente más largo. */
 .input {
   flex: none;

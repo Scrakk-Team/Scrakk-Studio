@@ -22,6 +22,13 @@ interface ChatInputProps {
   busy?: boolean
   /** Cancela la generación en curso (el botón de stop). */
   onStop?: () => void
+  /**
+   * Estado del input: 'active' (normal) o 'locked' (bloqueado, no se puede
+   * escribir — p. ej. mientras estás dentro del chat de un subagente).
+   */
+  state?: 'active' | 'locked'
+  /** Texto del placeholder cuando está bloqueado. */
+  lockedText?: string
 }
 
 /**
@@ -31,15 +38,26 @@ interface ChatInputProps {
  *
  * Mientras la IA genera (busy) el textarea NO se bloquea: el mismo botón
  * pasa a ser "Detener" (RecordStop) hasta que el stream termina.
+ *
+ * `state: 'locked'` lo deshabilita por completo (spawn de subagente): se ve
+ * bloqueado y no acepta escritura.
  */
-export function ChatInput({ onSend, disabled = false, busy = false, onStop }: ChatInputProps): JSX.Element {
+export function ChatInput({
+  onSend,
+  disabled = false,
+  busy = false,
+  onStop,
+  state = 'active',
+  lockedText
+}: ChatInputProps): JSX.Element {
   const [value, setValue] = useState('')
   const [suggestions, setSuggestions] = useState<SlashCommand[]>([])
   const [agentSuggestions, setAgentSuggestions] = useState<AgentProfile[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
-  const canSend = !disabled && !busy && value.trim().length > 0
+  const locked = state === 'locked'
+  const canSend = !disabled && !locked && !busy && value.trim().length > 0
 
   // Autocompletado de comandos: al escribir `/` (sin espacio todavía) se
   // listan los comandos registrados que matchean. El sistema es global; acá
@@ -47,7 +65,7 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
   useEffect(() => {
     const update = (): void => {
       const trimmed = value.trimStart()
-      if (!trimmed.startsWith('/') || trimmed.includes(' ')) {
+      if (locked || !trimmed.startsWith('/') || trimmed.includes(' ')) {
         setSuggestions([])
         return
       }
@@ -55,13 +73,13 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
     }
     update()
     return slashCommands.subscribe(update)
-  }, [value])
+  }, [value, locked])
 
   // Mención de subagente: al escribir `@` (sin espacio) se listan los
   // subagentes habilitados para el modo/agente activo.
   useEffect(() => {
     const trimmed = value.trimStart()
-    if (!trimmed.startsWith('@') || trimmed.includes(' ')) {
+    if (locked || !trimmed.startsWith('@') || trimmed.includes(' ')) {
       setAgentSuggestions([])
       return
     }
@@ -73,7 +91,7 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
           agent.label.toLowerCase().startsWith(query)
       )
     )
-  }, [value])
+  }, [value, locked])
 
   // Auto-resize del textarea (hasta un máximo).
   useEffect(() => {
@@ -92,7 +110,7 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
 
   const submit = (): void => {
     const trimmed = value.trim()
-    if (!trimmed || disabled || busy) return
+    if (!trimmed || disabled || locked || busy) return
     onSend(trimmed)
     setValue('')
   }
@@ -114,7 +132,12 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
   }
 
   return (
-    <form ref={formRef} className={styles.form} onSubmit={handleSubmit}>
+    <form
+      ref={formRef}
+      className={styles.form}
+      data-locked={locked ? '' : undefined}
+      onSubmit={handleSubmit}
+    >
       {suggestions.length > 0 ? (
         <div className={styles.suggestions} role="listbox" aria-label="Comandos">
           {suggestions.map((command) => (
@@ -157,9 +180,9 @@ export function ChatInput({ onSend, disabled = false, busy = false, onStop }: Ch
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="Escribe un mensaje…"
+        placeholder={locked ? (lockedText ?? 'Bloqueado: estás dentro de un subagente') : 'Escribe un mensaje…'}
         rows={1}
-        disabled={disabled}
+        disabled={disabled || locked}
         aria-label="Mensaje"
       />
 

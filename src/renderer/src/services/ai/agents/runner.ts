@@ -22,6 +22,14 @@ export interface RunAgentInput {
   signal?: AbortSignal
   /** Deltas de contenido (para UI en vivo opcional). */
   onContent?: (delta: string) => void
+  /** Deltas de razonamiento. */
+  onReasoning?: (delta: string) => void
+  /** Arranca una ronda nueva (respuesta/tool calls). */
+  onRoundStart?: (round: number) => void
+  /** Tool calls emitidas por el subagente. */
+  onToolCalls?: (calls: ToolCall[]) => void
+  /** Resultado de una tool call del subagente. */
+  onToolResult?: (toolCallId: string, result: { content: string; success: boolean; blocked?: boolean }) => void
   sessionId?: string | null
 }
 
@@ -85,8 +93,9 @@ function streamOnce(input: {
   tools: unknown[]
   signal?: AbortSignal
   onContent?: (delta: string) => void
+  onReasoning?: (delta: string) => void
 }): Promise<{ content: string; toolCalls: LlmToolCall[] }> {
-  const { resolved, messages, tools, signal, onContent } = input
+  const { resolved, messages, tools, signal, onContent, onReasoning } = input
   return new Promise((resolve, reject) => {
     let content = ''
     let toolCalls: LlmToolCall[] = []
@@ -124,6 +133,9 @@ function streamOnce(input: {
           content += delta
           onContent?.(delta)
         },
+        onReasoning: (delta) => {
+          onReasoning?.(delta)
+        },
         onToolCalls: (calls) => {
           toolCalls = calls
         },
@@ -156,26 +168,34 @@ export async function runHeadlessAgent(input: RunAgentInput): Promise<RunAgentRe
   try {
     for (let round = 0; round < MAX_ROUNDS; round += 1) {
       if (input.signal?.aborted) break
+      input.onRoundStart?.(round)
       const { content, toolCalls } = await streamOnce({
         resolved,
         messages,
         tools,
         signal: input.signal,
-        onContent: input.onContent
+        onContent: input.onContent,
+        onReasoning: input.onReasoning
       })
       full += content
       if (toolCalls.length === 0) break
+      input.onToolCalls?.(toolCalls as ToolCall[])
       messages.push({ role: 'assistant', content: content || null, tool_calls: toolCalls })
       const executions = await executeTools(
         toolCalls as ToolCall[],
         input.sessionId ?? undefined,
         input.signal
       )
-      for (const { result } of executions) {
+      for (const { result, execution } of executions) {
         messages.push({
           role: 'tool',
           tool_call_id: result.tool_call_id,
           content: result.content
+        })
+        input.onToolResult?.(result.tool_call_id, {
+          content: result.content,
+          success: execution.success,
+          blocked: execution.blocked
         })
       }
     }

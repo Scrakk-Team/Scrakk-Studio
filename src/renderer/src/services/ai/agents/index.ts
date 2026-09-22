@@ -30,3 +30,10 @@ export {
 } from './settings'
 
 export { runHeadlessAgent, type RunAgentInput, type RunAgentResult } from './runner'
+
+export {
+  subagentSessions,
+  startSubagentSession,
+  type SubagentSession,
+  type StartSessionOptions
+} from './sessions'

@@ -48,7 +48,26 @@ export function ModalHost(): JSX.Element {
 }
 
 function CustomBody({ id, spec }: { id: string; spec: CustomModalSpec }): JSX.Element {
+  // Variante 'plain': sin overlay, se cierra con Esc (no hay backdrop).
+  useEffect(() => {
+    if (spec.variant !== 'plain') return undefined
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') closeModal(id)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [id, spec.variant])
+
   const rendered = typeof spec.render === 'function' ? (spec.render({ close: () => closeModal(id) }) as ReactNode) : null
+  // Variante 'plain': sin overlay ni sombra; el contenido flota centrado y el
+  // resto de la app sigue clickeable (chat spawneado de un subagente).
+  if (spec.variant === 'plain') {
+    return (
+      <div className={styles.plainHost} role="dialog" aria-label={spec.title}>
+        <div className={styles.plainPanel}>{rendered}</div>
+      </div>
+    )
+  }
   return (
     <Modal open title={spec.title} size={spec.size ?? 'md'} onClose={() => closeModal(id)}>
       <div className={styles.body}>{rendered}</div>
