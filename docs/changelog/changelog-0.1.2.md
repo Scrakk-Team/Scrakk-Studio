@@ -28,6 +28,15 @@ publicadas no se editan. El archivo va por versión:
 - Cada panel tiene su **propio módulo** (aislado): se pueden tener **varios
   editores a la vez** (splits) sin que compartan canvas.
 
+### Lenguajes (un solo camino)
+- El **motor ya no trae gramáticas embebidas**: su wasm pasó de **~50 MB a ~3 MB**
+  y queda como renderer (recibe tokens, plegado y selección del host).
+- Cada lenguaje vive en **`langs/<id>/`** (su propio `.wasm` + queries + manifest)
+  y el IDE los carga **on-demand**. Agregar o actualizar un lenguaje es regenerar
+  su carpeta (`node tools/build-langs.mjs`), **sin recompilar el motor**.
+- El pack `langs/` se registra como **una extensión** más, así que los lenguajes
+  siguen funcionando sin instalar nada.
+
 ### Terminal
 - Al **cambiar de workspace**, las terminales abiertas se reubican en el
   proyecto nuevo (`cd`) y las nuevas nacen en la carpeta correcta. Antes
