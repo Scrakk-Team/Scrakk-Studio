@@ -1,6 +1,42 @@
 /* task card styles — injected via displayCss */
+
+/* Card custom: línea clickeable que abre el chat del subagente. */
 .task-card {
-  display: inline;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-card:hover {
+  color: var(--color-text);
+}
+
+.task-card:hover .task-card__agent {
+  text-decoration: underline;
+}
+
+.task-card__static {
   font-size: 11px;
   color: var(--color-text-muted);
+}
+
+.task-card__agent {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.task-card__prompt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

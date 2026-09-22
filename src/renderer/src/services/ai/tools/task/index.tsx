@@ -22,8 +22,8 @@ export const taskTool: Tool = {
     headerArgKey: 'subagent_type',
     expandable: true,
     displayCss,
-    renderBody: (args, result, status) => (
-      <TaskCard args={args} result={result} status={status} />
+    renderBody: (args, result, status, execution) => (
+      <TaskCard args={args} result={result} status={status} execution={execution} />
     )
   },
   execute

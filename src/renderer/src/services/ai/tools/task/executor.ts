@@ -30,10 +30,6 @@ export async function execute(
     signal: ctx.signal,
     sessionId: ctx.sessionId
   })
-  // Abre el chat del subagente DENTRO del panel de chat (bridge global).
-  window.dispatchEvent(
-    new CustomEvent('subagent:open', { detail: { sessionId, title: agent.label } })
-  )
   const session = await subagentSessions.waitFor(sessionId)
 
   const lastAssistant = [...session.messages]
