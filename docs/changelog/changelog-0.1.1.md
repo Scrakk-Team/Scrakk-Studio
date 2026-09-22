@@ -208,6 +208,15 @@ publicadas no se editan. El archivo va por versión:
 - Las notas del release salen del `docs/changelog/changelog-<versión>.md`, así
   GitHub y el IDE muestran lo mismo.
 
+### Bienvenida
+- El apartado **Anuncios** lee el changelog del repo: muestra la última versión
+  con un resumen y, al hacer clic, se expande con las notas completas.
+- Punto de **novedades** en el botón Anuncios cuando hay una versión nueva sin
+  ver; se marca como vista al abrirla.
+- La versión del **Acerca de** sale de `package.json` (ya no está escrita a
+  mano).
+- El changelog pasa a ser **por versión**: `docs/changelog/changelog-<x.y.z>.md`.
+
 ### Extensiones
 - Tipo **`tools`**: herramientas de IA aportadas por un `.sef`, con su carpeta
   `visual/` y ejecución por comando en el Extension Host.
@@ -251,6 +260,9 @@ publicadas no se editan. El archivo va por versión:
   theme antes de pasarlo al motor, que lo veía como "sin cambios" y descartaba
   el nuevo tamaño de fuente. Ahora escala texto, gutter, minimapa y puntos
   juntos.
+- **Desarrollo**: la sección **Acerca de** tiraba `ReferenceError: __BUILD_ID__
+  is not defined` al abrirla en modo dev (la marca de build sólo se definía en
+  el perfil de producción). Ahora se define en ambos perfiles.
 
 ### Varios
 - Pase de textos y comentarios a **español neutro** en todo el repo.
