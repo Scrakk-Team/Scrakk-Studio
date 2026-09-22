@@ -146,6 +146,8 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
     // Tool calls del stream, acumuladas por índice (los deltas traen los
     // argumentos partidos en chunks: primero id, después name/arguments).
     const streamedToolCalls: Array<LlmToolCall | undefined> = []
+    // Última emisión incremental (throttle) para pintar la tool EN VIVO.
+    let lastToolEmit = 0
 
     // Lectura con timeout de INACTIVIDAD: si no llega ningún byte en
     // IDLE_TIMEOUT_MS, se aborta. Cada byte recibido reinicia el reloj.
@@ -213,6 +215,21 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
               const current = streamedToolCalls[index]!
               if (tc.function?.name) current.function.name = tc.function.name
               if (tc.function?.arguments) current.function.arguments += tc.function.arguments
+            }
+          }
+          // Emisión INCREMENTAL (throttle ~50ms): la tool card se pinta
+          // mientras el modelo la emite, no recién al terminar el stream.
+          const now = Date.now()
+          if (now - lastToolEmit > 50) {
+            lastToolEmit = now
+            const partial = streamedToolCalls.filter(
+              (tc): tc is LlmToolCall => tc !== undefined
+            )
+            if (partial.length > 0) {
+              sendEvent(sender, LLM_IPC.chatStreamToolCalls, {
+                requestId,
+                toolCalls: partial
+              })
             }
           }
         }

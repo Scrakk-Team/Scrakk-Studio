@@ -51,6 +51,11 @@ export interface CustomModalSpec extends ModalSpecBase {
    * interactuar con la app detrás (lo usa el chat spawneado de un subagente).
    */
   variant?: 'panel' | 'plain'
+  /**
+   * Solo con `variant: 'plain'`: selector del contenedor DOM donde montar el
+   * panel (ej. `[data-modal-portal="chat"]`). Sin esto, se centra flotando.
+   */
+  portalSelector?: string
 }
 
 /** Rectángulo de anclaje en coords de viewport (del botón que lo abre). */

@@ -37,6 +37,7 @@ export function openSubagentChat(input: OpenSubagentInput): string {
   const handle = showModal({
     title: input.title ?? 'Subagente',
     variant: 'plain',
+    portalSelector: '[data-modal-portal="chat"]',
     render: ({ close }) => (
       <SubagentChatView sessionId={input.sessionId} texts={input.texts} onClose={close} />
     ),

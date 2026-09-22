@@ -4,8 +4,8 @@
 .view {
   display: flex;
   flex-direction: column;
+  flex: 1;
   min-height: 0;
-  height: min(560px, 72vh);
 }
 
 .header {

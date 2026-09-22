@@ -23,6 +23,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: min(560px, 72vh);
   max-width: min(560px, calc(100vw - 96px));
   max-height: min(680px, calc(100vh - 96px));
   border: 1px solid var(--color-border);
@@ -33,6 +34,18 @@
   pointer-events: auto;
   /* Glassmorphism automático (solo temas con imagen de fondo). */
   backdrop-filter: var(--glass-blur, none);
+}
+
+/* Variante 'plain' con portalSelector: se monta DENTRO de ese contenedor
+   (p. ej. el panel de chat) y llena su área, en vez de flotar centrada. */
+.plainScoped {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-bg);
 }
 
 .options {

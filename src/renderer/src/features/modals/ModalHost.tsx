@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState, type JSX, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Modal } from '@ui'
 import {
   subscribeToModals,
@@ -62,6 +63,20 @@ function CustomBody({ id, spec }: { id: string; spec: CustomModalSpec }): JSX.El
   // Variante 'plain': sin overlay ni sombra; el contenido flota centrado y el
   // resto de la app sigue clickeable (chat spawneado de un subagente).
   if (spec.variant === 'plain') {
+    // Con portalSelector se monta DENTRO de ese contenedor (p. ej. el chat),
+    // en vez de flotar centrado sobre toda la ventana.
+    const target =
+      spec.portalSelector && typeof document !== 'undefined'
+        ? document.querySelector<HTMLElement>(spec.portalSelector)
+        : null
+    if (target) {
+      return createPortal(
+        <div className={styles.plainScoped} role="dialog" aria-label={spec.title}>
+          {rendered}
+        </div>,
+        target
+      )
+    }
     return (
       <div className={styles.plainHost} role="dialog" aria-label={spec.title}>
         <div className={styles.plainPanel}>{rendered}</div>

@@ -11,9 +11,7 @@ import type { LlmChatMessage, LlmToolCall } from '@shared/llm'
 import type { ProviderConfig } from '@services/providers'
 import { getProvider } from '@services/providers'
 import { activeProviderSelection, readProviderSettings } from '@features/providers/settings'
-import { getEnabledToolDefinitions } from '../tools'
 import type { ToolCall, ToolDefinition } from '../tools/types'
-import { executeTools } from '../toolExecutor'
 import { AGENT_MODEL_INHERIT, type AgentProfile } from './types'
 
 export interface RunAgentInput {
@@ -71,7 +69,9 @@ function resolveProvider(agent: AgentProfile): ResolvedProvider | { error: strin
 }
 
 /** Definiciones de tools que el agente puede usar (su filtro + hard). */
-function agentToolDefinitions(agent: AgentProfile): ToolDefinition[] {
+async function agentToolDefinitions(agent: AgentProfile): Promise<ToolDefinition[]> {
+  // Import dinámico: evita el ciclo tools ↔ agents ↔ runner en el init.
+  const { getEnabledToolDefinitions } = await import('../tools')
   const all = getEnabledToolDefinitions(null)
   const include = agent.tools.include
   const exclude = new Set(agent.tools.exclude ?? [])
@@ -94,8 +94,10 @@ function streamOnce(input: {
   signal?: AbortSignal
   onContent?: (delta: string) => void
   onReasoning?: (delta: string) => void
+  /** Se llama EN VIVO con las tool calls parciales (mientras el modelo las emite). */
+  onToolCalls?: (calls: LlmToolCall[]) => void
 }): Promise<{ content: string; toolCalls: LlmToolCall[] }> {
-  const { resolved, messages, tools, signal, onContent, onReasoning } = input
+  const { resolved, messages, tools, signal, onContent, onReasoning, onToolCalls } = input
   return new Promise((resolve, reject) => {
     let content = ''
     let toolCalls: LlmToolCall[] = []
@@ -138,6 +140,7 @@ function streamOnce(input: {
         },
         onToolCalls: (calls) => {
           toolCalls = calls
+          onToolCalls?.(calls)
         },
         onDone: () => finish(() => resolve({ content, toolCalls })),
         onStopped: () => finish(() => resolve({ content, toolCalls })),
@@ -158,11 +161,13 @@ export async function runHeadlessAgent(input: RunAgentInput): Promise<RunAgentRe
     return { ok: false, content: '', error: `Falta la API key de ${resolved.provider.name}.` }
   }
 
-  const tools = agentToolDefinitions(input.agent) as unknown[]
+  const tools = (await agentToolDefinitions(input.agent)) as unknown[]
   const messages: LlmChatMessage[] = []
   const system = input.agent.prompt.trim()
   if (system) messages.push({ role: 'system', content: system })
   messages.push({ role: 'user', content: input.prompt })
+
+  const { executeTools } = await import('../toolExecutor')
 
   let full = ''
   try {
@@ -175,7 +180,8 @@ export async function runHeadlessAgent(input: RunAgentInput): Promise<RunAgentRe
         tools,
         signal: input.signal,
         onContent: input.onContent,
-        onReasoning: input.onReasoning
+        onReasoning: input.onReasoning,
+        onToolCalls: input.onToolCalls
       })
       full += content
       if (toolCalls.length === 0) break

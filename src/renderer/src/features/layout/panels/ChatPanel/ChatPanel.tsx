@@ -431,7 +431,7 @@ export function ChatPanel(): JSX.Element {
   // ~300px y partirla dejaría dos columnas inservibles. Son mutuamente
   // excluyentes. Elegir un chat (o crear uno) cierra el historial.
   return (
-    <main className={styles.screen}>
+    <main className={styles.screen} data-modal-portal="chat">
       {showSkills ? (
         <div className={styles.historyView} data-skills-view="">
           <SkillsPanel />
