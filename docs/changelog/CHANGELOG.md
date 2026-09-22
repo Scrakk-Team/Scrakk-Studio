@@ -233,6 +233,11 @@ publicadas no se editan.
   Chromium/Electron (Firefox no). En KDE + Wayland la app corre por **XWayland**
   (`--ozone-platform=x11`) para esquivarlo; se desactiva con
   `SCRAKK_PERF_KDE_X11=0`.
+- **Zoom del editor** (`Ctrl +`, `Ctrl -`, `Ctrl + rueda`): no cambiaba el
+  tamaño del texto — solo crecían los "space dots". El handler modificaba el
+  theme antes de pasarlo al motor, que lo veía como "sin cambios" y descartaba
+  el nuevo tamaño de fuente. Ahora escala texto, gutter, minimapa y puntos
+  juntos.
 
 ### Varios
 - Pase de textos y comentarios a **español neutro** en todo el repo.
