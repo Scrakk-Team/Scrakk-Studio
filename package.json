@@ -1,6 +1,6 @@
 {
   "name": "scrakk-studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scrakk Studio — IDE modular — React + TypeScript + Vite (hot reload) + Electron",
   "author": {
     "name": "Scrakk",
