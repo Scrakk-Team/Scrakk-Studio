@@ -50,8 +50,7 @@ export interface ChatService {
   sendMessage: (input: SendMessageInput) => Promise<ChatReply>
 }
 
-/** Tope de rondas de tool calls por turno (evita loops infinitos). */
-const MAX_TOOL_ROUNDS = 12
+/** El ciclo de tools no tiene tope de rondas: corta el usuario (Detener). */
 
 function toToolCallInfo(toolCall: LlmToolCall): ToolCallInfo {
   return { ...toolCall }
@@ -164,7 +163,7 @@ export function createLlmChatService(): ChatService {
 
         void (async (): Promise<void> => {
           try {
-            for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+            for (let round = 0; ; round += 1) {
               // Detenido por el usuario: corta el ciclo y devuelve lo acumulado.
               if (input.signal?.aborted) break
 
@@ -229,7 +228,7 @@ export function createLlmChatService(): ChatService {
               }
             }
 
-            // Se llegó al tope de rondas: devolver lo acumulado.
+            // Detenido por el usuario: devolver lo acumulado.
             resolve({ content: fullContent })
           } catch (error) {
             reject(error)
