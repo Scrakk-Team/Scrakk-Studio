@@ -82,6 +82,20 @@ publicadas no se editan. El archivo va por versión:
   uno, el error **drena y limpia** los slots y el acierto los funde con un
   check. Verifica solo al completar los 6 dígitos.
 
+### Agentes (UI)
+- Se **unificaron modos y subagentes** en un solo concepto: **Agentes**, con
+  dos tabs en Ajustes → Chat → **Agentes**: **Primarios** (los que antes eran
+  "modos", el agente activo del chat) y **Subagentes** (reusables).
+- Cada agente tiene **prompt, permisos, herramientas y modelo** propios; el
+  modelo **hereda el del chat** por defecto (`inherit`, como el CLI).
+- Los subagentes se invocan con la tool **`task`** o escribiendo
+  **`@nombre <tarea>`** en el input del chat. Los primarios declaran qué
+  subagentes pueden usar (los modos integrados ven todos).
+- Se guardan en `.scrakk/agents/primary.json` y `.scrakk/agents/subagents.json`
+  (usuario y proyecto). Al primer arranque se crea un primario **Asistente** y
+  un subagente **Explorador** (read-only) usando el propio sistema, no builtins.
+- `modes.json` se migra solo a `primary.json`.
+
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
   editor quedaba **vacío** porque los paneles compartían un único módulo WASM y
