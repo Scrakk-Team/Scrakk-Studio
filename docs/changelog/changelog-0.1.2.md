@@ -70,6 +70,18 @@ publicadas no se editan. El archivo va por versión:
 - Un grupo **vacío** muestra un botón **Cerrar slot** que lo cierra (colapsa
   el split al grupo hermano o cierra el slot entero).
 
+### Barra de estado (UI)
+- Se **unificó el hover** de todos los botones/chips: cuadrado con esquinas
+  redondeadas (radio chico, no cápsula), mismo alto y color `--color-hover`,
+  tanto en los de la izquierda (LSP, problemas, git, encoding, extensiones)
+  como en los de la derecha (toggles de paneles, notificaciones y ajustes).
+
+### Cuenta (UI)
+- El **código de verificación por email** ahora se escribe en un input con
+  **slots animados** (`CodeSlots`, de React Bits): los dígitos aterrizan uno a
+  uno, el error **drena y limpia** los slots y el acierto los funde con un
+  check. Verifica solo al completar los 6 dígitos.
+
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
   editor quedaba **vacío** porque los paneles compartían un único módulo WASM y
@@ -85,3 +97,6 @@ publicadas no se editan. El archivo va por versión:
 - **Bienvenida → Acciones**: en paneles muy angostos, las 3 tarjetas de arriba
   (*Nuevo archivo*, *Abrir archivo*, *Abrir carpeta*) pasan a **texto simple**,
   sin ícono ni tarjeta, con el atajo alineado a la derecha.
+- **Chat de IA**: los **iconos de las tools** ahora usan el mismo color que el
+  texto de la tool (`--color-text-muted`); antes heredaban el color del chat y
+  se veían más brillantes.
