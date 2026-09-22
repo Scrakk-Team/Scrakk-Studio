@@ -10,7 +10,13 @@ import {
   type LlmStreamToolCallsEvent
 } from '@shared/llm'
 import { FS_IPC, type PickFolderResponse, type PickFileResponse } from '@shared/fs'
-import { UPDATES_IPC, type CheckLatestRequest, type UpdateCheckResponse } from '@shared/updates'
+import {
+  UPDATES_IPC,
+  type CheckLatestRequest,
+  type ReleaseInfo,
+  type UpdateCheckResponse,
+  type UpdaterState
+} from '@shared/updates'
 import {
   LSP_IPC,
   type DiagnosticsChangedPayload,
@@ -282,8 +288,27 @@ const api: WindowApi = {
     }
   },
   updates: {
+    getLatest: () => ipcRenderer.invoke(UPDATES_IPC.getLatest) as Promise<UpdateCheckResponse>,
     checkLatest: (repo?: string) =>
-      ipcRenderer.invoke(UPDATES_IPC.checkLatest, { repo } satisfies CheckLatestRequest) as Promise<UpdateCheckResponse>
+      ipcRenderer.invoke(UPDATES_IPC.checkLatest, { repo } satisfies CheckLatestRequest) as Promise<UpdateCheckResponse>,
+    updaterState: () => ipcRenderer.invoke(UPDATES_IPC.updaterStateGet) as Promise<UpdaterState>,
+    updaterCheck: () => ipcRenderer.invoke(UPDATES_IPC.updaterCheck) as Promise<UpdaterState>,
+    updaterDownload: () => ipcRenderer.invoke(UPDATES_IPC.updaterDownload) as Promise<UpdaterState>,
+    updaterInstall: () => ipcRenderer.invoke(UPDATES_IPC.updaterInstall) as Promise<void>,
+    onRelease: (listener: (release: ReleaseInfo) => void) => {
+      const handler = (_event: IpcRendererEvent, release: ReleaseInfo): void => listener(release)
+      ipcRenderer.on(UPDATES_IPC.onRelease, handler)
+      return () => {
+        ipcRenderer.removeListener(UPDATES_IPC.onRelease, handler)
+      }
+    },
+    onUpdaterState: (listener: (state: UpdaterState) => void) => {
+      const handler = (_event: IpcRendererEvent, state: UpdaterState): void => listener(state)
+      ipcRenderer.on(UPDATES_IPC.onUpdaterState, handler)
+      return () => {
+        ipcRenderer.removeListener(UPDATES_IPC.onUpdaterState, handler)
+      }
+    }
   },
   encodings: {
     readEncoded: (path: string) =>

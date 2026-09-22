@@ -12,6 +12,15 @@ appId: art.scrakk.studio
 productName: Scrakk Studio
 copyright: Copyright © Scrakk
 
+# Auto-update (electron-updater). Con esto electron-builder escribe
+# `app-update.yml` en resources (el provider que lee el updater) y genera los
+# metadatos `latest*.yml` + blockmaps, que el workflow sube al Release con
+# `files: release/*`. No publica solo: el workflow usa `--publish never`.
+publish:
+  provider: github
+  owner: Scrakk
+  repo: Scrakk-Studio
+
 directories:
   output: release
   buildResources: build-resources

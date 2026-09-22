@@ -21,6 +21,7 @@ import { OnboardingProvider, OnboardingWizard } from '@features/onboarding'
 import { GitCommandsBridge } from '@features/git/GitCommandsBridge'
 import { GitDecorationsBridge } from '@features/git/GitDecorationsBridge'
 import { LspNotificationsBridge } from '@features/lsp/LspNotificationsBridge'
+import { UpdatesBridge } from '@features/updates/UpdatesBridge'
 import { skillRegistry } from '@services/skills'
 import { startProviderCatalog } from '@services/providers'
 import { loadPermissionSettings } from '@services/ai/policy/permissionSettings'
@@ -310,6 +311,7 @@ export function App() {
               initialSection={settingsSection}
             />
             <LspNotificationsBridge />
+            <UpdatesBridge />
             <CommandPalette />
             {/* Configuración inicial: se muestra sola en el primer arranque y
                 se reabre con el comando "Ver configuración inicial". */}

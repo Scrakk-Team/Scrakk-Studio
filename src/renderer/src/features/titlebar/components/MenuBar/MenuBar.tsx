@@ -287,7 +287,7 @@ export function MenuBar(): JSX.Element {
             React + TypeScript + Electron. Sistema de paneles resizables con
             aislamiento de errores por panel.
           </p>
-          <p className={styles.aboutVersion}>v0.1.0</p>
+          <p className={styles.aboutVersion}>v{__APP_VERSION__}</p>
         </div>
       </Modal>
     </div>
