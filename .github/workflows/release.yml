@@ -24,6 +24,17 @@ jobs:
           npm install --ignore-scripts
           node node_modules/electron/install.js
 
+      # node-pty no publica prebuild para linux-x64 (solo win32/darwin). Como
+      # el install del CI corre con --ignore-scripts, sin este paso el paquete
+      # sale SIN `build/Release/pty.node` y la app no arranca
+      # ("Failed to load native module: pty.node"). Es N-API (node-addon-api),
+      # así que compilarlo con el Node del runner alcanza: el binario es
+      # ABI-estable y Electron lo carga igual.
+      - name: Compilar node-pty
+        run: |
+          npm rebuild node-pty
+          test -f node_modules/node-pty/build/Release/pty.node
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -53,6 +64,15 @@ jobs:
 
       - name: Instalar dependencias
         run: npm install
+
+      # Guarda: el .exe necesita el binario nativo. En Windows sale del
+      # prebuild (win32-x64); si faltara, el paquete no arrancaría.
+      - name: Verificar node-pty
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "node_modules/node-pty/prebuilds/win32-x64/pty.node")) {
+            throw "falta node-pty/prebuilds/win32-x64/pty.node"
+          }
 
       - name: Typecheck
         run: npm run typecheck
