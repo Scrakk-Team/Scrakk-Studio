@@ -104,19 +104,17 @@ publicadas no se editan. El archivo va por versión:
   (usuario y proyecto). Al primer arranque se crea un primario **Asistente** y
   un subagente **Explorador** (read-only) usando el propio sistema, no builtins.
 - `modes.json` se migra solo a `primary.json`.
-- **El subagente es un chat propio**: `@nombre <tarea>` **spawnea su chat** en un
-  **modal sin overlay** (nueva variante `plain` del sistema global de modales)
-  que reusa los **mismos componentes de chat**, así se ve **en vivo** cómo
-  trabaja (contenido, razonamiento y tool calls). Mientras está abierto, el
-  input del chat principal queda **bloqueado** (estado `locked`).
-- El chat del subagente se monta **DENTRO del panel de chat** (portal scoped
-  del sistema de modales), no como modal centrado sobre la ventana.
+- **El subagente se ve en un modal**: `@nombre <tarea>` (y el click en la card
+  de `task`) abre un **modal sin overlay** (variante `plain` del sistema global
+  de modales) montado **dentro del panel de chat**, con el **transcript en vivo**
+  del subagente (contenido, razonamiento y tool calls) reusando los componentes
+  de chat, **sin input** (un subagente no recibe mensajes). Mientras está
+  abierto, el input del chat principal queda **bloqueado** (estado `locked`).
 - Las **tool calls** llegan **en vivo**: el proceso main las emite mientras el
   modelo las escribe (antes solo al terminar el stream), así la card aparece en
   tiempo real y no recién al cortar la respuesta.
 - La tool `task` tiene **card custom** (shimmer mientras corre): al terminar,
-  **click en la card** abre el chat del subagente **dentro del panel de chat**;
-  solo hay uno abierto a la vez.
+  **click en la card** abre ese modal; solo hay uno a la vez.
 
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
