@@ -114,6 +114,20 @@ export interface InnertaModule {
   getRevision?(): number
   /** WASM: marca la revisión como persistida en disco (dirty = false). */
   setCleanRevision?(revision: number): void
+  // ── Sesiones (multi-archivo en UN módulo, patrón Zed) ──────────────────
+  // Cada archivo abierto es una sesión con su estado COMPLETO (texto, undo,
+  // cursor, scroll, folds). Cambiar de archivo es activar otra sesión.
+  createSession?(id: string): void
+  activateSession?(id: string): void
+  destroySession?(id: string): void
+  /** Texto de una sesión (funciona con la sesión inactiva). */
+  getSessionText?(id: string): string
+  /** Revisión del buffer de una sesión. */
+  getSessionRevision?(id: string): number
+  /** ¿La sesión tiene cambios sin guardar? (sin activarla). */
+  isSessionDirty?(id: string): boolean
+  /** Marca la revisión de una sesión como persistida. */
+  setSessionCleanRevision?(id: string, revision: number): void
   /**
    * WASM: bytes del heap lineal (HEAP8). 0 si el build no lo expone.
    * Sirve para medir RAM real del editor sin estimaciones.
@@ -236,6 +250,10 @@ export class InnertaEngine implements EditorEngine {
   private currentPath: string | null = null
   private ready = false
   private pending: PendingRequest[] = []
+  /** Sesiones de archivo que viven en ESTE módulo (ids = paths). */
+  private fileSessions = new Set<string>()
+  /** Esperas por "módulo listo" (la primera activación puede llegar antes). */
+  private sessionReadyWaiters: Array<() => void> = []
   /** Canvas persistente entre remounts (tabs Welcome ↔ archivos). */
   private persistentCanvas: HTMLCanvasElement | null = null
 
@@ -444,6 +462,11 @@ export class InnertaEngine implements EditorEngine {
           this.pending = []
           for (const req of flush) this.apply(req)
 
+          // Quien esperaba el módulo para activar una sesión, sigue ahora.
+          const waiters = this.sessionReadyWaiters
+          this.sessionReadyWaiters = []
+          for (const resolve of waiters) resolve()
+
           // Refrescar el Ln/Col al conectar (abrir archivo = cursor en
           // 1:1 antes del primer click) y al quedar listo.
           requestAnimationFrame(() => this.bridge?.syncCursor())
@@ -553,6 +576,100 @@ export class InnertaEngine implements EditorEngine {
 
     // El canvas gana foco al abrir un archivo: se puede escribir sin un click previo.
     this.host?.querySelector<HTMLCanvasElement>('.scrakk-innerta-canvas')?.focus()
+  }
+
+  // ── Sesiones de archivo (un módulo, N archivos) ─────────────────────────
+
+  /** Resuelve cuando el módulo está listo (activar sesiones puede llegar antes). */
+  whenReady(): Promise<void> {
+    if (this.module) return Promise.resolve()
+    return new Promise((resolve) => {
+      this.sessionReadyWaiters.push(resolve)
+    })
+  }
+
+  /** ¿Este módulo ya tiene la sesión de ese archivo? */
+  hasFileSession(id: string): boolean {
+    return this.fileSessions.has(id)
+  }
+
+  /** Id (path) del archivo activo en este módulo, o null. */
+  currentFileSessionId(): string | null {
+    return this.currentPath
+  }
+
+  /**
+   * Crea la sesión del archivo y la activa. `content` es el texto a cargar;
+   * `cleanRevision` la revisión ya persistida (si se conoce).
+   */
+  createFileSession(id: string, content: string, cleanRevision?: number): void {
+    const module = this.module
+    if (!module?.createSession) return
+    module.createSession(id)
+    this.fileSessions.add(id)
+    module.activateSession?.(id)
+    // openFile setea contenido + lenguaje + breadcrumb en la sesión ACTIVA.
+    module.openFile(id, content)
+    this.activatePath(id, content)
+    if (typeof cleanRevision === 'number') module.setSessionCleanRevision?.(id, cleanRevision)
+    this.host?.querySelector<HTMLCanvasElement>('.scrakk-innerta-canvas')?.focus()
+  }
+
+  /** Activa una sesión existente (cambio de tab, sin recargar nada). */
+  activateFileSession(id: string): void {
+    const module = this.module
+    if (!module?.activateSession) return
+    if (this.currentPath === id) return
+    module.activateSession(id)
+    this.activatePath(id, module.getSessionText?.(id) ?? '')
+    this.host?.querySelector<HTMLCanvasElement>('.scrakk-innerta-canvas')?.focus()
+  }
+
+  /** Destruye la sesión del archivo (cerrar la tab). */
+  dropFileSession(id: string): void {
+    this.module?.destroySession?.(id)
+    this.fileSessions.delete(id)
+    if (this.currentPath === id) this.currentPath = null
+  }
+
+  /** Texto de una sesión (funciona con la sesión inactiva). */
+  fileSessionText(id: string): string | undefined {
+    try {
+      return this.module?.getSessionText?.(id)
+    } catch {
+      return undefined
+    }
+  }
+
+  /** Revisión del buffer de una sesión (inactiva incluida). */
+  fileSessionRevision(id: string): number | undefined {
+    const rev = this.module?.getSessionRevision?.(id)
+    return typeof rev === 'number' ? rev : undefined
+  }
+
+  /** ¿La sesión tiene cambios sin guardar? (sin activarla) */
+  fileSessionDirty(id: string): boolean | undefined {
+    const dirty = this.module?.isSessionDirty?.(id)
+    return typeof dirty === 'boolean' ? dirty : undefined
+  }
+
+  /** Marca la revisión de una sesión como persistida en disco. */
+  markFileSessionClean(id: string, revision: number): void {
+    this.module?.setSessionCleanRevision?.(id, revision)
+  }
+
+  /** Chrome de un archivo recién activado: tema, bookmarks, resaltado, cursor. */
+  private activatePath(id: string, text: string): void {
+    const module = this.module
+    if (!module) return
+    this.currentPath = id
+    this.bridge?.setPath(id)
+    applyInnertaTheme(module)
+    this.pushBookmarks()
+    // startHighlightPipelines limpia tokens/folds/subrayados del archivo
+    // anterior y arranca los canales del nuevo.
+    this.startHighlightPipelines(id, text)
+    requestAnimationFrame(() => this.bridge?.syncCursor())
   }
 
   /**

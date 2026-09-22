@@ -352,6 +352,52 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       if (typeof _raw._SetInnertaCleanRevision !== 'function') return
       ;(_raw._SetInnertaCleanRevision as (r: number) => void)(revision >>> 0)
     },
+    // ── Sesiones (multi-archivo en UN módulo) ──────────────────────────
+    createSession(id) {
+      if (typeof _raw._CreateInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._CreateInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    activateSession(id) {
+      if (typeof _raw._ActivateInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._ActivateInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    destroySession(id) {
+      if (typeof _raw._DestroyInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._DestroyInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    getSessionText(id) {
+      if (typeof _raw._GetInnertaSessionText !== 'function') return ''
+      const ptr = toUtf32Ptr(_raw, id)
+      const out = (_raw._GetInnertaSessionText as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return (_raw.UTF8ToString as (p: number) => string)(out)
+    },
+    getSessionRevision(id) {
+      if (typeof _raw._GetInnertaSessionRevision !== 'function') return 0
+      const ptr = toUtf32Ptr(_raw, id)
+      const rev = (_raw._GetInnertaSessionRevision as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return rev >>> 0
+    },
+    isSessionDirty(id) {
+      if (typeof _raw._IsInnertaSessionDirty !== 'function') return false
+      const ptr = toUtf32Ptr(_raw, id)
+      const dirty = (_raw._IsInnertaSessionDirty as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return dirty !== 0
+    },
+    setSessionCleanRevision(id, revision) {
+      if (typeof _raw._SetInnertaSessionCleanRevision !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._SetInnertaSessionCleanRevision as (p: number, r: number) => void)(ptr, revision >>> 0)
+      _raw._free(ptr)
+    },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el
       // heap lineal REAL del módulo, no una estimación.
@@ -729,6 +775,52 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
     setCleanRevision(revision: number) {
       if (typeof _raw._SetInnertaCleanRevision !== 'function') return
       ;(_raw._SetInnertaCleanRevision as (r: number) => void)(revision >>> 0)
+    },
+    // ── Sesiones (multi-archivo en UN módulo) ──────────────────────────
+    createSession(id) {
+      if (typeof _raw._CreateInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._CreateInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    activateSession(id) {
+      if (typeof _raw._ActivateInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._ActivateInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    destroySession(id) {
+      if (typeof _raw._DestroyInnertaSession !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._DestroyInnertaSession as (p: number) => void)(ptr)
+      _raw._free(ptr)
+    },
+    getSessionText(id) {
+      if (typeof _raw._GetInnertaSessionText !== 'function') return ''
+      const ptr = toUtf32Ptr(_raw, id)
+      const out = (_raw._GetInnertaSessionText as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return (_raw.UTF8ToString as (p: number) => string)(out)
+    },
+    getSessionRevision(id) {
+      if (typeof _raw._GetInnertaSessionRevision !== 'function') return 0
+      const ptr = toUtf32Ptr(_raw, id)
+      const rev = (_raw._GetInnertaSessionRevision as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return rev >>> 0
+    },
+    isSessionDirty(id) {
+      if (typeof _raw._IsInnertaSessionDirty !== 'function') return false
+      const ptr = toUtf32Ptr(_raw, id)
+      const dirty = (_raw._IsInnertaSessionDirty as (p: number) => number)(ptr)
+      _raw._free(ptr)
+      return dirty !== 0
+    },
+    setSessionCleanRevision(id, revision) {
+      if (typeof _raw._SetInnertaSessionCleanRevision !== 'function') return
+      const ptr = toUtf32Ptr(_raw, id)
+      ;(_raw._SetInnertaSessionCleanRevision as (p: number, r: number) => void)(ptr, revision >>> 0)
+      _raw._free(ptr)
     },
     heapBytes() {
       // HEAP8 se exporta desde el build (EXPORTED_RUNTIME_METHODS): es el

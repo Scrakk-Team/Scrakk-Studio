@@ -1,9 +1,9 @@
 /**
  * Sección "Rendimiento" — modo PC mala y estado de memoria del editor.
  *
- * - Toggle de bajo consumo: tope de módulos background 6 → 2 (recorte
- *   inmediato), sin tokens semánticos LSP ni hover, aviso de heap a la mitad.
- * - Lectura de heaps WASM reales (HEAP8) sumados por sesión.
+ * - Toggle de bajo consumo: menos trabajo de fondo (tokens semánticos y
+ *   hover), para PCs modestas.
+ * - Lectura de heaps WASM reales (HEAP8) sumados por motor de panel.
  */
 
 import { useCallback, useEffect, useState, type JSX } from 'react'
@@ -62,8 +62,8 @@ export function PerformanceSection(): JSX.Element {
         <div className={styles.headerText}>
           <h3>Rendimiento</h3>
           <p>
-            El editor usa un módulo WASM por archivo visible; los visitados
-            quedan en memoria hasta el tope de background.
+            El editor usa un motor WASM por <strong>panel</strong>: cada archivo
+            abierto es una sesión dentro de él, con su undo, cursor y scroll.
           </p>
         </div>
       </div>
@@ -72,8 +72,8 @@ export function PerformanceSection(): JSX.Element {
         <div className={styles.rowInfo}>
           <span className={styles.rowName}>Modo PC mala</span>
           <span className={styles.rowMeta}>
-            Máximo 2 módulos en fondo (6 normal), aviso de memoria a la mitad.
-            Tokens, hover y LSP siguen activos: editar no pierde nada.
+            Menos trabajo de fondo (tokens semánticos y hover) para PCs
+            modestas. Editar no pierde nada.
           </span>
         </div>
         <ToggleSwitch
@@ -87,8 +87,7 @@ export function PerformanceSection(): JSX.Element {
         <div className={styles.rowInfo}>
           <span className={styles.rowName}>Memoria del editor</span>
           <span className={styles.rowMeta}>
-            {formatMB(heap)} en heaps WASM · {background} módulo(s) en fondo
-            (tope {lowEnd ? 2 : 6})
+            {formatMB(heap)} en heaps WASM · {background} motor(es) de panel
           </span>
         </div>
       </div>

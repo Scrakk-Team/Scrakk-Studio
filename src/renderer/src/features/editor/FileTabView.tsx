@@ -4,26 +4,28 @@ import { getFileSession } from './fileSession'
 interface FileTabViewProps {
   /** Ruta del archivo que muestra la tab. */
   filePath: string
+  /** Panel (strip) donde vive: define el motor compartido de ese panel. */
+  stripId?: string
 }
 
 /**
- * Contenido de una tab de archivo. La sesión por path es quien posee el
- * engine (multi-editor): al montar attach() (reanuda / crea), al desmontar
- * detach() pausa — el canvas y el módulo viven en la sesión, así mover la
- * tab entre slots conserva buffer, undo y scroll.
+ * Contenido de una tab de archivo. La sesión por path vive en el motor
+ * compartido de su panel: al montar attach() la activa (crea el motor la 1ª
+ * vez), al desmontar detach() no tira nada — el estado (texto, undo, cursor,
+ * scroll) queda en la sesión, así mover la tab entre slots lo conserva.
  */
-export function FileTabView({ filePath }: FileTabViewProps): JSX.Element {
+export function FileTabView({ filePath, stripId }: FileTabViewProps): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
     const session = getFileSession(filePath)
-    session.attach(host)
+    session.attach(host, stripId ?? 'center')
     return () => {
       session.detach(host)
     }
-  }, [filePath])
+  }, [filePath, stripId])
 
   return (
     <div

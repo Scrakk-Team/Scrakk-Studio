@@ -79,3 +79,28 @@ export function getOrCreateInnertaEngine(): EditorEngine {
   }
   return storedInnertaEngine
 }
+
+/**
+ * Motor COMPARTIDO por panel (strip del centro).
+ *
+ * Todos los archivos abiertos en un panel viven en el MISMO módulo, cada uno
+ * como una sesión con su estado completo (texto, undo, cursor, scroll, folds).
+ * Cambiar de tab activa otra sesión: sin instanciar un módulo por archivo
+ * (patrón de un editor real, p. ej. Zed). El número de módulos pasa a ser
+ * "uno por panel visible", no "uno por archivo abierto".
+ */
+const paneEngines = new Map<string, InnertaEngine>()
+
+export function getOrCreatePaneEngine(paneId: string): InnertaEngine {
+  let engine = paneEngines.get(paneId)
+  if (!engine) {
+    engine = new InnertaEngine()
+    paneEngines.set(paneId, engine)
+  }
+  return engine
+}
+
+/** Motores de panel vivos (para métricas de memoria de Ajustes). */
+export function listPaneEngines(): InnertaEngine[] {
+  return [...paneEngines.values()]
+}

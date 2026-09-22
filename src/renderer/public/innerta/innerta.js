@@ -8452,6 +8452,10 @@ var _GetInnertaText = Module['_GetInnertaText'] = makeInvalidEarlyAccess('_GetIn
 var _GetInnertaRevision = Module['_GetInnertaRevision'] = makeInvalidEarlyAccess('_GetInnertaRevision');
 var _SetInnertaCleanRevision = Module['_SetInnertaCleanRevision'] = makeInvalidEarlyAccess('_SetInnertaCleanRevision');
 var _GetInnertaDirty = Module['_GetInnertaDirty'] = makeInvalidEarlyAccess('_GetInnertaDirty');
+var _GetInnertaSessionText = Module['_GetInnertaSessionText'] = makeInvalidEarlyAccess('_GetInnertaSessionText');
+var _GetInnertaSessionRevision = Module['_GetInnertaSessionRevision'] = makeInvalidEarlyAccess('_GetInnertaSessionRevision');
+var _IsInnertaSessionDirty = Module['_IsInnertaSessionDirty'] = makeInvalidEarlyAccess('_IsInnertaSessionDirty');
+var _SetInnertaSessionCleanRevision = Module['_SetInnertaSessionCleanRevision'] = makeInvalidEarlyAccess('_SetInnertaSessionCleanRevision');
 var _InnertaMouseMove = Module['_InnertaMouseMove'] = makeInvalidEarlyAccess('_InnertaMouseMove');
 var _InnertaMouseLeave = Module['_InnertaMouseLeave'] = makeInvalidEarlyAccess('_InnertaMouseLeave');
 var _InnertaMouseButton = Module['_InnertaMouseButton'] = makeInvalidEarlyAccess('_InnertaMouseButton');
@@ -8561,6 +8565,10 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['GetInnertaRevision'] != 'undefined', 'missing Wasm export: GetInnertaRevision');
   assert(typeof wasmExports['SetInnertaCleanRevision'] != 'undefined', 'missing Wasm export: SetInnertaCleanRevision');
   assert(typeof wasmExports['GetInnertaDirty'] != 'undefined', 'missing Wasm export: GetInnertaDirty');
+  assert(typeof wasmExports['GetInnertaSessionText'] != 'undefined', 'missing Wasm export: GetInnertaSessionText');
+  assert(typeof wasmExports['GetInnertaSessionRevision'] != 'undefined', 'missing Wasm export: GetInnertaSessionRevision');
+  assert(typeof wasmExports['IsInnertaSessionDirty'] != 'undefined', 'missing Wasm export: IsInnertaSessionDirty');
+  assert(typeof wasmExports['SetInnertaSessionCleanRevision'] != 'undefined', 'missing Wasm export: SetInnertaSessionCleanRevision');
   assert(typeof wasmExports['InnertaMouseMove'] != 'undefined', 'missing Wasm export: InnertaMouseMove');
   assert(typeof wasmExports['InnertaMouseLeave'] != 'undefined', 'missing Wasm export: InnertaMouseLeave');
   assert(typeof wasmExports['InnertaMouseButton'] != 'undefined', 'missing Wasm export: InnertaMouseButton');
@@ -8666,6 +8674,10 @@ function assignWasmExports(wasmExports) {
   _GetInnertaRevision = Module['_GetInnertaRevision'] = createExportWrapper('GetInnertaRevision', wasmExports['GetInnertaRevision'], 0);
   _SetInnertaCleanRevision = Module['_SetInnertaCleanRevision'] = createExportWrapper('SetInnertaCleanRevision', wasmExports['SetInnertaCleanRevision'], 1);
   _GetInnertaDirty = Module['_GetInnertaDirty'] = createExportWrapper('GetInnertaDirty', wasmExports['GetInnertaDirty'], 0);
+  _GetInnertaSessionText = Module['_GetInnertaSessionText'] = createExportWrapper('GetInnertaSessionText', wasmExports['GetInnertaSessionText'], 1);
+  _GetInnertaSessionRevision = Module['_GetInnertaSessionRevision'] = createExportWrapper('GetInnertaSessionRevision', wasmExports['GetInnertaSessionRevision'], 1);
+  _IsInnertaSessionDirty = Module['_IsInnertaSessionDirty'] = createExportWrapper('IsInnertaSessionDirty', wasmExports['IsInnertaSessionDirty'], 1);
+  _SetInnertaSessionCleanRevision = Module['_SetInnertaSessionCleanRevision'] = createExportWrapper('SetInnertaSessionCleanRevision', wasmExports['SetInnertaSessionCleanRevision'], 2);
   _InnertaMouseMove = Module['_InnertaMouseMove'] = createExportWrapper('InnertaMouseMove', wasmExports['InnertaMouseMove'], 2);
   _InnertaMouseLeave = Module['_InnertaMouseLeave'] = createExportWrapper('InnertaMouseLeave', wasmExports['InnertaMouseLeave'], 0);
   _InnertaMouseButton = Module['_InnertaMouseButton'] = createExportWrapper('InnertaMouseButton', wasmExports['InnertaMouseButton'], 3);

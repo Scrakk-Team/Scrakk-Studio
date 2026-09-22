@@ -51,7 +51,7 @@ export function TabContentView({ tab, stripId }: { tab: TabSpec; stripId?: Strip
       return spec.filePath ? (
         <>
           <BreadcrumbsBar key={`crumbs-${spec.id}`} path={spec.filePath} />
-          <FileTabView key={spec.id} filePath={spec.filePath} />
+          <FileTabView key={spec.id} filePath={spec.filePath} stripId={stripId} />
         </>
       ) : null
     case 'terminal':
