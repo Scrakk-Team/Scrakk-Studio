@@ -109,6 +109,8 @@ publicadas no se editan. El archivo va por versión:
   que reusa los **mismos componentes de chat**, así se ve **en vivo** cómo
   trabaja (contenido, razonamiento y tool calls). Mientras está abierto, el
   input del chat principal queda **bloqueado** (estado `locked`).
+- Los subagentes que lanza **la IA** (tool `task`) también quedan como sesión
+  observable: la card trae un botón **Abrir** que muestra su chat en vivo.
 
 ### Correcciones
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
