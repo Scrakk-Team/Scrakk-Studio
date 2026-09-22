@@ -1,14 +1,15 @@
 # Changelog
 
-Cambios relevantes de Scrakk Studio. El editor renderiza la **primera entrada
-(la más nueva)** en un modal, así que lo nuevo va arriba.
+Cambios relevantes de Scrakk Studio. La **bienvenida** muestra la primera
+entrada (la más nueva) en el apartado **Anuncios**, así que lo nuevo va arriba.
 
 Formato: `## <versión> — <título>` y bullets por área. Las entradas ya
-publicadas no se editan.
+publicadas no se editan. El archivo va por versión:
+`docs/changelog/changelog-<x.y.z>.md`.
 
 ---
 
-## Unreleased — Chat con IA: más control
+## 0.1.1 — Chat con IA: más control
 
 ### Comandos con barra (`/comando`)
 - **API global de comandos** (`services/slash-commands`): registra, lista y
@@ -194,6 +195,18 @@ publicadas no se editan.
   uno usa su gramática.
 - Los servidores LSP que ya existían siguen aplicando (Terraform, CMake, Svelte,
   Prisma; el de CSS cubre SCSS/LESS).
+
+### Actualizaciones
+- El IDE detecta las releases **en vivo**: el workflow las registra en Supabase
+  y la app las recibe por **Realtime** (WebSocket), sin polling.
+- Aviso global cuando hay versión nueva, con **descarga automática** y un botón
+  para **reiniciar y actualizar** (cierra y reabre sola).
+- **Ajustes → Acerca de**: versión, build, botón **Buscar actualizaciones** y
+  progreso de descarga.
+- La **bienvenida** muestra el anuncio de la última versión (notas reales del
+  release) con un punto en **Anuncios** cuando hay novedades sin ver.
+- Las notas del release salen del `docs/changelog/changelog-<versión>.md`, así
+  GitHub y el IDE muestran lo mismo.
 
 ### Extensiones
 - Tipo **`tools`**: herramientas de IA aportadas por un `.sef`, con su carpeta
