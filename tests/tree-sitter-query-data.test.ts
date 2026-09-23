@@ -232,6 +232,14 @@ describe('textobjects.scm → rangos seleccionables', () => {
     expect(objects[0].name).toBe('class.outer')
   })
 
+  it('normaliza `.inside`/`.around` (Helix y el repo de swift) a `.inner`/`.outer`', () => {
+    const objects = buildTextObjects(
+      [cap('function.around', 0, 22), cap('function.inside', 9, 20)],
+      text
+    )
+    expect(objects.map((object) => object.name)).toEqual(['function.outer', 'function.inner'])
+  })
+
   it('lo que no es un objeto de texto se ignora', () => {
     expect(buildTextObjects([cap('variable', 0, 22)], text)).toEqual([])
   })

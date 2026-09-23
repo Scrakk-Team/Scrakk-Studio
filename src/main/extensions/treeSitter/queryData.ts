@@ -446,6 +446,25 @@ export function buildLocalEntries(captures: RawCapture[], text: string): Dynamic
 const TEXT_OBJECT_SUFFIXES = ['.inner', '.outer']
 
 /**
+ * Sufijos equivalentes de otras fuentes. nvim escribe `.inner`/`.outer`; Helix
+ * —y el propio repo del parser de swift— escriben `.inside`/`.around`. Se
+ * normalizan al vocabulario de nvim para que "expandir selección" funcione
+ * igual con datos de cualquiera de las dos.
+ */
+const TEXT_OBJECT_ALIASES: ReadonlyArray<readonly [string, string]> = [
+  ['.inside', '.inner'],
+  ['.around', '.outer']
+]
+
+/** Nombre canónico del objeto (`function.inside` → `function.inner`), o null. */
+function canonicalTextObjectName(name: string): string | null {
+  for (const [alias, canonical] of TEXT_OBJECT_ALIASES) {
+    if (name.endsWith(alias)) return `${name.slice(0, -alias.length)}${canonical}`
+  }
+  return TEXT_OBJECT_SUFFIXES.some((suffix) => name.endsWith(suffix)) ? name : null
+}
+
+/**
  * Capturas de `textobjects.scm` → rangos seleccionables.
  *
  * Se aceptan las dos convenciones vivas: el nombre con sufijo
@@ -459,9 +478,9 @@ export function buildTextObjects(captures: RawCapture[], text: string): DynamicT
 
   for (const capture of captures) {
     const explicit = suffixOf(capture.name, 'textobject.') ?? suffixOf(capture.name, 'textobj.')
-    const name = explicit ?? (TEXT_OBJECT_SUFFIXES.some((suffix) => capture.name.endsWith(suffix))
-      ? capture.name
-      : null)
+    const name = explicit
+      ? canonicalTextObjectName(explicit) ?? explicit
+      : canonicalTextObjectName(capture.name)
     if (!name) continue
     const range = rangeOf(capture, starts)
     out.push({
