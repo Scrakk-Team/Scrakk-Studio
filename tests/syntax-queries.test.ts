@@ -31,6 +31,9 @@ describe('categorizeQueryFile', () => {
     expect(categorizeQueryFile('highlights-jsx.scm')).toBe('highlights')
     expect(categorizeQueryFile('highlights-params.scm')).toBe('highlights')
     expect(categorizeQueryFile('injections-markdown.scm')).toBe('injections')
+    // `rainbows.scm` (Helix) y `rainbow-delimiters.scm` (nvim) son el mismo dato.
+    expect(categorizeQueryFile('rainbows.scm')).toBe('rainbows')
+    expect(categorizeQueryFile('rainbow-delimiters.scm')).toBe('rainbows')
   })
 
   it('acepta rutas y mayúsculas', () => {
@@ -39,7 +42,6 @@ describe('categorizeQueryFile', () => {
   })
 
   it('lo desconocido NO se pierde: cae en unknown', () => {
-    expect(categorizeQueryFile('rainbow-delimiters.scm')).toBe('unknown')
     expect(categorizeQueryFile('context.scm')).toBe('unknown')
     expect(categorizeQueryFile('sin-extension')).toBe('unknown')
   })

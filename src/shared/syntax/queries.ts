@@ -15,6 +15,7 @@
  *   folds.scm       → rangos plegables
  *   indents.scm     → reglas de indentación
  *   textobjects.scm → rangos de selección
+ *   rainbows.scm    → pares de delimitadores anidados (color de arcoíris)
  *
  * Hoy el engine abre sólo `highlights.scm` e `injections.scm`: `tags.scm` y
  * `locals.scm` están en el repo **y nunca se leen**. La regla aquí es la
@@ -33,6 +34,7 @@ export type QueryCategory =
   | 'folds'
   | 'indents'
   | 'textobjects'
+  | 'rainbows'
   | 'unknown'
 
 /** Dónde se puede pintar el dato que produce una query. */
@@ -83,6 +85,11 @@ const CATEGORY_INFO: Record<QueryCategory, Omit<QueryCategoryInfo, 'category'>> 
     produces: 'rangos de selección (función, clase, parámetro)',
     layer: 'background'
   },
+  rainbows: {
+    label: 'Arcoíris de delimitadores',
+    produces: 'pares de delimitadores anidados, para colorearlos por profundidad',
+    layer: 'text'
+  },
   unknown: {
     label: 'Query sin categoría conocida',
     produces: 'los datos crudos del query: se cargan igual y el IDE decide',
@@ -131,6 +138,10 @@ export function categorizeQueryFile(file: string): QueryCategory {
     case 'textobjects':
     case 'textobject':
       return 'textobjects'
+    // `rainbows.scm` (Helix) y `rainbow-delimiters.scm` (nvim) son el MISMO dato.
+    case 'rainbows':
+    case 'rainbow':
+      return 'rainbows'
     default:
       return 'unknown'
   }
