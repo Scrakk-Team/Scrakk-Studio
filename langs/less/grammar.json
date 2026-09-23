@@ -3,7 +3,7 @@
   "symbol": "less_external_scanner_create",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-less",
   "abi": 14,
-  "builtAt": "2026-09-23T03:38:48.590Z",
+  "builtAt": "2026-09-23T14:13:25.829Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -16,7 +16,7 @@
     {
       "file": "queries/injections.scm",
       "category": "injections",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -25,7 +25,7 @@
     {
       "file": "queries/indents.scm",
       "category": "indents",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -34,7 +34,7 @@
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -48,7 +48,6 @@
     "textobjects"
   ],
   "categoriesWithoutConsumer": [
-    "indents",
     "rainbows"
   ],
   "inherits": []

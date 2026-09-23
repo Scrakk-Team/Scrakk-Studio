@@ -3,7 +3,7 @@
   "symbol": "markdown",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-markdown/tree-sitter-markdown",
   "abi": 15,
-  "builtAt": "2026-09-23T03:39:37.714Z",
+  "builtAt": "2026-09-23T14:14:21.087Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -23,7 +23,7 @@
     {
       "file": "queries/tags.scm",
       "category": "tags",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -32,7 +32,7 @@
     {
       "file": "queries/folds.scm",
       "category": "folds",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -41,7 +41,7 @@
     {
       "file": "queries/indents.scm",
       "category": "indents",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -50,7 +50,7 @@
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter-textobjects@5c7b0263",
       "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
       "license": "Apache-2.0",
@@ -61,8 +61,6 @@
     "locals",
     "rainbows"
   ],
-  "categoriesWithoutConsumer": [
-    "indents"
-  ],
+  "categoriesWithoutConsumer": [],
   "inherits": []
 }

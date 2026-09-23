@@ -3,7 +3,7 @@
   "symbol": "html",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-html",
   "abi": 14,
-  "builtAt": "2026-09-23T03:38:58.876Z",
+  "builtAt": "2026-09-23T14:13:41.256Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -50,7 +50,7 @@
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter-textobjects@5c7b0263",
       "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
       "license": "Apache-2.0",
@@ -59,7 +59,7 @@
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -70,7 +70,6 @@
     "tags"
   ],
   "categoriesWithoutConsumer": [
-    "indents",
     "rainbows"
   ],
   "inherits": []

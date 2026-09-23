@@ -3,7 +3,7 @@
   "symbol": "javascript",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-javascript",
   "abi": 15,
-  "builtAt": "2026-09-23T03:37:52.711Z",
+  "builtAt": "2026-09-23T14:12:00.176Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -51,7 +51,7 @@
     {
       "file": "queries/folds.scm",
       "category": "folds",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -60,7 +60,7 @@
     {
       "file": "queries/indents.scm",
       "category": "indents",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -69,16 +69,16 @@
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter-textobjects@5c7b0263",
       "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
       "license": "Apache-2.0",
-      "sha256": "d6f969a2324a296c7cb6f22ffe1590a59ada99c63124e706aec2b3f6a8833123"
+      "sha256": "c4a7990eba7825a7a201bb5315f7f36434a3d5592b1c1020cee8b0057e91df5a"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -87,7 +87,6 @@
   ],
   "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents",
     "rainbows"
   ],
   "inherits": []

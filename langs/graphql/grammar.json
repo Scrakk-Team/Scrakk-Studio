@@ -3,7 +3,7 @@
   "symbol": "graphql",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-graphql",
   "abi": 14,
-  "builtAt": "2026-09-23T03:42:14.990Z",
+  "builtAt": "2026-09-23T14:16:23.905Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -16,7 +16,7 @@
     {
       "file": "queries/injections.scm",
       "category": "injections",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -25,7 +25,7 @@
     {
       "file": "queries/indents.scm",
       "category": "indents",
-      "source": "override",
+      "source": "supplement",
       "origin": "nvim-treesitter@9a168f63",
       "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
       "license": "Apache-2.0",
@@ -34,7 +34,7 @@
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -43,7 +43,7 @@
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
-      "source": "override",
+      "source": "supplement",
       "origin": "helix@079a789e",
       "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
       "license": "MPL-2.0",
@@ -63,7 +63,6 @@
     "locals"
   ],
   "categoriesWithoutConsumer": [
-    "indents",
     "rainbows",
     "unknown"
   ],
