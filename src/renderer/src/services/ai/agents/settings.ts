@@ -220,7 +220,8 @@ export const DEFAULT_PRIMARY_AGENT: AgentEntry = {
 export const DEFAULT_SUBAGENT: AgentEntry = {
   id: 'explorador',
   label: 'Explorador',
-  description: 'Read-only: explora el código y resume hallazgos.',
+  description:
+    'Fast, read-only agent to explore the codebase. Use it to find files by pattern, search for symbols/callers, or answer how something works. It cannot edit files or run shell commands.',
   icon: 'search',
   color: '#0ea5e9',
   mode: 'subagent',
@@ -239,6 +240,9 @@ export const DEFAULT_SUBAGENT: AgentEntry = {
     ]
   }
 }
+
+/** Descripción vieja del Explorador (para migrar instalaciones existentes). */
+const LEGACY_EXPLORER_DESCRIPTION = 'Read-only: explora el código y resume hallazgos.'
 
 // ── Carga / merge ───────────────────────────────────────────────────────────
 
@@ -285,6 +289,18 @@ export async function loadAgentSettings(): Promise<{
   }
   if (seededSubagents.length === 0) {
     seededSubagents = [DEFAULT_SUBAGENT]
+    await writeAgentEntries('project', 'subagent', seededSubagents)
+  }
+
+  // Migración: mejora la descripción del Explorador seedeado en versiones
+  // previas (para que el modelo sepa cuándo usarlo).
+  const migratedDescriptions = seededSubagents.map((entry) =>
+    entry.id === 'explorador' && entry.description === LEGACY_EXPLORER_DESCRIPTION
+      ? { ...entry, description: DEFAULT_SUBAGENT.description }
+      : entry
+  )
+  if (migratedDescriptions.some((entry, index) => entry !== seededSubagents[index])) {
+    seededSubagents = migratedDescriptions
     await writeAgentEntries('project', 'subagent', seededSubagents)
   }
 
