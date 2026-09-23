@@ -12,12 +12,12 @@
   -webkit-text-fill-color: transparent;
   background: linear-gradient(
     90deg,
-    #a1a1a1 0%,
-    #a1a1a1 30%,
-    rgba(161, 161, 161, 0.45) 45%,
-    rgba(161, 161, 161, 0.45) 55%,
-    #a1a1a1 70%,
-    #a1a1a1 100%
+    var(--color-text-muted) 0%,
+    var(--color-text-muted) 30%,
+    color-mix(in srgb, var(--color-text-muted) 45%, transparent) 45%,
+    color-mix(in srgb, var(--color-text-muted) 45%, transparent) 55%,
+    var(--color-text-muted) 70%,
+    var(--color-text-muted) 100%
   );
   background-size: 300% 100%;
   -webkit-background-clip: text;

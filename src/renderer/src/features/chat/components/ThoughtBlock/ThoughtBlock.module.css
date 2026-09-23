@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 360px;
   max-width: 100%;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: inherit;
   /* soft fade-in on (re)mount */
   animation: tr-block-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -34,12 +34,12 @@
   font-size: 13px;
   line-height: 18px;
   font-weight: 500;
-  color: #a1a1a1;
+  color: var(--color-text-muted);
   letter-spacing: -0.005em;
 }
 
 .trChevron {
-  color: #a1a1a1;
+  color: var(--color-text-muted);
   transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
   /* base path is an up caret; collapsed summary points down */
   transform: rotate(180deg);
@@ -99,7 +99,7 @@
   line-height: 20px;
   font-size: 13px;
   font-weight: 425;
-  color: #a1a1a1;
+  color: var(--color-text-muted);
   letter-spacing: -0.005em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
