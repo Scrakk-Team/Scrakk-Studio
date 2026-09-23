@@ -114,17 +114,19 @@ describe('planQueries — upstream, ajustes propios y suplementos', () => {
     expect(plan.entries.filter((entry) => entry.category === 'highlights')).toHaveLength(1)
   })
 
-  it('lo que se instala sin consumidor se marca (hoy: indents y lo desconocido)', () => {
+  it('lo que se instala sin consumidor se marca (hoy: rainbows y lo desconocido)', () => {
     const plan = planQueries({
       files: [upstream('queries/highlights.scm'), upstream('queries/mi-query-rara.scm')],
-      supplements: [{ category: 'indents', content: '(block) @indent.begin', origin: 'nvim-treesitter', ref: 'abc1234' }],
-      categories: ['highlights', 'indents']
+      supplements: [{ category: 'rainbows', content: '(x) @rainbow.scope', origin: 'helix', ref: 'abc1234' }],
+      categories: ['highlights', 'indents', 'rainbows']
     })
 
     expect(plan.entries.some((entry) => entry.category === 'unknown')).toBe(true)
-    expect(plan.entries.some((entry) => entry.category === 'indents')).toBe(true)
-    expect(plan.unconsumed).toEqual(expect.arrayContaining(['indents', 'unknown']))
+    expect(plan.entries.some((entry) => entry.category === 'rainbows')).toBe(true)
+    // `indents` ya lo consume el auto-indent del motor; `rainbows` todavía no.
+    expect(plan.unconsumed).toEqual(expect.arrayContaining(['rainbows', 'unknown']))
     expect(plan.unconsumed).not.toContain('highlights')
+    expect(plan.unconsumed).not.toContain('indents')
   })
 
   it('el orden del reporte es estable (no depende del orden del repo)', () => {
@@ -137,10 +139,11 @@ describe('planQueries — upstream, ajustes propios y suplementos', () => {
     expect(plan.entries.map((entry) => entry.category)).toEqual(['highlights', 'tags', 'folds'])
   })
 
-  it('las categorías instaladas por defecto son las consumidas + indents + rainbows', () => {
-    expect(SUPPLEMENT_CATEGORIES).toEqual([...CONSUMED_CATEGORIES, 'indents', 'rainbows'])
+  it('las categorías instaladas por defecto son las consumidas + rainbows', () => {
+    expect(SUPPLEMENT_CATEGORIES).toEqual([...CONSUMED_CATEGORIES, 'rainbows'])
     // `rainbows` se instala sin consumidor todavía (el consumidor de brackets no
     // existe); `indents` sí lo tiene (auto-indent del motor).
+    expect(CONSUMED_CATEGORIES).toContain('indents')
     expect(CONSUMED_CATEGORIES).not.toContain('rainbows')
   })
 
@@ -187,8 +190,8 @@ describe('renderQueryReport', () => {
   it('avisa cuando una categoría se instala sin consumidor', () => {
     const plan = planQueries({
       files: [upstream('queries/highlights.scm')],
-      supplements: [{ category: 'indents', content: '(block) @indent.begin', origin: 'nvim-treesitter', ref: 'abc1234' }],
-      categories: ['highlights', 'indents']
+      supplements: [{ category: 'rainbows', content: '(x) @rainbow.scope', origin: 'helix', ref: 'abc1234' }],
+      categories: ['highlights', 'rainbows']
     })
     expect(renderQueryReport(plan).join('\n')).toContain('sin consumidor todavía')
   })

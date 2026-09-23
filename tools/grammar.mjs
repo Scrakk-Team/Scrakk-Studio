@@ -660,9 +660,18 @@ function buildParserWasm({ parserCandidate, includeDirs, out, emcc, log }) {
  * base de TypeScript es JavaScript, y la de TSX es TypeScript. Sin encontrarla se
  * avisa y se sigue: mejor una query a medias que un comando que no corre.
  */
-function findBaseQuery({ base, relative, engineDir, profileDir, log }) {
+/**
+ * Ruta de una query base (`; inherits:`) en disco, o `null`.
+ *
+ * Se busca en el caché de suplementos, en los checkouts del engine y en las
+ * extensiones instaladas. `overridesRoot` (el padre del directorio de overrides
+ * DEL lenguaje) permite encontrar las bases que `seedInheritedBases` bajó,
+ * incluso sin checkout del engine (destino `dist/`).
+ */
+function baseQueryPath({ base, relative, engineDir, profileDir, overridesRoot }) {
   const fileName = path.basename(relative)
   const roots = []
+  if (overridesRoot) roots.push(path.join(overridesRoot, base))
   if (engineDir) {
     roots.push(path.join(engineDir, 'deps', 'queries-overrides', base))
     roots.push(path.join(engineDir, 'deps', 'languages', `tree-sitter-${base}`, 'queries'))
@@ -672,9 +681,15 @@ function findBaseQuery({ base, relative, engineDir, profileDir, log }) {
   }
   for (const root of roots) {
     const candidate = path.join(root, fileName)
-    if (fs.existsSync(candidate)) return fs.readFileSync(candidate, 'utf8')
+    if (fs.existsSync(candidate)) return candidate
   }
-  log(`aviso: no encontré la query base "${fileName}" de "${base}" para fusionar`)
+  return null
+}
+
+function findBaseQuery({ base, relative, engineDir, profileDir, overridesRoot, log }) {
+  const candidate = baseQueryPath({ base, relative, engineDir, profileDir, overridesRoot })
+  if (candidate) return fs.readFileSync(candidate, 'utf8')
+  log(`aviso: no encontré la query base "${path.basename(relative)}" de "${base}" para fusionar`)
   return null
 }
 
@@ -709,22 +724,31 @@ export function packageFiles({ manifest, wasm, queryContents, provenance }) {
  *
  * Es una copia DELIBERADA de `APPLIED_CATEGORIES`
  * (`src/main/extensions/treeSitter/tokenizer.ts`): "instalé las 8 categorías" y
- * "el IDE usa 6" no son lo mismo, y el reporte tiene que poder decirlo. `indents`
- * se instala y hoy no lo lee nadie (haría falta un motor de indentación tipo
- * Neovim), así que el reporte lo marca como sin consumidor en vez de dejar creer
- * que funciona.
+ * "el IDE usa 6" no son lo mismo, y el reporte tiene que poder decirlo. Va en
+ * espejo: `indents` ya lo consume el auto-indent del motor, así que está acá;
+ * `rainbows` todavía no tiene consumidor (el color de brackets no existe) y el
+ * reporte lo marca como tal en vez de dejar creer que funciona.
  */
-export const CONSUMED_CATEGORIES = ['highlights', 'tags', 'folds', 'injections', 'locals', 'textobjects']
+export const CONSUMED_CATEGORIES = [
+  'highlights',
+  'tags',
+  'folds',
+  'injections',
+  'locals',
+  'textobjects',
+  'indents'
+]
 
 /**
  * Categorías que se intentan completar con un suplemento cuando el repo del
  * parser no las publica.
  *
- * Medido sobre los 18 lenguajes del motor: `folds` 0/18, `indents` 0/18,
- * `textobjects` 0/18, `locals` 4/18. No es un olvido del CLI: es lo que publica
- * el upstream. Lo que falta se trae de un catálogo supplementary.
+ * Los repos de los parsers publican poco (casi siempre `highlights` y `tags`);
+ * el resto se trae de los catálogos. `rainbows` se instala aunque todavía no
+ * tenga consumidor: es dato que viaja en el pack y el día que exista el color
+ * de brackets no hay que regenerar nada.
  */
-export const SUPPLEMENT_CATEGORIES = [...CONSUMED_CATEGORIES, 'indents', 'rainbows']
+export const SUPPLEMENT_CATEGORIES = [...CONSUMED_CATEGORIES, 'rainbows']
 
 /** Orden del reporte (el de arriba es el del pipeline de color→datos del árbol). */
 export const CATEGORY_ORDER = ['highlights', 'injections', 'locals', 'tags', 'folds', 'indents', 'textobjects', 'rainbows']
@@ -1217,6 +1241,86 @@ async function fetchSupplementQueryWithInherits({ source, language, category, re
   return { ...fetched, content }
 }
 
+/**
+ * Baja al catálogo las bases de `; inherits:` que falten en disco.
+ *
+ * `resolveInheritChain`/`findBaseQuery` sólo miran el disco. Con el caché frío
+ * (primera corrida en una máquina, o el caché borrado) un lenguaje que hereda
+ * de otro que TODAVÍA no se procesó —`svelte` hereda de `html`, y `html` sólo
+ * existe como suplemento— quedaba con el stub sin capturas y la verificación
+ * fallaba: el resultado dependía del ORDEN de los lenguajes.
+ *
+ * Acá se completa el caché ANTES de resolver: la base se busca por categoría en
+ * el mismo reparto híbrido, se guarda en `queries-overrides/<base>/` (que es
+ * donde `findBaseQuery` la encuentra) y se recurre por si la base a su vez
+ * hereda de otra (`html` → `html_tags`).
+ */
+async function seedInheritedBases({
+  entries,
+  engineDir,
+  profileDir,
+  overridesRoot,
+  sourceIdsFor,
+  ref,
+  log,
+  seen = new Set(),
+  depth = 0
+}) {
+  if (depth > 4) return
+  for (const entry of entries) {
+    const category = entry.category
+    if (!category) continue
+    for (const base of declaredInherits(entry.content ?? '')) {
+      const key = `${base}/${category}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      const relative = entry.relative ?? `queries/${category}.scm`
+      if (baseQueryPath({ base, relative, engineDir, profileDir, overridesRoot })) continue
+
+      let fetched = null
+      for (const sourceId of sourceIdsFor(category)) {
+        const source = SUPPLEMENTS[sourceId]
+        if (!source) continue
+        fetched = await fetchSupplementQuery({
+          source,
+          language: base,
+          category,
+          ref: ref ?? source.ref,
+          log: () => {}
+        })
+        if (fetched) break
+      }
+      if (!fetched) {
+        log(`aviso: no pude bajar la base "${base}" (${category}) para fusionar`)
+        continue
+      }
+      const dir = path.join(overridesRoot, base)
+      fs.mkdirSync(dir, { recursive: true })
+      fs.writeFileSync(path.join(dir, `${category}.scm`), fetched.content)
+      // La base puede llamarse igual que un lenguaje que SÍ empaquetamos
+      // (`html` es base de `svelte` y lenguaje propio): si se guardara sin
+      // procedencia, ese lenguaje perdería la licencia al leer su carpeta.
+      writeOverrideProvenance(dir, category, {
+        origin: fetched.origin,
+        ref: fetched.ref,
+        license: fetched.license
+      })
+      log(`base ${base}/${category}.scm ← ${fetched.origin} (para fusionar)`)
+      await seedInheritedBases({
+        entries: [{ relative: `queries/${category}.scm`, category, content: fetched.content }],
+        engineDir,
+        profileDir,
+        overridesRoot,
+        sourceIdsFor,
+        ref,
+        log,
+        seen,
+        depth: depth + 1
+      })
+    }
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1460,6 +1564,28 @@ async function main() {
     const plan = planQueries({ files: upstreamFiles, overrides, supplements, categories })
     for (const line of renderQueryReport(plan)) log(line)
 
+    // ── Bases de herencia: completar el caché ANTES de resolver ────────────
+    // Si no, un lenguaje podía fallar por el ORDEN en que se procesan (su base
+    // todavía no estaba bajada). Ver `seedInheritedBases`.
+    const overridesRoot = path.dirname(overridesDir)
+    if (supplementFlag !== 'none') {
+      await seedInheritedBases({
+        entries: plan.entries,
+        engineDir,
+        profileDir,
+        overridesRoot,
+        sourceIdsFor: (category) =>
+          supplementFlag === 'hybrid'
+            ? HYBRID_CATEGORY_SOURCES[category] ?? Object.keys(SUPPLEMENTS)
+            : [supplementFlag],
+        ref:
+          supplementFlag === 'hybrid'
+            ? null
+            : options.list['supplement-ref'] ?? SUPPLEMENTS[supplementFlag]?.ref ?? null,
+        log
+      })
+    }
+
     // ── Herencia de queries (base primero) ─────────────────────────────────
     const inheritsFlag = options.list.inherits
       ? options.list.inherits.split(/[\s,]+/).filter(Boolean)
@@ -1470,7 +1596,7 @@ async function main() {
       if (forced) {
         let content = query.content
         for (const base of forced) {
-          const baseContent = findBaseQuery({ base, relative: query.relative, engineDir, profileDir, log })
+          const baseContent = findBaseQuery({ base, relative: query.relative, engineDir, profileDir, overridesRoot, log })
           if (!baseContent) continue
           content = mergeInheritedQueries(content, baseContent)
           log(`query ${query.relative}: fusionada con la base "${base}"`)
@@ -1488,7 +1614,7 @@ async function main() {
       // autocontenido (el motor resuelve `inherits:` por su cuenta, pero el
       // paquete SEF viaja a máquinas donde la base puede no estar).
       query.content = resolveInheritChain(query.content, (base) =>
-        findBaseQuery({ base, relative: query.relative, engineDir, profileDir, log })
+        findBaseQuery({ base, relative: query.relative, engineDir, profileDir, overridesRoot, log })
       )
       log(`query ${query.relative}: herencia resuelta (${declared.join(' → ')})`)
       queryContents[query.relative] = query.content
