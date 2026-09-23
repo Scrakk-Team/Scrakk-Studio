@@ -264,10 +264,22 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
   // sobre el strip, no sobre una tab puntual).
   const stripZone = useDropZone({ kind: 'strip', stripId })
 
+  // Ref combinado ESTABLE: si el callback cambia de identidad en cada render,
+  // React hace detach/attach del ref y cada uno llama setState (useDropZone) →
+  // loop de updates ("Maximum update depth exceeded") con muchos strips.
+  const tabsRef = useRef<HTMLDivElement | null>(null)
+  const stripRef = stripZone.ref
+  const setTabsNode = useCallback(
+    (el: HTMLDivElement | null) => {
+      tabsRef.current = el
+      stripRef(el)
+    },
+    [stripRef]
+  )
+
   // Scroll horizontal con la RUEDA sobre el strip: cuando las tabs desbordan
   // (el contenedor las tapa), la rueda las revela. Listener nativo NO pasivo
   // para poder frenar el scroll de la página.
-  const tabsRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     const el = tabsRef.current
     if (!el) return undefined
@@ -369,10 +381,7 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
   return (
     <div className={styles.strip}>
       <div
-        ref={(el) => {
-          tabsRef.current = el
-          stripZone.ref(el)
-        }}
+        ref={setTabsNode}
         className={styles.tabs}
         role="tablist"
         aria-label="Tabs abiertas"
