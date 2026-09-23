@@ -25,6 +25,8 @@
               "queries/tags.scm",
               "queries/folds.scm",
               "queries/indents.scm",
+              "queries/textobjects.scm",
+              "queries/rainbows.scm",
               "queries/test.scm"
             ],
             "abi": "tree-sitter-abi-15",

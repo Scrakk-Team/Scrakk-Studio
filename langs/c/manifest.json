@@ -25,7 +25,9 @@
               "queries/locals.scm",
               "queries/tags.scm",
               "queries/folds.scm",
-              "queries/indents.scm"
+              "queries/indents.scm",
+              "queries/textobjects.scm",
+              "queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "09b197078de798a782e7160dc2cff7b98e90432f874c487dac92f3e305e0722c"

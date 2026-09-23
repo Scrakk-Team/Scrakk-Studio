@@ -3,7 +3,7 @@
   "symbol": "elixir",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-elixir",
   "abi": 14,
-  "builtAt": "2026-09-22T19:20:23.464Z",
+  "builtAt": "2026-09-23T03:29:26.456Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -47,13 +47,26 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "24136f06fec594ad3df3167950947a77ac3672ae32a46995d42fd412431c5255"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "ab6ef177666a5919d902df4f070c8cfa133d2f9eea14c97f52a7c42880de9407"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "2d28b5abac2aff22bfc39fcf7f8a58583e66837051fbb7c80454de97e902aa61"
     }
   ],
-  "missingCategories": [
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

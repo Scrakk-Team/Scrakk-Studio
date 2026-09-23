@@ -23,7 +23,9 @@
               "queries/highlights.scm",
               "queries/injections.scm",
               "queries/folds.scm",
-              "queries/indents.scm"
+              "queries/indents.scm",
+              "queries/textobjects.scm",
+              "queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "f487d80993db3ace496853257edccf0bf6a6994df7e41bae6ed2622e0bd2f602"

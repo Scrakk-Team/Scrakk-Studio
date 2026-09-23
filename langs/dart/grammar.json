@@ -3,7 +3,7 @@
   "symbol": "dart",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-dart",
   "abi": 15,
-  "builtAt": "2026-09-22T19:19:07.719Z",
+  "builtAt": "2026-09-23T03:28:59.458Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -49,6 +49,20 @@
       "sha256": "90ead46e1d45e1e2098c6eed8b8563e9a8613eb048f95df75ce5ce1d24a6ebec"
     },
     {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e998e96dcd49d9ff6befce1ceeeb2e3563e5b3691426a510ac42c85a6a8cea6d"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "dcf0421ac9bafba1c05590739ff5b1a3d8fda1d27dafee5eeb6aa042124e4a84"
+    },
+    {
       "file": "queries/test.scm",
       "category": "unknown",
       "source": "upstream",
@@ -56,11 +70,10 @@
       "sha256": "3db1a0d439b7d1226ca9aedb3f86af681bf27e35c73aa79c67f2d81a74dad6b1"
     }
   ],
-  "missingCategories": [
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
     "indents",
+    "rainbows",
     "unknown"
   ],
   "inherits": []

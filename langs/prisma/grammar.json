@@ -3,7 +3,7 @@
   "symbol": "prisma",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-prisma",
   "abi": 15,
-  "builtAt": "2026-09-22T19:13:18.501Z",
+  "builtAt": "2026-09-23T03:27:13.359Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -26,13 +26,20 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "bd214aece19e0750ae53aa2051fb99666dd3102a2b14b1647742410c2686c806"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "9ff57f2152448f0866ce3c370b9de45454cca95aaad6dcc2902e31c869f724ee"
     }
   ],
   "missingCategories": [
     "tags",
     "locals",
-    "textobjects",
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "categoriesWithoutConsumer": [],
   "inherits": []

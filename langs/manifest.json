@@ -24,8 +24,11 @@
               "bash/queries/highlights.scm",
               "bash/queries/injections.scm",
               "bash/queries/locals.scm",
+              "bash/queries/tags.scm",
               "bash/queries/folds.scm",
-              "bash/queries/indents.scm"
+              "bash/queries/indents.scm",
+              "bash/queries/textobjects.scm",
+              "bash/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "699fe411056494819f776007d1797b4d1bf8d33a3d95ae64183353a6fd141e85"
@@ -51,7 +54,9 @@
               "c/queries/locals.scm",
               "c/queries/tags.scm",
               "c/queries/folds.scm",
-              "c/queries/indents.scm"
+              "c/queries/indents.scm",
+              "c/queries/textobjects.scm",
+              "c/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "09b197078de798a782e7160dc2cff7b98e90432f874c487dac92f3e305e0722c"
@@ -75,7 +80,10 @@
               "c_sharp/queries/injections.scm",
               "c_sharp/queries/locals.scm",
               "c_sharp/queries/tags.scm",
-              "c_sharp/queries/folds.scm"
+              "c_sharp/queries/folds.scm",
+              "c_sharp/queries/indents.scm",
+              "c_sharp/queries/textobjects.scm",
+              "c_sharp/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "0c9205570201ff819e885534431d5d658cec3a32728f84200de2b36b4f4f2803"
@@ -99,7 +107,9 @@
               "cmake/queries/highlights.scm",
               "cmake/queries/injections.scm",
               "cmake/queries/folds.scm",
-              "cmake/queries/indents.scm"
+              "cmake/queries/indents.scm",
+              "cmake/queries/textobjects.scm",
+              "cmake/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "f487d80993db3ace496853257edccf0bf6a6994df7e41bae6ed2622e0bd2f602"
@@ -130,7 +140,9 @@
               "cpp/queries/locals.scm",
               "cpp/queries/tags.scm",
               "cpp/queries/folds.scm",
-              "cpp/queries/indents.scm"
+              "cpp/queries/indents.scm",
+              "cpp/queries/textobjects.scm",
+              "cpp/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "0e5ae1d0084c115d98aeee6ebabcefad1a175577c91978d74ca0934ac708f53d"
@@ -153,7 +165,9 @@
               "css/queries/highlights.scm",
               "css/queries/injections.scm",
               "css/queries/folds.scm",
-              "css/queries/indents.scm"
+              "css/queries/indents.scm",
+              "css/queries/textobjects.scm",
+              "css/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "9e5f637d376a84f12fe77ca6ef0c2fa7119027186b397b2c0bc471763ee53841"
@@ -179,6 +193,8 @@
               "dart/queries/tags.scm",
               "dart/queries/folds.scm",
               "dart/queries/indents.scm",
+              "dart/queries/textobjects.scm",
+              "dart/queries/rainbows.scm",
               "dart/queries/test.scm"
             ],
             "abi": "tree-sitter-abi-15",
@@ -202,7 +218,8 @@
             "parser": "dockerfile/grammars/dockerfile.wasm",
             "queries": [
               "dockerfile/queries/highlights.scm",
-              "dockerfile/queries/injections.scm"
+              "dockerfile/queries/injections.scm",
+              "dockerfile/queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "3e3cfb3de6f8cb63904cc6715744948cd842e6c8c4a459e7a5ebbf137aeb1004"
@@ -228,7 +245,9 @@
               "elixir/queries/locals.scm",
               "elixir/queries/tags.scm",
               "elixir/queries/folds.scm",
-              "elixir/queries/indents.scm"
+              "elixir/queries/indents.scm",
+              "elixir/queries/textobjects.scm",
+              "elixir/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "7d64dfc1245f25f3b3517192ee9b4ffd5b6f14e1fe4e6f5436010843de60ac74"
@@ -253,7 +272,9 @@
               "go/queries/locals.scm",
               "go/queries/tags.scm",
               "go/queries/folds.scm",
-              "go/queries/indents.scm"
+              "go/queries/indents.scm",
+              "go/queries/textobjects.scm",
+              "go/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "1fa7761b6b690bedc62fa73ae5bb07907e35fce11fa667de11ffa4d0408e188f"
@@ -277,6 +298,8 @@
               "graphql/queries/graphql/highlights.scm",
               "graphql/queries/injections.scm",
               "graphql/queries/indents.scm",
+              "graphql/queries/textobjects.scm",
+              "graphql/queries/rainbows.scm",
               "graphql/queries/graphql/formatter.scm"
             ],
             "abi": "tree-sitter-abi-14",
@@ -300,7 +323,9 @@
               "hcl/queries/highlights.scm",
               "hcl/queries/injections.scm",
               "hcl/queries/folds.scm",
-              "hcl/queries/indents.scm"
+              "hcl/queries/indents.scm",
+              "hcl/queries/textobjects.scm",
+              "hcl/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "c60c78ba77f773483f96275a38cd312af53e52b173bd96e89626e5cf89fa99d9"
@@ -326,7 +351,9 @@
               "html/queries/injections.scm",
               "html/queries/locals.scm",
               "html/queries/folds.scm",
-              "html/queries/indents.scm"
+              "html/queries/indents.scm",
+              "html/queries/textobjects.scm",
+              "html/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "bff3322d99673eb249c35f28a7a774bded73d35fbcdfe8620cfd5c926cedabc7"
@@ -351,7 +378,9 @@
               "java/queries/locals.scm",
               "java/queries/tags.scm",
               "java/queries/folds.scm",
-              "java/queries/indents.scm"
+              "java/queries/indents.scm",
+              "java/queries/textobjects.scm",
+              "java/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "0ab8b117700048c56582d43c0dcc5813cc9c46f2121a82bfec7cda74a709f608"
@@ -381,7 +410,9 @@
               "javascript/queries/locals.scm",
               "javascript/queries/tags.scm",
               "javascript/queries/folds.scm",
-              "javascript/queries/indents.scm"
+              "javascript/queries/indents.scm",
+              "javascript/queries/textobjects.scm",
+              "javascript/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "158ca1e647b3a60caefe1d7280ccf352fc781c5d6f87ef49844353ab1963321c"
@@ -407,7 +438,9 @@
               "json/queries/injections.scm",
               "json/queries/locals.scm",
               "json/queries/folds.scm",
-              "json/queries/indents.scm"
+              "json/queries/indents.scm",
+              "json/queries/textobjects.scm",
+              "json/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "367e00c7223f0228b00095a518860e4d1a110557de911402d5cba23ea3d3c5d9"
@@ -432,7 +465,10 @@
               "kotlin/queries/injections.scm",
               "kotlin/queries/locals.scm",
               "kotlin/queries/tags.scm",
-              "kotlin/queries/folds.scm"
+              "kotlin/queries/folds.scm",
+              "kotlin/queries/indents.scm",
+              "kotlin/queries/textobjects.scm",
+              "kotlin/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "2fc6a3a90f51b09810d3bad3b76ebb11e685b42c594e5d6e13e3e04718000009"
@@ -452,7 +488,10 @@
             "kind": "treeSitter",
             "parser": "less/grammars/less.wasm",
             "queries": [
-              "less/queries/highlights.scm"
+              "less/queries/highlights.scm",
+              "less/queries/injections.scm",
+              "less/queries/indents.scm",
+              "less/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "8104ba60875f47f9cda8248af7c550d9c27f72bf4e65a17d6b90ad336d22fda3"
@@ -477,7 +516,9 @@
               "lua/queries/locals.scm",
               "lua/queries/tags.scm",
               "lua/queries/folds.scm",
-              "lua/queries/indents.scm"
+              "lua/queries/indents.scm",
+              "lua/queries/textobjects.scm",
+              "lua/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "72908357dc282a23ce9a97049137265fd7f88804d9cfa4081b8612eea2113d2b"
@@ -502,8 +543,10 @@
             "queries": [
               "markdown/queries/highlights.scm",
               "markdown/queries/injections.scm",
+              "markdown/queries/tags.scm",
               "markdown/queries/folds.scm",
-              "markdown/queries/indents.scm"
+              "markdown/queries/indents.scm",
+              "markdown/queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "eb9e70744200469cc989fb1547e219aa528fa206e301f3bcac870c98a5ec0459"
@@ -526,8 +569,11 @@
               "php/queries/highlights.scm",
               "php/queries/injections.scm",
               "php/queries/locals.scm",
+              "php/queries/tags.scm",
               "php/queries/folds.scm",
-              "php/queries/indents.scm"
+              "php/queries/indents.scm",
+              "php/queries/textobjects.scm",
+              "php/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "69d1473c6b0cdf1c8aaf544fbb2c6f4dca9e97a0f52ff44f958e44701c794bfb"
@@ -549,7 +595,8 @@
             "queries": [
               "prisma/queries/highlights.scm",
               "prisma/queries/injections.scm",
-              "prisma/queries/folds.scm"
+              "prisma/queries/folds.scm",
+              "prisma/queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "750a77b956a863b6cbd6cf848aa03587cb06a1341b066043d1dcaa9540e910c8"
@@ -576,7 +623,9 @@
               "python/queries/locals.scm",
               "python/queries/tags.scm",
               "python/queries/folds.scm",
-              "python/queries/indents.scm"
+              "python/queries/indents.scm",
+              "python/queries/textobjects.scm",
+              "python/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "72776f10fd71c26e03b5a71629790c8b3e744422bbb693d393f1a6d2e8dae6a6"
@@ -602,7 +651,9 @@
               "ruby/queries/locals.scm",
               "ruby/queries/tags.scm",
               "ruby/queries/folds.scm",
-              "ruby/queries/indents.scm"
+              "ruby/queries/indents.scm",
+              "ruby/queries/textobjects.scm",
+              "ruby/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "c377a4e31a6d85da11ca1a869af965eb5777b77acc866531f1e6b08f50381258"
@@ -627,7 +678,9 @@
               "rust/queries/locals.scm",
               "rust/queries/tags.scm",
               "rust/queries/folds.scm",
-              "rust/queries/indents.scm"
+              "rust/queries/indents.scm",
+              "rust/queries/textobjects.scm",
+              "rust/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "92249db4f32f83f1c1d39f54276de4dfb13d552951845f5befadf3d135382680"
@@ -650,7 +703,9 @@
               "scss/queries/highlights.scm",
               "scss/queries/injections.scm",
               "scss/queries/folds.scm",
-              "scss/queries/indents.scm"
+              "scss/queries/indents.scm",
+              "scss/queries/textobjects.scm",
+              "scss/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-13",
             "sha256": "ab320813e14cc14a779afafc363539a99527aba55084ed22aa176ca81764ce8f"
@@ -673,7 +728,9 @@
               "sql/queries/highlights.scm",
               "sql/queries/injections.scm",
               "sql/queries/folds.scm",
-              "sql/queries/indents.scm"
+              "sql/queries/indents.scm",
+              "sql/queries/textobjects.scm",
+              "sql/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "0838493e44ff2bc36b44f6880f8f1e24a03504583586a4574e556dde503edd4c"
@@ -696,8 +753,11 @@
               "svelte/queries/highlights.scm",
               "svelte/queries/injections.scm",
               "svelte/queries/locals.scm",
+              "svelte/queries/tags.scm",
               "svelte/queries/folds.scm",
-              "svelte/queries/indents.scm"
+              "svelte/queries/indents.scm",
+              "svelte/queries/textobjects.scm",
+              "svelte/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "949a92fb2be9f4619ad9da44011b4500b40f50366e7810552a341366f89ca727"
@@ -724,6 +784,7 @@
               "swift/queries/folds.scm",
               "swift/queries/indents.scm",
               "swift/queries/textobjects.scm",
+              "swift/queries/rainbows.scm",
               "swift/queries/outline.scm"
             ],
             "abi": "tree-sitter-abi-15",
@@ -748,7 +809,9 @@
               "terraform/queries/highlights.scm",
               "terraform/queries/injections.scm",
               "terraform/queries/folds.scm",
-              "terraform/queries/indents.scm"
+              "terraform/queries/indents.scm",
+              "terraform/queries/textobjects.scm",
+              "terraform/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "658ac4b44b2f46d8b4eb87f3b9c3bfaa3d30a4148bcb892b8c16c163636ade38"
@@ -771,8 +834,11 @@
               "toml/queries/highlights.scm",
               "toml/queries/injections.scm",
               "toml/queries/locals.scm",
+              "toml/queries/tags.scm",
               "toml/queries/folds.scm",
-              "toml/queries/indents.scm"
+              "toml/queries/indents.scm",
+              "toml/queries/textobjects.scm",
+              "toml/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "4a98e33fe5e235dc20106491cc4c8fef6cc6f1ca8c8bafc1b7f1dfafe6094c6e"
@@ -795,8 +861,11 @@
               "tsx/queries/highlights.scm",
               "tsx/queries/injections.scm",
               "tsx/queries/locals.scm",
+              "tsx/queries/tags.scm",
               "tsx/queries/folds.scm",
-              "tsx/queries/indents.scm"
+              "tsx/queries/indents.scm",
+              "tsx/queries/textobjects.scm",
+              "tsx/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "1dc1c6bcc5c8bf724120a5107c1bf2706c571348400e9e89dd116866312db83e"
@@ -821,8 +890,11 @@
               "typescript/queries/highlights.scm",
               "typescript/queries/injections.scm",
               "typescript/queries/locals.scm",
+              "typescript/queries/tags.scm",
               "typescript/queries/folds.scm",
-              "typescript/queries/indents.scm"
+              "typescript/queries/indents.scm",
+              "typescript/queries/textobjects.scm",
+              "typescript/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "d369565be50129fd4b31a6822e2fdcfe8d0d792f71bc459cd813c6ea2de1a94b"
@@ -845,7 +917,8 @@
               "vue/queries/highlights.scm",
               "vue/queries/injections.scm",
               "vue/queries/folds.scm",
-              "vue/queries/indents.scm"
+              "vue/queries/indents.scm",
+              "vue/queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "41fc0e493d26f9393fc09bc12a66822539c7fe27ef01d9f761a19ec4183c5497"
@@ -870,7 +943,9 @@
               "yaml/queries/injections.scm",
               "yaml/queries/locals.scm",
               "yaml/queries/folds.scm",
-              "yaml/queries/indents.scm"
+              "yaml/queries/indents.scm",
+              "yaml/queries/textobjects.scm",
+              "yaml/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "3680420cb1b8be4954b42cdd2d29f289129871e1e13a81358ecf4bef69ec3ae0"
@@ -893,8 +968,11 @@
               "zig/queries/highlights.scm",
               "zig/queries/injections.scm",
               "zig/queries/locals.scm",
+              "zig/queries/tags.scm",
               "zig/queries/folds.scm",
-              "zig/queries/indents.scm"
+              "zig/queries/indents.scm",
+              "zig/queries/textobjects.scm",
+              "zig/queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "3e9e7480ae19e9d57ddd7a655fcdeab709539a6c85f087dc2f34ec809d27e5db"

@@ -3,7 +3,7 @@
   "symbol": "ruby",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-ruby",
   "abi": 14,
-  "builtAt": "2026-09-22T19:12:41.380Z",
+  "builtAt": "2026-09-23T03:26:46.847Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -47,13 +47,26 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "0167860e77a1e79373a19bab66a6fe1b0e7843f1a94066c7ac570a3a055dc307"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "e80397011c2d96becfe0bb60f5c565474f9351b6ae0eafb85428742c8b7d4bc1"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "22b43ad6e1c949acb3cd4b861379e0edba55375c5d4af7838f0f3e7629073bde"
     }
   ],
-  "missingCategories": [
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

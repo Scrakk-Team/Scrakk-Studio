@@ -3,7 +3,7 @@
   "symbol": "markdown",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-markdown/tree-sitter-markdown",
   "abi": 15,
-  "builtAt": "2026-09-22T19:15:14.555Z",
+  "builtAt": "2026-09-23T03:27:48.325Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -21,6 +21,13 @@
       "sha256": "64b1a6006b40176d8db986cc41350e4f9b292fd06bfedb0abfcdb1fb989aca3e"
     },
     {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "06ad439feb1c5fb53375e142a9f233a7c17b57a8786957dbcc60fe3f9aff8cac"
+    },
+    {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
@@ -33,12 +40,18 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "52550be38883524e3eb393982cbc3e0ff08e7bcfb8ae6e42152eeec531409faa"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "81a636424bfa3599cc686fda2fdd961f556dde07718b931a2795994101233d32"
     }
   ],
   "missingCategories": [
-    "tags",
     "locals",
-    "textobjects"
+    "rainbows"
   ],
   "categoriesWithoutConsumer": [
     "indents"

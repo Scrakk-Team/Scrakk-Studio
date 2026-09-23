@@ -3,7 +3,7 @@
   "symbol": "cmake",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-cmake",
   "abi": 14,
-  "builtAt": "2026-09-22T19:13:23.974Z",
+  "builtAt": "2026-09-23T03:27:15.968Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -33,15 +33,29 @@
       "source": "upstream",
       "origin": "repo",
       "sha256": "07c501dd07e082ece7a320596ef24a2fe3cd36c1bfbb6d7a74c35273ac446d0a"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "6681610714b9e7ab046604924935db0d092715174d60edcd3e62a677695f969e"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "8859b9256aab093b9afd3da95b22ba14437a4cc3eb3971a1173dc3135fee14e6"
     }
   ],
   "missingCategories": [
     "tags",
-    "locals",
-    "textobjects"
+    "locals"
   ],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

@@ -3,7 +3,7 @@
   "symbol": "sql",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-sql",
   "abi": 15,
-  "builtAt": "2026-09-22T19:19:46.790Z",
+  "builtAt": "2026-09-23T03:29:14.015Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -33,15 +33,29 @@
       "source": "upstream",
       "origin": "repo",
       "sha256": "c90c797ffe6ccee5912eab2c9b8644ba0db0477ed93cbfefa10c574552348b32"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "01d741210d970d32161efd9a84132a39d5ce03b85338ffa64187a896417858b4"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "5c6d8d2b3c80182232f3e4068915318c81aa352f083457feb00333baabc03189"
     }
   ],
   "missingCategories": [
     "tags",
-    "locals",
-    "textobjects"
+    "locals"
   ],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

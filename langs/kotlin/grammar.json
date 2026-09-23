@@ -3,7 +3,7 @@
   "symbol": "kotlin",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-kotlin",
   "abi": 14,
-  "builtAt": "2026-09-22T19:16:13.928Z",
+  "builtAt": "2026-09-23T03:28:07.789Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -40,12 +40,33 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "c06f293c744792f157488f7e55bcbe5a026c586842525577db44c06ccd8c9b02"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "27bc3732402271410688fcf175a34deac3424ef1557dd2dcf7b1ef136ab7a6a5"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "f1988ab4a100736000c29dd42531669343c54b50472808edd9cb9902b6e1fdb0"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "0bfe11a899dc1e1281a9583bb51f6383bb82fbfa14d7f810b690ca7c52f4d159"
     }
   ],
-  "missingCategories": [
-    "textobjects",
-    "indents"
+  "missingCategories": [],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "rainbows"
   ],
-  "categoriesWithoutConsumer": [],
   "inherits": []
 }

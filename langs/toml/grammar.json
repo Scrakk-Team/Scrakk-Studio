@@ -3,7 +3,7 @@
   "symbol": "toml",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-toml",
   "abi": 14,
-  "builtAt": "2026-09-22T19:12:47.389Z",
+  "builtAt": "2026-09-23T03:26:49.028Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -28,6 +28,13 @@
       "sha256": "c96389d2ab7a653ae9b33637e18cf40dcce428d879547b66d9b5a520e1926213"
     },
     {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "d43a9e0d1d396001f47c50eba785aaf011618d55064a02b2c2f16cde675d1444"
+    },
+    {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
@@ -40,14 +47,26 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "13f2a61390cd7757cd846f1e284c13160f442247fc6e3ec518759c1b93caad07"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "672182757920d6773e95ecd614da114d00f8c1b6a64265ecd246d19221285cf3"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "b5e20141c9e4993108f06c7c139dde0cfcf02220fd0f773fe85b56297a4748c6"
     }
   ],
-  "missingCategories": [
-    "tags",
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

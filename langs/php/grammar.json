@@ -3,7 +3,7 @@
   "symbol": "php",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-php/php",
   "abi": 15,
-  "builtAt": "2026-09-22T19:15:28.505Z",
+  "builtAt": "2026-09-23T03:27:52.601Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -28,6 +28,13 @@
       "sha256": "1436c95be1f08798688ef320761db688085cbb5299e13053db4208efa37fd568"
     },
     {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "3126320dc87d3c2faddfb9df2ae1e4f6426ba95319dccc51f01dbfff959dcff0"
+    },
+    {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
@@ -40,14 +47,26 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "6ffd432eec554eace6bbc3e957406aed428ca23a0e1859f8cc1dc5817f1d71cb"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "7e277326693f40fa360352d78cc4e75006d31f3d156b7574d5307a644dbc3b26"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "783c8691fae9d1f3ac6af5a27ae7f57334fbf7cfc4e22e4d5dbd1c9b032c82bd"
     }
   ],
-  "missingCategories": [
-    "tags",
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

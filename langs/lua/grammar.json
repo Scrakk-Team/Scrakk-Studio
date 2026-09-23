@@ -3,7 +3,7 @@
   "symbol": "lua",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-lua",
   "abi": 15,
-  "builtAt": "2026-09-22T19:12:44.551Z",
+  "builtAt": "2026-09-23T03:26:48.029Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -47,13 +47,26 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "593b6b01a3a7fccf8b01dfc80de058c813bf3fa83c1f24a6244326b96e19ec51"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "add881541a6d270229773fa4b416a4b53463bab73077ff89d8baf1785dca0354"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "a0ffe9d2809df70f5f4ecd38ce8bd5b9005b50e7b859362daaf6f1452ee210e9"
     }
   ],
-  "missingCategories": [
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

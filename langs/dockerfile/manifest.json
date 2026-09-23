@@ -22,7 +22,8 @@
             "parser": "grammars/dockerfile.wasm",
             "queries": [
               "queries/highlights.scm",
-              "queries/injections.scm"
+              "queries/injections.scm",
+              "queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "3e3cfb3de6f8cb63904cc6715744948cd842e6c8c4a459e7a5ebbf137aeb1004"

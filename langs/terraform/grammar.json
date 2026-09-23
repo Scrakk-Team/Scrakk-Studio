@@ -3,7 +3,7 @@
   "symbol": "terraform",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-hcl/dialects/terraform",
   "abi": 15,
-  "builtAt": "2026-09-22T19:13:14.728Z",
+  "builtAt": "2026-09-23T03:27:10.832Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -33,15 +33,29 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "0fd19b3131dc8db6854d65ccb3fdfddb03f6f53feff10ee885183c1c169c3699"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "93395c5fb939f41baf7ff122958f8e269b943f2fc78f9ac5064c3709d17c5f1f"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "f1e34de3e4168e94bb22ed248e0043089bb5a8a68fabf10d81b1320e6792f207"
     }
   ],
   "missingCategories": [
     "tags",
-    "locals",
-    "textobjects"
+    "locals"
   ],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

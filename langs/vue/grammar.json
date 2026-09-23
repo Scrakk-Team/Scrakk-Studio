@@ -3,7 +3,7 @@
   "symbol": "vue",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-vue",
   "abi": 14,
-  "builtAt": "2026-09-22T19:20:37.772Z",
+  "builtAt": "2026-09-23T03:29:30.376Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -33,12 +33,19 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "8faf8bbc1c7886281be14b2c0513af41af223e71b868b24c96a6cad8c0ae30bb"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "d7c95a40d3a3afa3e77db38392521e2d50c4ef69c55842ab20f6e6afee0ff781"
     }
   ],
   "missingCategories": [
     "tags",
     "locals",
-    "textobjects"
+    "rainbows"
   ],
   "categoriesWithoutConsumer": [
     "indents"

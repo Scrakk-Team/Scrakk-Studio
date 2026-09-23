@@ -21,7 +21,8 @@
             "queries": [
               "queries/highlights.scm",
               "queries/injections.scm",
-              "queries/folds.scm"
+              "queries/folds.scm",
+              "queries/textobjects.scm"
             ],
             "abi": "tree-sitter-abi-15",
             "sha256": "750a77b956a863b6cbd6cf848aa03587cb06a1341b066043d1dcaa9540e910c8"

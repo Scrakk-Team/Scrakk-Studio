@@ -3,7 +3,7 @@
   "symbol": "swift",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-swift",
   "abi": 15,
-  "builtAt": "2026-09-22T19:18:56.424Z",
+  "builtAt": "2026-09-23T03:28:55.980Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -56,6 +56,13 @@
       "sha256": "a8086f55963e0c79c91ded41c5dacc8da8ec8753f05b4db3ea70ce56e4281fa4"
     },
     {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "2f881a271860ce550d16128bbc34368a06642269ed60b62a1c26d1a5ec8b6a00"
+    },
+    {
       "file": "queries/outline.scm",
       "category": "unknown",
       "source": "upstream",
@@ -66,6 +73,7 @@
   "missingCategories": [],
   "categoriesWithoutConsumer": [
     "indents",
+    "rainbows",
     "unknown"
   ],
   "inherits": []

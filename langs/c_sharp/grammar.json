@@ -3,7 +3,7 @@
   "symbol": "c_sharp",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-c-sharp",
   "abi": 15,
-  "builtAt": "2026-09-22T19:12:29.686Z",
+  "builtAt": "2026-09-23T03:26:40.568Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -40,12 +40,33 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "596a82b2b891c67d59971ad7285bc651ea811f82a6a49041438a78d47709ddf3"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "47645bd1cf8c776a8b5e669eb9e66c0cb53c9e7f0095b413fe8edf6c80047e94"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "b15396af2f65d7d54089f3d76a1682402b1a606ccd16396e5073e063acbbb065"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "1da6e47c3b531df9d185285d91da2677715a61d5d5a9cc80c706cad837667434"
     }
   ],
-  "missingCategories": [
-    "textobjects",
-    "indents"
+  "missingCategories": [],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "rainbows"
   ],
-  "categoriesWithoutConsumer": [],
   "inherits": []
 }

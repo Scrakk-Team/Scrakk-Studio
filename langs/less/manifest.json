@@ -19,7 +19,10 @@
             "kind": "treeSitter",
             "parser": "grammars/less.wasm",
             "queries": [
-              "queries/highlights.scm"
+              "queries/highlights.scm",
+              "queries/injections.scm",
+              "queries/indents.scm",
+              "queries/rainbows.scm"
             ],
             "abi": "tree-sitter-abi-14",
             "sha256": "8104ba60875f47f9cda8248af7c550d9c27f72bf4e65a17d6b90ad336d22fda3"

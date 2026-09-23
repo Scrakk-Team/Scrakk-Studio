@@ -3,7 +3,7 @@
   "symbol": "css",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-css",
   "abi": 15,
-  "builtAt": "2026-09-22T19:12:58.074Z",
+  "builtAt": "2026-09-23T03:26:56.080Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -33,15 +33,29 @@
       "source": "override",
       "origin": "ajuste propio",
       "sha256": "91fe5062c2bb1af135a2e3ed11d79dd20b5776c9e6b34496b4eceba5ac816685"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "721ea15e712d04571796aa5297bb3d81792309c849fb1c50b0ea22ffccc02082"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "f68795d66c7bd52491202b0932646501037a18d697a21afbcb3a98d04ee3484a"
     }
   ],
   "missingCategories": [
     "tags",
-    "locals",
-    "textobjects"
+    "locals"
   ],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

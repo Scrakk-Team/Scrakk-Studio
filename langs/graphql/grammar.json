@@ -3,7 +3,7 @@
   "symbol": "graphql",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-graphql",
   "abi": 14,
-  "builtAt": "2026-09-22T19:20:01.030Z",
+  "builtAt": "2026-09-23T03:29:20.084Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -28,6 +28,20 @@
       "sha256": "6a21858f84185db21e22130f75bee727348de4fb70dbf682c7ecc4eea0eb579c"
     },
     {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "7aef4e3a57288a5cf0a315087ef0eb36d25bd22fec4317d4df00fd193b8f994c"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "c06e805f05d2f62de4df75b60911583c6a4841dd8899c2ea2eda90274318bdf7"
+    },
+    {
       "file": "queries/graphql/formatter.scm",
       "category": "unknown",
       "source": "upstream",
@@ -38,11 +52,11 @@
   "missingCategories": [
     "tags",
     "folds",
-    "locals",
-    "textobjects"
+    "locals"
   ],
   "categoriesWithoutConsumer": [
     "indents",
+    "rainbows",
     "unknown"
   ],
   "inherits": []

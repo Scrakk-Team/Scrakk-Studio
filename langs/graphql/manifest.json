@@ -23,6 +23,8 @@
               "queries/graphql/highlights.scm",
               "queries/injections.scm",
               "queries/indents.scm",
+              "queries/textobjects.scm",
+              "queries/rainbows.scm",
               "queries/graphql/formatter.scm"
             ],
             "abi": "tree-sitter-abi-14",

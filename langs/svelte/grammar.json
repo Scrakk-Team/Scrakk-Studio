@@ -3,7 +3,7 @@
   "symbol": "svelte",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-svelte",
   "abi": 14,
-  "builtAt": "2026-09-22T19:13:20.679Z",
+  "builtAt": "2026-09-23T03:27:14.363Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -28,6 +28,13 @@
       "sha256": "94aa95d53e2031e8852dd37c4dfc4c6834a54eedfb23d9b73f255590329a23e8"
     },
     {
+      "file": "queries/tags.scm",
+      "category": "tags",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "fc2160db71f8f658bbf092c28a2a5d382bd25c80190b8e33df63b8579fdd467d"
+    },
+    {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "upstream",
@@ -40,14 +47,26 @@
       "source": "upstream",
       "origin": "repo",
       "sha256": "c546d71a9f0cd1f748f33fc8559545d5cbc350f8d0336a7512f67bbe46cf05d6"
+    },
+    {
+      "file": "queries/textobjects.scm",
+      "category": "textobjects",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "41396bce8a7d5fc84fc5109e07092ef133a1e353283fb778f02c85dbfd7e86a3"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "035f4b906fdef61f74e28d30a36b0a317e9a230584f6e60c189736b7a80f09aa"
     }
   ],
-  "missingCategories": [
-    "tags",
-    "textobjects"
-  ],
+  "missingCategories": [],
   "categoriesWithoutConsumer": [
-    "indents"
+    "indents",
+    "rainbows"
   ],
   "inherits": []
 }

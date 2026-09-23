@@ -3,7 +3,7 @@
   "symbol": "less_external_scanner_create",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-less",
   "abi": 14,
-  "builtAt": "2026-09-22T19:13:08.757Z",
+  "builtAt": "2026-09-23T03:27:05.881Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -12,16 +12,38 @@
       "source": "upstream",
       "origin": "repo",
       "sha256": "1905e29214ebc35e32696a67157d6d821943b5edd2e56814795cc7e4881e194d"
+    },
+    {
+      "file": "queries/injections.scm",
+      "category": "injections",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "8db8eba23a8109ab14901ca62e2bcb27e2c38d96cbe0362c02dc6f71fdafd28f"
+    },
+    {
+      "file": "queries/indents.scm",
+      "category": "indents",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "4963a96347ef360749034bcf8f9fb8856804ed7204cb010ebe53d11ae435533f"
+    },
+    {
+      "file": "queries/rainbows.scm",
+      "category": "rainbows",
+      "source": "override",
+      "origin": "ajuste propio",
+      "sha256": "f68795d66c7bd52491202b0932646501037a18d697a21afbcb3a98d04ee3484a"
     }
   ],
   "missingCategories": [
     "tags",
     "folds",
-    "injections",
     "locals",
-    "textobjects",
-    "indents"
+    "textobjects"
   ],
-  "categoriesWithoutConsumer": [],
+  "categoriesWithoutConsumer": [
+    "indents",
+    "rainbows"
+  ],
   "inherits": []
 }
