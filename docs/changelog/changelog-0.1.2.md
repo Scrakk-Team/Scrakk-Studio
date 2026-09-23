@@ -166,5 +166,5 @@ publicadas no se editan. El archivo va por versión:
   texto de la tool (`--color-text-muted`); antes heredaban el color del chat y
   se veían más brillantes.
 - **Explorer**: el input de **renombrar/crear** archivo ya no usa el borde de
-  acento ni un radio grande; ahora es un borde tenue, radio chico y sin
-  contorno.
+  acento ni un radio grande; ahora **no tiene borde** (solo fondo), radio chico
+  y sin contorno.
