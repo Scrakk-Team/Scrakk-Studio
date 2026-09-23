@@ -66,6 +66,31 @@ describe('planQueries — upstream, ajustes propios y suplementos', () => {
     expect(highlights[0].source).toBe('override')
   })
 
+  it('un suplemento cacheado conserva su procedencia (licencia incluida)', () => {
+    const plan = planQueries({
+      files: [upstream('queries/highlights.scm')],
+      overrides: [
+        {
+          path: '/engine/deps/queries-overrides/rust/tags.scm',
+          category: 'tags',
+          content: '(x) @definition.function',
+          origin: 'helix',
+          ref: '079a789e8cb08ead67f19e1971a1b7438b37354b',
+          license: 'MPL-2.0'
+        }
+      ],
+      categories: ['highlights', 'tags']
+    })
+    const tags = plan.entries.find((entry) => entry.category === 'tags')
+    expect(tags).toMatchObject({
+      source: 'override',
+      origin: 'helix',
+      ref: '079a789e8cb08ead67f19e1971a1b7438b37354b',
+      license: 'MPL-2.0'
+    })
+    expect(originLabel(tags)).toBe('helix@079a789e')
+  })
+
   it('el suplemento completa sólo lo que falta, con procedencia', () => {
     const plan = planQueries({
       files: [upstream('queries/highlights.scm')],
@@ -359,5 +384,8 @@ describe('engine — rutas y registry', () => {
     expect(originLabel({ source: 'upstream' })).toBe('repo')
     expect(originLabel({ source: 'override' })).toBe('ajuste propio')
     expect(originLabel({ source: 'supplement', origin: 'nvim-treesitter', ref: 'abc1234567' })).toBe('nvim-treesitter@abc12345')
+    // Suplemento cacheado: en disco ya es "ajuste propio", pero conserva su
+    // catálogo y su commit (si no, el pack saldría sin licencia).
+    expect(originLabel({ source: 'override', origin: 'helix', ref: 'abc1234567' })).toBe('helix@abc12345')
   })
 })

@@ -872,7 +872,13 @@ export function planQueries({ files, overrides = [], supplements = [], categorie
       category: override.category,
       content: override.content,
       source: 'override',
-      origin: override.path
+      // Un ajuste propio puede ser NUESTRO (sin origen de catálogo → "ajuste
+      // propio") o un suplemento ya cacheado, que trae su procedencia al lado
+      // (ver provenance.json): así el reporte y el `grammar.json` conservan la
+      // atribución y la licencia.
+      origin: override.origin ?? override.path,
+      ...(override.ref ? { ref: override.ref } : {}),
+      ...(override.license ? { license: override.license } : {})
     })
   }
 
@@ -910,7 +916,8 @@ export function planQueries({ files, overrides = [], supplements = [], categorie
 /** Etiqueta de origen de una query (para el reporte y el `grammar.json`). */
 export function originLabel(entry) {
   if (entry.source === 'upstream') return 'repo'
-  if (entry.source === 'override') return 'ajuste propio'
+  // Ajuste propio sin catálogo detrás: es nuestro.
+  if (entry.source === 'override' && !entry.ref) return 'ajuste propio'
   return entry.ref ? `${entry.origin}@${String(entry.ref).slice(0, 8)}` : String(entry.origin)
 }
 
@@ -1057,16 +1064,50 @@ export function defaultOverridesDir({ engineDir, projectRoot, symbol }) {
   return path.join(projectRoot, 'dist', 'grammars', 'queries-overrides', symbol)
 }
 
+/**
+ * Procedencia de los suplementos CACHEADOS.
+ *
+ * Los catálogos se guardan como ajustes propios (`queries-overrides/<símbolo>/`)
+ * para no volver a bajarlos. Sin este archivo, la corrida siguiente leería esos
+ * `.scm` como "ajuste propio" a secas y la atribución (proyecto + commit +
+ * licencia) se perdía: el `grammar.json` del pack salía SIN licencia, que es
+ * justo lo que no puede pasar con contenido MPL-2.0. Se guarda al lado, por
+ * categoría.
+ */
+const OVERRIDE_PROVENANCE_FILE = 'provenance.json'
+
+function readOverrideProvenance(dir) {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(path.join(dir, OVERRIDE_PROVENANCE_FILE), 'utf8'))
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeOverrideProvenance(dir, category, data) {
+  const all = readOverrideProvenance(dir)
+  all[category] = data
+  fs.writeFileSync(path.join(dir, OVERRIDE_PROVENANCE_FILE), `${JSON.stringify(all, null, 2)}\n`)
+}
+
 /** Ajustes propios ya en disco (`<dir>/<categoría>.scm`, recursivo). */
 function readOverrideFiles(dir) {
   if (!dir || !fs.existsSync(dir)) return []
+  const provenance = readOverrideProvenance(dir)
   const out = []
   const walk = (current) => {
     for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
       const full = path.join(current, entry.name)
       if (entry.isDirectory()) walk(full)
       else if (entry.name.endsWith('.scm')) {
-        out.push({ path: full, category: categorizeQueryFile(entry.name), content: fs.readFileSync(full, 'utf8') })
+        const category = categorizeQueryFile(entry.name)
+        out.push({
+          path: full,
+          category,
+          content: fs.readFileSync(full, 'utf8'),
+          ...(provenance[category] ?? {})
+        })
       }
     }
   }
@@ -1402,6 +1443,14 @@ async function main() {
           const dest = path.join(overridesDir, `${category}.scm`)
           fs.mkdirSync(overridesDir, { recursive: true })
           fs.writeFileSync(dest, fetched.content)
+          // La procedencia viaja con el archivo cacheado: sin esto, la próxima
+          // corrida lo leería como "ajuste propio" y el pack saldría sin
+          // licencia.
+          writeOverrideProvenance(overridesDir, category, {
+            origin: fetched.origin,
+            ref: fetched.ref,
+            license: fetched.license
+          })
           log(`guardado en ${dest}`)
         }
       }
