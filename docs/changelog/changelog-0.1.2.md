@@ -36,6 +36,13 @@ publicadas no se editan. El archivo va por versión:
   su carpeta (`node tools/build-langs.mjs`), **sin recompilar el motor**.
 - El pack `langs/` se registra como **una extensión** más, así que los lenguajes
   siguen funcionando sin instalar nada.
+- **Queries por el sistema híbrido**: cada categoría se completa desde el catálogo
+  que la publica mejor, no desde uno solo — **nvim-treesitter** (Apache-2.0) para
+  `highlights`, `injections`, `locals`, `folds` e `indents`; **Helix** (MPL-2.0)
+  para `tags` y `rainbows` (los únicos que los traen), y
+  **nvim-treesitter-textobjects** (Apache-2.0) para `textobjects`. Cuando el repo
+  del parser ya publica una categoría, esa manda. Cada catálogo va **fijado por
+  commit** y su licencia queda grabada en el `grammar.json` del paquete.
 
 ### Editor — edición
 - **Auto-pairing por lenguaje**: los pares de cierre los declara el lenguaje (su
