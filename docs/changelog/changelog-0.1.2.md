@@ -174,7 +174,8 @@ publicadas no se editan. El archivo va por versión:
   se veían más brillantes.
 - **Explorer**: el input de **renombrar/crear** archivo ya no usa el borde de
   acento ni un radio grande; ahora **no tiene borde** (solo fondo), radio chico
-  y sin contorno.
+  y sin contorno. Su texto (y el placeholder) usa el tamaño de las filas
+  (`--text-xs`, 12px); antes el de crear heredaba un tamaño mayor.
 - **Breadcrumb, tab activa y editor (Innerta)**: los tres usan el mismo fondo
   que las activity bars (`--activitybar-bg`/surface): el breadcrumb dejó de ser
   transparente, la tab activa dejó el tinte de hover y el buffer del editor
