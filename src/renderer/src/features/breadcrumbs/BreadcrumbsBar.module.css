@@ -8,6 +8,9 @@
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
+  /* Mismo fondo que las activity bars / titlebar / statusbar. */
+  background: var(--activitybar-bg, var(--color-surface));
+  backdrop-filter: var(--glass-blur, none);
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
 }
 

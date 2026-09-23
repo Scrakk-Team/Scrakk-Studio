@@ -130,9 +130,10 @@
   white-space: nowrap;
 }
 
-/* Tab activa: mismo fondo del hover + texto pleno + indicador de acento. */
+/* Tab activa: mismo fondo que la activity bar / breadcrumb + texto pleno +
+   indicador de acento. */
 .tabActive {
-  background: var(--color-hover);
+  background: var(--activitybar-bg, var(--color-surface));
   color: var(--color-text);
 }
 
