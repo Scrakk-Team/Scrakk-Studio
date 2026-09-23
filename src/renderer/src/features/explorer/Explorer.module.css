@@ -230,7 +230,8 @@
   color: var(--color-text);
 }
 
-/* Input inline de crear/renombrar. */
+/* Input inline de crear/renombrar. Borde tenue (no accent), radio chico y
+   sin contorno/efectos: se ve como una edición inline, no como un ring. */
 .input {
   flex: 1;
   min-width: 0;
@@ -239,10 +240,18 @@
   font: inherit;
   color: var(--color-text);
   background: var(--color-surface-raised);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   outline: none;
+  box-shadow: none;
   caret-color: var(--color-accent);
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--color-border-strong);
 }
 
 .editError {
