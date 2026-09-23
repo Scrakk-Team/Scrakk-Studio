@@ -5,7 +5,7 @@
  * prompt siempre refleja las tools reales registradas — nunca se desincroniza.
  */
 
-import { getEnabledToolDefinitions } from '../tools'
+import { getEnabledToolDefinitions, registry } from '../tools'
 
 type JsonSchema = Record<string, unknown>
 
@@ -47,6 +47,12 @@ export function renderToolsList(sessionId: string | null = null): string {
       for (const name of paramNames) {
         lines.push(`    ${formatParam(name, props[name], required.has(name))}`)
       }
+    }
+    // Guía propia de la tool (`prompt.ts`): cómo/cuándo usarla. Antes esto
+    // estaba muerto — la descripción iba al prompt pero el `prompt` no.
+    const guidance = registry.get(fn.name)?.prompt?.trim()
+    if (guidance && guidance !== fn.description.trim()) {
+      lines.push(`  Guidance: ${guidance}`)
     }
   }
   return lines.join('\n')
