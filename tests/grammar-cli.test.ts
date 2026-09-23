@@ -16,6 +16,7 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import {
   CONSUMED_CATEGORIES,
+  HYBRID_CATEGORY_SOURCES,
   SUPPLEMENT_CATEGORIES,
   SUPPLEMENTS,
   declaredInherits,
@@ -50,7 +51,7 @@ describe('planQueries — upstream, ajustes propios y suplementos', () => {
     expect(plan.entries.every((entry) => entry.source === 'upstream')).toBe(true)
     // Lo que el repo no publica queda listado: el IDE cae a su alternativa y el
     // reporte lo dice en vez de dejar creer que el dato existe.
-    expect(plan.missing).toEqual(['folds', 'injections', 'locals', 'textobjects', 'indents'])
+    expect(plan.missing).toEqual(['folds', 'injections', 'locals', 'textobjects', 'indents', 'rainbows'])
   })
 
   it('el ajuste propio PISA al del repo (es nuestro y existe para eso)', () => {
@@ -111,9 +112,34 @@ describe('planQueries — upstream, ajustes propios y suplementos', () => {
     expect(plan.entries.map((entry) => entry.category)).toEqual(['highlights', 'tags', 'folds'])
   })
 
-  it('las categorías instaladas por defecto son las que el IDE consume + indents', () => {
-    expect(SUPPLEMENT_CATEGORIES).toEqual([...CONSUMED_CATEGORIES, 'indents'])
-    expect(CONSUMED_CATEGORIES).not.toContain('indents')
+  it('las categorías instaladas por defecto son las consumidas + indents + rainbows', () => {
+    expect(SUPPLEMENT_CATEGORIES).toEqual([...CONSUMED_CATEGORIES, 'indents', 'rainbows'])
+    // `rainbows` se instala sin consumidor todavía (el consumidor de brackets no
+    // existe); `indents` sí lo tiene (auto-indent del motor).
+    expect(CONSUMED_CATEGORIES).not.toContain('rainbows')
+  })
+
+  it('el híbrido elige catálogo por categoría (nvim / helix / textobjects)', () => {
+    // Medido: nvim gana highlights, injections, locals, folds e indents.
+    expect(HYBRID_CATEGORY_SOURCES.highlights).toEqual(['nvim', 'helix'])
+    expect(HYBRID_CATEGORY_SOURCES.injections).toEqual(['nvim', 'helix'])
+    expect(HYBRID_CATEGORY_SOURCES.locals).toEqual(['nvim', 'helix'])
+    expect(HYBRID_CATEGORY_SOURCES.folds).toEqual(['nvim', 'helix'])
+    expect(HYBRID_CATEGORY_SOURCES.indents).toEqual(['nvim', 'helix'])
+    // Helix es el único con tags y rainbows; en textobjects respalda al repo
+    // dedicado (sus `.inside/.around` se normalizan en el IDE).
+    expect(HYBRID_CATEGORY_SOURCES.tags).toEqual(['helix'])
+    expect(HYBRID_CATEGORY_SOURCES.rainbows).toEqual(['helix'])
+    expect(HYBRID_CATEGORY_SOURCES.textobjects).toEqual(['textobjects', 'helix'])
+    // Cada catálogo va fijado por commit y declara su licencia.
+    for (const id of ['nvim', 'helix', 'textobjects'] as const) {
+      expect(SUPPLEMENTS[id].ref).toMatch(/^[0-9a-f]{40}$/)
+      expect(SUPPLEMENTS[id].license).toMatch(/^(Apache-2\.0|MPL-2\.0)$/)
+    }
+    expect(SUPPLEMENTS.helix.license).toBe('MPL-2.0')
+    expect(SUPPLEMENTS.textobjects.license).toBe('Apache-2.0')
+    // Helix cubre terraform con las queries de hcl.
+    expect(SUPPLEMENTS.helix.aliases).toEqual({ terraform: 'hcl' })
   })
 })
 

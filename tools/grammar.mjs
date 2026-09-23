@@ -724,22 +724,35 @@ export const CONSUMED_CATEGORIES = ['highlights', 'tags', 'folds', 'injections',
  * `textobjects` 0/18, `locals` 4/18. No es un olvido del CLI: es lo que publica
  * el upstream. Lo que falta se trae de un catálogo supplementary.
  */
-export const SUPPLEMENT_CATEGORIES = [...CONSUMED_CATEGORIES, 'indents']
+export const SUPPLEMENT_CATEGORIES = [...CONSUMED_CATEGORIES, 'indents', 'rainbows']
 
 /** Orden del reporte (el de arriba es el del pipeline de color→datos del árbol). */
-export const CATEGORY_ORDER = ['highlights', 'injections', 'locals', 'tags', 'folds', 'indents', 'textobjects']
+export const CATEGORY_ORDER = ['highlights', 'injections', 'locals', 'tags', 'folds', 'indents', 'textobjects', 'rainbows']
 
 /**
  * De dónde sale una query que el repo del parser NO publica.
  *
- * El catálogo supplementary (folds, indents, locals, injections) no vive en los
- * repos de los parsers: vive en nvim-treesitter y Helix. Se usa nvim porque es el
- * más completo, y se fija un COMMIT y no una rama: ese repo cambia todos los días
- * y una instalación tiene que ser reproducible (misma query hoy y en seis meses).
+ * Los repos de los parsers publican poco (medido: 1–3 `.scm`, casi siempre
+ * `highlights` + `tags`); el resto vive en catálogos de la comunidad. Se usan
+ * TRES, cada uno fijado a un COMMIT (no a una rama) para que la instalación sea
+ * reproducible: misma query hoy y en seis meses.
  *
- * Licencia: nvim-treesitter es Apache-2.0. La procedencia (proyecto + commit +
- * licencia) queda grabada en el `grammar.json` del paquete, así que la atribución
- * viaja con el `.sef` si se redistribuye.
+ *   nvim-treesitter     Apache-2.0   highlights/injections/locals/folds/indents
+ *   helix               MPL-2.0      tags/rainbows (y respaldo del resto)
+ *   nvim-…-textobjects  Apache-2.0   textobjects
+ *
+ * Por qué así (medido sobre nuestros 36 lenguajes):
+ *   - nvim gana en highlights (5437 vs 4651 líneas; más líneas en 23 lenguajes
+ *     vs 11), injections (14 vs 7), locals (897 vs 376 líneas; 15 vs 4) y folds
+ *     (33 vs 5 lenguajes); y su `indents` usa el vocabulario `@indent.begin/
+ *     .end/.dedent` que YA consume el motor (Helix usa `@indent`/`@outdent`).
+ *   - Helix es el ÚNICO con `tags` (nvim no tiene) y `rainbows`.
+ *   - `textobjects` sale del repo dedicado de nvim porque usa `.inner/.outer`,
+ *     que es justo lo que espera el consumidor; Helix usa `.inside/.around`.
+ *
+ * Licencia: Apache-2.0 (nvim y nvim-textobjects) y MPL-2.0 (Helix). La
+ * procedencia (proyecto + commit + licencia) queda grabada en el `grammar.json`
+ * del paquete, así que la atribución viaja con el `.sef` si se redistribuye.
  */
 export const SUPPLEMENTS = {
   nvim: {
@@ -753,18 +766,58 @@ export const SUPPLEMENTS = {
      * prueban las dos: un `--supplement-ref` de una rama vieja sigue sirviendo.
      */
     paths: ['runtime/queries/{name}/{category}.scm', 'queries/{name}/{category}.scm']
+  },
+  helix: {
+    id: 'helix',
+    project: 'helix-editor/helix',
+    ref: '079a789e8cb08ead67f19e1971a1b7438b37354b',
+    license: 'MPL-2.0',
+    paths: ['runtime/queries/{name}/{category}.scm'],
+    /** Helix cubre terraform con las queries de `hcl`. */
+    aliases: { terraform: 'hcl' }
+  },
+  textobjects: {
+    id: 'nvim-treesitter-textobjects',
+    project: 'nvim-treesitter/nvim-treesitter-textobjects',
+    ref: '5c7b0263797dfd1bd6202f2b219f3b53a80b2187',
+    license: 'Apache-2.0',
+    paths: ['queries/{name}/{category}.scm']
   }
+}
+
+/**
+ * EL REPARTO HÍBRIDO: qué catálogo se intenta primero para cada categoría.
+ *
+ * Reemplaza al "un solo catálogo para todo". El orden es de preferencia: si el
+ * primero no publica esa categoría para el lenguaje, se prueba el siguiente.
+ * Con `--supplement <id>` se fuerza uno solo (comportamiento viejo).
+ *
+ * `textobjects` usa Helix de respaldo aunque escriba `@function.inside/.around`:
+ * el IDE normaliza los dos vocabularios (`.inside`→`.inner`, `.around`→`.outer`
+ * en `buildTextObjects`), así que sirve igual.
+ */
+export const HYBRID_CATEGORY_SOURCES = {
+  highlights: ['nvim', 'helix'],
+  injections: ['nvim', 'helix'],
+  locals: ['nvim', 'helix'],
+  folds: ['nvim', 'helix'],
+  indents: ['nvim', 'helix'],
+  tags: ['helix'],
+  textobjects: ['textobjects', 'helix'],
+  rainbows: ['helix']
 }
 
 /**
  * Nombres con los que un suplemento puede conocer al lenguaje.
  *
- * El id nuestro sale del símbolo del parser (`tree_sitter_c_sharp` → `c-sharp`)
- * y el catálogo usa su propio nombre de carpeta (`c_sharp`). Se prueban las dos
- * formas en vez de mantener una tabla de alias, que se desincroniza.
+ * El id nuestro sale del símbolo del parser (`tree_sitter_c_sharp` → `c_sharp`)
+ * y cada catálogo usa su forma de carpeta: nvim `c_sharp`, Helix `c-sharp`. Se
+ * prueban las dos formas (más la identidad) en vez de mantener una tabla de
+ * alias, que se desincroniza.
  */
 export function supplementNamesFor(language) {
-  return Array.from(new Set([String(language), String(language).replace(/-/g, '_')]))
+  const id = String(language)
+  return Array.from(new Set([id, id.replace(/-/g, '_'), id.replace(/_/g, '-')]))
 }
 
 /** URLs candidatas de una query de suplemento (en orden de preferencia). */
@@ -909,7 +962,11 @@ const CAPTURE_EXPECTATIONS = {
   tags: /@(definition|reference|name)[.\w]*/,
   folds: /@fold[.\w]*/,
   indents: /@indent[.\w]*/,
-  textobjects: /@(function|class|parameter|block|call|loop|conditional|textobject|assignment)[.\w]*/
+  // Cualquier `<algo>.inner`/`.outer` (function, class, comment, number…) más los
+  // sinónimos de Helix `.inside`/`.around`, o el prefijo explícito
+  // `textobject.<algo>.outer`: es lo que resuelve `buildTextObjects` en el IDE.
+  textobjects: /@[A-Za-z_][\w.]*\.(inner|outer|inside|around)\b/,
+  rainbows: /@rainbow[.\w]*/
 }
 
 /** Verifica que cada query produzca el dato que el IDE espera de su categoría. */
@@ -1058,7 +1115,10 @@ function runEngineWasmBuild(engineDir, log) {
  * como "faltante" y el IDE cae a plegado por sangría.
  */
 async function fetchSupplementQuery({ source, language, category, ref, log }) {
-  for (const name of supplementNamesFor(language)) {
+  const names = new Set(supplementNamesFor(language))
+  const alias = source.aliases?.[String(language)]
+  if (alias) names.add(alias)
+  for (const name of names) {
     for (const url of supplementUrls(source, { name, category, ref })) {
       let response
       try {
@@ -1151,9 +1211,16 @@ Opciones:
                         (las categorías se piden con --categories)
   --categories <all|minimal|highlights,folds,…>
                         qué completar con suplementos cuando el repo no lo
-                        publica (default: las 6 que el IDE consume + indents)
-  --supplement nvim|none     catálogo supplementary (default: nvim, fijado)
-  --supplement-ref <ref>     otro commit/rama del catálogo (default: el fijado)
+                        publica (default: all = highlights, injections, locals,
+                        tags, folds, indents, textobjects, rainbows)
+  --supplement hybrid|nvim|helix|textobjects|none
+                        catálogo supplementary (default: hybrid)
+                          hybrid → elige por categoría: nvim para highlights/
+                            injections/locals/folds/indents, helix para tags/
+                            rainbows, nvim-treesitter-textobjects para
+                            textobjects (con Helix de respaldo cuando falta)
+                          <id>   → forzar un solo catálogo
+  --supplement-ref <ref>     otro commit/rama del catálogo (sólo con --supplement <id>)
   --overrides <dir>     ajustes propios; default: deps/queries-overrides/<símbolo>
                         del engine si el checkout está, si no dist/grammars/…
   --verify              verificar los captures de cada categoría (0 = fallo)
@@ -1291,19 +1358,41 @@ async function main() {
     }
 
     const supplements = []
-    const supplementFlag = options.list.supplement ?? 'nvim'
+    const supplementFlag = options.list.supplement ?? 'hybrid'
     if (supplementFlag !== 'none') {
-      const source = SUPPLEMENTS[supplementFlag]
-      if (!source) {
-        throw new Error(`--supplement "${supplementFlag}" no existe (hay: none, ${Object.keys(SUPPLEMENTS).join(', ')})`)
+      const forcedSource = supplementFlag === 'hybrid' ? null : SUPPLEMENTS[supplementFlag]
+      if (supplementFlag !== 'hybrid' && !forcedSource) {
+        throw new Error(
+          `--supplement "${supplementFlag}" no existe (hay: hybrid, none, ${Object.keys(SUPPLEMENTS).join(', ')})`
+        )
       }
-      const ref = options.list['supplement-ref'] ?? source.ref
+      if (!forcedSource && options.list['supplement-ref']) {
+        log('aviso: --supplement-ref se ignora en modo híbrido; se usa el commit fijado de cada catálogo')
+      }
       for (const category of categories) {
         const haveIt =
           overrides.some((entry) => entry.category === category) ||
           queryList.some((query) => categorizeQueryFile(query.relative) === category)
         if (haveIt) continue
-        const fetched = await fetchSupplementQueryWithInherits({ source, language, category, ref, log })
+        // Híbrido: se prueban los catálogos de esa categoría EN ORDEN y gana el
+        // primero que la publique. Forzado: uno solo (comportamiento viejo).
+        const sourceIds = forcedSource
+          ? [supplementFlag]
+          : HYBRID_CATEGORY_SOURCES[category] ?? Object.keys(SUPPLEMENTS)
+        const ref = forcedSource ? options.list['supplement-ref'] ?? forcedSource.ref : null
+        let fetched = null
+        for (const sourceId of sourceIds) {
+          const source = SUPPLEMENTS[sourceId]
+          if (!source) continue
+          fetched = await fetchSupplementQueryWithInherits({
+            source,
+            language,
+            category,
+            ref: ref ?? source.ref,
+            log
+          })
+          if (fetched) break
+        }
         if (!fetched) continue
         supplements.push({ category, ...fetched })
         // Se guarda en los ajustes propios: la próxima vez no hay red de por
