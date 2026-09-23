@@ -3,7 +3,7 @@
   "symbol": "svelte",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-svelte",
   "abi": 14,
-  "builtAt": "2026-09-23T03:27:14.363Z",
+  "builtAt": "2026-09-23T03:38:55.609Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -31,7 +31,9 @@
       "file": "queries/tags.scm",
       "category": "tags",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "fc2160db71f8f658bbf092c28a2a5d382bd25c80190b8e33df63b8579fdd467d"
     },
     {
@@ -52,14 +54,18 @@
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "41396bce8a7d5fc84fc5109e07092ef133a1e353283fb778f02c85dbfd7e86a3"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "035f4b906fdef61f74e28d30a36b0a317e9a230584f6e60c189736b7a80f09aa"
     }
   ],

@@ -3,49 +3,61 @@
   "symbol": "terraform",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-hcl/dialects/terraform",
   "abi": 15,
-  "builtAt": "2026-09-23T03:27:10.832Z",
+  "builtAt": "2026-09-23T03:38:52.465Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
       "file": "queries/highlights.scm",
       "category": "highlights",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "495e0ad981733bccce5f862c0837b219fdd5c9ec095f364ecf0471e257bccc44"
     },
     {
       "file": "queries/injections.scm",
       "category": "injections",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "584c028fef7b6e4c4574b01f888e75358e99b099ff9f9445fad0364bbcb33dfe"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "dc11ac4e551445cdbd7ee059b2fc3533286607c2e723fbe79d4a98e09f41dd75"
     },
     {
       "file": "queries/indents.scm",
       "category": "indents",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "0fd19b3131dc8db6854d65ccb3fdfddb03f6f53feff10ee885183c1c169c3699"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "93395c5fb939f41baf7ff122958f8e269b943f2fc78f9ac5064c3709d17c5f1f"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "f1e34de3e4168e94bb22ed248e0043089bb5a8a68fabf10d81b1320e6792f207"
     }
   ],

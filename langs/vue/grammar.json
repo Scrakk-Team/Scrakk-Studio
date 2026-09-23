@@ -3,42 +3,52 @@
   "symbol": "vue",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-vue",
   "abi": 14,
-  "builtAt": "2026-09-23T03:29:30.376Z",
+  "builtAt": "2026-09-23T03:42:31.369Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
       "file": "queries/highlights.scm",
       "category": "highlights",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "99e926eb8a29af154f0d2423317114e0feac5f5f9b878f7785f5942362c8c0be"
     },
     {
       "file": "queries/injections.scm",
       "category": "injections",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "306d2be99e83e824c8a87e91384406cfb8acec75567b1f9b569d3df1c57d30f2"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "36aef211d764a8ebe1ce54e66f887418d908333de22cfa2a790673b588d00bb7"
     },
     {
       "file": "queries/indents.scm",
       "category": "indents",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "8faf8bbc1c7886281be14b2c0513af41af223e71b868b24c96a6cad8c0ae30bb"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "d7c95a40d3a3afa3e77db38392521e2d50c4ef69c55842ab20f6e6afee0ff781"
     }
   ],

@@ -3,7 +3,7 @@
   "symbol": "dockerfile",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-dockerfile",
   "abi": 14,
-  "builtAt": "2026-09-23T03:29:17.964Z",
+  "builtAt": "2026-09-23T03:42:12.446Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -17,14 +17,18 @@
       "file": "queries/injections.scm",
       "category": "injections",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "528e6508f127cf583b2d8770e171f884b39fbcb31fe9b59b24daaf04248b7112"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "3ce48be3ae849a99541f9f575498769c40b541a16f82dc1a3789b5d3f55e5e53"
     }
   ],

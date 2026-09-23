@@ -3,7 +3,7 @@
   "symbol": "html",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-html",
   "abi": 14,
-  "builtAt": "2026-09-23T03:27:17.033Z",
+  "builtAt": "2026-09-23T03:38:58.876Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -24,35 +24,45 @@
       "file": "queries/locals.scm",
       "category": "locals",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "ac78830a6a7eab92a71ba4e5448f104e059ae1e88e355e68a3035191a260be74"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "554602944873b08eec04ffe76ab79b5d4609f75394490c124397426a9b0d3e44"
     },
     {
       "file": "queries/indents.scm",
       "category": "indents",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "89d699103388e9d529f82cc9b58cf4af6d24e0638a52fd5c878a90acee9c9193"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "c3b5b16815c35390e2cad8467c48727aea8134d00af54f9496e4a56b6d4f4030"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "38f01182530f68a090448216099e3046ae2696907396222ba37b5325b33dbf9e"
     }
   ],

@@ -3,7 +3,7 @@
   "symbol": "markdown",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-markdown/tree-sitter-markdown",
   "abi": 15,
-  "builtAt": "2026-09-23T03:27:48.325Z",
+  "builtAt": "2026-09-23T03:39:37.714Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -24,28 +24,36 @@
       "file": "queries/tags.scm",
       "category": "tags",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "06ad439feb1c5fb53375e142a9f233a7c17b57a8786957dbcc60fe3f9aff8cac"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "f9cb82eb75c5d3c6946903bb2318278d3ca378e507b14569d2bb8af8bba69b95"
     },
     {
       "file": "queries/indents.scm",
       "category": "indents",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "52550be38883524e3eb393982cbc3e0ff08e7bcfb8ae6e42152eeec531409faa"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "81a636424bfa3599cc686fda2fdd961f556dde07718b931a2795994101233d32"
     }
   ],

@@ -3,63 +3,79 @@
   "symbol": "php",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-php/php",
   "abi": 15,
-  "builtAt": "2026-09-23T03:27:52.601Z",
+  "builtAt": "2026-09-23T03:39:41.984Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
       "file": "queries/highlights.scm",
       "category": "highlights",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "93351ae3e207258f40f117a071788ace3fa5c3606e664b6995bf05e436076ef2"
     },
     {
       "file": "queries/injections.scm",
       "category": "injections",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "d40a985257abfd073013bfa7c57036440eeee8e55fd61ee195161deec27f1131"
     },
     {
       "file": "queries/locals.scm",
       "category": "locals",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "1436c95be1f08798688ef320761db688085cbb5299e13053db4208efa37fd568"
     },
     {
       "file": "queries/tags.scm",
       "category": "tags",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "3126320dc87d3c2faddfb9df2ae1e4f6426ba95319dccc51f01dbfff959dcff0"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "90b05994f83d4342bd39643d3a7554baf2ed88a96260727bce75ca81b68db8e6"
     },
     {
       "file": "queries/indents.scm",
       "category": "indents",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "6ffd432eec554eace6bbc3e957406aed428ca23a0e1859f8cc1dc5817f1d71cb"
     },
     {
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter-textobjects@5c7b0263",
+      "ref": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
+      "license": "Apache-2.0",
       "sha256": "7e277326693f40fa360352d78cc4e75006d31f3d156b7574d5307a644dbc3b26"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "783c8691fae9d1f3ac6af5a27ae7f57334fbf7cfc4e22e4d5dbd1c9b032c82bd"
     }
   ],

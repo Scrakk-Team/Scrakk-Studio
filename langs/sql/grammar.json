@@ -3,7 +3,7 @@
   "symbol": "sql",
   "source": "/home/julian/Documentos/Proyectos/InnertaEngine/InnertaEngine-Linux/deps/languages/tree-sitter-sql",
   "abi": 15,
-  "builtAt": "2026-09-23T03:29:14.015Z",
+  "builtAt": "2026-09-23T03:42:08.096Z",
   "generatedBy": "tools/grammar.mjs",
   "queries": [
     {
@@ -17,14 +17,18 @@
       "file": "queries/injections.scm",
       "category": "injections",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "e623f01991542b9fa72383225a6fdec1da1b8d7696dd652d10e78d2ff186d089"
     },
     {
       "file": "queries/folds.scm",
       "category": "folds",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "nvim-treesitter@9a168f63",
+      "ref": "9a168f6357ed21c3a636e1727bc7d382abc451b8",
+      "license": "Apache-2.0",
       "sha256": "21163ae316e615e2b96da4ce0f4bcbc9f46a7ef28b5c09d8701a1d28ea28e8ef"
     },
     {
@@ -38,14 +42,18 @@
       "file": "queries/textobjects.scm",
       "category": "textobjects",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "01d741210d970d32161efd9a84132a39d5ce03b85338ffa64187a896417858b4"
     },
     {
       "file": "queries/rainbows.scm",
       "category": "rainbows",
       "source": "override",
-      "origin": "ajuste propio",
+      "origin": "helix@079a789e",
+      "ref": "079a789e8cb08ead67f19e1971a1b7438b37354b",
+      "license": "MPL-2.0",
       "sha256": "5c6d8d2b3c80182232f3e4068915318c81aa352f083457feb00333baabc03189"
     }
   ],
