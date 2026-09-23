@@ -173,6 +173,12 @@ publicadas no se editan. El archivo va por versión:
   **click en la card** abre ese modal; solo hay uno a la vez.
 
 ### Correcciones
+- **Emojis y símbolos no se veían**: la cadena de fuentes de respaldo del motor
+  apuntaba a rutas del sistema, que **no existen en el build web**, así que
+  quedaba vacía y todo lo que la fuente del editor no tiene (símbolos, emoji del
+  plano suplementario) se dibujaba con avance 0. Ahora se **embeben** dos fuentes
+  recortadas (símbolos BMP y emoji astral) y el atlas las usa como respaldo:
+  `😀 🚀 👍 ❤ ✔ ⚠` y los dibujos de caja se ven.
 - **Editor en varios paneles**: al abrir un archivo en un segundo panel, el
   editor quedaba **vacío** porque los paneles compartían un único módulo WASM y
   canvas. Ahora **cada panel monta su motor aislado**.
