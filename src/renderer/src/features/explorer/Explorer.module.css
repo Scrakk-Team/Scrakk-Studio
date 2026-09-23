@@ -238,6 +238,8 @@
   height: 20px;
   padding: 0 6px;
   font: inherit;
+  /* Mismo tamaño que las filas (ROW_FONT_SIZE = 12 = --text-xs). */
+  font-size: var(--text-xs);
   color: var(--color-text);
   background: var(--color-surface-raised);
   border: none;
