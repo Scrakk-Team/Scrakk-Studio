@@ -264,6 +264,27 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
   // sobre el strip, no sobre una tab puntual).
   const stripZone = useDropZone({ kind: 'strip', stripId })
 
+  // Scroll horizontal con la RUEDA sobre el strip: cuando las tabs desbordan
+  // (el contenedor las tapa), la rueda las revela. Listener nativo NO pasivo
+  // para poder frenar el scroll de la página.
+  const tabsRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = tabsRef.current
+    if (!el) return undefined
+    const onWheel = (event: WheelEvent): void => {
+      if (el.scrollWidth <= el.clientWidth) return
+      const delta =
+        Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX
+      if (delta === 0) return
+      event.preventDefault()
+      el.scrollLeft += delta
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+    // Se reengancha cuando aparecen tabs (sin tabs el componente no monta el
+    // contenedor, así que un effect con deps [] no encontraría el elemento).
+  }, [tabs.length])
+
   const handleSelect = useCallback(
     (tab: TabSpec): void => {
       if (drag.phase === 'dragging' && drag.payload?.tabId === tab.id) return
@@ -348,7 +369,10 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
   return (
     <div className={styles.strip}>
       <div
-        ref={stripZone.ref}
+        ref={(el) => {
+          tabsRef.current = el
+          stripZone.ref(el)
+        }}
         className={styles.tabs}
         role="tablist"
         aria-label="Tabs abiertas"
