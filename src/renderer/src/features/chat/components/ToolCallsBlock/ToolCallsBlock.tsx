@@ -11,6 +11,7 @@ import { memo } from 'react'
 import { ToolCallShell, ToolCallIcon, type ToolCallExecution } from '@services/ai/tool-shell'
 import type { ToolCallInfo, ToolResultInfo, ToolCallStatusType } from '@services/chat/types'
 import { registry } from '@services/ai/tools'
+import { sessionIdForToolCall } from '@services/ai/agents'
 import styles from './ToolCallsBlock.module.css'
 
 interface ToolCallsBlockProps {
@@ -43,7 +44,8 @@ export const ToolCallsBlock = memo(function ToolCallsBlock({
           filePath: resultInfo?.filePath,
           originalContent: resultInfo?.originalContent,
           modifiedContent: resultInfo?.modifiedContent,
-          runId: resultInfo?.runId,
+          runId: resultInfo?.runId ?? sessionIdForToolCall(tc.id),
+          toolCallId: tc.id,
         }
 
         return (

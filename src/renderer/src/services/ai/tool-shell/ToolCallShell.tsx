@@ -25,6 +25,8 @@ export interface ToolCallExecution {
   partialArgs?: string
   /** Id de sesión de un subagente lanzado (tool `task`). */
   runId?: string
+  /** Id del tool call (para resolver el subagente en vivo). */
+  toolCallId?: string
 }
 
 interface ToolCallShellProps {

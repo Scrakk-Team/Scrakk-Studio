@@ -251,3 +251,14 @@ export function startSubagentSession(
 ): string {
   return subagentSessions.start(agent, prompt, options)
 }
+
+/** Mapeo tool-call → sesión de subagente (para abrirla desde la card). */
+const toolCallSessions = new Map<string, string>()
+
+export function linkToolCall(toolCallId: string | undefined, sessionId: string): void {
+  if (toolCallId) toolCallSessions.set(toolCallId, sessionId)
+}
+
+export function sessionIdForToolCall(toolCallId: string): string | undefined {
+  return toolCallSessions.get(toolCallId)
+}

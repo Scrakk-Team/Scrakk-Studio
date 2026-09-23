@@ -34,6 +34,8 @@ export { runHeadlessAgent, type RunAgentInput, type RunAgentResult } from './run
 export {
   subagentSessions,
   startSubagentSession,
+  linkToolCall,
+  sessionIdForToolCall,
   type SubagentSession,
   type StartSessionOptions
 } from './sessions'

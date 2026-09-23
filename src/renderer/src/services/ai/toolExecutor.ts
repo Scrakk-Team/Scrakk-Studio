@@ -236,7 +236,7 @@ async function executeRegistryTool(
     }
   }
 
-  const ctx: ToolContext = { projectRoot, sessionId, signal: getCurrentToolSignal() }
+  const ctx: ToolContext = { projectRoot, sessionId, signal: getCurrentToolSignal(), toolCallId: _toolCall.id }
   try {
     const result = await withToolTimeout(
       () => tool.execute(args, ctx),
