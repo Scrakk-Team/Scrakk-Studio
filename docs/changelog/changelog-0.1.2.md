@@ -113,6 +113,8 @@ publicadas no se editan. El archivo va por versión:
   es **extensible**: una extensión `.sef` puede aportar su propio
   **pack/familia** y sus tipos (`family`/`type` en el manifest).
 - Toggle por **grupo** (encender/apagar todo un tipo) además del toggle por tool.
+- La **guía propia de cada tool** (`prompt.ts`) ahora se inyecta al system prompt
+  (`Guidance:` por tool). Antes estaba muerta: solo se usaba la `description`.
 
 ### Agentes (UI)
 - Se **unificaron modos y subagentes** en un solo concepto: **Agentes**, con
