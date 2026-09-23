@@ -5,7 +5,7 @@ import { FileTypeIcon } from '@features/explorer/components/FileTypeIcon'
 import { markSeen, useUpdates } from '@services/updates'
 import type { ReleaseInfo } from '@shared/updates'
 import { loadTips } from "./tips";
-import { loadAnnouncement, parseLatestEntry, type WelcomeAnnouncement } from "./changelog";
+import { loadAnnouncement, parseLatestEntry, changelogHasNews, markChangelogSeen, type WelcomeAnnouncement } from "./changelog";
 import "./WelcomePanel.css";
 
 /** Consejos desde `tips/*.json` (agregar JSON = agregar consejo). */
@@ -62,6 +62,13 @@ export function WelcomePanel({
   const updates = useUpdates();
   // Release remota (más nueva) si trae notas; si no, el changelog empaquetado.
   const announcement = updates.latest?.body ? announcementFromRelease(updates.latest) : ANNOUNCEMENT;
+  // Novedad del changelog LOCAL: funciona sin release remoto.
+  const [changelogSeenTick, setChangelogSeenTick] = useState(0);
+  void changelogSeenTick;
+  const changelogNews = ANNOUNCEMENT
+    ? changelogHasNews(ANNOUNCEMENT.version, updates.currentVersion)
+    : false;
+  const hasNews = updates.hasNews || changelogNews;
   useEffect(() => {
 
     // Cargar workspaces guardados
@@ -218,10 +225,14 @@ export function WelcomePanel({
               onClick={() => {
                 setInfoTab('ads');
                 markSeen();
+                if (ANNOUNCEMENT?.version) {
+                  markChangelogSeen(ANNOUNCEMENT.version);
+                  setChangelogSeenTick((v) => v + 1);
+                }
               }}
             >
               Anuncios
-              {updates.hasNews && <span className="info-badge" aria-label="Hay novedades" />}
+              {hasNews && <span className="info-badge" aria-label="Hay novedades" />}
             </button>
             {infoTab === 'tips' && TIPS.length > 0 && (
               <div className="tips-indicators">

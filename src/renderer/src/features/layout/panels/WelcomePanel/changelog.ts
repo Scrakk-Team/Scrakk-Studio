@@ -12,6 +12,8 @@
  * Nada de esto está hardcodeado: cambiar el `.md` cambia lo que se ve.
  */
 
+import { isNewerVersion } from '@shared/version'
+
 const modules = import.meta.glob('../../../../../../../docs/changelog/changelog-*.md', {
   eager: true,
   query: '?raw',
@@ -112,4 +114,36 @@ export function loadAnnouncement(): WelcomeAnnouncement | null {
     summary: entry.summary,
     body: entry.body
   }
+}
+
+// ── Novedades del changelog LOCAL ───────────────────────────────────────────
+// Para que el badge de Anuncios funcione sin depender del release remoto.
+
+const SEEN_KEY = 'welcome:seen-changelog'
+
+/** Versión del changelog local ya vista ('' si nunca). */
+export function readSeenChangelog(): string {
+  try {
+    return localStorage.getItem(SEEN_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/** Marca como vista la versión del changelog local. */
+export function markChangelogSeen(version: string): void {
+  try {
+    localStorage.setItem(SEEN_KEY, version)
+  } catch {
+    // sin storage: se recalcula al reiniciar
+  }
+}
+
+/**
+ * ¿Hay novedad en el changelog LOCAL? (la versión del `changelog-x.x.x.md` más
+ * nueva que la app y todavía sin ver).
+ */
+export function changelogHasNews(version: string, currentVersion: string): boolean {
+  if (!version || !currentVersion) return false
+  return isNewerVersion(version, currentVersion) && readSeenChangelog() !== version
 }
