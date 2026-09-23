@@ -175,6 +175,7 @@ publicadas no se editan. El archivo va por versión:
 - **Explorer**: el input de **renombrar/crear** archivo ya no usa el borde de
   acento ni un radio grande; ahora **no tiene borde** (solo fondo), radio chico
   y sin contorno.
-- **Breadcrumb y tab activa**: usan el mismo fondo que las activity bars
-  (`--activitybar-bg`), en vez de quedar transparente (breadcrumb) o con el
-  hover (tab activa).
+- **Breadcrumb, tab activa y editor (Innerta)**: los tres usan el mismo fondo
+  que las activity bars (`--activitybar-bg`/surface): el breadcrumb dejó de ser
+  transparente, la tab activa dejó el tinte de hover y el buffer del editor
+  ahora matchea el chrome.
