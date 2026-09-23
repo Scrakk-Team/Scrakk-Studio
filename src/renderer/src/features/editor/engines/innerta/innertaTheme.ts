@@ -152,9 +152,12 @@ export function readActiveThemeTokens(): ThemeToken[] | undefined {
 export function applyInnertaTheme(module: InnertaModule): void {
   const root = getComputedStyle(document.documentElement)
 
-  // Prioridad: --editor-bg (temas SEF, surface del editor) > --color-bg
-  // (chrome de la app). Un theme con editorBg pinta el buffer correcto.
+  // Fondo del buffer: MISMO que el chrome (activity bar / surface) para que el
+  // editor y los paneles se vean unificados. Si el tema no define esas vars,
+  // cae al `--editor-bg` del tema y de ahí al bg de la app.
   const editorBg =
+    cssVar(root, '--activitybar-bg') ??
+    cssVar(root, '--color-surface') ??
     cssVar(root, '--editor-bg') ??
     cssVar(root, '--color-editor-bg') ??
     cssVar(root, '--color-bg') ??
