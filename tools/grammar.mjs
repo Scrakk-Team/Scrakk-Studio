@@ -77,6 +77,7 @@
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import * as fs from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import * as os from 'node:os'
 import * as path from 'node:path'
@@ -1322,6 +1323,136 @@ async function seedInheritedBases({
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// check-updates: ¿quedó viejo algún pin?
+// ═══════════════════════════════════════════════════════════════════════════
+
+const GITHUB_API = 'https://api.github.com'
+
+/** Headers de GitHub (con token si hay: evita el límite de 60 consultas/hora). */
+function githubHeaders(token) {
+  const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'scrakk-grammar' }
+  if (token) headers.Authorization = `Bearer ${token}`
+  return headers
+}
+
+/**
+ * ¿El commit FIJADO del catálogo quedó atrás del default branch?
+ *
+ * Los catálogos van fijados por commit, así que esto sólo compara el pin con el
+ * HEAD del repo. No baja ni escribe nada.
+ */
+export async function checkCatalogUpdate(source, { fetchImpl = fetch, token } = {}) {
+  const headers = githubHeaders(token)
+  const base = { id: source.id, project: source.project, pinned: source.ref }
+  const repoRes = await fetchImpl(`${GITHUB_API}/repos/${source.project}`, { headers })
+  if (!repoRes.ok) return { ...base, error: `repos: HTTP ${repoRes.status}` }
+  const branch = (await repoRes.json()).default_branch
+  if (!branch) return { ...base, error: 'el repo no declara default_branch' }
+
+  const cmpRes = await fetchImpl(`${GITHUB_API}/repos/${source.project}/compare/${source.ref}...${branch}`, {
+    headers
+  })
+  if (!cmpRes.ok) return { ...base, error: `compare: HTTP ${cmpRes.status}` }
+  const cmp = await cmpRes.json()
+  const behind = Number(cmp.ahead_by ?? 0)
+  const last = Array.isArray(cmp.commits) && cmp.commits.length > 0 ? cmp.commits[cmp.commits.length - 1] : null
+  return {
+    ...base,
+    branch,
+    behind,
+    upToDate: behind === 0,
+    latest: last?.sha ?? null,
+    latestDate: last?.commit?.author?.date ?? null,
+    latestSubject: last?.commit?.message ? String(last.commit.message).split('\n')[0] : null
+  }
+}
+
+/** Chequea todos los catálogos (secuencial: son pocos y así el reporte sale ordenado). */
+export async function checkUpdates({
+  sources = SUPPLEMENTS,
+  fetchImpl = fetch,
+  token = process.env.GITHUB_TOKEN
+} = {}) {
+  const out = []
+  for (const source of Object.values(sources)) {
+    out.push(await checkCatalogUpdate(source, { fetchImpl, token }))
+  }
+  return out
+}
+
+/** Reporte legible de los catálogos. */
+export function renderUpdatesReport(results) {
+  const lines = ['catálogos (fijados por commit):']
+  for (const r of results) {
+    const pin = String(r.pinned ?? '').slice(0, 8)
+    if (r.error) {
+      lines.push(`  ? ${String(r.id).padEnd(12)} ${pin}  no se pudo consultar (${r.error})`)
+      continue
+    }
+    if (r.upToDate) {
+      lines.push(`  ✓ ${String(r.id).padEnd(12)} ${pin}  al día`)
+      continue
+    }
+    const when = r.latestDate ? ` (${String(r.latestDate).slice(0, 10)})` : ''
+    lines.push(
+      `  ↑ ${String(r.id).padEnd(12)} ${pin} → ${String(r.latest ?? '').slice(0, 8)}  ${r.behind} commit(s) nuevos${when}`
+    )
+    if (r.latestSubject) lines.push(`      último: ${r.latestSubject}`)
+  }
+  return lines
+}
+
+/** SHA local y remoto de un checkout (o `null` si no es un repo git usable). */
+function checkoutShas(dir, exec) {
+  const run = (args) =>
+    exec('git', args, { cwd: dir, stdio: ['ignore', 'pipe', 'ignore'], timeout: 15000 })
+      .toString()
+      .trim()
+  try {
+    const local = run(['rev-parse', 'HEAD'])
+    const remote = run(['ls-remote', '--quiet', 'origin', 'HEAD']).split(/\s+/)[0] || null
+    return { local, remote }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Los checkouts de parsers del motor.
+ *
+ * El CLI NO los fija (viven en `deps/languages` del engine), así que sólo se
+ * compara el HEAD local con el remoto para que la actualización sepa cuáles
+ * mover. Best-effort: sin checkout, sin git o sin red, se saltea ese repo.
+ */
+export function checkParserCheckouts({ languagesDir, exec = execFileSync } = {}) {
+  if (!languagesDir || !fs.existsSync(languagesDir)) return { skipped: true, entries: [] }
+  const entries = []
+  for (const name of fs.readdirSync(languagesDir).sort()) {
+    const dir = path.join(languagesDir, name)
+    if (!fs.statSync(dir).isDirectory()) continue
+    const shas = checkoutShas(dir, exec)
+    if (!shas) continue
+    entries.push({ name, ...shas, upToDate: !shas.remote || shas.local === shas.remote })
+  }
+  return { skipped: false, entries }
+}
+
+/** Reporte legible de los checkouts de parsers. */
+export function renderParserReport(report) {
+  if (report.skipped) return ['parsers: sin checkout del motor (deps/languages) — se saltea']
+  const behind = report.entries.filter((entry) => !entry.upToDate)
+  const lines = [`parsers (checkouts del motor, ${report.entries.length} repos):`]
+  if (behind.length === 0) {
+    lines.push('  ✓ ninguno adelantado (o sin remoto configurado)')
+    return lines
+  }
+  for (const entry of behind) {
+    lines.push(`  ↑ ${entry.name.padEnd(30)} ${entry.local.slice(0, 8)} → ${String(entry.remote).slice(0, 8)}`)
+  }
+  return lines
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1369,6 +1500,10 @@ Opciones:
   --overrides <dir>     ajustes propios; default: deps/queries-overrides/<símbolo>
                         del engine si el checkout está, si no dist/grammars/…
   --verify              verificar los captures de cada categoría (0 = fallo)
+  --check-updates       NO instala nada: informa si los catálogos fijados
+                        (nvim/helix/textobjects) y los checkouts de parsers del
+                        motor quedaron atrás. Sale 1 si hay un catálogo atrasado
+                        (es lo que mira el workflow). Usa GITHUB_TOKEN si está.
   --id <package-id>     id del paquete SEF (default: scrakk.grammar.<name>)
   --out <dir>           dónde dejar el .sef (default: dist/grammars)
   --profile <dir>       dir de extensiones de la app (default: según el SO)
@@ -1388,7 +1523,7 @@ function parseArgs(argv) {
     'parser', 'name', 'ext', 'inherits', 'target', 'queries', 'id', 'out', 'profile',
     'engine-dir', 'runtime', 'wasm', 'categories', 'supplement', 'supplement-ref', 'overrides'
   ])
-  const boolFlags = new Set(['install', 'dry-run', 'keep', 'help', 'build', 'force', 'verify'])
+  const boolFlags = new Set(['install', 'dry-run', 'keep', 'help', 'build', 'force', 'verify', 'check-updates'])
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (!arg.startsWith('--') && arg !== '-h') {
@@ -1417,6 +1552,20 @@ async function main() {
   const log = (message) => {
     lines.push(message)
     console.log(`  ${message}`)
+  }
+
+  // `--check-updates` no necesita link: sólo informa y sale.
+  if (options.flags.has('check-updates')) {
+    const catalogResults = await checkUpdates({ token: process.env.GITHUB_TOKEN })
+    for (const line of renderUpdatesReport(catalogResults)) log(line)
+    const engineForCheck = path.resolve(options.list['engine-dir'] ?? DEFAULT_ENGINE_DIR)
+    const parserReport = checkParserCheckouts({
+      languagesDir: path.join(engineForCheck, 'deps', 'languages')
+    })
+    for (const line of renderParserReport(parserReport)) log(line)
+    const behind = catalogResults.some((result) => !result.error && !result.upToDate)
+    if (behind) log('→ hay catálogos atrasados: subí los `ref` de SUPPLEMENTS y regenerá el pack')
+    return behind ? 1 : 0
   }
 
   if (options.flags.has('help') || !options.link) {

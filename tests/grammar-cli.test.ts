@@ -19,6 +19,9 @@ import {
   HYBRID_CATEGORY_SOURCES,
   SUPPLEMENT_CATEGORIES,
   SUPPLEMENTS,
+  checkCatalogUpdate,
+  checkParserCheckouts,
+  checkUpdates,
   declaredInherits,
   defaultOverridesDir,
   engineCopyFilter,
@@ -27,7 +30,9 @@ import {
   originLabel,
   planQueries,
   queryFiles,
+  renderParserReport,
   renderQueryReport,
+  renderUpdatesReport,
   repoNameFor,
   resolveInheritChain,
   supplementNamesFor,
@@ -390,5 +395,86 @@ describe('engine — rutas y registry', () => {
     // Suplemento cacheado: en disco ya es "ajuste propio", pero conserva su
     // catálogo y su commit (si no, el pack saldría sin licencia).
     expect(originLabel({ source: 'override', origin: 'helix', ref: 'abc1234567' })).toBe('helix@abc12345')
+  })
+})
+
+describe('check-updates', () => {
+  /** Fetch falso: responde por URL, sin red. */
+  const fakeFetch = (responses: Record<string, unknown>) => async (url: string) => ({
+    ok: url in responses,
+    status: url in responses ? 200 : 500,
+    json: async () => responses[url]
+  })
+
+  const helix = { id: 'helix', project: 'helix-editor/helix', ref: 'abc1234567' }
+  const urls = {
+    repo: 'https://api.github.com/repos/helix-editor/helix',
+    cmp: 'https://api.github.com/repos/helix-editor/helix/compare/abc1234567...master'
+  }
+
+  it('marca un catálogo atrasado con el conteo y el último commit', async () => {
+    const fetchImpl = fakeFetch({
+      [urls.repo]: { default_branch: 'master' },
+      [urls.cmp]: {
+        ahead_by: 2,
+        commits: [
+          { sha: 'c1', commit: { author: { date: '2026-09-01T00:00:00Z' }, message: 'uno' } },
+          { sha: 'c2', commit: { author: { date: '2026-09-10T00:00:00Z' }, message: 'dos\n\ncuerpo' } }
+        ]
+      }
+    })
+
+    const result = await checkCatalogUpdate(helix, { fetchImpl })
+    expect(result).toMatchObject({ behind: 2, upToDate: false, latest: 'c2', latestSubject: 'dos' })
+    const text = renderUpdatesReport([result]).join('\n')
+    expect(text).toContain('2 commit(s) nuevos')
+    expect(text).toContain('2026-09-10')
+  })
+
+  it('marca al día cuando el pin es el HEAD', async () => {
+    const fetchImpl = fakeFetch({
+      [urls.repo]: { default_branch: 'master' },
+      [urls.cmp]: { ahead_by: 0, commits: [] }
+    })
+    const result = await checkCatalogUpdate(helix, { fetchImpl })
+    expect(result.upToDate).toBe(true)
+    expect(renderUpdatesReport([result]).join('\n')).toContain('al día')
+  })
+
+  it('no rompe si la consulta falla (y lo dice)', async () => {
+    const result = await checkCatalogUpdate(helix, { fetchImpl: fakeFetch({}) })
+    expect(result.upToDate).toBeUndefined()
+    expect(result.error).toContain('HTTP 500')
+    expect(renderUpdatesReport([result]).join('\n')).toContain('no se pudo consultar')
+  })
+
+  it('checkUpdates recorre los catálogos que le pasen', async () => {
+    const fetchImpl = fakeFetch({
+      [urls.repo]: { default_branch: 'master' },
+      [urls.cmp]: { ahead_by: 0, commits: [] }
+    })
+    const results = await checkUpdates({ sources: { helix }, fetchImpl })
+    expect(results).toHaveLength(1)
+    expect(results[0].id).toBe('helix')
+  })
+
+  it('los checkouts de parsers se saltean si no hay directorio', () => {
+    const report = checkParserCheckouts({ languagesDir: '/no/existe/xyz' })
+    expect(report.skipped).toBe(true)
+    expect(renderParserReport(report).join('\n')).toContain('se saltea')
+  })
+
+  it('detecta un checkout de parser atrasado (git inyectado)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'langs-'))
+    fs.mkdirSync(path.join(dir, 'tree-sitter-python'))
+    const exec = (_cmd: string, args: string[]): string =>
+      args[0] === 'rev-parse' ? 'aaaa1111\n' : 'bbbb2222\tHEAD\n'
+
+    const report = checkParserCheckouts({ languagesDir: dir, exec })
+    expect(report.skipped).toBe(false)
+    expect(report.entries[0]).toMatchObject({ name: 'tree-sitter-python', upToDate: false })
+    expect(renderParserReport(report).join('\n')).toContain('aaaa1111 → bbbb2222')
+
+    fs.rmSync(dir, { recursive: true, force: true })
   })
 })
