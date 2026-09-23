@@ -97,6 +97,14 @@ export interface InnertaInputHandle {
 export interface WireInnertaInputOpts {
   /** Si true, no registra handler de keyboard (para terminal PTY). */
   skipKeyboard?: boolean
+  /**
+   * Se llama ANTES de entregar la tecla al motor. Devuelve `true` si la
+   * consumió (p. ej. la lista de sugerencias con ↑↓/Enter/Esc): el editor no
+   * la ve. Ver `@services/completion`.
+   */
+  interceptKey?: (event: KeyboardEvent) => boolean
+  /** Se llama DESPUÉS de entregarle la tecla al motor (para reaccionar). */
+  onKeyDelivered?: (event: KeyboardEvent, kind: 'char' | 'key') => void
 }
 
 /**
@@ -199,6 +207,14 @@ export function wireInnertaInput(
   const onKeyDown = (e: KeyboardEvent): void => {
     const m = module()
     if (!m) return
+
+    // El autocompletado intercepta ANTES que el motor: si la lista está abierta
+    // y la tecla es de navegación/aceptar, el editor no la ve.
+    if (opts?.interceptKey?.(e)) {
+      e.preventDefault()
+      return
+    }
+
     const glfwKey = CODE_TO_GLFW[e.code]
     const mods = modsOf(e)
 
@@ -210,6 +226,7 @@ export function wireInnertaInput(
       const forward = (): void => {
         const mm = module()
         if (mm && glfwKey !== undefined) mm.key(glfwKey, e.repeat ? 2 : 1, mods)
+        opts?.onKeyDelivered?.(e, 'key')
       }
       navigator.clipboard
         ?.readText()
@@ -227,9 +244,11 @@ export function wireInnertaInput(
     if (isPrintable) {
       // Caracter imprimible sin modificador → char (inserta texto).
       m.char(e.key.codePointAt(0) ?? 0)
+      opts?.onKeyDelivered?.(e, 'char')
     } else if (glfwKey !== undefined) {
       // Navegación / shortcuts → key con GLFW_KEY + mods (press/repeat).
       m.key(glfwKey, e.repeat ? 2 : 1, mods)
+      opts?.onKeyDelivered?.(e, 'key')
     }
     // Evitar defaults del navegador (scroll con flechas, Tab cambia foco, etc.)
     e.preventDefault()
