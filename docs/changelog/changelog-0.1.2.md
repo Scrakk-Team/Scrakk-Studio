@@ -105,6 +105,12 @@ publicadas no se editan. El archivo va por versión:
   uno, el error **drena y limpia** los slots y el acierto los funde con un
   check. Verifica solo al completar los 6 dígitos.
 
+### Chat de IA (UI)
+- El selector de **esfuerzo de pensamiento** abre una **barra slideable**
+  (extraída del componente PromptBar) en un menú custom, en vez del menú
+  contextual de opciones. Al llegar al **paso máximo**, el input se enciende con
+  un wash de acento y **chispas** que suben (más intensas al tipear).
+
 ### Herramientas (tipos)
 - Las tools se agrupan por **Familias → Tipos** en Ajustes → Chat →
   Herramientas: **Entorno** (Archivos, Código, Sistema, Navegador, Skills,
