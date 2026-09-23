@@ -12,6 +12,7 @@ import { IconButton } from '@ui'
 import { slashCommands, type SlashCommand } from '@services/slash-commands'
 import { subagentsForMode, type AgentProfile } from '@services/ai/agents'
 import { getModeId } from '@services/ai/prompts/modes'
+import { bumpEffortTyping } from '../EffortSparks/EffortSparks'
 import { registerChatInputAnchor } from './inputAnchor'
 import styles from './ChatInput.module.css'
 
@@ -124,6 +125,8 @@ export function ChatInput({
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
     setValue(event.target.value)
+    // Enciende las chispas del esfuerzo máx. (no hace nada si no está activo).
+    bumpEffortTyping()
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {

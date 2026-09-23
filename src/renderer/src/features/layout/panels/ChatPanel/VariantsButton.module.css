@@ -1,0 +1,22 @@
+/* Menú custom del selector de effort: un popover flotante con la barra
+   slideable. Mismo lenguaje que los menús de la app (surface-raised + borde). */
+
+.popover {
+  position: fixed;
+  z-index: 9999;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  overflow: hidden;
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
+  backdrop-filter: var(--glass-blur, none);
+}
+
+.empty {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}

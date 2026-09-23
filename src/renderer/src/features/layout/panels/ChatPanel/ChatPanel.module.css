@@ -71,6 +71,27 @@
   width: min(680px, 100%);
 }
 
+/* Estado "maxed" del esfuerzo: wash radial de acento detrás del input. */
+.inputGlow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--radius-input);
+  background: radial-gradient(
+    140% 120% at 0% 100%,
+    color-mix(in srgb, var(--color-accent) 26%, transparent),
+    transparent 62%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+
+.inputGlow[data-max]::before {
+  opacity: 1;
+}
+
 .inputGlow form {
   position: relative;
   z-index: 1;

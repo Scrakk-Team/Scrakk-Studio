@@ -8,6 +8,8 @@ import { useProviders } from '@features/providers'
 import { useChats, ModeGlow, ChatModeBar } from '@features/chat'
 import { HeaderActionButton, usePanelTitleOptional } from '@features/layout'
 import { ChatInput } from '@features/chat/components/ChatInput/ChatInput'
+import { EffortSparks } from '@features/chat/components/EffortSparks/EffortSparks'
+import { getAvailableVariants } from '@features/chat/commands/variants/logic'
 import { MessageList } from '@features/chat/components/MessageList/MessageList'
 import { TimeGreeting } from '@features/chat/components/TimeGreeting/TimeGreeting'
 import scrakkLogoUrl from '../../../../../public/logo/scrakk-studio.svg'
@@ -45,6 +47,11 @@ export function ChatPanel(): JSX.Element {
     removeMessagesAfter
   } = useChats()
   const { activeProvider, getApiKey, getModel, getThinkingMode, getVariant } = useProviders()
+  const activeVariant = activeProvider ? getVariant(activeProvider.id) : ''
+  // Esfuerzo en el paso máximo: el input enciende el wash + las chispas.
+  const effortSteps = getAvailableVariants().options
+  const effortMaxed =
+    effortSteps.length > 1 && activeVariant === effortSteps[effortSteps.length - 1]
   const [isBusy, setIsBusy] = useState(false)
   // Controller del stream en curso: el botón "Detener" lo aborta. Mientras
   // genera, el input queda escribible (no se deshabilita).
@@ -394,11 +401,12 @@ export function ChatPanel(): JSX.Element {
         <TimeGreeting />
         <div className={styles.emptyInput}>
           <ChatModeBar />
-          <div className={styles.inputGlow}>
+          <div className={styles.inputGlow} data-max={effortMaxed ? '' : undefined}>
             <ModeGlow />
+            <EffortSparks active={effortMaxed} />
             <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} state={subagentViewOpen ? 'locked' : 'active'} />
           </div>
-          <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
+          <ComposerFooter variant={activeVariant} />
         </div>
       </div>
     ) : (
@@ -417,11 +425,12 @@ export function ChatPanel(): JSX.Element {
         </div>
         <div className={styles.composer}>
           <ChatModeBar />
-          <div className={styles.inputGlow}>
+          <div className={styles.inputGlow} data-max={effortMaxed ? '' : undefined}>
             <ModeGlow />
+            <EffortSparks active={effortMaxed} />
             <ChatInput onSend={handleSend} busy={isBusy} onStop={handleStop} state={subagentViewOpen ? 'locked' : 'active'} />
           </div>
-          <ComposerFooter variant={activeProvider ? getVariant(activeProvider.id) : ''} />
+          <ComposerFooter variant={activeVariant} />
         </div>
       </>
     )

@@ -1,0 +1,137 @@
+/* EffortSlider — barra slideable de esfuerzo (adaptada de PromptBar), con los
+   tokens del tema. Solo el control: head, extremos, pista con fill/dots/thumb. */
+
+.slider {
+  --effort-x: 0px;
+  --effort-fill: 0px;
+  width: 248px;
+  max-width: 100%;
+  padding: 12px 14px 14px;
+  color: var(--color-text);
+  font-size: var(--text-xs);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.title {
+  color: var(--color-text-muted);
+}
+
+.level {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.headRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.auto {
+  padding: 1px 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.auto:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.help {
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+
+.ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.track {
+  position: relative;
+  height: 22px;
+  margin-top: 8px;
+  border-radius: 11px;
+  background: var(--color-hover);
+  cursor: pointer;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--effort-fill);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--color-text) 18%, transparent);
+  transition:
+    width 220ms var(--ease-out),
+    background-color 300ms ease;
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
+.thumb {
+  position: absolute;
+  top: -3px;
+  left: var(--effort-x);
+  width: 14px;
+  height: 28px;
+  margin-left: -7px;
+  border-radius: 7px;
+  background: var(--color-text);
+  transition:
+    left 220ms var(--ease-out),
+    background-color 300ms ease;
+}
+
+/* Paso máximo: se tiñe con el acento del tema. */
+.slider[data-max] .fill {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.slider[data-max] .thumb {
+  background: var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .thumb {
+    transition: background-color 300ms ease;
+  }
+}
