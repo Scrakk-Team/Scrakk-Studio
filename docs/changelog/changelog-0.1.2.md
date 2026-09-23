@@ -183,3 +183,5 @@ publicadas no se editan. El archivo va por versión:
   **changelog local**: si el `changelog-x.x.x.md` más nuevo supera la versión de
   la app, aparece el badge (sin depender del release remoto), y al abrir
   Anuncios queda como visto.
+- **Tabs**: el strip scrollea en horizontal con la **rueda** del mouse cuando
+  las tabs desbordan (antes solo con trackpad o Shift+rueda).
