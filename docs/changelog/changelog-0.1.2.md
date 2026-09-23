@@ -186,3 +186,7 @@ publicadas no se editan. El archivo va por versión:
   Anuncios queda como visto.
 - **Tabs**: el strip scrollea en horizontal con la **rueda** del mouse cuando
   las tabs desbordan (antes solo con trackpad o Shift+rueda).
+- **Tabs / layout**: se corrigió un loop de updates (*"Maximum update depth
+  exceeded"*) al montar **muchos paneles**: el ref combinado del strip cambiaba
+  de identidad en cada render y React hacía detach/attach llamando `setState`
+  en bucle. Ahora es estable.
