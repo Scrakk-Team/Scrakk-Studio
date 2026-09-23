@@ -179,3 +179,7 @@ publicadas no se editan. El archivo va por versión:
   que las activity bars (`--activitybar-bg`/surface): el breadcrumb dejó de ser
   transparente, la tab activa dejó el tinte de hover y el buffer del editor
   ahora matchea el chrome.
+- **Bienvenida → Anuncios**: el punto de "novedades" ahora también detecta el
+  **changelog local**: si el `changelog-x.x.x.md` más nuevo supera la versión de
+  la app, aparece el badge (sin depender del release remoto), y al abrir
+  Anuncios queda como visto.
