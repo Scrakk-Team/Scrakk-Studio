@@ -58,6 +58,24 @@ publicadas no se editan. El archivo va por versión:
   envolvimiento); tipear, borrar y Enter se aplican en **todos**, las flechas los
   mueven juntos y `Esc` (o un click simple) vuelve a uno solo.
 
+### Editor — sugerencias (LSP)
+- **Lista de sugerencias en tiempo real** anclada al caret, como VS Code: al
+  tipear se pide `textDocument/completion` al server del archivo y aparece el
+  menú (DOM puro, igual que el tooltip del hover y el menú contextual). `↑`/`↓`
+  eligen, `Enter`/`Tab` aceptan, `Esc` cierra, `Ctrl+Space` la abre a mano y el
+  click también acepta.
+- Filtra por el **prefijo tipeado**, ordena por `sortText` y **deduplica** el
+  mismo símbolo cuando lo proponen dos servers. Cada ítem lleva **badge por
+  tipo**, `detail` y panel de **documentación**.
+- El commit **conserva el undo**: en vez de reescribir el buffer, manda los
+  Backspace del prefijo y los caracteres por el camino de teclado del motor (así
+  además respetan los auto-pairs del lenguaje).
+- El **ancla del caret** se calcula del lado del host (hit-test inverso sobre el
+  motor), así que no hizo falta ningún canal nuevo en Innerta.
+- Límites de esta primera versión: sin **snippets** ni **auto-import**
+  (`additionalTextEdits`), filtro por prefijo (no fuzzy) y el commit con
+  **multi-cursor** activo todavía toca todos los carets.
+
 ### Terminal
 - Al **cambiar de workspace**, las terminales abiertas se reubican en el
   proyecto nuevo (`cd`) y las nuevas nacen en la carpeta correcta. Antes

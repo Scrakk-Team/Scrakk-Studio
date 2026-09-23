@@ -13,6 +13,13 @@ import { detectLanguageFromPath } from '@features/editor/languages'
 import { resetHostTokens } from './hostTokens'
 import { getBookmarksForPath, subscribeToBookmarks } from '@services/bookmarks'
 import { getDecorations, packDecorations, subscribeToDecorations } from '@services/decorations'
+import {
+  closeCompletionPopup,
+  handleCompletionKey,
+  isCompletionOpen,
+  requestCompletion,
+  scheduleCompletion
+} from '@services/completion'
 
 /** Contrato del engine Innerta (ITE) expuesto al puente del renderer. */
 export interface InnertaModule {
@@ -302,9 +309,28 @@ export class InnertaEngine implements EditorEngine {
     canvas.style.display = ''
 
     // Input del host → engine: una sola vez por canvas (los listeners viven
-    // en el nodo persistente).
+    // en el nodo persistente). Las sugerencias se enganchan acá: interceptan la
+    // tecla antes del motor y piden completado después de cada carácter.
     if (!this.inputHandle) {
-      this.inputHandle = wireInnertaInput(canvas, () => this.module)
+      this.inputHandle = wireInnertaInput(canvas, () => this.module, {
+        interceptKey: (event) => {
+          if (event.ctrlKey && event.key === ' ') {
+            void requestCompletion({ module: this.module, canvas, path: this.currentPath })
+            return true
+          }
+          return handleCompletionKey(event, this.module)
+        },
+        onKeyDelivered: (event, kind) => {
+          const path = this.currentPath
+          if (!path || !this.module) return
+          if (kind === 'char' || event.key === 'Backspace' || event.key === 'Delete') {
+            scheduleCompletion({ module: this.module, canvas, path })
+          } else if (isCompletionOpen()) {
+            // Cualquier otra tecla (flechas, Enter, Tab, Esc…) cierra la lista.
+            closeCompletionPopup()
+          }
+        }
+      })
     }
 
     const applyBounds = (): void => {

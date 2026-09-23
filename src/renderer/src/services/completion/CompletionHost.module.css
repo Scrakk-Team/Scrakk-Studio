@@ -1,0 +1,124 @@
+/* Popup de sugerencias (autocompletado) — DOM puro, estilo del tema. */
+
+.popup {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface, #1e1e1e);
+  border: 1px solid var(--color-border, #333);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.list {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 3px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 3px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text, #ddd);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.rowSelected {
+  background: var(--color-hover, rgba(255, 255, 255, 0.08));
+}
+
+.badge {
+  flex: 0 0 auto;
+  width: 14px;
+  text-align: center;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.label {
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail {
+  flex: 1 1 auto;
+  margin-left: auto;
+  padding-left: 10px;
+  color: var(--color-text-muted, #888);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+}
+
+/* Tonos por tipo de símbolo (reusan los slots del tema cuando existen). */
+.fn {
+  color: var(--color-accent, #dcdcaa);
+}
+.prop {
+  color: var(--color-text, #9cdcfe);
+}
+.var {
+  color: var(--color-text, #9cdcfe);
+}
+.type {
+  color: var(--color-accent, #4ec9b0);
+}
+.mod {
+  color: var(--color-text-muted, #c586c0);
+}
+.enum {
+  color: var(--color-accent, #4ec9b0);
+}
+.kw {
+  color: var(--color-accent, #569cd6);
+}
+.snip {
+  color: var(--color-accent, #ce9178);
+}
+.const {
+  color: var(--color-text, #4fc1ff);
+}
+.file {
+  color: var(--color-text-muted, #888);
+}
+.text {
+  color: var(--color-text-muted, #888);
+}
+
+.docs {
+  border-top: 1px solid var(--color-border, #333);
+  padding: 6px 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  color: var(--color-text-muted, #aaa);
+  white-space: pre-wrap;
+  font-size: 11px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--color-border, #333);
+  padding: 3px 8px;
+  color: var(--color-text-muted, #777);
+  font-size: 10px;
+}
+
+.hint {
+  opacity: 0.8;
+}

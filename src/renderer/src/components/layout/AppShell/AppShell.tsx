@@ -1,5 +1,6 @@
 import { useEffect, type JSX, type ReactNode } from 'react'
 import { TooltipHost } from '@services/tooltips'
+import { CompletionHost } from '@services/completion'
 import { NotificationHost } from '@features/notifications/NotificationHost'
 import { ModalHost } from '@features/modals/ModalHost'
 import { SubagentOpenBridge } from '@features/chat/agents'
@@ -26,6 +27,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <ThemeBackground />
       {children}
       <TooltipHost />
+      <CompletionHost />
       <NotificationHost />
       <ModalHost />
       <SubagentOpenBridge />
