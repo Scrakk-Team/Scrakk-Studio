@@ -165,3 +165,6 @@ publicadas no se editan. El archivo va por versión:
 - **Chat de IA**: los **iconos de las tools** ahora usan el mismo color que el
   texto de la tool (`--color-text-muted`); antes heredaban el color del chat y
   se veían más brillantes.
+- **Explorer**: el input de **renombrar/crear** archivo ya no usa el borde de
+  acento ni un radio grande; ahora es un borde tenue, radio chico y sin
+  contorno.
