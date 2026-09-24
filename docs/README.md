@@ -8,9 +8,9 @@ summary: "Punto de entrada a toda la documentación de Scrakk Studio: qué es, c
 # Scrakk Studio — Documentación
 
 **Scrakk Studio** es un IDE agéntico: un editor (Innerta) con chat de IA,
-subagentes, extensiones (`.sef`), LSP y un editor de código pensado para que un
-agente trabaje *dentro* del editor, no al lado. Este archivo es el **punto de
-entrada**: explica qué hay y en qué orden leerlo.
+subagentes, extensiones (`.sef`) y LSP, pensado para que un agente trabaje
+*dentro* del editor, no al lado. Este archivo es el **punto de entrada**:
+explica qué hay y en qué orden leerlo.
 
 > Si sos una IA que va a consumir estos docs: el índice máquina-legible está en
 > `index.json` (nav + metadata), el corpus completo en `llms.txt` y `docs.json`,
