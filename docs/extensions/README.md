@@ -16,7 +16,7 @@ todo y el loader resuelve los componentes por ruta y los registra en el
 | | **SEF declarativa** | **SEF con código** |
 | --- | --- | --- |
 | De dónde sale la UI | del bundle del paquete (React) | del **Extension Host**: la extensión corre en su proceso Node y sirve su contenido por IPC |
-| Qué kinds usa | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `encodings`, `notifications`, `lspServers` | `views` (+ `runtime` en el manifest) |
+| Qué kinds usa | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `encodings`, `notifications`, `lspServers`, `languages`, `tools`, `skills` | `views` (+ `runtime` en el manifest) |
 | Ejemplo | builtin `clock` | una extensión de VS Code convertida (Comment Anchors, Cline) |
 | ¿Necesita Node? | no | sí |
 
@@ -30,7 +30,7 @@ después, del host.
 - [Estructura](structure.md) — dónde vive cada pieza del sistema.
 - [Manifest](manifest.md) — el formato del `manifest.json`.
 - [Empaquetado .sef](sef.md) — cómo armar un paquete instalable.
-- [Contribuciones](contributions.md) — **los diez tipos**, con ejemplo y dónde se montan.
+- [Contribuciones](contributions.md) — **los trece tipos**, con ejemplo y dónde se montan.
 - [Vistas (con código)](views/view.md) — paneles de la activity bar servidos por el host.
 - [Paneles](panels/panel.md) — paneles React de un slot del layout.
 - [Botones del header](panels/header-actions.md) — acciones de un panel, reordenables arrastrando.

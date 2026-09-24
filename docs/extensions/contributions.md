@@ -6,7 +6,7 @@ Una extensión aporta contribuciones bajo `manifest.contributes`. El loader es
 sin handler se loguea y se saltea; la app nunca se rompe por una extensión
 rota.
 
-Los **doce tipos** que existen hoy:
+Los **trece tipos** que existen hoy:
 
 | Key en `contributes` | Qué aporta | Dónde se monta | Código de la extensión |
 | --- | --- | --- | --- |
@@ -20,6 +20,7 @@ Los **doce tipos** que existen hoy:
 | `encodings` | Encodings de texto | Apertura/guardado de archivos | No |
 | `notifications` | Notificaciones de la extensión | Centro de notificaciones | No |
 | `lspServers` | Language server | Runtime del proceso main | No (lo lanza el IDE) |
+| `languages` | Kit de lenguaje (identidad + `language-configuration`, gramáticas tree-sitter/TextMate, snippets, defaults y semantic tokens) | Editor (resaltado, plegado, indent, LSP) | No |
 | `tools` | Herramienta de IA (con visual propio opcional) | Chat con IA + Ajustes → Chat | **Sí** |
 | `skills` | Skills (workflows Agent Skills) | Chat con IA + Ajustes → Chat | No (lee `SKILL.md`) |
 
@@ -172,7 +173,10 @@ visual), pero el código de ejecución vive en el paquete: la tool despacha un
         "required": ["environment"]
       },
       "command": "acme.deploy",
-      "category": "extension",
+      "family": "acme",
+      "familyLabel": "Acme Tools",
+      "type": "acme-deploy",
+      "typeLabel": "Deploy",
       "dangerLevel": "medium",
       "enabledByDefault": false,
       "icon": "server",
@@ -185,6 +189,10 @@ visual), pero el código de ejecución vive en el paquete: la tool despacha un
 
 - `command`: id que la extensión registra con `commands.registerCommand`. El
   resultado se devuelve al modelo como texto (JSON si es un objeto).
+- `type`/`family` (+ `typeLabel`/`familyLabel`/`familyIcon`): agrupan la tool en
+  Ajustes → Chat → Herramientas (catálogo extensible). Si no existen, se crean
+  solos, así una extensión aporta su **pack/familia** de tools. Ver
+  [tools.md](tools.md).
 - `visual` es opcional: un módulo React del paquete que recibe
   `{ args, result, status }`, igual que las tools internas.
 - `permissions` acepta las mismas reglas del motor de políticas

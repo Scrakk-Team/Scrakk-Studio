@@ -18,7 +18,7 @@ services/extensions/builtin/<ext-id>/
 └── themes/<id>/theme.json  # Un tema por carpeta (convención del glob eager)
 ```
 
-Los tipos disponibles son los mismos diez que en un `.sef` (ver
+Los tipos disponibles son los mismos trece que en un `.sef` (ver
 [contributions.md](contributions.md)); `clock` es la builtin de ejemplo para
 `panels` + `activitybar` + `centerTabs`, y cada carpeta de
 `builtin/themes/<id>/` es una extensión de tema.
