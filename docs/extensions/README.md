@@ -28,9 +28,9 @@ dice "Hola".
 }
 ```
 
-En ambos casos la fuente de verdad es un `manifest.json`: el manifest DEFINE
-todo y el loader resuelve los componentes por ruta y los registra en el
-`ExtensionRegistry`, que alimenta los sistemas ya existentes de la app.
+En ambos casos, la fuente de verdad es el `manifest.json`: el loader resuelve
+los componentes por ruta y los registra en el `ExtensionRegistry`, que alimenta
+los sistemas ya existentes de la app (layout, activity bar, tabs, temas).
 
 ## Dos tipos de extensión
 
@@ -41,10 +41,20 @@ todo y el loader resuelve los componentes por ruta y los registra en el
 | Ejemplo | builtin `clock` | una extensión de VS Code convertida (Comment Anchors, Cline) |
 | ¿Necesita Node? | no | sí |
 
-La declarativa no ejecuta código de la extensión. El sabor con código sí, y
+La **declarativa** no ejecuta código de la extensión. La **con código** sí, y
 por eso pasa por el Extension Host: `views` es la puerta declarativa (el IDE
 sabe que el panel existe **antes** de ejecutar nada) y el contenido llega
 después, del host.
+
+## Tu primera extensión
+
+```sh
+npm run sef:create -- "Mi Extensión"   # crea un esqueleto con un panel de ejemplo
+npm run sef:pack -- mi-extension        # valida y genera el .sef
+```
+
+Después instalás el `.sef` desde **Ajustes → Extensiones**. El detalle de cada
+paso, en [Empaquetado `.sef`](sef.md).
 
 ## Índice
 
