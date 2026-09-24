@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Vista de ÁRBOL de una extensión — el otro sabor de panel de la activity bar.
  *

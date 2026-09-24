@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * DeleteFileCard — custom display for delete_file tool.
  * Shows the deleted path and the operation result.

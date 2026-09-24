@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { app, BrowserWindow, shell } from 'electron'
 import { registerLlmIpc } from './ipc/llm'
 import { registerFsIpc } from './ipc/fs'

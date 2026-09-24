@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Fallback al tema base (Fase themes): un tema parcial (convertido VSIX)
  * fusiona sus colores SOBRE scrakk-night/day según su tipo. Sin esto, las

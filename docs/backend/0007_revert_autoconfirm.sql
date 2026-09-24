@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0007: revierte la auto-confirmación de 0005 (el login vuelve a ser OTP).
 -- Proyecto: scrakk-cli (Supabase)
 --

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * MultipleToolsCard — custom display for multiple_tools tool.
  * Lists the tools executed in sequence.

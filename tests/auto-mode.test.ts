@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { describe, it, expect } from 'vitest'
 import { autoModeVerdict, heuristicBashVerdict } from '../src/renderer/src/services/ai/policy/autoMode'
 

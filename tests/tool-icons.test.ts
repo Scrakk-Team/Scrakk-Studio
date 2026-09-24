@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Icons de tools de IA: cada tool registrada resuelve a un proicon real
  * (sin fallback silencioso al icono de archivo) y cada id del mapa existe

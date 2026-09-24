@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Feature Settings — modal de ajustes genérico. Las secciones viven en
  * sections/ con su propio .tsx y se registran en sections/index.ts; aquí

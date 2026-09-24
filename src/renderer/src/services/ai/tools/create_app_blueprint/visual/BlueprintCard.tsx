@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * BlueprintCard — custom display for create_app_blueprint tool.
  * Shows app name, features and tech stack.

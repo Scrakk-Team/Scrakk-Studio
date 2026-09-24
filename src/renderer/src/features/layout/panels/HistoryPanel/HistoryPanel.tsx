@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { ProductIcon } from '@services/productIcons/components'
 import { startTransition, useMemo, useState, type JSX, type MouseEvent } from 'react'
 import { ProvidersMenu, useProviders } from '@features/providers'

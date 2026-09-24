@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Panel de historial de notificaciones — contenido del popover anclado
  * (botón campana de la statusbar). Lista las ACTIVAS (con dismiss) y el

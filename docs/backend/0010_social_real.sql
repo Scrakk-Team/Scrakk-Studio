@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0010: amigos + mensajes directos (sin servidores/comunidades).
 -- Proyecto: scrakk-cli (Supabase)
 --

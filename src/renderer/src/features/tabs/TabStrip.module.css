@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Barra del strip: tabs con scroll + botón ⋯ fijo a la derecha. */
 .strip {
   display: flex;

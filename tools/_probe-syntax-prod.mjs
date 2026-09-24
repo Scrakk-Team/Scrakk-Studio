@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Probe: ¿el pintado de sintaxis es igual en el bundle (`electron .`) y en la
  * app EMPAQUETADA (asar)?

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 export { PolicyEngine, policyEngine } from './policy-engine'
 export { confirmationBus } from './confirmation-bus'
 export { modeRegistry, BUILTIN_MODE_IDS } from './modeRegistry'

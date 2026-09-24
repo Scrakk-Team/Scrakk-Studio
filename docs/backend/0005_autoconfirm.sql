@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0005: auto-confirmación de email en el alta (sin SMTP / sin Resend).
 -- Proyecto: scrakk-cli (Supabase)
 --

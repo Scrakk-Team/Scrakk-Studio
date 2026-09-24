@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Modal de confirmación de borrado (simple o múltiple). Usa la primitiva
  * Modal de la app — plano, cápsula, sin sombras.

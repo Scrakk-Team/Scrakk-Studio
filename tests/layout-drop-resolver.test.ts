@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del resolver de drop del layout: un drop sobre un borde (split)
  * PARTE la hoja del árbol (estilo VS Code) creando un GRUPO REAL con su

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Repro del bug: ocultar el slot central con un archivo abierto no funciona
  * — reconcileFileTabs lo revivía al instante (pisaba centerSuppressed).

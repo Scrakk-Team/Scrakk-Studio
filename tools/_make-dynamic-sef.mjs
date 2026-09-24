@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Empaqueta un `.sef` de LENGUAJE con parser tree-sitter (`kind: 'treeSitter'`).
  *

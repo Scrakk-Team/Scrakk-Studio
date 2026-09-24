@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Extension API — superficie expuesta a los handlers de tipos (y base para
  * la futura API runtime de bundles .sef interactivos).

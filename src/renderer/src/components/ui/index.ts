@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 export { IconButton } from './IconButton/IconButton'
 export { ToggleSwitch } from './ToggleSwitch/ToggleSwitch'
 export { Modal, type ModalSize } from './Modal/Modal'

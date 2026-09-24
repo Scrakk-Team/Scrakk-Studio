@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useEffect, useState, type ComponentType, type JSX } from 'react'
 import { getPanel } from '../../registry'
 import type { PanelEntry, PanelId } from '../../types'

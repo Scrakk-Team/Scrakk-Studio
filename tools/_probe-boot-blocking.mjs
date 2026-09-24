@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Probe: ¿qué bloquea el hilo principal en el arranque (y por lo tanto retrasa
  * el primer click a un panel)?

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useRef, type ComponentPropsWithoutRef, type JSX, type ReactNode } from 'react'
 import { useSnapSvg } from './useSnapSvg'
 import styles from './IconButton.module.css'

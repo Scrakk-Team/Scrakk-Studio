@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Servicio de I/O con encoding — la ÚNICA puerta de bytes con codificación
  * del proceso main. Lee → detecta → decodifica; escribe → normaliza EOL →

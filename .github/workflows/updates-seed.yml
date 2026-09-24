@@ -1,3 +1,7 @@
+# Copyright 2026 Scrakk Studio
+# SPDX-License-Identifier: Apache-2.0
+# Licencia completa en LICENSE (Apache License 2.0).
+
 name: Updates seed
 
 # Re-registra en Supabase una release YA publicada (el mismo paso que hace

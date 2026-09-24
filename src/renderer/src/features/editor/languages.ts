@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Mapeo de extensiones de archivo a identificadores de lenguaje para Tree-sitter e Innerta.
  * Módulo desacoplado y extensible para detección de sintaxis.

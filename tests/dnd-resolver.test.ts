@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del resolver de drop del sistema dnd: un drag de tab que aterriza en
  * un strip se reordena (misma strip) o se mueve (otra strip), sin duplicar.

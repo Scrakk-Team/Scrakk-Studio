@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests de la persistencia del layout v2 y su migración desde el formato v1
  * (un `PanelId` por slot) guardado por versiones anteriores.

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { ipcMain, type WebContents } from 'electron'
 import { LLM_IPC, type LlmStreamRequest, type LlmToolCall } from '@shared/llm'
 import { buildThinkingBody, type ThinkingMode } from '@shared/thinking'

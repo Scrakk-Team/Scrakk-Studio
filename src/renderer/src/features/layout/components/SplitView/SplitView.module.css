@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Árbol de splits (estilo VS Code): los lados se reparten el espacio con el
    mismo ResizeHandle que separa los slots. Cada hoja es una tarjeta con su
    borde (igual que los slots exteriores) pero SIN redondeo: entre dos grupos

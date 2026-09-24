@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * EffortSparks — la animación "maxed" del input: un canvas de chispas que
  * suben, con energía que sube al tipear. Adaptada del PromptBar (React Bits).

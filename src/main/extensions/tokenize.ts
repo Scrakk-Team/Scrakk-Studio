@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tokenizador TextMate del proceso MAIN — el que hace que la gramática de una
  * extensión de lenguaje pinte de verdad.

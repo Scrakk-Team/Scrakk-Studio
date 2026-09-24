@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useState, useEffect } from "react";
 import { ProductIcon } from '@services/productIcons/components'
 import { Markdown } from '@features/chat/components/Markdown'

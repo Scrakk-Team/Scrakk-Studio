@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Cadena install-time completa de un .vsix de iconos:
  * convertVsix → manifest SEF → registerManifest (con readFile mockeado) →

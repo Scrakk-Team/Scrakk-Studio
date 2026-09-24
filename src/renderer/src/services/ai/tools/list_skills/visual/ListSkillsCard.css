@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* list_skills card styles — inyectadas vía displayCss */
 .list-skills-card {
   color: var(--color-text-muted);

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useEffect, useRef, useState, type JSX } from 'react'
 import { getOrCreateInnertaEngine, getStoredEngine, type EditorEngine, type EditorEngineId } from './engine'
 import { getEditorFiles, subscribeToEditorFiles } from './editorBus'

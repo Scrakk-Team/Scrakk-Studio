@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Copia el .node nativo junto al bundle del main (`out/main/`) para que
  * el loader lo encuentre tanto en dev como en la app empaquetada.

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Sección "Herramientas" — activa/desactiva tools, agrupadas por
  * **Familia → Tipo** (catálogo extensible, ver `services/ai/tools/catalog.ts`).

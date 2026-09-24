@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useEffect, type JSX, type MouseEvent } from 'react'
 import { MenuBar } from './components/MenuBar/MenuBar'
 import { WidgetContainer } from './widgets/WidgetContainer'

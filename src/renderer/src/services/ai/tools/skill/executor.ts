@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * skill — carga el cuerpo de una skill por nombre (divulgación progresiva:
  * el modelo ve nombre+descripción en `list_skills` y trae el cuerpo solo

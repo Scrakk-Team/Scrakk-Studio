@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del historial de notificaciones y del kind anchored de modales
  * (popover anclado sin overlay, con toggle por key).

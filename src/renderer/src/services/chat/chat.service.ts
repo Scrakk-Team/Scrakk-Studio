@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import type { LlmChatMessage, LlmToolCall } from '@shared/llm'
 import type { ThinkingMode } from '@shared/thinking'
 import type { ProviderConfig } from '../providers/types'

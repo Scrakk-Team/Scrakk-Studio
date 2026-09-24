@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Banda translúcida del color de acento del tema: indica dónde se partiría
    el panel al soltar (split direccional, estilo VS Code). */
 .overlay {
