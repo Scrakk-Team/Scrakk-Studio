@@ -14,11 +14,25 @@ Scrakk lo registra solo. Un paquete puede ser:
 - un **`.sef` instalado por el usuario** (zip descomprimido en
   `userData/extensions/<id>/`).
 
+El manifest más chico posible ya es una extensión válida: muestra un panel que
+dice "Hola".
+
+```json
+{
+  "id": "hola",
+  "name": "Hola",
+  "version": "1.0.0",
+  "contributes": {
+    "panels": [{ "id": "hola", "title": "Hola", "component": "panels/Hola.tsx" }]
+  }
+}
+```
+
 En ambos casos la fuente de verdad es un `manifest.json`: el manifest DEFINE
 todo y el loader resuelve los componentes por ruta y los registra en el
 `ExtensionRegistry`, que alimenta los sistemas ya existentes de la app.
 
-## Dos sabores de extensión
+## Dos tipos de extensión
 
 | | **SEF declarativa** | **SEF con código** |
 | --- | --- | --- |

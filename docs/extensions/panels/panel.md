@@ -7,7 +7,15 @@ summary: "Un panel es una unidad de UI montable en un slot del layout. Las exten
 # Paneles
 
 Un panel es una unidad de UI montable en un slot del layout. Las extensiones
-los aportan vía `contributes.panels`.
+los aportan vía `contributes.panels`:
+
+```json
+{
+  "panels": [
+    { "id": "clock", "title": "Reloj", "closable": true, "component": "panels/clock/ClockPanel.tsx" }
+  ]
+}
+```
 
 ## Estructura de un panel
 
