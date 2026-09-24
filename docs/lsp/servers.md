@@ -2,7 +2,7 @@
 title: "Servidores builtin, detección y auto-instalación"
 group: lsp
 order: 80
-summary: "Al cargar un root se descubren los builtins que cumplen TODO:"
+summary: "Cómo Scrakk detecta, elige y (si hace falta) instala el language server de cada lenguaje, sin configuración."
 ---
 # Servidores builtin, detección y auto-instalación
 
