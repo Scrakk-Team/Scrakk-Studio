@@ -2,7 +2,7 @@
 title: "Arquitectura del sistema LSP"
 group: lsp
 order: 30
-summary: "```"
+summary: "Cómo se conectan las capas del LSP: renderer → preload → main → servidores, con routing multi-root y el ciclo de vida de cada cliente."
 ---
 # Arquitectura del sistema LSP
 

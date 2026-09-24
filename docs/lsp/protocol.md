@@ -2,7 +2,7 @@
 title: "Protocolo soportado y límites"
 group: lsp
 order: 60
-summary: "initialize con:"
+summary: "Qué partes del handshake y del protocolo LSP soporta Scrakk, y qué queda fuera."
 ---
 # Protocolo soportado y límites
 
