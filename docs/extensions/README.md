@@ -60,7 +60,7 @@ después, del host.
 - [Builtin](builtin.md) — cómo crear una extensión que viaja en la app.
 - [Extensiones de VS Code](vscode.md) — qué hace hoy el pipeline VSIX → SEF.
 
-## En una línea
+## Cómo lo carga la app (por dentro)
 
 1. La extensión declara contribuciones en `manifest.json`.
 2. El **loader** (`loader/resolve.ts`) itera `contributes` y le pregunta al

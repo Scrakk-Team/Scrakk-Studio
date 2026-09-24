@@ -32,6 +32,9 @@ Los **trece tipos** que existen hoy:
 | `tools` | Herramienta de IA (con visual propio opcional) | Chat con IA + Ajustes → Chat | **Sí** |
 | `skills` | Skills (workflows Agent Skills) | Chat con IA + Ajustes → Chat | No (lee `SKILL.md`) |
 
+La columna **Código de la extensión** te dice si el paquete necesita ejecutar
+código propio (o sea, el Extension Host): hoy solo `views` y `tools` lo hacen.
+
 Cada tipo vive en `services/extensions/types/<kind>/` con la misma estructura:
 `schema.ts` (validación pura) · `api.ts` (handler del registry) · `logic.ts`
 (registro/efectos) · `store.ts` (estado + bajas).
