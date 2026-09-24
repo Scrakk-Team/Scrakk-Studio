@@ -6,9 +6,13 @@ summary: "Tres niveles: window.api.lsp (crudo, preload) · @services/lsp (render
 ---
 # API del LSP — superficie completa para frontend/editor/agente
 
-Tres niveles: `window.api.lsp` (crudo, preload) · `@services/lsp` (renderer,
-tipado y conveniente) · tool `lsp` del agente. Todo corre sobre el runtime
-del proceso main.
+La API del LSP está en **tres niveles**, según quién la use:
+
+- `window.api.lsp` — crudo, en el preload.
+- `@services/lsp` — tipado y cómodo, para el renderer (editor, paneles).
+- tool `lsp` — para el agente.
+
+Todo corre sobre el runtime del proceso main.
 
 ## Workspace y multi-root
 
