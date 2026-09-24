@@ -28,7 +28,7 @@ import { flushAllTokens } from './supabaseClient'
 import { loadLocalEnv } from './env'
 import { createMainWindow } from './windows/main-window'
 import { applyPathAugmentation } from './binaries'
-import { applyChromiumSwitches } from './perf/startup'
+import { applyChromiumSwitches, registerGpuFallback } from './perf/startup'
 
 // PATH ANTES QUE NADA: lanzada desde el menú, la app hereda el PATH pelado de la
 // sesión (sin nvm/fnm/volta/~/.local/bin), y entonces `npm`, `node` y `git` no
@@ -38,6 +38,9 @@ applyPathAugmentation()
 
 // Switches de Chromium/Electron (GPU, memoria) ANTES de ready.
 applyChromiumSwitches()
+
+// Si la GPU muere en Linux, relanzar UNA vez con software rendering.
+registerGpuFallback()
 
 // Nombre de app ANTES de ready: en Linux define el WM_CLASS/app_id.
 // Sin esto, en dev la ventana se agrupa como "electron" y el dock ignora
