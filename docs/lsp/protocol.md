@@ -1,3 +1,9 @@
+---
+title: "Protocolo soportado y límites"
+group: lsp
+order: 60
+summary: "initialize con:"
+---
 # Protocolo soportado y límites
 
 ## Handshake

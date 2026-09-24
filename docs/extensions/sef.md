@@ -1,3 +1,9 @@
+---
+title: "Empaquetado `.sef`"
+group: extensions
+order: 90
+summary: "Un .sef (Scrakk Extension Format) es un archivo ZIP con un manifest.json en la raíz (o en una carpeta de la extensión) y los archivos que la extensión necesite."
+---
 # Empaquetado `.sef`
 
 Un `.sef` (Scrakk Extension Format) es un archivo ZIP con un `manifest.json` en

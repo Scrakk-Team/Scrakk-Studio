@@ -1,3 +1,9 @@
+---
+title: "API del LSP — superficie completa para frontend/editor/agente"
+group: lsp
+order: 20
+summary: "Tres niveles: window.api.lsp (crudo, preload) · @services/lsp (renderer, tipado y conveniente) · tool lsp del agente. Todo corre sobre el runtime del proceso main."
+---
 # API del LSP — superficie completa para frontend/editor/agente
 
 Tres niveles: `window.api.lsp` (crudo, preload) · `@services/lsp` (renderer,

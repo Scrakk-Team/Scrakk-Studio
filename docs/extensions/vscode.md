@@ -1,3 +1,9 @@
+---
+title: "Extensiones de VS Code (pipeline VSIX → SEF)"
+group: extensions
+order: 140
+summary: "Lo que hoy hace Scrakk cuando instalás un .vsix: lo convierte a SEF, y para lo que no es declarativo levanta el Extension Host. Este doc describe el estado real del pipeline, no el objetivo."
+---
 # Extensiones de VS Code (pipeline VSIX → SEF)
 
 Lo que hoy hace Scrakk cuando instalás un `.vsix`: **lo convierte a SEF**, y

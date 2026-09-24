@@ -1,3 +1,9 @@
+---
+title: "skills (paquetes de skills)"
+group: extensions
+order: 100
+summary: "Una extensión puede empaquetar skills: workflows reutilizables en el formato abierto Agent Skills (una carpeta con SKILL.md). Junto con las skills de .scrakk/skills/ (proyecto y usuario), las de ex…"
+---
 # skills (paquetes de skills)
 
 Una extensión puede empaquetar **skills**: workflows reutilizables en el

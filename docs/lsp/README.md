@@ -1,3 +1,9 @@
+---
+title: "Sistema LSP — Scrakk Studio"
+group: lsp
+order: 10
+summary: "Cliente Language Server Protocol completo en el proceso main de Electron, réplica funcional del sistema LSP de scrakk-cli adaptado a la modularización de Studio (contrato shared → runtime main → pu…"
+---
 # Sistema LSP — Scrakk Studio
 
 Cliente Language Server Protocol completo en el proceso main de Electron,

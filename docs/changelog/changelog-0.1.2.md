@@ -1,3 +1,9 @@
+---
+title: "Changelog 0.1.2"
+group: changelog
+order: 20
+summary: "Cambios relevantes de Scrakk Studio. La bienvenida muestra la primera entrada (la más nueva) en el apartado Anuncios, así que lo nuevo va arriba."
+---
 # Changelog
 
 Cambios relevantes de Scrakk Studio. La **bienvenida** muestra la primera

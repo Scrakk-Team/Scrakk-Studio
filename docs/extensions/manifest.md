@@ -1,3 +1,9 @@
+---
+title: "Manifest"
+group: extensions
+order: 60
+summary: "El manifest.json es la fuente de verdad de una extensión. Es declarativo: todo lo que la extensión aporta se describe aquí y el loader lo convierte en contribuciones registradas (loader/resolve.ts)."
+---
 # Manifest
 
 El `manifest.json` es la fuente de verdad de una extensión. Es **declarativo**:

@@ -1,3 +1,9 @@
+---
+title: "Botones del header de un panel"
+group: extensions
+order: 70
+summary: "El header de un panel (PanelFrame) muestra el título y, a la derecha, los botones de acción que el panel declara. Esos botones se pueden arrastrar para reordenarlos*, con el mismo sistema de drag q…"
+---
 # Botones del header de un panel
 
 El header de un panel (`PanelFrame`) muestra el título y, a la derecha, los

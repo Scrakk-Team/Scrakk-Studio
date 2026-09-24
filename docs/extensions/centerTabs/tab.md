@@ -1,3 +1,9 @@
+---
+title: "Tabs centrales"
+group: extensions
+order: 40
+summary: "Una extensión puede agregar pestañas al strip central con contributes.centerTabs. Aparecen junto a \"Bienvenida\", a la izquierda de los archivos abiertos."
+---
 # Tabs centrales
 
 Una extensión puede agregar pestañas al strip central con

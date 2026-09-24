@@ -1,3 +1,9 @@
+---
+title: "Paneles"
+group: extensions
+order: 80
+summary: "Un panel es una unidad de UI montable en un slot del layout. Las extensiones los aportan vía contributes.panels."
+---
 # Paneles
 
 Un panel es una unidad de UI montable en un slot del layout. Las extensiones
