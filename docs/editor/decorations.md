@@ -6,6 +6,9 @@ summary: "El subrayado (errores, TODO, imports sin usar) lo dibuja el canvas del
 ---
 # Decoraciones del editor — subrayado por rango
 
+Cuando ves una palabra subrayada en rojo (o el aviso de un `TODO`), eso lo pinta
+el editor. Este doc explica cómo llega ese subrayado al canvas del motor.
+
 El subrayado (la ondulación de un error, el trazo de un `TODO`, el aviso de un
 import sin usar) se dibuja **dentro del plano del texto**, por el canvas del
 motor. No es un overlay DOM: un overlay necesita `lineToY/colToX` —la geometría
