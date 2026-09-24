@@ -1,0 +1,95 @@
+name: Docs
+
+# Publica el bundle de documentación a Cloudflare R2:
+#   - raíz del bucket = "latest" (lo que sirve docs.scrakk.art)
+#   - vX.Y.Z/         = snapshot inmutable de cada release
+#
+# Se dispara:
+#   - al pushear un tag v*  (junto con la release de la app)
+#   - al pushear cambios a docs/** en master (preview de "latest")
+#   - a mano (workflow_dispatch)
+#
+# Sin secretos de R2, avisa y NO rompe (igual que el aviso de releases).
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'tools/docs/**'
+      - '.github/workflows/docs-publish.yml'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias (build del bundle)
+        run: npm ci --ignore-scripts
+
+      - name: Resolver versión
+        id: v
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(node -p "require('./package.json').version")"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "ref=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "docs: v$VERSION (${GITHUB_SHA::7})"
+
+      - name: Validar y construir el bundle
+        env:
+          DOCS_VERSION: ${{ steps.v.outputs.version }}
+          DOCS_REF: ${{ steps.v.outputs.ref }}
+        run: |
+          npm run docs:check
+          npm run docs
+
+      - name: Publicar en R2
+        continue-on-error: true
+        shell: bash
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID || 'eaa65e50775620523cf9a829e7b465a5' }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          BUCKET: scrakk-docs
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "::warning::faltan R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY; se omite la publicación"
+            exit 0
+          fi
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          # latest (raíz del bucket → docs.scrakk.art/…)
+          aws s3 sync docs/.generated "s3://${BUCKET}/" --endpoint-url "$ENDPOINT" --delete
+          # snapshot inmutable de la versión
+          aws s3 sync docs/.generated "s3://${BUCKET}/v${VERSION}/" --endpoint-url "$ENDPOINT"
+          echo "docs v${VERSION} publicados en R2 (${BUCKET})"
+
+      - name: Purga de caché (opcional)
+        if: ${{ always() }}
+        continue-on-error: true
+        shell: bash
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE: 29a04477792dd8f77a5b845b19a77cb9
+        run: |
+          if [ -z "$CF_TOKEN" ]; then exit 0; fi
+          curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"hosts":["docs.scrakk.art"]}' || true
