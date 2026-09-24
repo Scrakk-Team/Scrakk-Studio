@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Segmentos del breadcrumb — puro, sin React ni imports con efectos.
  * Testeable en node sin DOM ni engine.

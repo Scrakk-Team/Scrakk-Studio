@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Traductor icons: vsix iconThemes → SEF fileIcons.
  * Vive en translators/types/icons/ para tener libertad interna (schemas,

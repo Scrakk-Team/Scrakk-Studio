@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Visibilidad de la vista de skills DENTRO del panel de chat (mismo patrón
  * que `HistoryPanel/viewState.ts`): es una vista que reemplaza el contenido

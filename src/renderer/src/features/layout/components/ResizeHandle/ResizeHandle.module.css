@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Área interactiva del resize: su ancho ES el gap entre los paneles flotantes.
    El área completa es draggable.
    - Hover/foco: 3 puntos (color del tema).

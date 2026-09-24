@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import type { EditorEngine, EditorEngineId } from '../../engine'
 import { getInnertaModule, createIsolatedInnertaModule } from './innertaLoader'
 import { wireInnertaInput, type InnertaInputHandle } from './innertaInput'

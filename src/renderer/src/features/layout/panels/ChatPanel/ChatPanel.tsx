@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { createLlmChatService, type ChatMessage, type ChatService, type ChatInsertPayload } from '@services/chat'
 import { isSlashInput, slashCommands } from '@services/slash-commands'
 import { agentRegistry, subagentSessions } from '@services/ai/agents'

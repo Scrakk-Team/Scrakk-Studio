@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Exportación de chats: formato con separadores, toggle de tools,
  * truncado de resultados y nombre de archivo seguro.

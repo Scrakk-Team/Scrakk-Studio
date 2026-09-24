@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Lector de PNG mínimo (8 bits, sin entrelazar) para los tools que necesitan
  * MIRAR una captura: `_look-png.mjs` (dibuja la imagen en texto) y los probes

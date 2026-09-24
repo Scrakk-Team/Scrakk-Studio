@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del toggle de un panel lateral (botón de la activity bar): abrir otro
  * panel REEMPLAZA el que se está viendo, no apila una tab nueva.

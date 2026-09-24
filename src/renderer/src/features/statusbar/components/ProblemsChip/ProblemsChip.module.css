@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* ProblemsChip — conteos de errores/advertencias en la barra de estado.
    Mismo hover que los botones de la derecha: cuadrado con esquinas
    redondeadas (radio chico), inset y `--color-hover`. Los iconos heredan el

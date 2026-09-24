@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Fuzzy match simple para la paleta: subsecuencia case-insensitive sobre
  * "title + category + id", con bonus por inicio de palabra y consecutivos.

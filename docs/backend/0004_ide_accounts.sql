@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0004: perfiles del IDE (campos sociales sobre auth.users).
 -- Proyecto: scrakk-cli (Supabase)
 -- Aplicada vía MCP de Supabase (quedó en supabase_migrations.schema_migrations).

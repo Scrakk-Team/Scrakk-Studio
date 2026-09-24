@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * web_search — busca en la web (main, sin CORS) y devuelve resultados.
  * Mismo contrato que el `web_search` de scrakk-cli: query + allowed_domains.

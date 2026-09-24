@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del jail de permisos — la garantía de que una extensión no puede
  * leer/robar cosas fuera del workspace ni tocar rutas sensibles.

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { tabsStore, TabStrip, type StripAction, type StripId, type TabSpec } from '@features/tabs'

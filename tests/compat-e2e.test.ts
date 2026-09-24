@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * E2E de compatibilidad (sin Electron): simula lo que hace el loader con una
  * extensión convertida — manifest + assets del pipeline → normalize →

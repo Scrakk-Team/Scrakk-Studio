@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * WriteFileCard — custom display for write_file tool.
  * Shows file path and content stats (lines added/removed).

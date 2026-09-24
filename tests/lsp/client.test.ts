@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del cliente LSP — ciclo de vida completo contra un language server
  * mock real (JSON-RPC por stdio), réplica de los E2E de tests.rs del CLI.

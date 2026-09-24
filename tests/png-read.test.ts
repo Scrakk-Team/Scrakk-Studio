@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { deflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { decodePng, diffNeutralToVivid, diffStrong, isNeutral, isVivid } from '../tools/lib/png-read.mjs'

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Traductor product-icons: vsix productIconThemes → SEF productIcons.
  * Port fiel de scrakk contributions/product-icon-themes/load.ts.

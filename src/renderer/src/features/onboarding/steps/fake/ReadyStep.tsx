@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Paso 6 — Listo. FAKE: solo UI (lee las elecciones del wizard; no toca
  * servicios).

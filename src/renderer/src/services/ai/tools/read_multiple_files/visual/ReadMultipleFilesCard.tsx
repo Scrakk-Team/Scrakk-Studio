@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * ReadMultipleFilesCard — custom display for read_multiple_files tool.
  * Lists each requested path with success/error state.

@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0014: presencia (estado + actividad) con RLS y Realtime.
 -- Proyecto: scrakk-cli (Supabase)
 --

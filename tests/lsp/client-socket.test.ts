@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Test E2E del transport TCP (socket) — réplica de start_socket del CLI.
  * El mock LSP corre sobre un net.Server real en 127.0.0.1:puerto-efímero.

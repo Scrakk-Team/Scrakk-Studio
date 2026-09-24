@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Fila del árbol — memoizada. Un solo elemento por archivo/carpeta:
  * guías de indentación, chevron (carpetas), ícono por tipo, nombre con

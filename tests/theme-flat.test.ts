@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests de temas flat (One Dark Pro Flat y variantes): detección de chrome
  * monocromo, borde derivado, y que los temas con chrome rico NO se marquen.

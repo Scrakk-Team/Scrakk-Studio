@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * JSONC mínimo para themes de VS Code (port de scrakk parseJsonc.ts).
  * Los temas reales traen line/block comments + trailing commas.

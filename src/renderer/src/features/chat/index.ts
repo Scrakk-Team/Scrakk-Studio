@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Módulo de chat: estado de sesiones + modal de confirmación de tools.
  * Los componentes de UI (ChatPanel, HistoryPanel) viven en

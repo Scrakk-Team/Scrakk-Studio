@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Capa de fondo con imagen del theme: fija detrás de todo el chrome.
    z-index NEGATIVO: se ordena sola debajo del contenido sin tocar a los
    hermanos (sin position/z-index globales que rompan otros estilos).

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Menú contextual genérico — portal al body con posición clampada a la
  * ventana. Plano y capsular, con tokens de la app (sin sombras ni glow).

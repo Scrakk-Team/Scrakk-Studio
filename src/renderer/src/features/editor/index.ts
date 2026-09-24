@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 export { EditorPanel } from './EditorPanel'
 export { createEditorEngine, getStoredEngine, EDITOR_ENGINE_STORAGE_KEY } from './engine'
 export type { EditorEngine, EditorEngineId } from './engine'

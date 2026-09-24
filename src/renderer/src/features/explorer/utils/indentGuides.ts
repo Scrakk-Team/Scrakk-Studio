@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Guía de indentación ACTIVA del explorer (estilo VS Code, mínima): SOLO la
  * línea de la carpeta en foco (hover o selección) se resalta, y solo en las

@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { dialog, ipcMain, shell, type WebContents } from 'electron'
 import * as fs from 'fs/promises'
 import { watch as fsWatch, type FSWatcher } from 'node:fs'

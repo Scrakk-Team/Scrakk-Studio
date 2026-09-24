@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 import { Suspense, type JSX } from 'react'
 import { PanelErrorBoundary } from '@features/layout/components/PanelErrorBoundary/PanelErrorBoundary'
 import { getTitlebarWidgets } from './registry'

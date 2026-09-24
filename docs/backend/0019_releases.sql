@@ -1,3 +1,7 @@
+-- Copyright 2026 Scrakk Studio
+-- SPDX-License-Identifier: Apache-2.0
+-- Licencia completa en LICENSE (Apache License 2.0).
+
 -- 0019: releases — aviso de actualizaciones del IDE en tiempo real.
 --
 -- El IDE se suscribe por Realtime a esta tabla; el workflow de release

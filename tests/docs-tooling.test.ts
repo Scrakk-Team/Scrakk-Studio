@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * Tests del tooling de docs: front-matter → nav (index.json / llms.txt).
  * Se prueban las funciones puras del builder (sin renderizar HTML).

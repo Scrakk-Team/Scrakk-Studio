@@ -1,3 +1,7 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
 /**
  * GrepSearchCard — custom display for grep_search tool.
  * Shows the query and matched lines grouped by file.

@@ -1,3 +1,9 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
 /* Lista de mensajes del chat. El scroll es el global (réplica de Innerta):
    12px, radio 3px, track tenue y pulgar con hover. Sin rail custom. */
 .list {
