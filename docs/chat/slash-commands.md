@@ -6,10 +6,11 @@ summary: "API global para comandos iniciados con /. Cualquier input (chat con IA
 ---
 # Comandos con barra (`/comando`)
 
-API global para comandos iniciados con `/`. Cualquier input (chat con IA, chat
-social, un panel, una extensión) puede **ejecutarlos** y **registrar los
-suyos**. El registry no sabe de UI: los comandos reciben contexto y devuelven
-un mensaje; cada input decide cómo mostrarlo.
+Los **comandos con barra** son atajos que empiezan con `/` (por ejemplo,
+`/variants`). Cualquier input —el chat con IA, el chat social, un panel, una
+extensión— puede **ejecutarlos** y **registrar los suyos**. El registry no sabe
+de UI: cada comando recibe contexto y devuelve un mensaje, y el input decide
+cómo mostrarlo.
 
 ## Ejecutar
 
