@@ -8412,6 +8412,7 @@ var _SetInnertaVisible = Module['_SetInnertaVisible'] = makeInvalidEarlyAccess('
 var _SetInnertaBookmarks = Module['_SetInnertaBookmarks'] = makeInvalidEarlyAccess('_SetInnertaBookmarks');
 var _GetInnertaBookmarkCount = Module['_GetInnertaBookmarkCount'] = makeInvalidEarlyAccess('_GetInnertaBookmarkCount');
 var _InnertaFrame = Module['_InnertaFrame'] = makeInvalidEarlyAccess('_InnertaFrame');
+var _SetInnertaHostGlyph = Module['_SetInnertaHostGlyph'] = makeInvalidEarlyAccess('_SetInnertaHostGlyph');
 var _SetInnertaContent = Module['_SetInnertaContent'] = makeInvalidEarlyAccess('_SetInnertaContent');
 var _SetInnertaTheme = Module['_SetInnertaTheme'] = makeInvalidEarlyAccess('_SetInnertaTheme');
 var _SetInnertaOverlayHoles = Module['_SetInnertaOverlayHoles'] = makeInvalidEarlyAccess('_SetInnertaOverlayHoles');
@@ -8528,6 +8529,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['SetInnertaBookmarks'] != 'undefined', 'missing Wasm export: SetInnertaBookmarks');
   assert(typeof wasmExports['GetInnertaBookmarkCount'] != 'undefined', 'missing Wasm export: GetInnertaBookmarkCount');
   assert(typeof wasmExports['InnertaFrame'] != 'undefined', 'missing Wasm export: InnertaFrame');
+  assert(typeof wasmExports['SetInnertaHostGlyph'] != 'undefined', 'missing Wasm export: SetInnertaHostGlyph');
   assert(typeof wasmExports['SetInnertaContent'] != 'undefined', 'missing Wasm export: SetInnertaContent');
   assert(typeof wasmExports['SetInnertaTheme'] != 'undefined', 'missing Wasm export: SetInnertaTheme');
   assert(typeof wasmExports['SetInnertaOverlayHoles'] != 'undefined', 'missing Wasm export: SetInnertaOverlayHoles');
@@ -8640,6 +8642,7 @@ function assignWasmExports(wasmExports) {
   _SetInnertaBookmarks = Module['_SetInnertaBookmarks'] = createExportWrapper('SetInnertaBookmarks', wasmExports['SetInnertaBookmarks'], 2);
   _GetInnertaBookmarkCount = Module['_GetInnertaBookmarkCount'] = createExportWrapper('GetInnertaBookmarkCount', wasmExports['GetInnertaBookmarkCount'], 0);
   _InnertaFrame = Module['_InnertaFrame'] = createExportWrapper('InnertaFrame', wasmExports['InnertaFrame'], 0);
+  _SetInnertaHostGlyph = Module['_SetInnertaHostGlyph'] = createExportWrapper('SetInnertaHostGlyph', wasmExports['SetInnertaHostGlyph'], 5);
   _SetInnertaContent = Module['_SetInnertaContent'] = createExportWrapper('SetInnertaContent', wasmExports['SetInnertaContent'], 1);
   _SetInnertaTheme = Module['_SetInnertaTheme'] = createExportWrapper('SetInnertaTheme', wasmExports['SetInnertaTheme'], 1);
   _SetInnertaOverlayHoles = Module['_SetInnertaOverlayHoles'] = createExportWrapper('SetInnertaOverlayHoles', wasmExports['SetInnertaOverlayHoles'], 2);

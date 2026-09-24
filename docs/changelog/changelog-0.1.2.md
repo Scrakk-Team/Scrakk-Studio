@@ -173,6 +173,12 @@ publicadas no se editan. El archivo va por versión:
   **click en la card** abre ese modal; solo hay uno a la vez.
 
 ### Correcciones
+- **Emojis en color (los del sistema)**: el motor no puede sacarlos de FreeType
+  en WASM (los emoji del sistema son bitmaps de color y su strike es de 136 px),
+  así que los **rasteriza el host** con el navegador (Noto Color Emoji / Apple
+  Color Emoji / Segoe UI Emoji) y el motor los pinta como un glifo provisto por
+  el host — el mismo reparto que tokens, subrayados o indentación. Si el canvas
+  no dibuja nada, no se empuja: queda el respaldo monocromo embebido.
 - **Emojis y símbolos no se veían**: la cadena de fuentes de respaldo del motor
   apuntaba a rutas del sistema, que **no existen en el build web**, así que
   quedaba vacía y todo lo que la fuente del editor no tiene (símbolos, emoji del
