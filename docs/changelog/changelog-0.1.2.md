@@ -173,6 +173,13 @@ publicadas no se editan. El archivo va por versión:
   **click en la card** abre ese modal; solo hay uno a la vez.
 
 ### Correcciones
+- **Emoji: ancho de 2 celdas y nítidos**: el layout era `x = columna × ancho`
+  puro, así que un emoji avanzaba **una** celda y se pisaba con el vecino (y el
+  caret quedaba mal). Ahora el layout es **consciente del ancho** (emoji del
+  plano suplementario y CJK ancho = 2 celdas; ZWJ/selectores/combinantes = 0) y
+  el caret, el hit-test, los rangos y el ancho de la línea lo respetan. Además
+  el bitmap de color se carga a **3× y se baja con filtro lineal**: se acabó el
+  emoji borroso.
 - **Emojis en color (los del sistema)**: el motor no puede sacarlos de FreeType
   en WASM (los emoji del sistema son bitmaps de color y su strike es de 136 px),
   así que los **rasteriza el host** con el navegador (Noto Color Emoji / Apple
