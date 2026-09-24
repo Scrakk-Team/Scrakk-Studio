@@ -2,7 +2,7 @@
 title: "Tests del sistema LSP"
 group: lsp
 order: 90
-summary: "```"
+summary: "Cómo correr la suite del LSP: qué cubre cada test y cómo usar el mock server."
 ---
 # Tests del sistema LSP
 
