@@ -8,7 +8,8 @@ summary: "El manifest.json es la fuente de verdad de una extensión. Es declarat
 
 El `manifest.json` es la fuente de verdad de una extensión. Es **declarativo**:
 todo lo que la extensión aporta se describe aquí y el loader lo convierte en
-contribuciones registradas (`loader/resolve.ts`).
+contribuciones registradas (`loader/resolve.ts`). Solo `id`, `name` y `version`
+son obligatorios.
 
 ```json
 {
