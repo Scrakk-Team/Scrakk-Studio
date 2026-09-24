@@ -42,6 +42,9 @@ difunden a todas las ventanas vivas.
 
 ## Ciclo de vida de un cliente
 
+Un cliente nace **lazy** (recién cuando un archivo se toca o hay un request),
+pasa por el handshake y muere ordenado. Los pasos:
+
 1. **Arranque lazy**: solo cuando un archivo se toca o se hace un request.
 2. `resolveOrInstall`: binario en PATH → binario gestionado
    (`~/.scrakk/lsp/{bin,npm}`) → receta de instalación del catálogo/extensión.
