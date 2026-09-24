@@ -6,9 +6,11 @@ summary: "Una extensión aporta contribuciones bajo manifest.contributes. El loa
 ---
 # Contribuciones
 
-Una extensión aporta contribuciones bajo `manifest.contributes`. El loader es
-**genérico**: itera las keys de `contributes` y le pide al
-`ExtensionTypeRegistry` el handler de cada una (`loader/resolve.ts`). Un key
+Una **contribución** es cada cosa que una extensión aporta: un panel, un tema,
+un botón. Todas se declaran bajo `manifest.contributes`.
+
+El loader es **genérico**: itera las keys de `contributes` y le pide al
+`ExtensionTypeRegistry` el handler de cada una (`loader/resolve.ts`). Una key
 sin handler se loguea y se saltea; la app nunca se rompe por una extensión
 rota.
 

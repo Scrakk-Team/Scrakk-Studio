@@ -57,7 +57,7 @@ Con `runtime` presente, el Extension Host carga el entry y le inyecta el API;
 las contribuciones declarativas (`views`) ya están registradas antes de que
 corra una línea de código. Ver [vscode.md](vscode.md).
 
-## Instalación
+## Cómo se instala
 
 - El main descomprime el zip en `userData/extensions/<id>/` (valida el id y
   evita path traversal, límites anti-zip-bomb).
