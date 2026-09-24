@@ -34,6 +34,22 @@ export function validateManifest(manifest: Record<string, unknown>): ValidationI
     issues.push({ field: 'engine', message: 'engine debe ser string (ej. ">=0.1.0")' })
   }
 
+  // runtime (extensión con código): objeto con un entry string no vacío.
+  if (manifest.runtime !== undefined) {
+    const runtime = manifest.runtime as { entry?: unknown } | null
+    if (
+      !runtime ||
+      typeof runtime !== 'object' ||
+      typeof runtime.entry !== 'string' ||
+      runtime.entry.length === 0
+    ) {
+      issues.push({
+        field: 'runtime',
+        message: 'runtime debe ser { kind, entry } con entry string (ej. {"kind":"node","entry":"extension.js"})'
+      })
+    }
+  }
+
   // permissions solo del catálogo.
   const VALID_PERMISSIONS = new Set([
     'fs.read', 'fs.write', 'fs.all', 'shell.exec', 'network.fetch', 'lsp.use'
@@ -69,8 +85,7 @@ export function validateManifest(manifest: Record<string, unknown>): ValidationI
     'notifications',
     'encodings',
     'tools',
-    'skills',
-    'commands'
+    'skills'
   ]
   for (const key of Object.keys(c)) {
     if (!KNOWN_KINDS.includes(key)) {
