@@ -10,7 +10,7 @@ Un `.sef` (Scrakk Extension Format) es simplemente un **ZIP** con el
 `manifest.json` de tu extensión en la raíz —o dentro de una sola carpeta— junto
 con los archivos que necesita.
 
-## Dos sabores
+## Dos tipos
 
 ### 1. Declarativa (el caso normal)
 
