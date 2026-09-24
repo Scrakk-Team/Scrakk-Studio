@@ -89,9 +89,9 @@ Medido contra extensiones reales (Cline, Comment Anchors):
   `findFiles`, proveedores de contenido virtual), proveedores de árbol,
   `context.secrets`, `globalState`/`workspaceState`, `setContext`,
   `extensionMode`.
-- **Diagnósticos**: se guardan, se consultan y el IDE los LISTA (panel de
-  Problemas + chip de la barra de estado con los conteos). Falta el subrayado en
-  el editor (el canvas de Innerta todavía no acepta rangos de decoración).
+- **Diagnósticos**: se guardan, se consultan, el IDE los LISTA (panel de
+  Problemas + chip de la barra de estado con los conteos) y los **subraya** en el
+  editor (mismo canal que las decoraciones).
 - **Proveedores de lenguaje**: el IDE consulta hover, definición, declaración,
   implementación, tipo, referencias, resaltado de ocurrencias y formateo
   (`provider/query` host ⇄ main). Completions, code lens, links, plegado, tokens
