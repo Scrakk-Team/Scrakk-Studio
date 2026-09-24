@@ -23,6 +23,9 @@ búsqueda, git, SEF      ┘        (por archivo, por fuente)
 
 ## 1. El canal del motor
 
+El motor expone tres funciones por el puente: el IDE le manda los rangos a
+subrayar y puede preguntar cuántos tiene.
+
 ```c
 void SetInnertaUnderlines(const int* data, int count);   // sextupletes
 void ClearInnertaUnderlines();
