@@ -2,7 +2,7 @@
 title: "Vistas (paneles servidos por el Extension Host)"
 group: extensions
 order: 130
-summary: "contributes.views es el tipo de contribución para extensiones que ejecutan código (el caso de las extensiones de VS Code convertidas). El panel existe en el IDE por declaración, pero su contenido l…"
+summary: "`contributes.views` sirve para extensiones que ejecutan código: el panel existe por declaración, pero su contenido lo produce la extensión corriendo en su proceso."
 ---
 # Vistas (paneles servidos por el Extension Host)
 
