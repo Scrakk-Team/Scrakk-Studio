@@ -2,7 +2,7 @@
 title: "Proveedores de lenguaje (host ⇄ IDE)"
 group: lsp
 order: 70
-summary: "Los problemas de un lenguaje pueden resolverse de dos maneras en Scrakk:"
+summary: "Cómo llegan al editor los proveedores de lenguaje de una extensión de VS Code (hover, definición, formateo): del `registerXProvider` al editor, por IPC."
 ---
 # Proveedores de lenguaje (host ⇄ IDE)
 
