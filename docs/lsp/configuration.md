@@ -1,3 +1,9 @@
+---
+title: "Configuración de servers — `.scrakk/lsp.json`"
+group: lsp
+order: 40
+summary: "El sistema carga la MISMA configuración que scrakk-cli: dos capas JSON que se fusionan por nombre de server (el proyecto gana sobre el usuario)."
+---
 # Configuración de servers — `.scrakk/lsp.json`
 
 El sistema carga la MISMA configuración que scrakk-cli: dos capas JSON que se

@@ -1,3 +1,9 @@
+---
+title: "Decoraciones del editor — subrayado por rango"
+group: editor
+order: 10
+summary: "El subrayado (la ondulación de un error, el trazo de un TODO, el aviso de un import sin usar) se dibuja dentro del plano del texto, por el canvas del motor. No es un overlay DOM: un overlay necesit…"
+---
 # Decoraciones del editor — subrayado por rango
 
 El subrayado (la ondulación de un error, el trazo de un `TODO`, el aviso de un

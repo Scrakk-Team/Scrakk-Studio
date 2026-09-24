@@ -1,3 +1,9 @@
+---
+title: "Innerta como superficie, Scrakk como dueño de la UI"
+group: editor
+order: 20
+summary: "Plan de la familia de extensiones que tocan el editor: agregan cosas al gutter, hovers, menús, decoraciones y UI en caliente y sin recompilar Innerta. Este doc es diseño, no implementación."
+---
 # Innerta como superficie, Scrakk como dueño de la UI
 
 Plan de la familia de extensiones que **tocan el editor**: agregan cosas al

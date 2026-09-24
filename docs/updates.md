@@ -1,3 +1,9 @@
+---
+title: "Actualizaciones"
+group: start
+order: 10
+summary: "Cómo el IDE detecta, descarga e instala una versión nueva. Publicar una release no tiene ningún paso manual: se sube la versión con npm run up y el IDE la detecta solo."
+---
 # Actualizaciones
 
 Cómo el IDE detecta, descarga e instala una versión nueva. Publicar una release

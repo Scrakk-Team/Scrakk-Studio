@@ -1,3 +1,9 @@
+---
+title: "Estructura"
+group: extensions
+order: 110
+summary: "El sistema vive en tres lugares según el proceso:"
+---
 # Estructura
 
 El sistema vive en tres lugares según el proceso:

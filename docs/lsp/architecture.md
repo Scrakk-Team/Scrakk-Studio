@@ -1,3 +1,9 @@
+---
+title: "Arquitectura del sistema LSP"
+group: lsp
+order: 30
+summary: "```"
+---
 # Arquitectura del sistema LSP
 
 ## Capas

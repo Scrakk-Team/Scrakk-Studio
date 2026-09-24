@@ -1,3 +1,9 @@
+---
+title: "Sistema de Extensiones SEF (Scrakk Extension Format)"
+group: extensions
+order: 10
+summary: "Extiende la app con paquetes que aportan contribuciones declarativas. Un paquete es:"
+---
 # Sistema de Extensiones SEF (Scrakk Extension Format)
 
 Extiende la app con paquetes que aportan contribuciones **declarativas**. Un

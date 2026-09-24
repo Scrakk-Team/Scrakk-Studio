@@ -1,3 +1,9 @@
+---
+title: "Proveedores de lenguaje (host ⇄ IDE)"
+group: lsp
+order: 70
+summary: "Los problemas de un lenguaje pueden resolverse de dos maneras en Scrakk:"
+---
 # Proveedores de lenguaje (host ⇄ IDE)
 
 Los problemas de un lenguaje pueden resolverse de dos maneras en Scrakk:

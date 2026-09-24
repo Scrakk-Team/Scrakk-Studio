@@ -1,3 +1,9 @@
+---
+title: "Tipo de extensión `lspServers` (SEF)"
+group: lsp
+order: 50
+summary: "Las extensiones pueden aportar language servers completos de forma declarativa — sin ejecutar código. El handler valida el manifest y sincroniza con el runtime LSP del proceso main vía IPC."
+---
 # Tipo de extensión `lspServers` (SEF)
 
 Las extensiones pueden aportar **language servers completos** de forma

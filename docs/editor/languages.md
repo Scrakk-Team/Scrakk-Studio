@@ -1,3 +1,9 @@
+---
+title: "Lenguajes: cómo una extensión agrega sintaxis (VS Code → SEF → Innerta)"
+group: editor
+order: 30
+summary: "Plan del sistema de lenguajes: tree-sitter y TextMate como fuentes de primera clase, un solo resolutor de estilos, un tipo SEF que trae el kit completo y carga de gramáticas sin recompilar. Diseño,…"
+---
 # Lenguajes: cómo una extensión agrega sintaxis (VS Code → SEF → Innerta)
 
 Plan del sistema de lenguajes: **tree-sitter y TextMate como fuentes de primera

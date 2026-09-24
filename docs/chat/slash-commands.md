@@ -1,3 +1,9 @@
+---
+title: "Comandos con barra (`/comando`)"
+group: chat
+order: 20
+summary: "API global para comandos iniciados con /. Cualquier input (chat con IA, chat social, un panel, una extensión) puede ejecutarlos y registrar los suyos. El registry no sabe de UI: los comandos recibe…"
+---
 # Comandos con barra (`/comando`)
 
 API global para comandos iniciados con `/`. Cualquier input (chat con IA, chat

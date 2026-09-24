@@ -1,3 +1,9 @@
+---
+title: "Modos y permisos"
+group: chat
+order: 10
+summary: "Dos piezas deciden qué puede hacer la IA: modos (un preset de efectos) y reglas* (permitir / preguntar / negar por herramienta). Se combinan en el policy-engine para cada tool call."
+---
 # Modos y permisos
 
 Dos piezas deciden qué puede hacer la IA: **modos** (un preset de efectos) y

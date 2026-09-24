@@ -1,3 +1,9 @@
+---
+title: "Servidores builtin, detección y auto-instalación"
+group: lsp
+order: 80
+summary: "Al cargar un root se descubren los builtins que cumplen TODO:"
+---
 # Servidores builtin, detección y auto-instalación
 
 ## Detección

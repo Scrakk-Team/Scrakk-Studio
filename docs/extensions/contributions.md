@@ -1,3 +1,9 @@
+---
+title: "Contribuciones"
+group: extensions
+order: 50
+summary: "Una extensión aporta contribuciones bajo manifest.contributes. El loader es genérico*: itera las keys de contributes y le pide al ExtensionTypeRegistry el handler de cada una (loader/resolve.ts). U…"
+---
 # Contribuciones
 
 Una extensión aporta contribuciones bajo `manifest.contributes`. El loader es

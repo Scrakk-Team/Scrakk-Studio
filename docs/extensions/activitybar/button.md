@@ -1,3 +1,9 @@
+---
+title: "Botones de la activity bar"
+group: extensions
+order: 20
+summary: "Una extensión puede agregar botones a la barra de actividades con contributes.activityBar. Se fusionan con los botones built-in y se ordenan por order."
+---
 # Botones de la activity bar
 
 Una extensión puede agregar botones a la barra de actividades con
