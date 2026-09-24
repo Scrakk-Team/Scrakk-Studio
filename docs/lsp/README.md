@@ -2,13 +2,14 @@
 title: "Sistema LSP — Scrakk Studio"
 group: lsp
 order: 10
-summary: "Cliente Language Server Protocol completo en el proceso main de Electron, réplica funcional del sistema LSP de scrakk-cli adaptado a la modularización de Studio (contrato shared → runtime main → pu…"
+summary: "Cliente LSP completo en el proceso main: autocompletado, diagnósticos, multi-root y multi-server para el editor y el agente."
 ---
 # Sistema LSP — Scrakk Studio
 
-Cliente Language Server Protocol completo en el proceso main de Electron,
-réplica funcional del sistema LSP de scrakk-cli adaptado a la modularización
-de Studio (contrato shared → runtime main → puente preload → API renderer).
+El **LSP** (Language Server Protocol) es lo que le da "inteligencia de código"
+al editor: autocompletado, ir a la definición, diagnósticos, formateo… Scrakk
+incluye un **cliente LSP completo** que corre en el proceso main de Electron
+(contrato shared → runtime main → puente preload → API renderer).
 
 ## Qué soporta
 
