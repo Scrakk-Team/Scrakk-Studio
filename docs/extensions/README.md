@@ -2,12 +2,13 @@
 title: "Sistema de Extensiones SEF (Scrakk Extension Format)"
 group: extensions
 order: 10
-summary: "Extiende la app con paquetes que aportan contribuciones declarativas. Un paquete es:"
+summary: "Extiende la app con paquetes que aportan contribuciones declarativas: una builtin o un .sef que instala el usuario."
 ---
 # Sistema de Extensiones SEF (Scrakk Extension Format)
 
-Extiende la app con paquetes que aportan contribuciones **declarativas**. Un
-paquete es:
+Una **extensión** agrega funcionalidad a Scrakk Studio —un panel, un tema, una
+herramienta de IA— **sin tocar la app**: lo describís en un `manifest.json` y
+Scrakk lo registra solo. Un paquete puede ser:
 
 - una **builtin** (`.tsx`/`.ts` compilados dentro del bundle de la app), o
 - un **`.sef` instalado por el usuario** (zip descomprimido en
