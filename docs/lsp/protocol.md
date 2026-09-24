@@ -6,6 +6,8 @@ summary: "Qué partes del handshake y del protocolo LSP soporta Scrakk, y qué q
 ---
 # Protocolo soportado y límites
 
+El LSP es JSON-RPC 2.0. Acá está qué implementa Scrakk del protocolo y qué no.
+
 ## Handshake
 
 `initialize` con:

@@ -6,6 +6,9 @@ summary: "Cómo correr la suite del LSP: qué cubre cada test y cómo usar el mo
 ---
 # Tests del sistema LSP
 
+Todo corre con **Vitest**: un archivo por área, más un mock server para no
+depender de binarios externos.
+
 ```bash
 npm test          # toda la suite
 npx vitest run tests/lsp/manager.test.ts   # un archivo
