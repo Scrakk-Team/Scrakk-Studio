@@ -142,9 +142,8 @@ con los conteos por severidad). Comparten store con los del LSP
 (`services/lsp/diagnosticsStore.ts`), con una entrada por fuente, así que el
 linter de una extensión y `tsc` no se pisan entre sí.
 
-Lo que falta de este camino: el SUBRAYADO en el editor (el canvas de Innerta
-necesita aceptar rangos de decoración). El panel lo dice en su pie en vez de dar
-a entender que el editor ya lo marca.
+Los diagnósticos se subrayan en el editor: entran por el mismo canal que las
+decoraciones (ver [../editor/decorations.md](../editor/decorations.md)).
 
 ## Límites (dichos, no escondidos)
 
