@@ -6,6 +6,9 @@ summary: "Cómo una extensión agrega sintaxis a un lenguaje: tree-sitter y Text
 ---
 # Lenguajes: cómo una extensión agrega sintaxis (VS Code → SEF → Innerta)
 
+Cuando abrís un `.rs` o un `.py`, el editor lo colorea. Este doc explica de
+dónde sale ese color y cómo una extensión agrega un lenguaje nuevo.
+
 Plan del sistema de lenguajes: **tree-sitter y TextMate como fuentes de primera
 clase**, un solo resolutor de estilos, un tipo SEF que trae el kit completo y
 carga de gramáticas **sin recompilar**. Diseño, no implementación.
