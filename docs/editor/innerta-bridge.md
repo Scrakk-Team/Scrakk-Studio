@@ -6,9 +6,9 @@ summary: "Plan de la familia de extensiones que tocan el editor: agregan cosas a
 ---
 # Innerta como superficie, Scrakk como dueño de la UI
 
-Plan de la familia de extensiones que **tocan el editor**: agregan cosas al
-gutter, hovers, menús, decoraciones y UI **en caliente y sin recompilar
-Innerta**. Este doc es **diseño, no implementación**.
+El editor (**Innerta**) es un motor C++ compilado a WASM. Este doc explica cómo
+Scrakk le agrega cosas —gutter, hovers, menús, decoraciones— **en caliente y sin
+recompilar el motor**. Es **diseño, no implementación**.
 
 > El otro track del mismo puente — **lenguajes, color y gramáticas**, con sus 4
 > fuentes y la carga dinámica de tree-sitter — está en [languages.md](languages.md).
