@@ -2,7 +2,7 @@
 title: "Extensiones de VS Code que traen su language server"
 group: lsp
 order: 100
-summary: "En VS Code un language server no es un contribution point: es código. La extensión hace new LanguageClient(...) en su activate y toda la negociación (initialize, capabilities, sync de documentos, d…"
+summary: "Cómo una extensión de VS Code que trae su propio `LanguageClient` corre en el Extension Host y sus proveedores (hover, definición…) llegan al editor."
 ---
 # Extensiones de VS Code que traen su language server
 
