@@ -10,7 +10,7 @@
  *                index.json   · nav + metadata (sin cuerpos)
  *                docs.json    · bundle completo (con markdown + html)
  *                llms.txt     · todo el corpus en un solo texto para IAs
- *                index.html   · visor estático (SPA con hash routing)
+ *                doc/<slug>.json · un doc (markdown + HTML + metadata) para la API
  *                md/<slug>.md · copia cruda de cada doc
  *
  * El bundle lo consumen:
@@ -202,9 +202,6 @@ function renderHtml(markdown) {
   )
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
 
 function readVersion() {
   if (process.env.DOCS_VERSION) return process.env.DOCS_VERSION
@@ -341,101 +338,6 @@ function navOf(docs) {
     }))
 }
 
-function renderViewer({ version, ref, groups, docs }) {
-  const nav = groups
-    .map(
-      (g) => `<div class="group"><div class="group-title">${escapeHtml(g.title)}</div>${g.items
-        .map(
-          (it) =>
-            `<a class="item" href="#${it.slug || '/'}" data-slug="${it.slug || ''}">${escapeHtml(it.title)}</a>`
-        )
-        .join('')}</div>`
-    )
-    .join('')
-
-  const sections = docs
-    .map(
-      (d) => `<article class="doc" id="doc-${d.slug || 'index'}" data-slug="${d.slug}" hidden>
-<div class="doc-meta">${escapeHtml(d.rel)} · v${escapeHtml(version)}</div>
-${d.html}
-<a class="source" href="${d.source}" target="_blank" rel="noopener">Editar en GitHub →</a>
-</article>`
-    )
-    .join('\n')
-
-  const meta = docs.map((d) => ({ slug: d.slug, title: d.title, rel: d.rel }))
-  return `<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Scrakk Studio — Documentación</title>
-<meta name="description" content="Documentación oficial de Scrakk Studio (IDE agéntico). v${escapeHtml(version)}." />
-<style>
-:root{--bg:#0b0d10;--surface:#12151a;--border:#232830;--text:#e6e9ef;--muted:#98a2b3;--accent:#7c9cff}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
-a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
-.layout{display:flex;min-height:100vh}
-aside{width:290px;flex:none;border-right:1px solid var(--border);background:var(--surface);padding:20px 16px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{font-weight:700;letter-spacing:-.02em;font-size:16px;margin-bottom:4px}
-.ver{color:var(--muted);font-size:12px;margin-bottom:16px}
-.search{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);margin-bottom:16px}
-.group{margin-bottom:18px}
-.group-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
-.item{display:block;padding:5px 8px;border-radius:6px;color:var(--text);font-size:14px}
-.item:hover{background:#1a1f27;text-decoration:none}
-.item.active{background:#1e2733;color:#fff}
-main{flex:1;min-width:0;padding:40px 48px;max-width:900px}
-.doc-meta{color:var(--muted);font-size:12px;margin-bottom:20px}
-.doc h1{font-size:30px;letter-spacing:-.02em;margin-top:0}
-.doc h2{font-size:22px;margin-top:36px;border-bottom:1px solid var(--border);padding-bottom:6px}
-.doc h3{font-size:17px;margin-top:26px}
-.doc code{background:#1a1f27;padding:2px 5px;border-radius:4px;font-size:.88em}
-.doc pre{background:#12151a;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow:auto}
-.doc pre code{background:none;padding:0}
-.doc table{border-collapse:collapse;width:100%;margin:14px 0}
-.doc th,.doc td{border:1px solid var(--border);padding:6px 10px;text-align:left;font-size:14px}
-.doc th{background:var(--surface)}
-.doc blockquote{border-left:3px solid var(--border);margin:0;padding-left:14px;color:var(--muted)}
-.source{display:inline-block;margin-top:32px;font-size:13px;color:var(--muted)}
-@media(max-width:820px){.layout{flex-direction:column}aside{width:100%;height:auto;position:static}main{padding:24px}}
-</style>
-</head>
-<body>
-<div class="layout">
-<aside>
-<div class="brand">Scrakk Studio — Docs</div>
-<div class="ver">v${escapeHtml(version)}${ref ? ` · ${escapeHtml(ref)}` : ''}</div>
-<input class="search" id="q" placeholder="Buscar…" autocomplete="off" />
-<nav id="nav">${nav}</nav>
-</aside>
-<main id="content">
-${sections}
-</main>
-</div>
-<script>
-const META=${JSON.stringify(meta)};
-const docs=[...document.querySelectorAll('.doc')];
-const items=[...document.querySelectorAll('.item')];
-function show(slug){
-  let found=false;
-  for(const d of docs){const on=d.dataset.slug===slug;d.hidden=!on;if(on)found=true}
-  if(!found&&docs[0])docs[0].hidden=false;
-  for(const it of items)it.classList.toggle('active',it.dataset.slug===slug);
-  window.scrollTo(0,0);
-}
-function fromHash(){const h=decodeURIComponent(location.hash.replace(/^#/,'')||'');show(h)}
-window.addEventListener('hashchange',fromHash);
-document.getElementById('q').addEventListener('input',(e)=>{
-  const q=e.target.value.toLowerCase().trim();
-  for(const it of items){const m=META.find(x=>x.slug===it.dataset.slug)||{};const hay=(m.title+' '+(m.rel||'')).toLowerCase();it.style.display=!q||hay.includes(q)?'':'none'}
-});
-fromHash();
-</script>
-</body>
-</html>`
-}
 
 function runBuild() {
   const version = readVersion()
@@ -484,7 +386,6 @@ function runBuild() {
     fs.writeFileSync(dest, JSON.stringify(d, null, 2))
   }
 
-  fs.writeFileSync(path.join(OUT, 'index.html'), renderViewer({ version, ref, groups, docs }))
 
   const bytes = docs.reduce((n, d) => n + d.markdown.length, 0)
   console.log(`✓ docs build: ${docs.length} docs · ${groups.length} grupos · ${(bytes / 1024).toFixed(0)} KB de markdown → ${toPosix(path.relative(ROOT, OUT))}/`)
