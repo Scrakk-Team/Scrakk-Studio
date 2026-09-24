@@ -558,6 +558,28 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       ;(_raw._SetInnertaBookmarks as (p: number, c: number) => void)(ptr, arr.length)
       ;(_raw._free as (p: number) => void)(ptr)
     },
+    /**
+     * Glifo del HOST (emoji en color): mismo patrón de puntero que tokens/
+     * bookmarks — el export C espera un `const unsigned char*` del heap.
+     */
+    setHostGlyph(codepoint, advanceCells, width, height, rgba) {
+      const fn = (_raw as Record<string, unknown>)['_SetInnertaHostGlyph']
+      if (typeof fn !== 'function') return
+      if (width <= 0 || height <= 0) return
+      const bytes = width * height * 4
+      if (rgba.length < bytes) return
+      const ptr = (_raw._malloc as (n: number) => number)(bytes)
+      if (ptr === 0) return
+      ;((_raw.HEAPU8) as Uint8Array).set(rgba.subarray(0, bytes), ptr)
+      ;(fn as (cp: number, cells: number, w: number, h: number, p: number) => void)(
+        codepoint,
+        advanceCells,
+        width,
+        height,
+        ptr
+      )
+      ;(_raw._free as (p: number) => void)(ptr)
+    },
     setCursor(line, col) {
       if (typeof _raw._SetInnertaCursor !== 'function') return
       ;(_raw._SetInnertaCursor as (line: number, col: number) => void)(line, col)
@@ -1012,6 +1034,28 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
       const ptr = (_raw._malloc as (n: number) => number)(arr.byteLength)
       ;((_raw.HEAP32) as Int32Array).set(arr, ptr >> 2)
       ;(_raw._SetInnertaBookmarks as (p: number, c: number) => void)(ptr, arr.length)
+      ;(_raw._free as (p: number) => void)(ptr)
+    },
+    /**
+     * Glifo del HOST (emoji en color): mismo patrón de puntero que tokens/
+     * bookmarks — el export C espera un `const unsigned char*` del heap.
+     */
+    setHostGlyph(codepoint, advanceCells, width, height, rgba) {
+      const fn = (_raw as Record<string, unknown>)['_SetInnertaHostGlyph']
+      if (typeof fn !== 'function') return
+      if (width <= 0 || height <= 0) return
+      const bytes = width * height * 4
+      if (rgba.length < bytes) return
+      const ptr = (_raw._malloc as (n: number) => number)(bytes)
+      if (ptr === 0) return
+      ;((_raw.HEAPU8) as Uint8Array).set(rgba.subarray(0, bytes), ptr)
+      ;(fn as (cp: number, cells: number, w: number, h: number, p: number) => void)(
+        codepoint,
+        advanceCells,
+        width,
+        height,
+        ptr
+      )
       ;(_raw._free as (p: number) => void)(ptr)
     },
     setCursor(line, col) {

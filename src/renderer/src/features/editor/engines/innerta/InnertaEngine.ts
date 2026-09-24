@@ -9,6 +9,7 @@ import { clearDynamicHighlight, refreshDynamicHighlight } from './treeSitterHigh
 import { applyInnertaFolds } from './hostBridge'
 import { GRAMMAR_ENGINE_EVENT } from './grammarSelection'
 import { autoPairsForPath, indentUnitFor } from './languageConfig'
+import { scheduleEmojiGlyphs } from './emojiGlyphs'
 import { detectLanguageFromPath } from '@features/editor/languages'
 import { resetHostTokens } from './hostTokens'
 import { getBookmarksForPath, subscribeToBookmarks } from '@services/bookmarks'
@@ -61,6 +62,11 @@ export interface InnertaModule {
   setMinimapVisible?(visible: boolean): void
   /** Bookmarks del archivo (líneas 0-based): el gutter dibuja el proicon. */
   setBookmarks?(lines: number[]): void
+  /**
+   * Glifo rasterizado por el HOST (emoji en color): RGBA straight-alpha de
+   * `width*height*4` bytes. Opcional: builds viejos del WASM no lo traen.
+   */
+  setHostGlyph?(codepoint: number, advanceCells: number, width: number, height: number, rgba: Uint8Array): void
   /**
    * Mueve el cursor del editor (0-based). Es lo que usa “ir a la línea” del
    * outline y “ir a la definición” resuelto con el árbol (sin LSP).
@@ -603,6 +609,8 @@ export class InnertaEngine implements EditorEngine {
     if (!module || !currentPath || text === undefined) return
     refreshLanguageHighlight(module, currentPath, text, { immediate })
     refreshDynamicHighlight(module, currentPath, text, { immediate })
+    // Emoji en color: los rasteriza el host (debounced) y los pinta el motor.
+    scheduleEmojiGlyphs(module, text)
   }
 
   loadFile(path: string, content: string): void {
