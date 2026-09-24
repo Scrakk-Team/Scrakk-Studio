@@ -3,7 +3,7 @@
 El sistema vive en tres lugares según el proceso:
 
 - **renderer** (`src/renderer/src/services/extensions/**`): registry, loaders,
-  boot, builtin y los diez tipos de contribución.
+  boot, builtin y los trece tipos de contribución.
 - **main** (`src/main/extensions/**` y `src/main/ipc/extensions.ts`):
   instalación/desinstalación de `.sef`, conversión de `.vsix` y el **Extension
   Host** (el proceso Node que corre el código de las extensiones).

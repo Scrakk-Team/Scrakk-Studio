@@ -51,6 +51,9 @@ código: si está, el Extension Host carga ese entry y le inyecta el API. Ver
 | `encodings` | — | `types/encodings/schema.ts` |
 | `notifications` | — | `types/notifications/schema.ts` |
 | `lspServers` | `LspContribution` | `types/lsp/schema.ts` |
+| `languages` | `LanguageContribution` | `types/languages/schema.ts` |
+| `tools` | `ToolContribution` | `types/tools/schema.ts` |
+| `skills` | `SkillContribution` | `types/skills/schema.ts` |
 
 > `encodings` y `notifications` **todavía no están declarados** en la interfaz
 > `ExtensionContributions` (`services/extensions/manifest.ts`). Funcionan igual
@@ -59,7 +62,7 @@ código: si está, el Extension Host carga ese entry y le inyecta el API. Ver
 
 Las interfaces de contribución se re-exportan desde
 `services/extensions/manifest.ts` (`PanelContribution`, `ViewContribution`,
-`ActivityBarContribution`, `CenterTabContribution`).
+`ActivityBarContribution`, `CenterTabContribution`, `LanguageContribution`).
 
 ## Rutas de módulos
 
