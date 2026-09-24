@@ -2,7 +2,7 @@
 title: "tools (herramientas de IA)"
 group: extensions
 order: 120
-summary: "Una extensión puede aportar herramientas de IA al chat. Se registran en el mismo registry que las tools internas (services/ai/tools): aparecen en Ajustes → Chat → Herramientas, se activan/desactiva…"
+summary: "Una extensión puede aportar herramientas de IA al chat. Van al mismo registry que las tools internas y se configuran en Ajustes → Chat → Herramientas."
 ---
 # tools (herramientas de IA)
 

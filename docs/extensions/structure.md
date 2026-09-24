@@ -2,7 +2,7 @@
 title: "Estructura"
 group: extensions
 order: 110
-summary: "El sistema vive en tres lugares según el proceso:"
+summary: "Dónde vive cada pieza del sistema de extensiones: renderer, main (Extension Host) y shared."
 ---
 # Estructura
 
