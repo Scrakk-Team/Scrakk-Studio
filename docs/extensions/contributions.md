@@ -159,7 +159,8 @@ porque el loader es genérico, y el hueco es de tipado, no de runtime.
 ## lspServers
 
 Apunta a la definición de un language server; el registro real ocurre en el
-proceso main y el renderer solo consume su estado.
+proceso main y el renderer solo consume su estado. Ver
+[../lsp/extensions.md](../lsp/extensions.md).
 
 ## tools
 

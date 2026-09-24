@@ -54,7 +54,7 @@ explica qué hay y en qué orden leerlo.
 ### Extensiones (SEF)
 | Documento | Qué cubre |
 | --- | --- |
-| [Sistema de extensiones](extensions/README.md) | Los dos sabores (declarativa / con código) y el índice del área. |
+| [Sistema de extensiones](extensions/README.md) | Los dos tipos (declarativa / con código) y el índice del área. |
 | [Manifest](extensions/manifest.md) | El `manifest.json`: campos y `contributes`. |
 | [Contribuciones](extensions/contributions.md) | Los trece tipos de contribución, con ejemplo. |
 | [Estructura](extensions/structure.md) | Dónde vive cada pieza del sistema. |
