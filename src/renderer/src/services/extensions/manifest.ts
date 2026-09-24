@@ -43,6 +43,12 @@ export interface ExtensionManifest {
   permissions?: string[]
   /** Punto de entrada del paquete compilado (.sef). Default: dist/index.js. */
   entry?: string
+  /**
+   * Extensión CON CÓDIGO: el Extension Host carga este entry (Node) y le
+   * inyecta el API. Lo escribe el pipeline VSIX al convertir `main`
+   * (ver `shared/compatibility/vscode/translators/types/views/views.ts`).
+   */
+  runtime?: { kind: string; entry: string }
   /** Contribuciones que aporta la extensión. */
   contributes?: ExtensionContributions
 }

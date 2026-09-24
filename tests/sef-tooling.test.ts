@@ -66,6 +66,38 @@ describe('validate', () => {
     expect(issues.some((i) => i.field === 'contributes.hackThePlanet')).toBe(true)
   })
 
+  it('valida runtime: exige { kind, entry } con entry string', () => {
+    const ok = validateManifest({
+      id: 'x',
+      name: 'X',
+      version: '0.1.0',
+      runtime: { kind: 'node', entry: 'extension.js' },
+      contributes: {}
+    })
+    expect(ok.some((i) => i.field === 'runtime')).toBe(false)
+
+    for (const bad of [null, 'extension.js', {}, { kind: 'node' }, { kind: 'node', entry: 1 }]) {
+      const issues = validateManifest({
+        id: 'x',
+        name: 'X',
+        version: '0.1.0',
+        runtime: bad,
+        contributes: {}
+      })
+      expect(issues.some((i) => i.field === 'runtime')).toBe(true)
+    }
+  })
+
+  it('rechaza contributes.commands (no hay handler declarativo)', () => {
+    const issues = validateManifest({
+      id: 'x',
+      name: 'X',
+      version: '0.1.0',
+      contributes: { commands: [{ command: 'acme.deploy' }] }
+    })
+    expect(issues.some((i) => i.field === 'contributes.commands')).toBe(true)
+  })
+
   it('tema v2 sin path exige themes/<id>.json por convención', async () => {
     const root = path.join(workDir!, 'theme-pack')
     await fs.mkdir(root, { recursive: true })
