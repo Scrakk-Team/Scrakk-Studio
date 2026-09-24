@@ -2,7 +2,7 @@
 title: "Extensiones builtin"
 group: extensions
 order: 30
-summary: "Una builtin es una extensión que viaja compilada dentro del bundle de la app: su código fuente (.tsx/.ts) se embebe con import.meta.glob, así que no se lee nada del disco en runtime. Los temas buil…"
+summary: "Una builtin es una extensión que viaja compilada dentro de la app (no se lee del disco): su manifest y sus componentes se embeben con import.meta.glob."
 ---
 # Extensiones builtin
 
