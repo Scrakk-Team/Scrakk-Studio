@@ -81,8 +81,8 @@ ejecución — si no, va `node` como command y el script como arg.
 ## Prioridad final
 
 ```
-user (~/.scrakk/lsp.json)
- > project (<root>/.scrakk/lsp.json)
+project (<root>/.scrakk/lsp.json)
+ > user (~/.scrakk/lsp.json)
   > dynamic (extensiones lspServers)   ← este tipo
    > builtin (catálogo detectado)
 ```
