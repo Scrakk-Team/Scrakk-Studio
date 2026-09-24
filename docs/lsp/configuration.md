@@ -13,14 +13,14 @@ fusionan por nombre de server (el proyecto gana sobre el usuario).
 
 | Prioridad | Capa | Ruta |
 |---|---|---|
-| 1 (más alta) | Usuario | `~/.scrakk/lsp.json` |
-| 2 | Proyecto | `<root>/.scrakk/lsp.json` |
+| 1 (más alta) | Proyecto | `<root>/.scrakk/lsp.json` |
+| 2 | Usuario | `~/.scrakk/lsp.json` |
 | 3 | Dinámicos | extensiones SEF con `contributes.lspServers` |
 | 4 (más baja) | Builtins | catálogo detectado automáticamente |
 
 Reglas:
-- Cada capa solo **llena huecos** respecto a la anterior, salvo
-  usuario/proyecto que se pisan entre sí por nombre.
+- Cada capa solo **llena huecos**; usuario y proyecto se pisan entre sí por
+  nombre, y **gana el proyecto**.
 - Una entrada inválida se descarta con warning; jamás tumba el boot
   (tolerancia idéntica al CLI).
 - El home de usuario es `~/.scrakk` — overrideable con `SCRAKK_HOME` (tests).
