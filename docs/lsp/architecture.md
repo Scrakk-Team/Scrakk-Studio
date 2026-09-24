@@ -6,6 +6,9 @@ summary: "Cómo se conectan las capas del LSP: renderer → preload → main →
 ---
 # Arquitectura del sistema LSP
 
+El renderer pide por IPC, el proceso **main** orquesta, y cada language server
+corre como un **proceso hijo** (o por TCP). Esta es la foto de conjunto.
+
 ## Capas
 
 ```
