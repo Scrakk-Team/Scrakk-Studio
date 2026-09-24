@@ -101,10 +101,12 @@ entrada**: explica qué hay y en qué orden leerlo.
 Estos `.md` son la **fuente de verdad** (GitHub, rama `master`). No se editan en
 la web. En cada release, un workflow:
 
-1. construye el bundle (`tools/docs/build.mjs` → `index.json`, `docs.json`, `llms.txt`, HTML);
+1. construye el bundle (`tools/docs/build.mjs` → `index.json`, `docs.json`,
+   `llms.txt`, `doc/<slug>.json`);
 2. lo sube a **Cloudflare R2** (bucket `scrakk-docs`), versionado (`latest` + `vX.Y.Z`);
-3. queda servido en [`docs.scrakk.art`](https://docs.scrakk.art) y, para
-   programas, en `api.scrakk.art/api/docs`.
+3. la **web** lo renderiza en [scrakk.art/docs](https://scrakk.art/docs) con el
+   estilo del sitio; `docs.scrakk.art` es el host de datos (JSON / markdown /
+   `llms.txt`) y `api.scrakk.art/api/docs` el acceso programático.
 
 El front-matter de cada doc manda sobre la navegación:
 
