@@ -17,8 +17,43 @@ import type { InnertaModule } from './InnertaEngine'
 
 /** Candidatas de fuente de emoji, en orden (Linux/macOS/Windows). */
 function emojiFont(px: number): string {
-  return `${px}px "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji","Twemoji Mozilla","EmojiOne Color",sans-serif`
+  // La empaquetada gana: el rasterizado no depende de qué tenga el SO.
+  return `${px}px "ScrakkEmoji","Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji","Twemoji Mozilla","EmojiOne Color",sans-serif`
 }
+
+// ── Fuente de emoji empaquetada (Twemoji Mozilla, COLR) ────────────────────
+// Se carga una sola vez como webfont y se usa para rasterizar. Sin esto, el
+// resultado dependía de la fuente de emoji del sistema (o no había ninguna).
+let fontReady = false
+let fontLoading: Promise<void> | null = null
+let pendingAfterFont = ''
+let pendingModule: InnertaModule | null = null
+
+function loadEmojiFont(): Promise<void> {
+  if (fontLoading) return fontLoading
+  fontLoading = (async () => {
+    if (typeof FontFace === 'undefined' || typeof document === 'undefined') return
+    const url = new URL('fonts/emoji/Twemoji.Mozilla.ttf', document.baseURI).href
+    const face = new FontFace('ScrakkEmoji', `url("${url}")`)
+    await face.load()
+    document.fonts.add(face)
+    fontReady = true
+    // Lo que se pidió mientras cargaba, ahora sí.
+    if (pendingAfterFont && pendingModule) {
+      const text = pendingAfterFont
+      const module = pendingModule
+      pendingAfterFont = ''
+      rasterized.clear()
+      pushEmojiGlyphsFor(module, text)
+    }
+  })().catch(() => {
+    // Sin la empaquetada se sigue con las del SO (o el respaldo embebido).
+  })
+  return fontLoading
+}
+
+// Arranca la carga ya: el primer archivo con emoji no la espera.
+void loadEmojiFont()
 
 /** ¿Vale la pena rasterizarlo en el host (emoji de color del sistema)? */
 function isEmoji(codepoint: number): boolean {
@@ -72,8 +107,7 @@ function rasterize(codepoint: number, size: number): Uint8Array | null {
 }
 
 /** Empuja al motor los emoji del texto (una vez por code point y tamaño). */
-export function pushEmojiGlyphs(module: InnertaModule | null, text: string): void {
-  if (!module?.setHostGlyph || !text) return
+function pushEmojiGlyphsFor(module: InnertaModule, text: string): void {
   const size = Math.max(8, Math.round(module.getLineHeight?.() ?? 16))
 
   const seen = new Set<number>()
@@ -87,8 +121,24 @@ export function pushEmojiGlyphs(module: InnertaModule | null, text: string): voi
     const rgba = rasterize(codepoint, size)
     // Se cachea también el "no dibujó": reintentar en cada tecla sería peor.
     rasterized.add(key)
-    if (rgba) module.setHostGlyph(codepoint, 1, size, size, rgba)
+    if (rgba) {
+      module.setHostGlyph?.(codepoint, 1, size, size, rgba)
+      console.debug(`[emoji] push U+${codepoint.toString(16).toUpperCase()} @${size}px`)
+    } else {
+      console.warn(`[emoji] sin píxeles para U+${codepoint.toString(16).toUpperCase()} (¿fuente?)`)
+    }
   }
+}
+
+/** Empuja al motor los emoji del texto (espera a la fuente empaquetada). */
+export function pushEmojiGlyphs(module: InnertaModule | null, text: string): void {
+  if (!module?.setHostGlyph || !text) return
+  if (!fontReady) {
+    pendingModule = module
+    pendingAfterFont = text
+    return
+  }
+  pushEmojiGlyphsFor(module, text)
 }
 
 /**
