@@ -31,7 +31,10 @@
     "sef:create": "node tools/sef/index.ts create",
     "sef:build": "node tools/sef/index.ts build",
     "sef:pack": "node tools/sef/index.ts pack",
-    "sef:validate": "node tools/sef/index.ts validate"
+    "sef:validate": "node tools/sef/index.ts validate",
+    "docs": "node tools/docs/build.mjs",
+    "docs:init": "node tools/docs/build.mjs --init",
+    "docs:check": "node tools/docs/build.mjs --check"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.3.5",

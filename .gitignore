@@ -33,3 +33,6 @@ build-resources/
 
 # Secretos locales (R2, keys de dev) — NUNCA commitear
 .env
+
+# Bundle de docs generado (lo publica el workflow a R2)
+docs/.generated/
