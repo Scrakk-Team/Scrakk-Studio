@@ -476,6 +476,14 @@ function runBuild() {
     fs.writeFileSync(dest, `# ${d.title}\n\n${d.markdown}\n`)
   }
 
+  // Un JSON por doc (lo sirve api.scrakk.art/api/docs/<slug> sin cargar todo).
+  for (const d of docs) {
+    const name = d.slug ? `${d.slug}.json` : 'index.json'
+    const dest = path.join(OUT, 'doc', name)
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.writeFileSync(dest, JSON.stringify(d, null, 2))
+  }
+
   fs.writeFileSync(path.join(OUT, 'index.html'), renderViewer({ version, ref, groups, docs }))
 
   const bytes = docs.reduce((n, d) => n + d.markdown.length, 0)
