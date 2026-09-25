@@ -271,3 +271,8 @@ publicadas no se editan. El archivo va por versión:
   `will-navigate` mandaba a `openExternal` hasta la URL del propio dev server;
   ahora las navegaciones al dev server (reload de HMR y links internos) se
   resuelven **dentro** de la ventana y solo las URLs externas salen al navegador.
+- **Ajustes → Chat → Proveedores**: los iconos de la lista quedaban **pegados
+  arriba** (más aire abajo que arriba); ahora van **centrados**. Además los
+  **logos de models.dev** se pintan como **silueta con el color del tema**
+  (antes el `<img>` no heredaba el color y salían negros), con el mismo patrón
+  de máscara que el logo de la bienvenida.
