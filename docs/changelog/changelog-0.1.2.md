@@ -209,6 +209,12 @@ publicadas no se editan. El archivo va por versión:
 - La tool `task` tiene **card custom** (shimmer mientras corre): al terminar,
   **click en la card** abre ese modal; solo hay uno a la vez.
 
+### Ajustes (UI)
+- **Botón "volver arriba"** en el contenido de Ajustes: aparece al bajar con una
+  animación de **150ms** (fade + deslizamiento) y sube el contenido de forma
+  **suave**; respeta `prefers-reduced-motion` (salto directo) y al cambiar de
+  sección el contenido vuelve arriba.
+
 ### Correcciones
 - **Emoji: ancho de 2 celdas y nítidos**: el layout era `x = columna × ancho`
   puro, así que un emoji avanzaba **una** celda y se pisaba con el vecino (y el
