@@ -127,13 +127,15 @@ function PanelFrameInner({
   }, [actions, orderVersion])
 
   // Drag DECLARATIVO: el detector global de [data-drag-header] convierte el
-  // header en manija con solo estos atributos (sin hooks ni imports).
+  // header en manija con solo estos atributos (sin hooks ni imports). El
+  // label usa el título VIVO del header (el panel pudo cambiarlo: p.ej. el
+  // chat pasa a "Skills") para que el fantasma no muestre el viejo/hardcodeado.
   const dragAttrs = dragPayload
     ? {
         'data-drag-header': '',
         'data-drag-strip': dragPayload.stripId,
         'data-drag-tab': dragPayload.tabId,
-        'data-drag-label': dragPayload.label ?? title
+        'data-drag-label': title || dragPayload.label
       }
     : null
 

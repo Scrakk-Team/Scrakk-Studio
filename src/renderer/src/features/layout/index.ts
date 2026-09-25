@@ -31,6 +31,14 @@ export {
   toggleHistoryView,
   subscribeToHistoryView
 } from './panels/HistoryPanel/viewState'
+// Visibilidad de la vista de skills (embebida en el panel de chat). Historia
+// y skills comparten el panel: abrir una cierra la otra.
+export {
+  isSkillsViewOpen,
+  setSkillsViewOpen,
+  toggleSkillsView,
+  subscribeToSkillsView
+} from './panels/SkillsPanel/viewState'
 export { PanelLayout } from './components/PanelLayout/PanelLayout'
 export { PanelFrame } from './components/PanelFrame/PanelFrame'
 export { PanelHost } from './components/PanelHost/PanelHost'
