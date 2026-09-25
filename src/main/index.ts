@@ -26,7 +26,7 @@ import {
 } from './ipc/extension-host'
 import { flushAllTokens } from './supabaseClient'
 import { loadLocalEnv } from './env'
-import { createMainWindow } from './windows/main-window'
+import { createMainWindow, isAppLocalUrl } from './windows/main-window'
 import { stopKolargrepServers } from './search/kolargrepServer'
 import { applyPathAugmentation } from './binaries'
 import { applyChromiumSwitches, registerGpuFallback } from './perf/startup'
@@ -95,14 +95,19 @@ if (!gotTheLock) {
     // nunca en una ventana nueva de Electron.
     app.on('web-contents-created', (_event, contents) => {
       contents.setWindowOpenHandler(({ url }) => {
-        if (url.startsWith('http://') || url.startsWith('https://')) {
+        // El dev server (HMR) jamás se abre afuera.
+        if (!isAppLocalUrl(url) && (url.startsWith('http://') || url.startsWith('https://'))) {
           void shell.openExternal(url)
         }
         return { action: 'deny' }
       })
       // La ventana de la app jamás navega a una web externa (defensa extra
-      // para links sin target=_blank o redirects): se abre afuera.
+      // para links sin target=_blank o redirects): se abre afuera. Las
+      // navegaciones al propio dev server (reload de Vite HMR) se dejan pasar
+      // EN la ventana; si no, el reload se cancela, la app queda congelada y
+      // la URL local termina abierta en el navegador del sistema.
       contents.on('will-navigate', (event, url) => {
+        if (isAppLocalUrl(url)) return
         if (url.startsWith('http://') || url.startsWith('https://')) {
           event.preventDefault()
           void shell.openExternal(url)

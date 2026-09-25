@@ -10,21 +10,34 @@ import { WINDOW_CONTROLS_IPC } from '@shared/window-controls'
 /** Debe coincidir con --titlebar-height en core/theme/tokens.css. */
 const TITLEBAR_HEIGHT = 38
 
-/** Origen del dev server (dev). null en prod. */
-const devOrigin = process.env['ELECTRON_RENDERER_URL']
-  ? new URL(process.env['ELECTRON_RENDERER_URL']).origin
+/** Hosts loopback: `localhost` y sus equivalentes por IP. */
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
+
+/** URL del dev server (dev). null en prod. */
+const devServerUrl = process.env['ELECTRON_RENDERER_URL']
+  ? new URL(process.env['ELECTRON_RENDERER_URL'])
   : null
 
 /**
- * True si la URL es la del propio dev server (local). Estas navegaciones
+ * True si la URL pertenece al propio dev server (local). Estas navegaciones
  * NUNCA van al navegador externo: son las que usa Vite HMR para recargar la
  * ventana en el lugar (sin esto, cada hot reload abría una tab de browser
  * con localhost y la ventana quedaba congelada).
+ *
+ * Compara protocolo + puerto y acepta cualquier host loopback, porque
+ * `localhost`, `127.0.0.1` y `[::1]` apuntan al mismo dev server: un
+ * `location.reload()` puede resolver a cualquiera de ellos.
  */
 export function isAppLocalUrl(url: string): boolean {
-  if (!devOrigin) return false
+  if (!devServerUrl) return false
   try {
-    return new URL(url).origin === devOrigin
+    const target = new URL(url)
+    return (
+      target.protocol === devServerUrl.protocol &&
+      target.port === devServerUrl.port &&
+      LOOPBACK_HOSTS.has(target.hostname) &&
+      LOOPBACK_HOSTS.has(devServerUrl.hostname)
+    )
   } catch {
     return false
   }
