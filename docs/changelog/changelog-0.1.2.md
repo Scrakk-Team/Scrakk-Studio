@@ -152,6 +152,27 @@ publicadas no se editan. El archivo va por versión:
   contextual de opciones. Al llegar al **paso máximo**, el input se enciende con
   un wash de acento y **chispas** que suben (más intensas al tipear).
 
+### Chat de IA — Skills (UI)
+- Las **vistas de skills e historial** dejaron de ser un toggle: son vistas
+  propias dentro del panel de chat, cada una con su **botón de volver** (animado)
+  en el header y su título propio (**Skills** / **Historial**). Abrir una cierra
+  la otra desde cualquier vía (header, comando o menú).
+- **La pestaña sigue el título del panel**: al mover el chat a otra zona, la tab
+  toma el título dinámico que el panel publica (p. ej. **Skills**) en vez de un
+  label fijo.
+- **Rediseño del panel de Skills**: barra de acciones arriba (**Nueva** con
+  icono y **Recargar**, que pasa a **Cerrar** al abrir el formulario); el
+  formulario aparece debajo al pulsar **Nueva** y la lista queda abajo. El
+  formulario y el log se **colapsan/expanden animando la altura**, así el
+  contenido se mueve suave y sin saltos; la entrada de los campos es
+  **escalonada (350ms)** y la salida inversa de **150ms**.
+- **Filas estilo explorador**: píldora de origen más grande (envuelve si el
+  texto es largo) y hover de fila que contiene los botones de acción. Los inputs
+  viven sobre un container con la **superficie del tema** y usan el **bg del
+  tema** (nada hardcodeado), sin bordes y sin resize en las instrucciones.
+- **Contador** en lenguaje natural ("Tienes N skills") y **confirmación al
+  borrar** mediante el **sistema global de modales**.
+
 ### Herramientas (tipos)
 - Las tools se agrupan por **Familias → Tipos** en Ajustes → Chat →
   Herramientas: **Entorno** (Archivos, Código, Sistema, Navegador, Skills,
