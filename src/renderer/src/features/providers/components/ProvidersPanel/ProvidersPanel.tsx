@@ -103,7 +103,13 @@ export function ProvidersPanel(): JSX.Element {
               >
                 <span className={styles.providerIcon} aria-hidden="true">
                   {provider.logo ? (
-                    <img className={styles.providerLogo} src={provider.logo} alt="" loading="lazy" />
+                    <span
+                      className={styles.providerLogo}
+                      style={{
+                        WebkitMaskImage: `url("${provider.logo}")`,
+                        maskImage: `url("${provider.logo}")`
+                      }}
+                    />
                   ) : (
                     <ProductIcon id="server" size={14} />
                   )}
