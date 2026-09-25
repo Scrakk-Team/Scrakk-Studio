@@ -14,6 +14,7 @@ import {
   LSP_IPC,
   type DiagnosticsChangedPayload,
   type DrainDiagnosticsRequest,
+  type LspInstallProgressPayload,
   type LspProgressPayload,
   type LspRequestPayload,
   type LspServerEventPayload,
@@ -51,6 +52,9 @@ const manager = new LspManager(
   },
   (payload: LspProgressPayload) => {
     broadcast(LSP_IPC.onProgress, payload)
+  },
+  (payload: LspInstallProgressPayload) => {
+    broadcast(LSP_IPC.onInstallProgress, payload)
   }
 )
 

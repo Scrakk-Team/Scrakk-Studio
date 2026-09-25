@@ -16,6 +16,8 @@
 import type {
   FileDiagnostics,
   LspDiagnostic,
+  LspInstallProgressPayload,
+  LspInstallStage,
   LspRequestResponse,
   LspServerActionResult,
   LspServerStatus
@@ -419,6 +421,22 @@ export function onLspProgress(callback: (payload: LspProgressEvent) => void): ()
   if (!window.api?.lsp) return () => {}
   return window.api.lsp.onProgress(callback)
 }
+
+// ── Progreso de instalación ─────────────────────────────────────────────────
+
+/**
+ * Progreso de la descarga/instalación de un server (no confundir con
+ * `onLspProgress`, que es el `$/progress` del server ya instalado).
+ * El payload trae `serverName` para asociarlo a su fila.
+ */
+export function onLspInstallProgress(
+  callback: (payload: LspInstallProgressPayload) => void
+): () => void {
+  if (!window.api?.lsp?.onInstallProgress) return () => {}
+  return window.api.lsp.onInstallProgress(callback)
+}
+
+export type { LspInstallProgressPayload, LspInstallStage }
 
 // ── Suscripciones en vivo ──────────────────────────────────────────────────
 

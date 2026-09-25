@@ -17,11 +17,15 @@ import {
   lspInstallServer,
   aggregateServerState,
   onLspServerEvent,
-  type AggregateLspState
+  onLspInstallProgress,
+  type AggregateLspState,
+  type LspInstallProgressPayload
 } from '@services/lsp'
 import { setServerDisabled, subscribeToDisabledServers } from '@services/lsp'
 import type { LspServerStatus } from '@shared/lsp'
 import { notifyInstallResult } from '@features/lsp/LspNotificationsBridge'
+import { withMinLoading } from '@core/feedback'
+import { LoadingBar, LoadingButton } from '@ui'
 import styles from './ServersSection.module.css'
 
 interface ServersSectionProps {
@@ -54,6 +58,24 @@ const SOURCE_LABELS: Record<string, string> = {
   dynamic: 'Extensión'
 }
 
+/** Texto de fase de una instalación (sin %: eso lo pinta la barra). */
+function installProgressText(progress: LspInstallProgressPayload): string {
+  switch (progress.stage) {
+    case 'resolving':
+      return 'Preparando…'
+    case 'downloading':
+      return progress.percentage !== undefined
+        ? `Descargando… ${progress.percentage}%`
+        : 'Descargando…'
+    case 'installing':
+      return progress.message ? `Instalando · ${progress.message}` : 'Instalando…'
+    case 'extracting':
+      return progress.message ? `Extrayendo · ${progress.message}` : 'Extrayendo…'
+    case 'done':
+      return 'Finalizando…'
+  }
+}
+
 function StateBadge({ state, label }: { state: LspServerStatus['state']; label: string }): JSX.Element {
   return (
     <span className={[styles.stateBadge, styles[`state_${state}`] ?? null]
@@ -65,32 +87,70 @@ function StateBadge({ state, label }: { state: LspServerStatus['state']; label: 
   )
 }
 
-function ServerRow({ server }: { server: LspServerStatus }): JSX.Element {
-  const [busy, setBusy] = useState<'restart' | 'install' | null>(null)
+interface ServerRowProps {
+  server: LspServerStatus
+  /** Refresca el estado del main y espera: lo usan las acciones para no
+      limpiar su barra de carga hasta que el resultado REAL llegó. */
+  onRefresh: () => Promise<void>
+}
+
+function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
+  const [busy, setBusy] = useState<'restart' | 'install' | 'toggle' | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<LspInstallProgressPayload | null>(null)
   const disabled = server.disabled === true
+
+  // Progreso de instalación empujado por el main, filtrado por server: cada
+  // fila sólo pinta lo suyo (varias instalaciones en paralelo no se pisan).
+  useEffect(() => {
+    return onLspInstallProgress((payload) => {
+      if (payload.serverName !== server.name) return
+      setProgress(payload)
+    })
+  }, [server.name])
 
   const handleRestart = useCallback(async () => {
     setBusy('restart')
     setError(null)
-    const res = await lspRestartServer(server.name)
+    // `withMinLoading`: el borde del botón dura al menos MIN_LOADING_MS aunque
+    // el server responda al instante (si no, parpadea).
+    const res = await withMinLoading(lspRestartServer(server.name))
     if (!res.ok) {
       setError(res.error ?? 'error al reiniciar')
       notifyInstallResult(server.name, res)
     }
+    await onRefresh()
     setBusy(null)
-  }, [server.name])
+  }, [server.name, onRefresh])
 
   const handleInstall = useCallback(async () => {
     setBusy('install')
     setError(null)
-    const res = await lspInstallServer(server.name)
+    setProgress(null)
+    // El aviso sale DESPUÉS del mínimo: nunca adelanta al loader que lo anuncia.
+    const res = await withMinLoading(lspInstallServer(server.name))
     notifyInstallResult(server.name, res)
     if (!res.ok) setError(res.error ?? 'error al instalar')
+    await onRefresh()
     setBusy(null)
-  }, [server.name])
+    setProgress(null)
+  }, [server.name, onRefresh])
+
+  const handleToggle = useCallback(async () => {
+    setBusy('toggle')
+    setError(null)
+    setServerDisabled(server.name, !disabled)
+    // El push al main es fire-and-forget: el borde dura hasta que el estado
+    // REAL (status) refleje el cambio, no hasta que termine el set local.
+    await withMinLoading(onRefresh())
+    setBusy(null)
+  }, [server.name, disabled, onRefresh])
 
   const installable = !server.available || server.state === 'failed'
+
+  // Fase a mostrar como tooltip del botón que carga (el % sólo existe en la
+  // descarga real; el resto es texto de fase).
+  const installLabel = progress ? installProgressText(progress) : 'Instalando…'
 
   return (
     <div className={[styles.row, disabled ? styles.rowDisabled : null].filter(Boolean).join(' ')}>
@@ -129,10 +189,11 @@ function ServerRow({ server }: { server: LspServerStatus }): JSX.Element {
           quien la aplica al arrancar (un server apagado no corre EN REALIDAD,
           no sólo se ve gris aquí).
         */}
-        <button
-          type="button"
-          className={styles.actionBtn}
-          onClick={() => setServerDisabled(server.name, !disabled)}
+        <LoadingButton
+          loading={busy === 'toggle'}
+          loadingLabel={disabled ? 'Apagando…' : 'Encendiendo…'}
+          disabled={busy !== null}
+          onClick={() => void handleToggle()}
           title={
             disabled
               ? 'Volver a arrancar este server cuando haga falta'
@@ -140,27 +201,27 @@ function ServerRow({ server }: { server: LspServerStatus }): JSX.Element {
           }
         >
           {disabled ? 'Encender' : 'Apagar'}
-        </button>
+        </LoadingButton>
         {disabled ? null : (
-          <button
-            type="button"
-            className={styles.actionBtn}
+          <LoadingButton
+            loading={busy === 'restart'}
+            loadingLabel="Reiniciando…"
             disabled={busy !== null}
             onClick={() => void handleRestart()}
           >
-            {busy === 'restart' ? '…' : 'Reiniciar'}
-          </button>
+            Reiniciar
+          </LoadingButton>
         )}
         {installable && !disabled ? (
-          <button
-            type="button"
-            className={styles.actionBtn}
+          <LoadingButton
+            loading={busy === 'install'}
+            loadingLabel={installLabel}
             disabled={busy !== null}
             onClick={() => void handleInstall()}
             title="Instalar receta del servidor"
           >
-            {busy === 'install' ? '…' : 'Instalar'}
-          </button>
+            Instalar
+          </LoadingButton>
         ) : null}
       </div>
     </div>
@@ -169,6 +230,7 @@ function ServerRow({ server }: { server: LspServerStatus }): JSX.Element {
 
 export function ServersSection({ visible = true }: ServersSectionProps): JSX.Element {
   const [servers, setServers] = useState<LspServerStatus[]>([])
+  const [loading, setLoading] = useState(true)
   const [aggregate, setAggregate] = useState<AggregateLspState>({
     state: 'idle',
     counts: {},
@@ -182,7 +244,14 @@ export function ServersSection({ visible = true }: ServersSectionProps): JSX.Ele
   }, [])
 
   useEffect(() => {
-    void refresh()
+    // Carga inicial: la barra de la zona dura lo que tarda el primer status.
+    // El poll de respaldo y los refrescos por evento NO la encienden (serían
+    // parpadeos cada 2 s); las acciones de fila tienen su propia barra.
+    void (async () => {
+      setLoading(true)
+      await refresh()
+      setLoading(false)
+    })()
     // Stream en vivo: crashed/retrying/ready llegan al instante.
     const unsubEvents = onLspServerEvent(() => void refresh())
     // Apagar/encender un server cambia el estado REAL en el main: se refresca
@@ -214,7 +283,9 @@ export function ServersSection({ visible = true }: ServersSectionProps): JSX.Ele
         )}
       </p>
 
-      {servers.length === 0 ? (
+      {loading ? <LoadingBar label="Cargando servidores…" /> : null}
+
+      {!loading && servers.length === 0 ? (
         <p className={styles.empty}>
           Abre una carpeta con código o instala una extensión con{" "}
           <code>lspServers</code>.
@@ -222,7 +293,7 @@ export function ServersSection({ visible = true }: ServersSectionProps): JSX.Ele
       ) : (
         <div className={styles.list}>
           {servers.map((server) => (
-            <ServerRow key={server.id} server={server} />
+            <ServerRow key={server.id} server={server} onRefresh={refresh} />
           ))}
         </div>
       )}

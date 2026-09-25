@@ -60,7 +60,13 @@ export const LSP_IPC = {
   /** Evento main → renderer: cambios de estado de servers. */
   onServerEvent: 'lsp:on-server-event',
   /** Evento main → renderer: progreso $/progress (begin/report/end). */
-  onProgress: 'lsp:on-progress'
+  onProgress: 'lsp:on-progress',
+  /**
+   * Evento main → renderer: progreso de INSTALACIÓN de un server.
+   * Separado de `onProgress` a propósito: `$/progress` es progreso del server
+   * ya instalado (indexado), esto es la descarga/instalación en sí.
+   */
+  onInstallProgress: 'lsp:on-install-progress'
 } as const
 
 // ── Config (mismo shape que .scrakk/lsp.json del CLI) ──────────────────────
@@ -283,6 +289,31 @@ export interface LspProgressPayload {
   percentage?: number
 }
 
+// ── Progreso de instalación ────────────────────────────────────────────────
+
+/**
+ * Fase de una instalación de server. La instalación es una operación larga
+ * (hasta 300 s) sin endpoint de estado: el main empuja cada transición para
+ * que la UI no quede muda.
+ */
+export type LspInstallStage =
+  | 'resolving' // requisitos previos (limpieza de layout, package.json…)
+  | 'downloading' // descarga de un release (única con % real)
+  | 'installing' // subproceso npm/go/gem/dotnet/custom (sin % fiable)
+  | 'extracting' // descomprimir el asset descargado
+  | 'done'
+
+export interface LspInstallProgressPayload {
+  serverName: string
+  stage: LspInstallStage
+  /** Última línea relevante del subproceso o descripción de la fase. */
+  message?: string
+  /** 0–100. SÓLO en 'downloading' (el resto no lo conoce de verdad). */
+  percentage?: number
+  transferred?: number
+  total?: number
+}
+
 export interface DrainDiagnosticsRequest {
   timeoutMs?: number
 }
@@ -332,6 +363,8 @@ export interface LspApi {
   onServerEvent(callback: (payload: LspServerEventPayload) => void): () => void
   /** Suscripción a progreso $/progress. Devuelve unsubscriber. */
   onProgress(callback: (payload: LspProgressPayload) => void): () => void
+  /** Suscripción a progreso de instalación. Devuelve unsubscriber. */
+  onInstallProgress(callback: (payload: LspInstallProgressPayload) => void): () => void
 }
 
 // ── Parser de config de server (compartido main/renderer) ──────────────────

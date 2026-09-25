@@ -4,6 +4,9 @@
 
 export { IconButton } from './IconButton/IconButton'
 export { ToggleSwitch } from './ToggleSwitch/ToggleSwitch'
+export { LoadingBar } from './LoadingBar/LoadingBar'
+export { LoadingBorder } from './LoadingBorder/LoadingBorder'
+export { LoadingButton } from './LoadingButton/LoadingButton'
 export { Modal, type ModalSize } from './Modal/Modal'
 export { ContextMenu } from './ContextMenu/ContextMenu'
 export type { ContextMenuItem } from './ContextMenu/ContextMenu'

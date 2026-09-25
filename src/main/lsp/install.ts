@@ -19,9 +19,17 @@ import * as fs from 'fs/promises'
 import * as os from 'os'
 import * as path from 'path'
 import { unzipSync } from 'fflate'
-import type { LspServerConfig } from '@shared/lsp'
+import type { LspInstallProgressPayload, LspServerConfig } from '@shared/lsp'
 import { scrakkHome } from '../scrakkFolder'
 import { resolveExecutable } from '../binaries'
+
+/**
+ * Callback de progreso de instalación. No incluye `serverName`: lo agrega el
+ * manager, que es quien conoce la clave de la operación.
+ */
+export type InstallProgress = (
+  progress: Omit<LspInstallProgressPayload, 'serverName'>
+) => void
 
 export type InstallRecipe =
   | { kind: 'npm'; package: string }
@@ -146,18 +154,33 @@ function resolveCommand(cmd: string): string {
 function run(
   cmd: string,
   args: string[],
-  env?: Record<string, string>
+  env?: Record<string, string>,
+  onLine?: (line: string) => void
 ): Promise<{ code: number; stderr: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, {
-      stdio: ['ignore', 'ignore', 'pipe'],
+      // stdout TAMBIÉN se lee: npm/go reportan el avance ahí. No se usa para
+      // calcular un % (no lo dan), pero sí como texto de fase para la UI.
+      stdio: ['ignore', 'pipe', 'pipe'],
       env: env ? { ...process.env, ...env } : process.env
     })
     let stderr = ''
+
+    const forward = (chunk: string): void => {
+      if (!onLine) return
+      for (const raw of chunk.split('\n')) {
+        const line = raw.trim()
+        if (line) onLine(line)
+      }
+    }
+    child.stdout?.setEncoding('utf-8')
+    child.stdout?.on('data', (chunk: string) => forward(chunk))
     child.stderr?.setEncoding('utf-8')
     child.stderr?.on('data', (chunk: string) => {
       stderr += chunk
+      forward(chunk)
     })
+
     child.on('error', reject)
     child.on('exit', (code) => resolve({ code: code ?? -1, stderr }))
   })
@@ -176,15 +199,65 @@ async function fetchLatestReleaseAsset(repo: string, assetPattern: RegExp): Prom
   return { name: asset.name, url: asset.browser_download_url }
 }
 
-async function downloadTo(url: string, destination: string): Promise<void> {
+/**
+ * Descarga a disco emitiendo progreso.
+ *
+ * Sólo aquí hay un % HONESTO: `content-length` del release. Si el server no lo
+ * manda, se emite progreso indeterminado (bytes recibidos) en vez de inventar
+ * un porcentaje. Se limita la frecuencia (throttle) para no saturar el IPC.
+ */
+export async function downloadTo(
+  url: string,
+  destination: string,
+  onProgress?: InstallProgress
+): Promise<void> {
   const response = await fetch(url)
   if (!response.ok || !response.body) throw new Error(`download ${response.status}`)
-  const buffer = Buffer.from(await response.arrayBuffer())
-  await fs.writeFile(destination, buffer)
+
+  const total = Number(response.headers.get('content-length')) || 0
+  const reader = response.body.getReader()
+  const chunks: Uint8Array[] = []
+  let received = 0
+  let lastEmit = 0
+
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    if (!value) continue
+    chunks.push(value)
+    received += value.byteLength
+
+    const now = Date.now()
+    if (total > 0) {
+      if (now - lastEmit >= 100 || received >= total) {
+        lastEmit = now
+        onProgress?.({
+          stage: 'downloading',
+          percentage: Math.min(100, Math.round((received / total) * 100)),
+          transferred: received,
+          total
+        })
+      }
+    } else if (now - lastEmit >= 500) {
+      lastEmit = now
+      onProgress?.({ stage: 'downloading', transferred: received })
+    }
+  }
+
+  await fs.writeFile(destination, Buffer.concat(chunks))
+  if (total > 0) {
+    onProgress?.({ stage: 'downloading', percentage: 100, transferred: total, total })
+  }
 }
 
-async function extractBinary(archivePath: string, binaryPathInArchive: string, destination: string): Promise<void> {
+async function extractBinary(
+  archivePath: string,
+  binaryPathInArchive: string,
+  destination: string,
+  onProgress?: InstallProgress
+): Promise<void> {
   await fs.mkdir(path.dirname(destination), { recursive: true })
+  onProgress?.({ stage: 'extracting' })
 
   if (archivePath.endsWith('.zip')) {
     const content = await fs.readFile(archivePath)
@@ -196,12 +269,12 @@ async function extractBinary(archivePath: string, binaryPathInArchive: string, d
     // tar/tar.gz vía tar del sistema (disponible en linux/mac; win10+ tiene bsdtar).
     const tmpDir = path.join(path.dirname(archivePath), 'extracted')
     await fs.mkdir(tmpDir, { recursive: true })
-    const { code, stderr } = await run(resolveExecutable('tar') ?? 'tar', [
-      '-xf',
-      archivePath,
-      '-C',
-      tmpDir
-    ])
+    const { code, stderr } = await run(
+      resolveExecutable('tar') ?? 'tar',
+      ['-xf', archivePath, '-C', tmpDir],
+      undefined,
+      (line) => onProgress?.({ stage: 'extracting', message: line })
+    )
     if (code !== 0) throw new Error(`tar falló: ${stderr.slice(0, 300)}`)
     const source = path.join(tmpDir, binaryPathInArchive)
     await fs.copyFile(source, destination)
@@ -216,7 +289,13 @@ async function extractBinary(archivePath: string, binaryPathInArchive: string, d
  * Instala según receta y devuelve el config actualizado (command apuntando al
  * binario gestionado cuando corresponde).
  */
-export async function install(recipe: InstallRecipe, config: LspServerConfig): Promise<LspServerConfig> {
+export async function install(
+  recipe: InstallRecipe,
+  config: LspServerConfig,
+  onProgress?: InstallProgress
+): Promise<LspServerConfig> {
+  onProgress?.({ stage: 'resolving' })
+
   // Layout legacy corrupto de npm -g --prefix: limpieza única antes de tocar npm.
   if (recipe.kind === 'npm') {
     await removeLegacyNpmLayout(managedNpmDir())
@@ -229,30 +308,40 @@ export async function install(recipe: InstallRecipe, config: LspServerConfig): P
     case 'dotnet':
     case 'go': {
       const { cmd, args, env } = buildInstallCommand(recipe)
-      const { code, stderr } = await run(resolveCommand(cmd), args, env)
+      onProgress?.({ stage: 'installing', message: `${cmd} install` })
+      const { code, stderr } = await run(resolveCommand(cmd), args, env, (line) =>
+        onProgress?.({ stage: 'installing', message: line })
+      )
       if (code !== 0) throw new Error(`${cmd} exit ${code}: ${stderr.slice(0, 500)}`)
       const managed = await resolveManagedCommand(config.command)
+      onProgress?.({ stage: 'done' })
       return managed ? { ...config, command: managed } : config
     }
 
     case 'custom': {
       const { cmd, args } = buildInstallCommand(recipe)
-      const { code, stderr } = await run(resolveCommand(cmd), args)
+      onProgress?.({ stage: 'installing', message: `${cmd} ${args.join(' ')}` })
+      const { code, stderr } = await run(resolveCommand(cmd), args, undefined, (line) =>
+        onProgress?.({ stage: 'installing', message: line })
+      )
       if (code !== 0) throw new Error(`custom installer exit ${code}: ${stderr.slice(0, 500)}`)
       const managed = await resolveManagedCommand(config.command)
+      onProgress?.({ stage: 'done' })
       return managed ? { ...config, command: managed } : config
     }
 
     case 'github': {
+      onProgress?.({ stage: 'downloading' })
       const asset = await fetchLatestReleaseAsset(recipe.repo, new RegExp(recipe.assetPattern))
       const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'scrakk-lsp-'))
       const archivePath = path.join(tmpDir, asset.name)
       try {
-        await downloadTo(asset.url, archivePath)
+        await downloadTo(asset.url, archivePath, onProgress)
         const binaryName = path.basename(config.command)
         const destination = path.join(managedBinDir(), binaryName)
         const inArchive = recipe.binaryPath ?? binaryName
-        await extractBinary(archivePath, inArchive, destination)
+        await extractBinary(archivePath, inArchive, destination, onProgress)
+        onProgress?.({ stage: 'done' })
         return { ...config, command: destination }
       } finally {
         await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
