@@ -13,6 +13,7 @@ import { useEffect, type JSX } from 'react'
 import { useLayout } from './state'
 import { commandRegistry } from '@services/commands'
 import { toggleHistoryView } from './panels/HistoryPanel/viewState'
+import { setSkillsViewOpen } from './panels/SkillsPanel/viewState'
 
 interface ToggleDef {
   id: string
@@ -54,6 +55,8 @@ export function LayoutCommandsBridge(): JSX.Element | null {
       keybinding: 'mod+alt+h',
       run: () => {
         openPanelTab('right', 'chat')
+        // Abrir historial cierra la vista de skills (comparten el panel).
+        setSkillsViewOpen(false)
         toggleHistoryView()
       }
     })

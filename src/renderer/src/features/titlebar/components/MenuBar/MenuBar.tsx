@@ -12,7 +12,7 @@ import {
   type KeyboardEvent
 } from 'react'
 import { Modal, ContextMenu, type ContextMenuItem } from '@ui'
-import { isHistoryViewOpen, subscribeToHistoryView, toggleHistoryView, useLayout } from '@features/layout'
+import { isHistoryViewOpen, setSkillsViewOpen, subscribeToHistoryView, toggleHistoryView, useLayout } from '@features/layout'
 import { getEditorFiles, openFileInEditor, requestCloseFile } from '@features/editor'
 import { setWorkspaceRoot } from '@features/explorer'
 import { useTheme } from '@core/theme/ThemeProvider'
@@ -158,6 +158,8 @@ export function MenuBar(): JSX.Element {
             checked: historyOpen,
             onClick: () => {
               openPanelTab('right', 'chat')
+              // Abrir historial cierra la vista de skills (comparten el panel).
+              setSkillsViewOpen(false)
               toggleHistoryView()
             }
           },

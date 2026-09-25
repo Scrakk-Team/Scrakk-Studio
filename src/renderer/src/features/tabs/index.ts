@@ -18,6 +18,7 @@ export {
   tabHeaderKey,
   setTabHeader,
   getTabHeader,
+  getTabTitle,
   subscribeTabHeaders,
   extractHeaderMenuItems,
   _resetTabHeadersForTests,

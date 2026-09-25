@@ -30,6 +30,14 @@ export interface TabHeaderEntry {
 type Listener = () => void
 
 const entries = new Map<string, TabHeaderEntry>()
+/**
+ * Último título publicado por tab (clave strip+tab), aunque su panel ya esté
+ * desmontado. Permite que la etiqueta de la tab siga mostrando el título
+ * dinámico (p.ej. "Skills") al cambiar a otra tab y volver, sin depender de
+ * que el panel siga montado. Solo lo alimentan paneles (tabIds estables), no
+ * terminales/archivos, así que no crece sin control.
+ */
+const lastTitles = new Map<string, string>()
 const listeners = new Set<Listener>()
 
 function emit(): void {
@@ -58,11 +66,22 @@ export function setTabHeader(key: string, entry: TabHeaderEntry | null): void {
   const prev = entries.get(key)
   if (prev?.title === entry.title && prev?.actions === entry.actions) return
   entries.set(key, entry)
+  // El título queda recordado aunque el panel se desmonte (ver `getTabTitle`).
+  lastTitles.set(key, entry.title)
   emit()
 }
 
 export function getTabHeader(key: string): TabHeaderEntry | null {
   return entries.get(key) ?? null
+}
+
+/**
+ * Título dinámico de una tab: el vivo si su panel está montado, o el último
+ * que publicó. Devuelve null si la tab nunca publicó un header (entonces el
+ * consumidor cae al `label` del spec / default del kind).
+ */
+export function getTabTitle(key: string): string | null {
+  return entries.get(key)?.title ?? lastTitles.get(key) ?? null
 }
 
 export function subscribeTabHeaders(listener: Listener): () => void {
@@ -75,6 +94,7 @@ export function subscribeTabHeaders(listener: Listener): () => void {
 /** Solo tests: limpia el registro. */
 export function _resetTabHeadersForTests(): void {
   entries.clear()
+  lastTitles.clear()
   listeners.clear()
 }
 

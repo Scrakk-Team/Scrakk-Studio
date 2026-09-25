@@ -21,8 +21,7 @@ import { HistoryPanel } from '../HistoryPanel/HistoryPanel'
 import {
   isHistoryViewOpen,
   setHistoryViewOpen,
-  subscribeToHistoryView,
-  toggleHistoryView
+  subscribeToHistoryView
 } from '../HistoryPanel/viewState'
 import { SkillsPanel } from '../SkillsPanel/SkillsPanel'
 import { isSkillsViewOpen, setSkillsViewOpen, subscribeToSkillsView } from '../SkillsPanel/viewState'
@@ -84,41 +83,86 @@ export function ChatPanel(): JSX.Element {
   useEffect(() => subscribeToSkillsView(() => setShowSkills(isSkillsViewOpen())), [])
   useEffect(() => {
     if (!panelHeader) return undefined
-    panelHeader.setActions(() => (
-      <>
-        <HeaderActionButton
-          id="chat.history"
-          label={showHistory ? 'Ocultar historial' : 'Historial de chats'}
-          icon="history"
-          size="sm"
-          variant={showHistory ? 'accent' : 'neutral'}
-          onClick={() => {
-            // Historial y skills comparten el panel: abrir uno cierra el otro.
-            setSkillsViewOpen(false)
-            toggleHistoryView()
-          }}
-        />
-        <HeaderActionButton
-          id="chat.new-session"
-          label="Nuevo chat"
-          icon="plus"
-          size="sm"
-          onClick={() => createSession()}
-        />
-      </>
-    ))
+    panelHeader.setActions(() => {
+      // Vista de skills abierta: el header queda SÓLO con la salida. La `key`
+      // distinta por vista fuerza el remount y dispara la animación de entrada.
+      if (showSkills) {
+        return (
+          <HeaderActionButton
+            key="chat.skills-back"
+            id="chat.skills-back"
+            label="Volver al chat"
+            icon="chevron-right"
+            iconRotation={180}
+            size="sm"
+            className={styles.headerActionEnter}
+            onClick={() => setSkillsViewOpen(false)}
+          />
+        )
+      }
+      // Vista de historial abierta: misma mecánica que skills (vista propia
+      // con su botón de volver, no un toggle que se apaga desde el header).
+      if (showHistory) {
+        return (
+          <HeaderActionButton
+            key="chat.history-back"
+            id="chat.history-back"
+            label="Volver al chat"
+            icon="chevron-right"
+            iconRotation={180}
+            size="sm"
+            className={styles.headerActionEnter}
+            onClick={() => setHistoryViewOpen(false)}
+          />
+        )
+      }
+      // Chat: abrir historial + nuevo chat.
+      return (
+        <>
+          <HeaderActionButton
+            key="chat.history"
+            id="chat.history"
+            label="Historial de chats"
+            icon="history"
+            size="sm"
+            className={styles.headerActionEnter}
+            onClick={() => {
+              // Historial y skills comparten el panel: abrir uno cierra el otro.
+              setSkillsViewOpen(false)
+              setHistoryViewOpen(true)
+            }}
+          />
+          <HeaderActionButton
+            id="chat.new-session"
+            label="Nuevo chat"
+            icon="plus"
+            size="sm"
+            onClick={() => createSession()}
+          />
+        </>
+      )
+    })
     return () => panelHeader.setActions(null)
-  }, [panelHeader, createSession, showHistory])
+  }, [panelHeader, createSession, showSkills, showHistory])
 
   // Título del header: "Chat: {nombre}" con el título real de la sesión (lo
   // setea solo con el primer mensaje o la tool history_title). Sin sesión o
-  // sin título propio queda "Chat" a secas.
+  // sin título propio queda "Chat" a secas. Cuando hay una vista embebida
+  // abierta, el header deja de ser el chat: pasa a "Skills" o "Historial".
   useEffect(() => {
     if (!panelHeader) return undefined
+    if (showSkills) {
+      panelHeader.setTitle('Skills')
+      return undefined
+    }
+    if (showHistory) {
+      panelHeader.setTitle('Historial')
+      return undefined
+    }
     const name = activeSession?.title?.trim()
     panelHeader.setTitle(name && name !== 'Nuevo chat' ? `Chat: ${name}` : 'Chat')
     return undefined
-  }, [panelHeader, activeSession?.title])
+  }, [panelHeader, activeSession?.title, showSkills, showHistory])
 
   // API pública del chat: cualquier subsistema puede insertar contenido
   // (skills desde una librería, texto de un panel) y cae como mensaje del

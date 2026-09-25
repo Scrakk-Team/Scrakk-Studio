@@ -23,6 +23,7 @@ import { tabsStore } from './store'
 import {
   extractHeaderMenuItems,
   getTabHeader,
+  getTabTitle,
   subscribeTabHeaders,
   tabHeaderKey
 } from './tabHeaders'
@@ -212,8 +213,19 @@ function TabItem({
   )
 }
 
-/** Labels default por kind (solo si el spec no trae label). */
-function defaultLabel(tab: TabSpec): string {
+/**
+ * Etiqueta visible de una tab. Prioridad:
+ * 1. Título DINÁMICO que el panel publicó para esta tab (p.ej. el chat
+ *    muestra "Skills" mientras está en esa vista). Se lee por clave strip+tab.
+ * 2. `label` del spec (p.ej. nombre de archivo/carpeta).
+ * 3. Default por kind.
+ *
+ * Es lo que hace que la etiqueta siga al título real del panel y no quede
+ * hardcodeada ("Chat") al mover la tab a otro strip.
+ */
+function defaultLabel(tab: TabSpec, stripId: StripId): string {
+  const published = getTabTitle(tabHeaderKey(stripId, tab.id))
+  if (published) return published
   if (tab.label) return tab.label
   switch (tab.kind) {
     case 'welcome':
@@ -342,13 +354,13 @@ export function TabStrip({ stripId, iconFor, onActivate, onClose, onAddTab, addT
       index === 0 && splitActive
         ? tabs.slice(1).map((t) => ({
             icon: t.icon ?? iconFor?.(t),
-            label: defaultLabel(t)
+            label: defaultLabel(t, stripId)
           }))
         : undefined
     rendered.push(
       <TabItem
         key={tab.id}
-        tab={{ ...tab, label: defaultLabel(tab) }}
+        tab={{ ...tab, label: defaultLabel(tab, stripId) }}
         stripId={stripId}
         index={index}
         active={strip?.activeId === tab.id}

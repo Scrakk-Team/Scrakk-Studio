@@ -13,6 +13,7 @@ import {
   tabHeaderKey,
   setTabHeader,
   getTabHeader,
+  getTabTitle,
   subscribeTabHeaders,
   extractHeaderMenuItems,
   _resetTabHeadersForTests
@@ -41,6 +42,36 @@ describe('tabHeaders — registro', () => {
     expect(getTabHeader('left:a')).toBeNull()
     expect(calls).toBe(2)
     unsub()
+  })
+})
+
+describe('tabHeaders — título dinámico (etiqueta de tab)', () => {
+  beforeEach(() => {
+    _resetTabHeadersForTests()
+  })
+
+  it('getTabTitle devuelve el título publicado', () => {
+    const actions = (): null => null
+    expect(getTabTitle('center:panel:chat')).toBeNull()
+    setTabHeader('center:panel:chat', { title: 'Skills', actions })
+    expect(getTabTitle('center:panel:chat')).toBe('Skills')
+  })
+
+  it('conserva el último título aunque el panel se desmonte', () => {
+    const actions = (): null => null
+    setTabHeader('center:panel:chat', { title: 'Skills', actions })
+    // El panel se desmonta (tab inactiva): se retira el header vivo…
+    setTabHeader('center:panel:chat', null)
+    expect(getTabHeader('center:panel:chat')).toBeNull()
+    // …pero el título recordado sigue disponible para la etiqueta.
+    expect(getTabTitle('center:panel:chat')).toBe('Skills')
+  })
+
+  it('el título vivo pisa al recordado', () => {
+    const actions = (): null => null
+    setTabHeader('right:panel:chat', { title: 'Skills', actions })
+    setTabHeader('right:panel:chat', { title: 'Chat', actions })
+    expect(getTabTitle('right:panel:chat')).toBe('Chat')
   })
 })
 

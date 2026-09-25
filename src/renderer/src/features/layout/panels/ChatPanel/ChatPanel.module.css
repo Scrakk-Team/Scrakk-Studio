@@ -186,3 +186,27 @@
   background: var(--color-hover);
   color: var(--color-text);
 }
+
+/* Entrada del botón de header que ocupa el slot de vistas (historial ⇄
+   volver): el slot nunca cambia de tamaño, así que sólo el ícono "entra" en
+   su lugar. Se aplica al botón que aparece para que no surja de golpe. */
+.headerActionEnter {
+  animation: headerActionIn var(--duration-base) var(--ease-out) both;
+}
+
+@keyframes headerActionIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .headerActionEnter {
+    animation: none;
+  }
+}
