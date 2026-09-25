@@ -127,8 +127,54 @@
   margin-left: 26px;
 }
 
+/* Envoltorio del contenido: ancla el botón flotante "volver arriba" para que
+   no scrollee junto con el contenido. */
+.contentWrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
 .content {
   flex: 1;
   min-width: 0;
   overflow-y: auto;
+}
+
+/* Botón flotante "volver arriba": aparece al bajar con una animación de 150ms
+   (opacidad + deslizamiento) y sube el contenido de forma suave. */
+.scrollTop {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-capsule);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(6px);
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.scrollTopVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.scrollTop:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
 }
