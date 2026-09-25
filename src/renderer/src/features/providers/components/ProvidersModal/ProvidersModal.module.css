@@ -62,7 +62,7 @@
 
 .provider {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
   width: 100%;
   padding: var(--space-3);
@@ -89,12 +89,20 @@
   color: var(--color-on-accent);
 }
 
-/* Logo del proveedor (models.dev): sin fondo de acento, el SVG ya trae el suyo. */
+/* Logo del proveedor (models.dev): el SVG es un glifo monocromo (`currentColor`)
+   sin relleno propio, así que se pinta como silueta con máscara sobre el color
+   del chip (on-accent), igual que el fallback. Mismo patrón que `.emptyLogo`. */
 .providerLogo {
   width: 18px;
   height: 18px;
-  object-fit: contain;
   flex-shrink: 0;
+  background: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .providerInfo {

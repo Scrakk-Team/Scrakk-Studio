@@ -13,7 +13,7 @@
  * statusbar vía initialSection.
  */
 
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX, type UIEvent } from 'react'
 import { Modal } from '@ui'
 import { ProductIcon } from '@services/productIcons/components'
 import { SETTINGS_SECTIONS, type SettingsSectionId } from './sections'
@@ -29,6 +29,8 @@ interface SettingsModalProps {
 export function SettingsModal({ open, onClose, initialSection }: SettingsModalProps): JSX.Element | null {
   const [active, setActive] = useState<SettingsSectionId>('appearance')
   const [expanded, setExpanded] = useState<SettingsSectionId[]>([])
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [showScrollTop, setShowScrollTop] = useState(false)
 
   // Resetear a la sección pedida al abrir (default Apariencia).
   useEffect(() => {
@@ -42,6 +44,23 @@ export function SettingsModal({ open, onClose, initialSection }: SettingsModalPr
       setExpanded((prev) => (prev.includes(parent) ? prev : [...prev, parent]))
     }
   }, [active])
+
+  // Al cambiar de sección (o al reabrir el modal) el contenido vuelve arriba.
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0 })
+    setShowScrollTop(false)
+  }, [active, open])
+
+  const handleContentScroll = (event: UIEvent<HTMLDivElement>): void => {
+    setShowScrollTop(event.currentTarget.scrollTop > 120)
+  }
+
+  const scrollToTop = (): void => {
+    const el = contentRef.current
+    if (!el) return
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+  }
 
   const toggleGroup = (id: SettingsSectionId): void => {
     setExpanded((prev) => (prev.includes(id) ? prev.filter((entry) => entry !== id) : [...prev, id]))
@@ -134,8 +153,22 @@ export function SettingsModal({ open, onClose, initialSection }: SettingsModalPr
             )
           })}
         </nav>
-        <div className={styles.content}>
-          <ActiveSection />
+        <div className={styles.contentWrap}>
+          <div className={styles.content} ref={contentRef} onScroll={handleContentScroll}>
+            <ActiveSection />
+          </div>
+          <button
+            type="button"
+            className={[styles.scrollTop, showScrollTop ? styles.scrollTopVisible : null]
+              .filter(Boolean)
+              .join(' ')}
+            aria-label="Volver arriba"
+            aria-hidden={!showScrollTop}
+            tabIndex={showScrollTop ? 0 : -1}
+            onClick={scrollToTop}
+          >
+            <ProductIcon id="arrow-up" size={14} aria-hidden="true" />
+          </button>
         </div>
       </div>
     </Modal>
