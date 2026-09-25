@@ -264,3 +264,10 @@ publicadas no se editan. El archivo va por versión:
   exceeded"*) al montar **muchos paneles**: el ref combinado del strip cambiaba
   de identidad en cada render y React hacía detach/attach llamando `setState`
   en bucle. Ahora es estable.
+- **Desarrollo — hot reload (Vite HMR)**: en casos aislados, un *full reload* del
+  dev server (por ejemplo al reconstruirse el preload o al re-optimizar
+  dependencias) abría el proyecto en el **navegador del sistema** con
+  `localhost` y dejaba la ventana de la app **congelada**. El handler global de
+  `will-navigate` mandaba a `openExternal` hasta la URL del propio dev server;
+  ahora las navegaciones al dev server (reload de HMR y links internos) se
+  resuelven **dentro** de la ventana y solo las URLs externas salen al navegador.
