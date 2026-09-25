@@ -19,7 +19,7 @@ export declare function watchRoot(root: string): string
 export declare function unwatchRoot(root: string): string
 /**
  * Búsqueda de archivos por nombre (substring case-insensitive).
- * Usa `ignore` (misma semántica gitignore que tgrep) — rápida sin índice.
+ * Usa `ignore` (misma semántica gitignore que kolargrep) — rápida sin índice.
  * Devuelve JSON: [{path,name,isDirectory}]
  */
 export declare function searchFiles(root: string, query: string, maxResults?: number | undefined | null): string

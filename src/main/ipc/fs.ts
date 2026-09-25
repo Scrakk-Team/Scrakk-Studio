@@ -374,7 +374,7 @@ export function registerFsIpc(): void {
   ipcMain.handle(FS_IPC.searchInFiles, async (_event, request: unknown): Promise<SearchInFilesResponse> => {
     const req = request as SearchInFilesRequest
     ensureWatch(req.root)
-    // Vía nativa (tgrep trigram + rayon) si disponible; fallback al scan TS.
+    // Vía nativa (kolargrep trigram + rayon) si disponible; fallback al scan TS.
     try {
       const native = tryNativeGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)
       if (native) return { success: true, matches: native }

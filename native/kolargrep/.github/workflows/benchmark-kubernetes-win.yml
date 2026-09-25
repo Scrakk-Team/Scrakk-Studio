@@ -1,0 +1,36 @@
+name: Benchmark Kubernetes (Windows)
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  benchmark:
+    name: Benchmark Kubernetes (Windows)
+    timeout-minutes: 120
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install ripgrep
+        run: cargo install ripgrep --locked
+
+      - name: Build release
+        run: cargo build --release
+
+      - name: Run benchmark
+        shell: pwsh
+        run: |
+          .\scripts\benchmark.ps1 -QueriesFile scripts\benchmark-queries-kubernetes.json -SkipBuild -BenchDir $env:RUNNER_TEMP\kolargrep-bench -ResultsPath benchmark-results.md
+
+      - name: Print results
+        shell: pwsh
+        run: Get-Content benchmark-results.md
+
+      - name: Upload results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: benchmark-kubernetes-windows
+          path: benchmark-results.md

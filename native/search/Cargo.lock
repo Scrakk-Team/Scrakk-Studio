@@ -250,6 +250,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
+name = "kolargrep-core"
+version = "1.0.8"
+dependencies = [
+ "anyhow",
+ "blake3",
+ "encoding_rs",
+ "globset",
+ "ignore",
+ "memchr",
+ "memmap2",
+ "rayon",
+ "regex",
+ "regex-syntax",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "kqueue"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -520,6 +538,7 @@ name = "scrakk-search"
 version = "0.1.0"
 dependencies = [
  "ignore",
+ "kolargrep-core",
  "napi",
  "napi-build",
  "napi-derive",
@@ -527,7 +546,6 @@ dependencies = [
  "rayon",
  "regex",
  "serde_json",
- "tgrep-core",
 ]
 
 [[package]]
@@ -611,24 +629,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "tgrep-core"
-version = "1.0.8"
-dependencies = [
- "anyhow",
- "blake3",
- "encoding_rs",
- "globset",
- "ignore",
- "memchr",
- "memmap2",
- "rayon",
- "regex",
- "regex-syntax",
- "serde",
- "serde_json",
 ]
 
 [[package]]

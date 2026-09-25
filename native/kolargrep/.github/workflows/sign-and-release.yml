@@ -1,0 +1,352 @@
+# kolargrep ADO Pipeline - OneBranch Official
+#
+# How it works:
+#   - ADO pipeline is configured to use this YAML from the kolargrep GitHub repo
+#   - OneBranch auto-checks out kolargrep source to $(Build.SourcesDirectory)\s (no checkout: self needed)
+#     (OneBranch convention: single-repo checkout lands in the 's' subdirectory)
+#   - Rust is installed via RustInstaller@1 (official Microsoft ADO task)
+#   - Cargo is authenticated to ADO DeepPrompt feed via CargoAuthenticate@0
+#   - .cargo/config.toml is written inline at build time (no file copy needed):
+#       * [registries.devdiv-deepprompt]: required by CargoAuthenticate@0 to inject credentials
+#       * [source.crates-io] replace-with: redirects crates.io to ADO feed (ADO build only)
+#       * [target.*] rustflags: BinSkim-required flags (OneBranch BA2007)
+#       * NOTE: the repo-root .cargo/config.toml does NOT redirect crates.io (for external contributors)
+#   - Builds kolargrep.exe for Windows x64 and arm64
+#   - Signs kolargrep.exe using OneBranch signing (no ESRP service connection needed)
+#   - Packages into zip matching the GitHub release.yml naming convention
+#   - Optionally uploads signed zip to GitHub Release via GitHubRelease@1 ADO task
+#
+# Prerequisites:
+#   - DeepPrompt ADO project must have access to OneBranch.Pipelines/GovernedTemplates repo
+#   - GitHub service connection 'github.com_msftsiwei_microsoftsso' must exist in ADO project settings
+#     (Project Settings → Service connections → GitHub → OAuth/PAT)
+#
+# Reference repos:
+#   - microsoft/ripgrep-prebuilt: same pattern (Rust + ADO + 1ES + GitHubRelease@1 publish)
+#   - microsoft/vscode: checkout: self pattern
+
+trigger: none
+
+parameters:
+  - name: ReleaseTag
+    displayName: 'GitHub Release Tag (e.g. v0.1.10)'
+    type: string
+    default: 'main'
+  - name: PublishToGitHub
+    displayName: 'Publish signed binary to GitHub Release (only enable after signing is verified)'
+    type: boolean
+    default: false
+  - name: debug
+    displayName: 'Enable debug output'
+    type: boolean
+    default: false
+
+variables:
+  CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)]  # needed for onebranch.pipeline.version task https://aka.ms/obpipelines/versioning
+  system.debug: ${{ parameters.debug }}
+  ENABLE_PRS_DELAYSIGN: 0  # Disable PRS delay signing; sign directly in container (0=direct, 1=requires host watcher agent)
+  KOLARGREP_TAG: ${{ parameters.ReleaseTag }}
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest'  # Docker image https://aka.ms/obpipelines/containers
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates  # https://aka.ms/obpipelines/templates
+  parameters:
+    featureFlags:
+      WindowsHostVersion: '1ESWindows2022'
+    git:
+      submodules: false
+    cloudvault:  # https://aka.ms/obpipelines/cloudvault
+      enabled: false
+    globalSdl:  # https://aka.ms/obpipelines/sdl
+      codeql:
+        compiled:
+          enabled: true
+      sbom:
+        enabled: true
+      tsa:
+        enabled: false  # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      # Uncomment if CredScan reports false positives:
+      # credscan:
+      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
+      # policheck:
+      #   exclusionsFile: $(Build.SourcesDirectory)\PolicheckExclusion.xml
+      #   break: true
+
+    stages:
+      - stage: build_and_sign
+        displayName: 'Build and Sign kolargrep Windows Binaries'
+        jobs:
+          # ---------------------------------------------------------------
+          # Job 1: Windows x64 (x86_64-pc-windows-msvc)
+          # ---------------------------------------------------------------
+          - job: build_sign_windows
+            displayName: 'Build kolargrep Windows x64 + Sign'
+            timeoutInMinutes: 120
+            cancelTimeoutInMinutes: 1
+            pool:
+              type: windows
+            variables:
+              ob_outputDirectory: '$(Build.ArtifactStagingDirectory)/ONEBRANCH_ARTIFACT'
+              ob_sdl_binskim_break: true  # https://aka.ms/obpipelines/sdl
+              # Note: ob_sdl_binskim_break requires .cargo/config.toml with BinSkim rustflags.
+              # If BinSkim fails, set to false temporarily and add .config/guardian/.gdnbaselines baseline.
+
+            steps:
+              # ---------------------------------------------------------------
+              # Step 1: Checkout kolargrep source code
+              # OneBranch checks out the repo containing this YAML (microsoft/tgrep)
+              # into $(Build.SourcesDirectory)\s (OneBranch single-repo convention).
+              # ---------------------------------------------------------------
+              # ---------------------------------------------------------------
+              # Step 2: Install Rust toolchain via RustInstaller@1
+              # Uses the official Microsoft Rust installer task (MSRustup).
+              # toolchainFeed: dedicated Rust NuGet feed (contains rust.msrustup-* packages).
+              # Reference: rust.msrustup/.pipelines/build.yml, ripgrep-prebuilt pipeline
+              # ---------------------------------------------------------------
+              - task: RustInstaller@1
+                displayName: 'Install Rust toolchain'
+                inputs:
+                  rustVersion: ms-stable
+                  additionalTargets: x86_64-pc-windows-msvc
+                  toolchainFeed: https://devdiv.pkgs.visualstudio.com/_packaging/Rust/nuget/v3/index.json
+
+              # ---------------------------------------------------------------
+              # Step 3: Verify Rust installation
+              # ---------------------------------------------------------------
+              - script: |
+                  rustc --version
+                  cargo --version
+                displayName: 'Verify Rust version'
+
+              # ---------------------------------------------------------------
+              # Step 4: Write ADO-specific .cargo/config.toml.
+              # OneBranch uses windows_build_container which strips .git and
+              # uses partial clone (--filter=blob:none), so file blobs are not
+              # on disk and git commands fail. We write the config inline here.
+              # (ado-cargo-config.toml in this directory was the former source
+              # of truth; it has been removed since it is no longer referenced.)
+              # ---------------------------------------------------------------
+              - powershell: |
+                  $dstDir = "$(Build.SourcesDirectory)\s\.cargo"
+                  New-Item -ItemType Directory -Force -Path $dstDir | Out-Null
+                  $lines = @(
+                    '[registries.devdiv-deepprompt]',
+                    'index = "sparse+https://pkgs.dev.azure.com/devdiv/_packaging/DeepPrompt/Cargo/index/"',
+                    '',
+                    '[source.crates-io]',
+                    'replace-with = "devdiv-deepprompt"',
+                    '',
+                    '[source.devdiv-deepprompt]',
+                    'registry = "sparse+https://pkgs.dev.azure.com/devdiv/_packaging/DeepPrompt/Cargo/index/"'
+                  )
+                  $configPath = "$dstDir\config.toml"
+                  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+                  $content = [string]::Join([Environment]::NewLine, $lines)
+                  [System.IO.File]::WriteAllText($configPath, $content, $utf8NoBom)
+                  Write-Host "Written: $configPath"
+                displayName: 'Write ADO cargo config (crates.io redirect)'
+
+              # ---------------------------------------------------------------
+              # Step 5: Authenticate with ADO DeepPrompt Cargo feed.
+              # ---------------------------------------------------------------
+              - task: CargoAuthenticate@0
+                displayName: 'Authenticate with ADO DeepPrompt Cargo feed'
+                inputs:
+                  configFile: 's/.cargo/config.toml'
+
+              # ---------------------------------------------------------------
+              # Step 6: Build Windows x64 release binary
+              # ---------------------------------------------------------------
+              - script: |
+                  cargo build --release --locked -p kolargrep-cli --bin kolargrep --target x86_64-pc-windows-msvc
+                displayName: 'Build kolargrep Windows x64'
+                workingDirectory: $(Build.SourcesDirectory)\s
+                env:
+                  # BinSkim-required flags passed via env var (not .cargo/config.toml) so that
+                  # the x64 and arm64 jobs cannot overwrite each other's config on the shared workspace.
+                  # /CETCOMPAT is x86-64 only; arm64 job uses its own RUSTFLAGS without it.
+                  RUSTFLAGS: '-Ccontrol-flow-guard -Ctarget-feature=+crt-static -Clink-arg=/DYNAMICBASE -Clink-arg=/CETCOMPAT'
+
+              # ---------------------------------------------------------------
+              # Step 7: Verify binary exists
+              # ---------------------------------------------------------------
+              - script: |
+                  dir target\x86_64-pc-windows-msvc\release\kolargrep.exe
+                displayName: 'Verify kolargrep.exe exists'
+                workingDirectory: $(Build.SourcesDirectory)
+
+              # ---------------------------------------------------------------
+              # Step 8: Sign kolargrep.exe using OneBranch signing
+              # signing_profile: "external_distribution" = Microsoft Authenticode (CP-231522)
+              # Exact filename used instead of glob to avoid accidentally signing other .exe files.
+              # Reference: https://onebranch.visualstudio.com/Build/_git/OneBranch.Sign?path=/ESRP/Templates/operations
+              # ---------------------------------------------------------------
+              - task: onebranch.pipeline.signing@1
+                displayName: 'Sign kolargrep.exe'
+                inputs:
+                  command: "sign"
+                  signing_profile: "external_distribution"
+                  files_to_sign: "kolargrep.exe"
+                  search_root: "$(Build.SourcesDirectory)/target/x86_64-pc-windows-msvc/release"
+
+              # ---------------------------------------------------------------
+              # Step 9: Package signed binary
+              # Zip name matches the format used in GitHub release.yml for consistency.
+              # ---------------------------------------------------------------
+              - powershell: |
+                  $tag = "$(KOLARGREP_TAG)"
+                  $zipName = "kolargrep-$tag-x86_64-pc-windows-msvc.zip"
+                  $exePath = "$(Build.SourcesDirectory)/target/x86_64-pc-windows-msvc/release/kolargrep.exe"
+                  $outPath = "$(Build.ArtifactStagingDirectory)/$zipName"
+                  # README.md is intentionally omitted: OneBranch uses --filter=blob:none
+                  # (partial clone) so the blob is not on disk, and the README is already
+                  # visible on the GitHub release page.
+                  Compress-Archive -Path $exePath -DestinationPath $outPath
+                  Write-Host "Packaged: $zipName"
+                  dir $outPath
+                displayName: 'Package signed kolargrep.exe into zip'
+
+              # ---------------------------------------------------------------
+              # Step 10: Copy to OneBranch output directory
+              # This directory is automatically uploaded as a pipeline artifact by OneBranch.
+              # ---------------------------------------------------------------
+              - task: CopyFiles@2
+                displayName: 'Copy artifacts to ONEBRANCH_ARTIFACT'
+                inputs:
+                  SourceFolder: '$(Build.ArtifactStagingDirectory)'
+                  Contents: '*.zip'
+                  TargetFolder: '$(Build.ArtifactStagingDirectory)/ONEBRANCH_ARTIFACT'
+
+              # ---------------------------------------------------------------
+              # Step 11 (optional): Publish to GitHub Release
+              # Uses GitHubRelease@1 task with ADO service connection (no PAT needed).
+              # ---------------------------------------------------------------
+              - ${{ if eq(parameters.PublishToGitHub, true) }}:
+                - task: GitHubRelease@1
+                  displayName: 'Publish signed binary to GitHub Release'
+                  inputs:
+                    gitHubConnection: 'github.com_msftsiwei_microsoftsso'
+                    repositoryName: 'microsoft/tgrep'
+                    action: 'edit'
+                    target: '$(Build.SourceVersion)'
+                    tagSource: 'userSpecifiedTag'
+                    tag: '$(KOLARGREP_TAG)'
+                    assets: '$(Build.ArtifactStagingDirectory)/*.zip'
+                    assetUploadMode: 'replace'
+                    addChangeLog: false
+
+          # ---------------------------------------------------------------
+          # Job 2: Windows arm64 (aarch64-pc-windows-msvc)
+          # Cross-compiled on x64 Windows host using MSVC arm64 cross-compiler.
+          # ---------------------------------------------------------------
+          - job: build_sign_windows_arm64
+            displayName: 'Build kolargrep Windows arm64 + Sign'
+            timeoutInMinutes: 120
+            cancelTimeoutInMinutes: 1
+            pool:
+              type: windows
+            variables:
+              ob_outputDirectory: '$(Build.ArtifactStagingDirectory)/ONEBRANCH_ARTIFACT'
+              ob_sdl_binskim_break: true  # https://aka.ms/obpipelines/sdl
+
+            steps:
+              - task: RustInstaller@1
+                displayName: 'Install Rust toolchain (with arm64 target)'
+                inputs:
+                  rustVersion: ms-stable
+                  additionalTargets: aarch64-pc-windows-msvc
+                  toolchainFeed: https://devdiv.pkgs.visualstudio.com/_packaging/Rust/nuget/v3/index.json
+
+              - script: |
+                  rustc --version
+                  cargo --version
+                displayName: 'Verify Rust version'
+
+              - powershell: |
+                  $dstDir = "$(Build.SourcesDirectory)\s\.cargo"
+                  New-Item -ItemType Directory -Force -Path $dstDir | Out-Null
+                  $lines = @(
+                    '[registries.devdiv-deepprompt]',
+                    'index = "sparse+https://pkgs.dev.azure.com/devdiv/_packaging/DeepPrompt/Cargo/index/"',
+                    '',
+                    '[source.crates-io]',
+                    'replace-with = "devdiv-deepprompt"',
+                    '',
+                    '[source.devdiv-deepprompt]',
+                    'registry = "sparse+https://pkgs.dev.azure.com/devdiv/_packaging/DeepPrompt/Cargo/index/"'
+                  )
+                  $configPath = "$dstDir\config.toml"
+                  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+                  $content = [string]::Join([Environment]::NewLine, $lines)
+                  [System.IO.File]::WriteAllText($configPath, $content, $utf8NoBom)
+                  Write-Host "Written: $configPath"
+                displayName: 'Write ADO cargo config (crates.io redirect)'
+
+              - task: CargoAuthenticate@0
+                displayName: 'Authenticate with ADO DeepPrompt Cargo feed'
+                inputs:
+                  configFile: 's/.cargo/config.toml'
+
+              - script: |
+                  cargo build --release --locked -p kolargrep-cli --bin kolargrep --target aarch64-pc-windows-msvc
+                displayName: 'Build kolargrep Windows arm64 (cross-compile)'
+                workingDirectory: $(Build.SourcesDirectory)\s
+                env:
+                  # BinSkim-required flags passed via env var (not .cargo/config.toml) so that
+                  # the x64 and arm64 jobs cannot overwrite each other's config on the shared workspace.
+                  # arm64 does NOT use /CETCOMPAT (x86-64 only); omitting it avoids LNK1246.
+                  RUSTFLAGS: '-Ccontrol-flow-guard -Ctarget-feature=+crt-static -Clink-arg=/DYNAMICBASE'
+
+              - script: |
+                  dir target\aarch64-pc-windows-msvc\release\kolargrep.exe
+                displayName: 'Verify kolargrep.exe (arm64) exists'
+                workingDirectory: $(Build.SourcesDirectory)
+
+              - task: onebranch.pipeline.signing@1
+                displayName: 'Sign kolargrep.exe (arm64)'
+                inputs:
+                  command: "sign"
+                  signing_profile: "external_distribution"
+                  files_to_sign: "kolargrep.exe"
+                  search_root: "$(Build.SourcesDirectory)/target/aarch64-pc-windows-msvc/release"
+
+              - powershell: |
+                  $tag = "$(KOLARGREP_TAG)"
+                  $zipName = "kolargrep-$tag-aarch64-pc-windows-msvc.zip"
+                  $exePath = "$(Build.SourcesDirectory)/target/aarch64-pc-windows-msvc/release/kolargrep.exe"
+                  $outPath = "$(Build.ArtifactStagingDirectory)/$zipName"
+                  # README.md is intentionally omitted: OneBranch uses --filter=blob:none
+                  # (partial clone) so the blob is not on disk, and the README is already
+                  # visible on the GitHub release page.
+                  Compress-Archive -Path $exePath -DestinationPath $outPath
+                  Write-Host "Packaged: $zipName"
+                  dir $outPath
+                displayName: 'Package signed kolargrep.exe (arm64) into zip'
+
+              - task: CopyFiles@2
+                displayName: 'Copy artifacts to ONEBRANCH_ARTIFACT'
+                inputs:
+                  SourceFolder: '$(Build.ArtifactStagingDirectory)'
+                  Contents: '*.zip'
+                  TargetFolder: '$(Build.ArtifactStagingDirectory)/ONEBRANCH_ARTIFACT'
+
+              - ${{ if eq(parameters.PublishToGitHub, true) }}:
+                - task: GitHubRelease@1
+                  displayName: 'Publish arm64 signed binary to GitHub Release'
+                  inputs:
+                    gitHubConnection: 'github.com_msftsiwei_microsoftsso'
+                    repositoryName: 'microsoft/tgrep'
+                    action: 'edit'
+                    target: '$(Build.SourceVersion)'
+                    tagSource: 'userSpecifiedTag'
+                    tag: '$(KOLARGREP_TAG)'
+                    assets: '$(Build.ArtifactStagingDirectory)/*.zip'
+                    assetUploadMode: 'replace'
+                    addChangeLog: false

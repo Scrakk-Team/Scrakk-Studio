@@ -39,7 +39,7 @@ function baseNameOf(path: string): string {
 
 /**
  * Panel de búsqueda — grep real sobre el workspace vía `fs:search-in-files`
- * (nativo tgrep si está disponible, fallback TS si no).
+ * (nativo kolargrep si está disponible, fallback TS si no).
  */
 export function SearchPanel(): JSX.Element {
   const { setTitle } = usePanelTitle()

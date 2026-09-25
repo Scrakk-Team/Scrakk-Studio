@@ -52,8 +52,8 @@ pub fn ensure_index(root: String) -> String {
   if index_fresh(&dir, root_p) {
     return dir.to_string_lossy().to_string();
   }
-  // Build con defaults de tgrep (respeta .gitignore, skip binarios, cap 64MiB).
-  let _ = tgrep_core::builder::build_index(root_p, Some(&dir), false, false, &[]);
+  // Build con defaults de kolargrep (respeta .gitignore, skip binarios, cap 64MiB).
+  let _ = kolargrep_core::builder::build_index(root_p, Some(&dir), false, false, &[]);
   dir.to_string_lossy().to_string()
 }
 
@@ -67,7 +67,7 @@ pub fn index_status(root: String) -> String {
     "ready": ready,
     "watching": watching,
     "indexDir": dir.to_string_lossy(),
-    "engine": "tgrep",
+    "engine": "kolargrep",
   })
   .to_string()
 }
@@ -152,7 +152,7 @@ fn watch_loop(rx: mpsc::Receiver<String>) {
       pending.remove(&r);
       let rp = PathBuf::from(&r);
       let dir = index_dir_for(&rp);
-      let _ = tgrep_core::builder::build_index(&rp, Some(&dir), false, false, &[]);
+      let _ = kolargrep_core::builder::build_index(&rp, Some(&dir), false, false, &[]);
     }
   }
 }
@@ -183,7 +183,7 @@ pub fn unwatch_root(root: String) -> String {
 }
 
 /// Búsqueda de archivos por nombre (substring case-insensitive).
-/// Usa `ignore` (misma semántica gitignore que tgrep) — rápida sin índice.
+/// Usa `ignore` (misma semántica gitignore que kolargrep) — rápida sin índice.
 /// Devuelve JSON: [{path,name,isDirectory}]
 #[napi]
 pub fn search_files(root: String, query: String, max_results: Option<u32>) -> String {
@@ -241,7 +241,7 @@ pub fn grep_files(
   let root_p = Path::new(&root);
   let dir = index_dir_for(root_p);
   if !index_fresh(&dir, root_p) {
-    let _ = tgrep_core::builder::build_index(root_p, Some(&dir), false, false, &[]);
+    let _ = kolargrep_core::builder::build_index(root_p, Some(&dir), false, false, &[]);
   }
 
   // 1. Candidatos vía índice (si abre). Si no hay índice, MatchAll = todos.
@@ -271,8 +271,8 @@ fn try_index_candidates(
   pattern: &str,
   case_insensitive: bool,
 ) -> Option<Vec<PathBuf>> {
-  let hybrid = tgrep_core::hybrid::HybridIndex::open(index_dir, root).ok()?;
-  let plan = tgrep_core::query::build_query_plan(pattern, case_insensitive).ok()?;
+  let hybrid = kolargrep_core::hybrid::HybridIndex::open(index_dir, root).ok()?;
+  let plan = kolargrep_core::query::build_query_plan(pattern, case_insensitive).ok()?;
   if plan.is_match_all() {
     return None; // sin trigramas útiles -> scan completo
   }

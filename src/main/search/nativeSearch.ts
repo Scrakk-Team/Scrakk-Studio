@@ -3,7 +3,7 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 /**
- * Loader del módulo nativo scrakk-search (Rust + tgrep-core vía NAPI).
+ * Loader del módulo nativo scrakk-search (Rust + kolargrep-core vía NAPI).
  * Si el .node no existe (ej. plataforma sin build), devuelve null
  * y el caller hace fallback al scan TS existente. Sin throw.
  */

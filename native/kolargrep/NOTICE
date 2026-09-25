@@ -1,0 +1,13 @@
+KolarGrep — attribution
+=======================
+
+This directory is a renamed fork of tgrep.
+
+  Upstream:   https://github.com/microsoft/tgrep
+  Version:    1.0.8 (see Cargo.toml)
+  License:    MIT — Copyright (c) Microsoft Corporation (see LICENSE)
+  Modifications by Scrakk Studio: renamed the project, crates, binary and
+  identifiers from `tgrep` to `KolarGrep`/`kolargrep`. No functional changes.
+
+The MIT license text and the original copyright notice are kept verbatim in
+`LICENSE`; the upstream URL is kept in `Cargo.toml` (repository field).

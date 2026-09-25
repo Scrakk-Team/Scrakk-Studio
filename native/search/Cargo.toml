@@ -18,7 +18,7 @@ rayon = "1"
 regex = "1"
 ignore = "0.4"
 notify = "6"
-tgrep-core = { path = "../tgrep/tgrep-core" }
+kolargrep-core = { path = "../kolargrep/kolargrep-core" }
 
 [build-dependencies]
 napi-build = "2"

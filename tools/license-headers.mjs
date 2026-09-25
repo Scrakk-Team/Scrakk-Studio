@@ -44,7 +44,7 @@ const SKIP_EXT = new Set([
   'jpeg', 'gif', 'svg', 'ico', 'wasm', 'map', 'snap', 'log', 'patch', 'diff'
 ])
 const SKIP_PREFIX = [
-  'native/tgrep/', // código de terceros: tiene su propio LICENSE
+  'native/kolargrep/', // código de terceros: tiene su propio LICENSE
   'files-otherapps/',
   'langs/', // pack generado
   'src/renderer/public/innerta/', // wasm/glue generadas
@@ -103,7 +103,7 @@ for (const file of trackedFiles()) {
   let style = styleOf(file)
   if (!style) {
     // Scripts sin extensión: miran el shebang.
-    if (file === 'native/tgrep/scripts/hooks/pre-commit') {
+    if (file === 'native/kolargrep/scripts/hooks/pre-commit') {
       skipped++
       continue
     }
