@@ -12,6 +12,7 @@ import * as path from 'path'
 import * as fs from 'fs/promises'
 import {
   buildInstallCommand,
+  downloadTo,
   downloadsDisabled,
   resolveManagedCommand,
   managedBinDir,
@@ -80,6 +81,59 @@ describe('resolveManagedCommand', () => {
 
     expect(await resolveManagedCommand('myserver')).toBe(path.join(managedBinDir(), 'myserver'))
     expect(await resolveManagedCommand('nope')).toBeNull()
+  })
+})
+
+describe('downloadTo (progreso de descarga)', () => {
+  it('con content-length: progreso monótono y termina en 100', async () => {
+    const body = new Uint8Array(1000).fill(7)
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () =>
+      new Response(body, {
+        headers: { 'content-length': String(body.byteLength) }
+      })) as typeof fetch
+
+    const percentages: number[] = []
+    const dest = path.join(projectDir!, 'asset.bin')
+    try {
+      await downloadTo('https://example.test/x', dest, (p) => {
+        if (p.percentage !== undefined) percentages.push(p.percentage)
+      })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+
+    expect(percentages.length).toBeGreaterThan(0)
+    for (let i = 1; i < percentages.length; i++) {
+      expect(percentages[i]).toBeGreaterThanOrEqual(percentages[i - 1])
+    }
+    expect(percentages.at(-1)).toBe(100)
+    expect(await fs.readFile(dest)).toEqual(Buffer.from(body))
+  })
+
+  it('sin content-length: emite fase de descarga y NO inventa porcentaje', async () => {
+    const originalFetch = globalThis.fetch
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(16).fill(1))
+        controller.close()
+      }
+    })
+    globalThis.fetch = (async () => new Response(stream)) as typeof fetch
+
+    const stages: string[] = []
+    const percentages: Array<number | undefined> = []
+    try {
+      await downloadTo('https://example.test/y', path.join(projectDir!, 'y.bin'), (p) => {
+        stages.push(p.stage)
+        percentages.push(p.percentage)
+      })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+
+    expect(stages).toContain('downloading')
+    expect(percentages.every((p) => p === undefined)).toBe(true)
   })
 })
 

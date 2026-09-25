@@ -23,6 +23,7 @@ import * as path from 'path'
 import type {
   FileDiagnostics,
   LspDiagnostic,
+  LspInstallProgressPayload,
   LspProgressPayload,
   LspRequestPayload,
   LspRequestResponse,
@@ -162,15 +163,18 @@ export class LspManager {
   private emitEvent: (payload: LspServerEventPayload) => void
   private emitDiagnostics: (payload: import('@shared/lsp').DiagnosticsChangedPayload) => void
   private emitProgress?: (payload: LspProgressPayload) => void
+  private emitInstallProgress?: (payload: LspInstallProgressPayload) => void
 
   constructor(
     emitEvent: (payload: LspServerEventPayload) => void,
     emitDiagnostics: (payload: import('@shared/lsp').DiagnosticsChangedPayload) => void,
-    emitProgress?: (payload: LspProgressPayload) => void
+    emitProgress?: (payload: LspProgressPayload) => void,
+    emitInstallProgress?: (payload: LspInstallProgressPayload) => void
   ) {
     this.emitEvent = emitEvent
     this.emitDiagnostics = emitDiagnostics
     this.emitProgress = emitProgress
+    this.emitInstallProgress = emitInstallProgress
   }
 
   getPrimaryRoot(): string {
@@ -983,8 +987,14 @@ export class LspManager {
       this.allDynamicDefs().find((candidate) => candidate.id === serverName)
     if (!def?.install) return { ok: false, error: 'sin receta de instalación' }
 
+    // Progreso: la instalación es larga (hasta 300 s). El callback del
+    // instalador no conoce el server; aquí se le pega la clave para que la UI
+    // correlacione la barra con la fila correcta.
+    const emit = (progress: Omit<LspInstallProgressPayload, 'serverName'>): void =>
+      this.emitInstallProgress?.({ serverName, ...progress })
+
     try {
-      const installed = await withTimeout(install(def.install as InstallRecipe, config), INSTALL_TIMEOUT_MS)
+      const installed = await withTimeout(install(def.install as InstallRecipe, config, emit), INSTALL_TIMEOUT_MS)
       ;(this.serversByRoot.get(root) ?? {})[serverName] = installed
       // Disponibilidad REAL actualizada → el badge deja de decir "No instalado".
       const availability = this.availabilityByRoot.get(root) ?? {}

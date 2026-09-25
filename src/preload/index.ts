@@ -25,6 +25,7 @@ import {
   LSP_IPC,
   type DiagnosticsChangedPayload,
   type DrainDiagnosticsRequest,
+  type LspInstallProgressPayload,
   type LspProgressPayload,
   type LspRequestPayload,
   type LspServerEventPayload,
@@ -393,6 +394,14 @@ const api: WindowApi = {
       ipcRenderer.on(LSP_IPC.onProgress, listener)
       return () => {
         ipcRenderer.removeListener(LSP_IPC.onProgress, listener)
+      }
+    },
+    onInstallProgress: (callback: (payload: LspInstallProgressPayload) => void) => {
+      const listener = (_event: IpcRendererEvent, payload: LspInstallProgressPayload): void =>
+        callback(payload)
+      ipcRenderer.on(LSP_IPC.onInstallProgress, listener)
+      return () => {
+        ipcRenderer.removeListener(LSP_IPC.onInstallProgress, listener)
       }
     }
   },
