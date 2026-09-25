@@ -1,0 +1,62 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  border-radius: var(--radius-capsule);
+  padding: 1.5px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/*
+ * El borde es un cuadrado grande con un conic-gradient que gira. Al recortarlo
+ * con el `overflow: hidden` + `border-radius` del wrapper, sólo asoma la franja
+ * de 1.5 px alrededor del control: el gradiente recorre los CUATRO lados.
+ */
+.wrap::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 250%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 210deg,
+    var(--color-accent) 300deg,
+    var(--color-accent) 360deg
+  );
+  animation: borderSpin 0.9s linear infinite;
+}
+
+@keyframes borderSpin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/*
+ * El control dentro del loader está `disabled` (evita doble click), y el estilo
+ * base le baja la opacidad; eso dejaría ver el gradiente a través del botón,
+ * no sólo en el borde. Dentro del loading el control queda opaco.
+ */
+.wrap :disabled {
+  opacity: 1 !important;
+}
+
+/* Sin movimiento: un borde sólido de acento sigue indicando "cargando". */
+@media (prefers-reduced-motion: reduce) {
+  .wrap::before {
+    animation: none;
+    background: var(--color-accent);
+    rotate: 0deg;
+  }
+}

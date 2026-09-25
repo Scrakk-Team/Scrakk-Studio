@@ -1,0 +1,56 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.compact {
+  max-width: 320px;
+}
+
+.track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-hover);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  /* Token oficial del tema (`c.accent` → `--color-accent`), igual que la barra
+     de las notificaciones. Nada hardcodeado: cambiar el tema recolorea la barra. */
+  background: var(--color-accent);
+  transition: width 150ms linear;
+}
+
+/* Sin % honesto: barrido, no una barra llena inventada. */
+.indeterminate .fill {
+  width: 40%;
+  transition: none;
+  animation: loadingSweep 1.1s ease-in-out infinite;
+}
+
+@keyframes loadingSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

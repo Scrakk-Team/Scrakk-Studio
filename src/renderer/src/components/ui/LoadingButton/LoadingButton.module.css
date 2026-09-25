@@ -1,0 +1,64 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+.button {
+  border: none;
+  border-radius: var(--radius-capsule);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+/* Tamaños */
+.sm {
+  padding: 2px 10px;
+  font-size: 10px;
+}
+
+.md {
+  padding: 4px 12px;
+  font-size: var(--text-xs);
+}
+
+/* Variantes (todas con tokens del tema: cambiar el tema recolorea) */
+.neutral {
+  background: var(--color-hover);
+  color: var(--color-text-secondary);
+}
+
+.neutral:hover:not(:disabled) {
+  background: var(--color-active);
+  color: var(--color-text);
+}
+
+.accent {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.accent:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.accent:active:not(:disabled) {
+  background: var(--color-accent-active);
+}
+
+.danger {
+  background: var(--color-danger);
+  color: var(--color-on-danger);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--color-danger-hover);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
