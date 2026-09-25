@@ -119,3 +119,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* El match exacto dentro de la línea (spans del server de búsqueda). */
+.hitMark {
+  background: color-mix(in srgb, var(--color-accent, #d7a52b) 32%, transparent);
+  color: inherit;
+  border-radius: 3px;
+}

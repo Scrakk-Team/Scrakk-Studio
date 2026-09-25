@@ -32,6 +32,33 @@ function useWorkspaceRoot(): string | null {
   return root
 }
 
+/**
+ * Parte la línea en segmentos, marcando los que cubren un `span`.
+ *
+ * Los spans del server son rangos de **bytes** sobre el contenido de la línea,
+ * así que se cortan sobre los bytes y se decodifican: cortar por caracteres
+ * fallaría con acentos o emoji.
+ */
+function segmentsOf(
+  content: string,
+  spans?: Array<[number, number]>
+): Array<{ text: string; hit: boolean }> {
+  if (!spans || spans.length === 0) return [{ text: content, hit: false }]
+  const bytes = new TextEncoder().encode(content)
+  const decoder = new TextDecoder()
+  const segments: Array<{ text: string; hit: boolean }> = []
+  let cursor = 0
+  for (const [rawStart, rawEnd] of spans) {
+    const start = Math.max(cursor, Math.min(rawStart, bytes.length))
+    const end = Math.max(start, Math.min(rawEnd, bytes.length))
+    if (start > cursor) segments.push({ text: decoder.decode(bytes.subarray(cursor, start)), hit: false })
+    if (end > start) segments.push({ text: decoder.decode(bytes.subarray(start, end)), hit: true })
+    cursor = end
+  }
+  if (cursor < bytes.length) segments.push({ text: decoder.decode(bytes.subarray(cursor)), hit: false })
+  return segments
+}
+
 function baseNameOf(path: string): string {
   const clean = path.replace(/[/\\]+$/, '')
   return clean.slice(Math.max(clean.lastIndexOf('/'), clean.lastIndexOf('\\')) + 1) || clean
@@ -129,7 +156,17 @@ export function SearchPanel(): JSX.Element {
             >
               <span className={styles.hitFile}>{baseNameOf(m.file)}</span>
               <span className={styles.hitLine}>:{m.line}</span>
-              <span className={styles.hitPreview}>{m.preview ?? m.content}</span>
+              <span className={styles.hitPreview}>
+                {segmentsOf(m.content, m.spans).map((segment, j) =>
+                  segment.hit ? (
+                    <mark key={j} className={styles.hitMark}>
+                      {segment.text}
+                    </mark>
+                  ) : (
+                    <span key={j}>{segment.text}</span>
+                  )
+                )}
+              </span>
             </button>
           ))}
         </div>
