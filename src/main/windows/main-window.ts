@@ -98,7 +98,21 @@ export function createMainWindow(): BrowserWindow {
   window.on('maximize', notifyMaximized)
   window.on('unmaximize', notifyMaximized)
 
-  window.on('ready-to-show', () => window.show())
+  // Mostrar la ventana de forma robusta. En Wayland `ready-to-show` es
+  // inconsistente desde Electron 38 (electron#48859): puede no dispararse y la
+  // ventana nunca se muestra (aparece en la barra pero no abre). Se compite
+  // contra `did-finish-load` y un timeout de seguridad.
+  let shown = false
+  const showOnce = (): void => {
+    if (shown || window.isDestroyed()) return
+    shown = true
+    window.show()
+  }
+  window.on('ready-to-show', showOnce)
+  window.webContents.on('did-finish-load', showOnce)
+  const showFallback = setTimeout(showOnce, 2500)
+  showFallback.unref?.()
+  window.on('closed', () => clearTimeout(showFallback))
 
   // Links externos → navegador del sistema, nunca dentro de la app. El propio
   // dev server (HMR) jamás se abre afuera.

@@ -72,15 +72,16 @@ function isLegacyIntelGpu(): boolean {
 }
 
 /**
- * KDE + Wayland. KWin tiene bugs de composición (buffer ring / explicit sync)
- * que congelan y parpadean el contenido de CUALQUIER app Chromium/Electron
- * (KDE #506731 → #521687, y #510747; Firefox no). Correr por XWayland evita
- * ese camino: es el workaround que usan otras apps Electron.
+ * Sesión Wayland (cualquier compositor, no solo KDE). Desde Electron 38 el
+ * default de `--ozone-platform` es `auto`, así que en una sesión Wayland la
+ * app arranca como cliente Wayland nativo. Se usa para elegir un perfil GPU
+ * que no dependa del camino Vulkan de Ozone/Wayland (frágil en Mesa/NVIDIA),
+ * sin forzar XWayland ni asumir un escritorio concreto.
  */
-function isKdeWayland(): boolean {
+function isWaylandSession(): boolean {
   if (process.platform !== 'linux') return false
-  if (process.env.XDG_SESSION_TYPE !== 'wayland') return false
-  return /kde/i.test(process.env.XDG_CURRENT_DESKTOP ?? '')
+  if (process.env.XDG_SESSION_TYPE === 'wayland') return true
+  return Boolean(process.env.WAYLAND_DISPLAY)
 }
 
 /**
@@ -100,18 +101,11 @@ export function applyChromiumSwitches(): void {
     disableFeatures.push('Vulkan', 'VulkanFromANGLE', 'DefaultANGLEVulkan')
   }
 
-  // KDE + Wayland: bug de KWin (buffer ring / explicit sync) que congela y
-  // parpadea el contenido de CUALQUIER app Chromium/Electron (KDE #506731 →
-  // #521687, #510747; Firefox no). Correr por XWayland evita ese camino.
-  // Se respeta `ELECTRON_OZONE_PLATFORM_HINT` y se puede desactivar con
-  // `SCRAKK_PERF_KDE_X11=0`.
-  if (
-    isKdeWayland() &&
-    !process.env.ELECTRON_OZONE_PLATFORM_HINT &&
-    process.env.SCRAKK_PERF_KDE_X11 !== '0'
-  ) {
-    app.commandLine.appendSwitch('ozone-platform', 'x11')
-  }
+  // Wayland nativo (default desde Electron 38). NO se fuerza XWayland: el
+  // problema real de las ventanas negras/vacías es el camino Vulkan de
+  // Ozone/Wayland, y se ataca abajo en el perfil GPU sin depender del flag
+  // `--ozone-platform=x11` ni de un escritorio concreto.
+  const wayland = isWaylandSession()
 
   // GPU en Linux: hay drivers (por ejemplo AMD con RADV) y sandboxes de
   // usuario restringidos que hacen crashear el proceso de GPU (SIGSEGV:
@@ -133,6 +127,15 @@ export function applyChromiumSwitches(): void {
       app.commandLine.appendSwitch('disable-gpu-sandbox')
       app.commandLine.appendSwitch('enable-unsafe-swiftshader')
     } else if (gpuMode !== 'vulkan') {
+      // Perfil `auto`. En sesión Wayland se evita Vulkan: Chromium entra en su
+      // ruta de init aunque no se pida y la surface factory de Ozone/Wayland
+      // puede abortar → ventana negra/vacía (Electron #51941, orca #718,
+      // brave #55805). ANGLE por OpenGL es el camino estable en Mesa/NVIDIA.
+      if (wayland) {
+        disableFeatures.push('Vulkan', 'VulkanFromANGLE', 'DefaultANGLEVulkan')
+        app.commandLine.appendSwitch('use-gl', 'angle')
+        app.commandLine.appendSwitch('use-angle', 'gl')
+      }
       app.commandLine.appendSwitch('disable-gpu-sandbox')
       app.commandLine.appendSwitch('enable-unsafe-swiftshader')
     }
@@ -153,6 +156,19 @@ export function applyChromiumSwitches(): void {
     app.commandLine.appendSwitch('disable-features', [...new Set(disableFeatures)].join(','))
   }
 
+  // Diagnóstico (SCRAKK_PERF_LOG_STARTUP=1): primera cosa a mirar ante un
+  // reporte de "ventana negra" o "no abre". Deja constancia del entorno
+  // gráfico elegido sin tener que reproducir el bug.
+  if (process.platform === 'linux' && readEnvFlag('logStartup')) {
+    const gpuMode = (process.env.SCRAKK_GPU ?? 'auto').toLowerCase()
+    // eslint-disable-next-line no-console
+    console.log(
+      `[perf/startup] linux session=${wayland ? 'wayland' : 'x11'} gpu=${gpuMode}` +
+        ` ozone=${app.commandLine.getSwitchValue('ozone-platform') || 'auto'}` +
+        ` disabled=${[...new Set(disableFeatures)].join('|') || 'none'}`
+    )
+  }
+
   const profile = resolvePerfProfile()
   // En dev dejamos los defaults de Electron: el HMR necesita todo.
   if (profile === 'dev') return
@@ -170,6 +186,35 @@ export function applyChromiumSwitches(): void {
     // mejor: usar la app default que ya tiene code cache on en prod builds).
     // No-op por ahora; queda como flag de rollback.
   }
+}
+
+/**
+ * Degradación automática de GPU (Linux). Si el proceso de GPU muere (driver o
+ * compositor incompatible), se relanza la app UNA vez con software rendering.
+ * Así la app se recupera sola en cualquier distro/driver, sin hardcodear GPUs
+ * ni escritorios y sin forzar XWayland.
+ *
+ * Se omite con override explícito del usuario (`SCRAKK_GPU`) y no se repite si
+ * ya venimos de un relanzamiento (`SCRAKK_GPU_FALLBACK=1`).
+ */
+export function registerGpuFallback(): void {
+  if (process.platform !== 'linux') return
+  if (process.env.SCRAKK_GPU) return
+  if (process.env.SCRAKK_GPU_FALLBACK === '1') return
+
+  app.on('child-process-gone', (_event, details) => {
+    if (details.type !== 'GPU') return
+    process.env.SCRAKK_GPU_FALLBACK = '1'
+    // eslint-disable-next-line no-console
+    console.error(
+      `[perf/startup] GPU process gone (reason=${details.reason}). ` +
+        'Relanzando con software rendering (--disable-gpu).'
+    )
+    app.relaunch({
+      args: [...process.argv.slice(1), '--disable-gpu', '--enable-unsafe-swiftshader']
+    })
+    app.exit(0)
+  })
 }
 
 /** Marca una fase de boot. Idempotente. */
