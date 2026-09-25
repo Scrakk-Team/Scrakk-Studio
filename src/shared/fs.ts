@@ -216,6 +216,12 @@ export interface GrepMatch {
   column?: number
   content: string
   preview?: string
+  /**
+   * Columnas (1-based) de cada match en la línea y sus rangos [start,end] en
+   * bytes. Los devuelve el sidecar `kolargrep serve` (`detail` + `positions`).
+   */
+  columns?: number[]
+  spans?: Array<[number, number]>
 }
 
 export interface SearchInFilesResponse {

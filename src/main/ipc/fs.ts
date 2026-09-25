@@ -10,6 +10,7 @@ import { exec as execCb } from 'child_process'
 import { promisify } from 'util'
 import * as os from 'node:os'
 import { tryNativeSearchFiles, tryNativeGrep, ensureWatch } from '../search/nativeSearch'
+import { sidecarGrep } from '../search/kolargrepServer'
 import {
   FS_IPC,
   type ReadFileRequest,
@@ -374,6 +375,14 @@ export function registerFsIpc(): void {
   ipcMain.handle(FS_IPC.searchInFiles, async (_event, request: unknown): Promise<SearchInFilesResponse> => {
     const req = request as SearchInFilesRequest
     ensureWatch(req.root)
+    // 1) Sidecar `kolargrep serve`: índice vivo + `spans`/`columns` por match.
+    // 2) Addon NAPI (kolargrep-core). 3) Scan en TS.
+    try {
+      const sidecar = await sidecarGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)
+      if (sidecar) return { success: true, matches: sidecar }
+    } catch {
+      // Fallback abajo.
+    }
     // Vía nativa (kolargrep trigram + rayon) si disponible; fallback al scan TS.
     try {
       const native = tryNativeGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)

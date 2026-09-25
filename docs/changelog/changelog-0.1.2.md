@@ -64,6 +64,16 @@ publicadas no se editan. El archivo va por versión:
   envolvimiento); tipear, borrar y Enter se aplican en **todos**, las flechas los
   mueven juntos y `Esc` (o un click simple) vuelve a uno solo.
 
+### Búsqueda (KolarGrep)
+- La búsqueda en archivos ahora puede usar el **servidor de KolarGrep**
+  (`kolargrep serve`) como **sidecar**: índice de trigramas **vivo** (watcher +
+  overlay incremental), caché y resultados con **`spans`/`columns`** — que es lo
+  que el editor necesita para resaltar el match exacto. El binario se lanza una
+  vez por workspace, con el índice **fuera del proyecto**
+  (`~/.cache/scrakk-search-serve`), y se apaga al cerrar la app.
+- Se mantiene el **fallback** al addon nativo y, si no está, al scan en TS: sin
+  sidecar la búsqueda sigue funcionando (solo pierde los detalles finos).
+
 ### Editor — sugerencias (LSP)
 - **Lista de sugerencias en tiempo real** anclada al caret, como VS Code: al
   tipear se pide `textDocument/completion` al server del archivo y aparece el

@@ -53,6 +53,13 @@ extraResources:
     to: langs
     filter:
       - '**/*'
+  # Sidecar de búsqueda (`kolargrep serve`). Se compila con
+  # `npm run native:kolargrep`; si falta, la búsqueda cae al addon nativo/TS.
+  - from: native/kolargrep/target/release
+    to: .
+    filter:
+      - 'kolargrep'
+      - 'kolargrep.exe'
 
 # node-pty se reconstruye contra Electron; si el entorno no tiene toolchain,
 # se puede forzar false y usar el binario ya compilado en node_modules.

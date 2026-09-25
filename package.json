@@ -25,6 +25,7 @@
     "perf:baseline:runtime": "node tools/perf/baseline.mjs --runtime",
     "postinstall": "node node_modules/electron/install.js",
     "native:build": "napi build --platform --release --config native/search/napi.json --cwd native/search",
+    "native:kolargrep": "cargo build --release -p kolargrep-cli --manifest-path native/kolargrep/Cargo.toml",
     "native:copy": "node native/copy-node.mjs",
     "desktop:install": "node tools/desktop/install.mjs",
     "sef": "node tools/sef/index.ts",

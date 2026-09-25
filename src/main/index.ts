@@ -27,6 +27,7 @@ import {
 import { flushAllTokens } from './supabaseClient'
 import { loadLocalEnv } from './env'
 import { createMainWindow } from './windows/main-window'
+import { stopKolargrepServers } from './search/kolargrepServer'
 import { applyPathAugmentation } from './binaries'
 import { applyChromiumSwitches, registerGpuFallback } from './perf/startup'
 
@@ -124,6 +125,9 @@ if (!gotTheLock) {
     // Los hosts de extensión son procesos aparte: sin esto quedan vivos
     // (y en Windows impiden que el instalador reemplace archivos).
     void shutdownExtensionHosts()
+    // Los servidores de búsqueda (kolargrep serve) también: el índice tiene un
+    // lock exclusivo por directorio, así que uno colgado bloquea al siguiente.
+    stopKolargrepServers()
   })
 
   app.on('window-all-closed', () => {
