@@ -209,6 +209,25 @@ publicadas no se editan. El archivo va por versión:
 - La tool `task` tiene **card custom** (shimmer mientras corre): al terminar,
   **click en la card** abre ese modal; solo hay uno a la vez.
 
+### Servidores (LSP)
+- **Progreso de instalación en vivo**: al instalar un language server desde
+  Ajustes, el botón que dispara la acción se envuelve con un **borde animado**
+  que recorre sus cuatro lados mientras corre, y el **tooltip** muestra la fase
+  (preparando, descargando, instalando, extrayendo). Cuando el release publica
+  `content-length`, además se ve el **porcentaje real** (`Descargando… 42%`).
+- La descarga de releases de GitHub se **transmite por chunks** y reporta
+  bytes/porcentaje desde el proceso main; antes se bajaba el buffer completo en
+  memoria y sin aviso. Los instaladores por **npm/go/gem/dotnet** muestran su
+  última línea de salida, sin inventar un porcentaje que no conocen.
+- **Feedback unificado en la zona**: reiniciar, encender/apagar e instalar usan
+  el mismo botón de carga; la carga inicial de la lista usa la barra de la zona.
+  Cada operación permanece visible **al menos 250 ms** aunque responda al
+  instante (evita el parpadeo) y el aviso del resultado sale después de ese
+  mínimo.
+- El botón de carga queda como **pieza reutilizable del UI kit**
+  (`LoadingButton`, con variantes y tamaños como `IconButton`), disponible para
+  cualquier botón de la app y con el color del tema.
+
 ### Ajustes (UI)
 - **Botón "volver arriba"** en el contenido de Ajustes: aparece al bajar con una
   animación de **150ms** (fade + deslizamiento) y sube el contenido de forma
