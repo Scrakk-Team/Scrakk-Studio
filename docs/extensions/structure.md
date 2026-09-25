@@ -19,6 +19,9 @@ El sistema vive en tres lugares según el proceso:
 
 ## Renderer
 
+El renderer tiene el registry, los loaders, el boot y los trece tipos de
+contribución.
+
 ```
 src/renderer/src/services/extensions/
 ├── manifest.ts              # ExtensionManifest + ExtensionContributions + tipos registrados
@@ -45,6 +48,9 @@ src/renderer/src/services/extensions/
 
 ## Main (Extension Host)
 
+El proceso Node que corre el código de las extensiones, con su jail de paths y
+su storage.
+
 ```
 src/main/extensions/
 ├── hostManager.ts           # ciclo de vida del host, activación, IPC y storage
@@ -67,6 +73,8 @@ El renderer nunca habla con el host: pide al main y el main decide
 (permisos, jail) y rutea.
 
 ## Shared
+
+Los contratos IPC, el protocolo del host y el pipeline VSIX → SEF.
 
 ```
 src/shared/

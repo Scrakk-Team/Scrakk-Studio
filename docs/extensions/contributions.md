@@ -41,6 +41,9 @@ Cada tipo vive en `services/extensions/types/<kind>/` con la misma estructura:
 
 ## panels
 
+Un panel es un componente React de tu paquete que se monta en un slot del
+layout. Se declara así:
+
 ```json
 {
   "panels": [
@@ -53,6 +56,8 @@ El componente sale del bundle del paquete y se registra como `PanelEntry` con
 import dinámico. Ver [panels/panel.md](panels/panel.md).
 
 ## activityBar
+
+Un botón de la barra de actividades que abre un panel. Se declara así:
 
 ```json
 {
@@ -75,6 +80,9 @@ Ver [activitybar/button.md](activitybar/button.md).
 
 ## centerTabs
 
+Una pestaña del strip central (se registra también como panel con el mismo id).
+Se declara así:
+
 ```json
 {
   "centerTabs": [
@@ -87,6 +95,8 @@ Un tab central se registra **también como panel** con el mismo id. Ver
 [centerTabs/tab.md](centerTabs/tab.md).
 
 ## views
+
+Una vista servida por el Extension Host (extensión con código). Se declara así:
 
 ```json
 {
@@ -131,6 +141,9 @@ Ver [views/view.md](views/view.md).
 
 ## themes / fileIcons / productIcons
 
+Temas de color e íconos; apuntan a un JSON de datos dentro del paquete. Se
+declaran así:
+
 ```json
 {
   "themes": [{ "id": "mi-tema", "name": "Mi tema", "type": "dark", "path": "themes/mi-tema.json" }],
@@ -145,6 +158,8 @@ A diferencia de `panels`/`activityBar`/`centerTabs`, aquí el `path` apunta a
 se resuelven embebidos por convención de carpeta.
 
 ## encodings / notifications
+
+Encodings de texto y notificaciones propias de la extensión. Se declaran así:
 
 ```json
 {
