@@ -41,7 +41,7 @@ The **14 kinds** that exist today:
 A React component mounted in a layout slot (left/center/right/bottom).
 
 ```json
-{ "panels": [{ "id": "clock", "title": "Clock", "closable": true, "component": "panels/Clock.tsx" }] }
+{ "panels": [{ "id": "hello", "title": "Hello", "closable": true, "component": "panels/Panel.tsx" }] }
 ```
 
 | Field | Type | Required |
@@ -58,7 +58,7 @@ Guide: [Panels](../guides/panels.md).
 A side-bar button that opens a panel.
 
 ```json
-{ "activityBar": [{ "id": "clock-btn", "label": "Clock", "icon": "icons/clock.tsx", "side": "left", "target": "left", "panelId": "clock", "order": 60 }] }
+{ "activityBar": [{ "id": "hello-btn", "label": "Hello", "icon": "icons/hello.tsx", "side": "left", "target": "left", "panelId": "hello", "order": 60 }] }
 ```
 
 | Field | Type | Required | Note |

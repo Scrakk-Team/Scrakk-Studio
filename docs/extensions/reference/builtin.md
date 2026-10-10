@@ -18,29 +18,30 @@ src/renderer/src/services/extensions/builtin/
 ├── <type>/<id>/…                   # components, icons, data
 ```
 
-The manifest is detected with the glob `builtin/*/*/manifest.json`. A builtin can
-contribute **several** kinds (the `clock` one contributes `panels` + `activityBar`
-+ `centerTabs`), but its folder declares its primary type.
+The manifest is detected with the glob `builtin/*/*/manifest.json`. A single
+builtin can contribute **several** kinds at once (a `panels` entry plus its
+`activityBar` button and a `centerTabs` tab, for example), but its folder
+declares its primary type.
 
-Real example (`builtin/panels/clock/manifest.json`):
+A manifest looks like this (illustrative):
 
 ```json
 {
-  "id": "clock",
-  "name": "Clock",
+  "id": "hello",
+  "name": "Hello",
   "version": "0.1.0",
   "author": "Scrakk Studio",
-  "description": "Clock: side panel, activity bar button and center tab.",
+  "description": "Hello: side panel, activity bar button and center tab.",
   "engine": ">=1.0.0",
   "contributes": {
     "panels": [
-      { "id": "clock", "title": "Clock", "closable": true, "component": "panels/clock/ClockPanel.tsx" }
+      { "id": "hello", "title": "Hello", "closable": true, "component": "panels/hello/Panel.tsx" }
     ],
     "activityBar": [
-      { "id": "clock-btn", "label": "Clock", "icon": "activitybar/clock/index.ts", "side": "left", "target": "left", "panelId": "clock", "order": 60 }
+      { "id": "hello-btn", "label": "Hello", "icon": "activitybar/hello/index.ts", "side": "left", "target": "left", "panelId": "hello", "order": 60 }
     ],
     "centerTabs": [
-      { "id": "clock-dashboard", "label": "Dashboard", "icon": "centerTabs/dashboard/index.ts", "closable": true, "component": "centerTabs/dashboard/DashboardTab.tsx" }
+      { "id": "hello-dashboard", "label": "Dashboard", "icon": "centerTabs/dashboard/index.ts", "closable": true, "component": "centerTabs/dashboard/DashboardTab.tsx" }
     ]
   }
 }
@@ -55,7 +56,7 @@ The builtin resolver maps `manifest path → bundle module` with globs:
 - `hasModule(path)` → whether the glob knows that path.
 
 The paths are **relative to the package folder**
-(`panels/clock/ClockPanel.tsx`).
+(`panels/hello/Panel.tsx`).
 
 ## Loading and enable/disable
 
@@ -70,7 +71,6 @@ The paths are **relative to the package folder**
 
 | Builtin | Type | Adds |
 |---|---|---|
-| `clock` | panels | panel + button + center tab (the canonical example of the three kinds) |
 | `innerta-terminal` | panels | the native terminal panel |
 | `material-icon-theme` | fileIcons | the default file icon theme |
 | `themes/*` | themes | ~100 color themes |
