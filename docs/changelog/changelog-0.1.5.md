@@ -67,3 +67,5 @@ published are not edited. The file goes per version:
 - **"Add a friend" is now its own view**, opened from a dedicated button in the
   panel header (person-add icon), instead of a section at the bottom of the home
   view.
+- **Clicking your active account in the accounts view opens your profile.** It
+  used to do nothing (switching to the already-active account returned early).
