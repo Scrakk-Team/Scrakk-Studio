@@ -88,7 +88,12 @@ function SocialPanelInner(): JSX.Element {
   useEffect(() => {
     if (!setHeaderActions) return undefined
     setHeaderActions(() => {
-      if (view === 'accounts' || view === 'addAccount' || view === 'profile') {
+      if (
+        view === 'accounts' ||
+        view === 'addAccount' ||
+        view === 'profile' ||
+        view === 'addFriend'
+      ) {
         return (
           <HeaderActionButton
             id="social.back"
@@ -104,6 +109,15 @@ function SocialPanelInner(): JSX.Element {
       if (!me) return null
       return (
         <>
+          <HeaderActionButton
+            id="social.add-friend"
+            label={t('layout.agregar.amigo')}
+            size="sm"
+            shape="rounded"
+            onClick={() => setView('addFriend')}
+          >
+            <ProductIcon id="person-add" size={15} />
+          </HeaderActionButton>
           <HeaderActionButton
             id="social.accounts"
             label={t('layout.cuentas')}
@@ -196,6 +210,20 @@ function SocialPanelInner(): JSX.Element {
           onAdd={addAccount}
           onClose={() => setView('home')}
         />
+      </main>
+    )
+  }
+
+  // Agregar amigo: apartado propio (botón en el header).
+  if (view === 'addFriend') {
+    return (
+      <main className={styles.screen}>
+        <div className={styles.scroll}>
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>{t('layout.agregar.amigo')}</h3>
+            <AddFriend search={searchUsers} onSend={sendRequest} />
+          </section>
+        </div>
       </main>
     )
   }
@@ -342,11 +370,6 @@ function SocialPanelInner(): JSX.Element {
             presence={friendsPresence}
             onSelect={(f) => void openChat(f)}
           />
-        </section>
-
-        <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>{t('layout.agregar.amigo')}</h3>
-          <AddFriend search={searchUsers} onSend={sendRequest} />
         </section>
       </div>
     </main>

@@ -31,4 +31,4 @@ export interface MyProfile {
 }
 
 /** Vista activa dentro del panel Social. */
-export type SocialView = 'home' | 'chat' | 'profile' | 'accounts' | 'addAccount'
+export type SocialView = 'home' | 'chat' | 'profile' | 'accounts' | 'addAccount' | 'addFriend'
