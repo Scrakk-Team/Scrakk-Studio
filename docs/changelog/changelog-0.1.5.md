@@ -56,3 +56,14 @@ published are not edited. The file goes per version:
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
   build and contributed a side panel, an activity-bar button and a "Dashboard"
   center tab; now it is gone from all builds.
+
+### Social panel
+- **Fixed the sections collapsing as the friend list grows**: the panel's
+  scroll container is a flex column and the sections had `min-height: 0`, so as
+  flex items they shrank below their content once the list grew — the rows
+  overflowed and overlapped the next section title (Requests / Friends / Add a
+  friend). They are now pinned to their content (`flex-shrink: 0`) and the
+  container scrolls instead.
+- **"Add a friend" is now its own view**, opened from a dedicated button in the
+  panel header (person-add icon), instead of a section at the bottom of the home
+  view.
