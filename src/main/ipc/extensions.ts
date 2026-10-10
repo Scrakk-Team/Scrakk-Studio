@@ -32,6 +32,7 @@ import {
   type ExtensionSource
 } from '@shared/extensions'
 import { convertVsix } from '@shared/compatibility'
+import { installExtensionAtomically, cleanupStaleInstalls } from '../extensions/atomicInstall'
 import { tokenizeText } from '../extensions/tokenize'
 import { treeSitterManager } from '../extensions/treeSitter/manager'
 import { resolveLangsDir } from '../langs'
@@ -126,6 +127,13 @@ async function readSourceSidecar(dir: string): Promise<{ source?: ExtensionSourc
 }
 
 export function registerExtensionsIpc(): void {
+  // Barrer restos de instalaciones interrumpidas ANTES de que el renderer
+  // pueda pedir la lista: si no, un `.staging-*` de un crash anterior aparece
+  // como carpeta dentro del directorio de extensiones.
+  void extensionsRoot()
+    .then(cleanupStaleInstalls)
+    .catch(() => {})
+
   ipcMain.handle(
     EXTENSIONS_IPC.installSef,
     async (_event, request: InstallSefRequest): Promise<InstallSefResponse> => {
@@ -134,17 +142,11 @@ export function registerExtensionsIpc(): void {
         const parsed = parseSef(new Uint8Array(buffer))
 
         const root = await extensionsRoot()
-        const targetDir = path.join(root, parsed.id)
-        await fs.rm(targetDir, { recursive: true, force: true })
-        await fs.mkdir(targetDir, { recursive: true })
-
-        for (const [relative, data] of parsed.files) {
-          const target = path.join(targetDir, relative)
-          const normalized = path.normalize(relative)
-          if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-          await fs.mkdir(path.dirname(target), { recursive: true })
-          await fs.writeFile(target, data)
-        }
+        const targetDir = await installExtensionAtomically({
+          root,
+          id: parsed.id,
+          files: parsed.files
+        })
 
         return { success: true, extension: manifestInfo(targetDir, parsed.manifest) }
       } catch (error) {
@@ -161,27 +163,24 @@ export function registerExtensionsIpc(): void {
         const converted = convertVsix(new Uint8Array(buffer))
 
         const root = await extensionsRoot()
-        const targetDir = path.join(root, converted.id)
-        await fs.rm(targetDir, { recursive: true, force: true })
-        await fs.mkdir(targetDir, { recursive: true })
-
-        for (const [relative, data] of converted.files) {
-          const normalized = path.normalize(relative)
-          if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-          const target = path.join(targetDir, relative)
-          await fs.mkdir(path.dirname(target), { recursive: true })
-          await fs.writeFile(target, data as Uint8Array | string)
-        }
-        await fs.writeFile(
-          path.join(targetDir, '.source.json'),
-          JSON.stringify({
-            source: 'vscode',
-            coverage: converted.report.coverage,
-            translator: COMPAT_TRANSLATOR_VERSION,
-            // Para re-traducir sin el .vsix original guardado.
-            originalPath: request.path
-          })
-        )
+        const targetDir = await installExtensionAtomically({
+          root,
+          id: converted.id,
+          files: converted.files,
+          // El sidecar va dentro del staging: si el swap falla, no queda la
+          // procedencia de la versión nueva sobre los archivos de la vieja.
+          sidecar: async (stagingDir) => {
+            await fs.writeFile(
+              path.join(stagingDir, '.source.json'),
+              JSON.stringify({
+                source: 'vscode',
+                coverage: converted.report.coverage,
+                // Para re-traducir sin el .vsix original guardado.
+                originalPath: request.path
+              })
+            )
+          }
+        })
 
         const manifest = converted.manifest as Record<string, unknown>
         const contributes = manifest.contributes as Record<string, unknown> | undefined
@@ -319,24 +318,22 @@ export function registerExtensionsIpc(): void {
             skipped.push(entry.name)
             continue
           }
-          await fs.rm(dir, { recursive: true, force: true })
-          await fs.mkdir(dir, { recursive: true })
-          for (const [relative, data] of converted.files) {
-            const normalized = path.normalize(relative)
-            if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-            const target = path.join(dir, relative)
-            await fs.mkdir(path.dirname(target), { recursive: true })
-            await fs.writeFile(target, data as Uint8Array | string)
-          }
-          await fs.writeFile(
-            path.join(dir, '.source.json'),
-            JSON.stringify({
-              source: 'vscode',
-              coverage: converted.report.coverage,
-              translator: COMPAT_TRANSLATOR_VERSION,
-              originalPath: sidecar.originalPath
-            })
-          )
+          await installExtensionAtomically({
+            root,
+            id: entry.name,
+            files: converted.files,
+            sidecar: async (stagingDir) => {
+              await fs.writeFile(
+                path.join(stagingDir, '.source.json'),
+                JSON.stringify({
+                  source: 'vscode',
+                  coverage: converted.report.coverage,
+                  translator: COMPAT_TRANSLATOR_VERSION,
+                  originalPath: sidecar.originalPath
+                })
+              )
+            }
+          })
           updated.push(entry.name)
         } catch {
           skipped.push(entry.name)
