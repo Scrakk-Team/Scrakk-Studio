@@ -43,6 +43,13 @@ published are not edited. The file goes per version:
     path-case mismatch between the renderer and the real root no longer rejects
     the grammar (which also left the file uncoloured, silently).
 
+### App icon (Windows)
+- **The packaged app now shows the Scrakk icon instead of Electron's.** The
+  window icon points at `assets/scrakk-studio-b.png`, but `assets/` was excluded
+  from the bundle, so in a packaged build that path did not exist and the window
+  had no icon — Windows fell back to the default Electron one. The asset is now
+  copied to `resources/`.
+
 ### Status bar (UI)
 - **The command trigger no longer overlaps the other chips.** It was absolutely
   centred with a fixed `min-width: 220px`, so on a narrow window it ran into the
