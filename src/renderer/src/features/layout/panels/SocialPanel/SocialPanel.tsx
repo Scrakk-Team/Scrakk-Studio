@@ -119,13 +119,13 @@ function SocialPanelInner(): JSX.Element {
             <ProductIcon id="person-add" size={15} />
           </HeaderActionButton>
           <HeaderActionButton
-            id="social.profile"
-            label={t('layout.mi.perfil')}
+            id="social.accounts"
+            label={t('layout.cuentas')}
             size="sm"
             shape="rounded"
-            onClick={() => setView('profile')}
+            onClick={() => setView('accounts')}
           >
-            <ProductIcon id="person" size={15} />
+            <ProductIcon id="people" size={15} />
           </HeaderActionButton>
         </>
       )
