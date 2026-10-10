@@ -15,7 +15,7 @@ published are not edited. The file goes per version:
 
 ---
 
-## 0.1.5 — Windows fixes
+## 0.1.5 — Windows fixes & UI
 
 ### Terminal (Windows)
 - **The integrated terminal now loads on Windows.** The shell was resolved with
@@ -42,3 +42,17 @@ published are not edited. The file goes per version:
   - `assertGrammarPathAllowed` is now **case-insensitive on Windows**, so a mere
     path-case mismatch between the renderer and the real root no longer rejects
     the grammar (which also left the file uncoloured, silently).
+
+### Status bar (UI)
+- **The command trigger no longer overlaps the other chips.** It was absolutely
+  centred with a fixed `min-width: 220px`, so on a narrow window it ran into the
+  chips on the left (encoding, cursor position) and on the right. It now measures
+  the real gap between both groups and uses the whole gap — if there is room to
+  the right it does not shrink — and once the width hits the cap it slides left
+  until it sits next to the left chips. Past that it becomes an icon-only button
+  like the bell/settings, and it is not painted when there is no room at all.
+
+### Extensions
+- **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
+  build and contributed a side panel, an activity-bar button and a "Dashboard"
+  center tab; now it is gone from all builds.
