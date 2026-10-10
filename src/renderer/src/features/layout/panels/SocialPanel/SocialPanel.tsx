@@ -206,6 +206,7 @@ function SocialPanelInner(): JSX.Element {
           accounts={accounts}
           activeId={accountId}
           onSwitch={switchAccount}
+          onOpenProfile={() => setView('profile')}
           onRemove={removeAccount}
           onAdd={addAccount}
           onClose={() => setView('home')}

@@ -15,6 +15,8 @@ interface AccountSwitcherProps {
   /** Cuenta que usa ESTE panel (no la global). */
   activeId: string | null
   onSwitch: (accountId: string) => void
+  /** Click en la cuenta ACTIVA → abre el perfil (no hay a quién cambiar). */
+  onOpenProfile: () => void
   onRemove: (accountId: string) => Promise<{ ok: boolean; error?: string }>
   /** Sumar otra cuenta (abre el flujo email + código). */
   onAdd: () => void
@@ -29,6 +31,7 @@ export function AccountSwitcher({
   accounts,
   activeId,
   onSwitch,
+  onOpenProfile,
   onRemove,
   onAdd,
   onClose
@@ -36,7 +39,11 @@ export function AccountSwitcher({
   const [busyId, setBusyId] = useState<string | null>(null)
 
   const handleSwitch = (id: string): void => {
-    if (id === activeId) return
+    // La cuenta ACTIVA no tiene a quién cambiar: abre su perfil.
+    if (id === activeId) {
+      onOpenProfile()
+      return
+    }
     onSwitch(id)
   }
 
