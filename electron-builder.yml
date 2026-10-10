@@ -49,6 +49,15 @@ asarUnpack:
 # queries. El IDE los lee on-demand como una extensión; el motor ya NO trae
 # gramáticas embebidas (se regeneran con `node tools/build-langs.mjs`).
 extraResources:
+  # Icono de la app en runtime (window icon en Windows/Linux). `assets/` está
+  # EXCLUIDO de `files`, así que hay que copiarlo a resources/ para que
+  # `getAppIcon()` (main-window.ts) lo encuentre en el build empaquetado —
+  # sin esto el window icon queda undefined y Windows muestra el icono de
+  # Electron en la taskbar/título.
+  - from: assets
+    to: assets
+    filter:
+      - scrakk-studio-b.png
   - from: langs
     to: langs
     filter:
