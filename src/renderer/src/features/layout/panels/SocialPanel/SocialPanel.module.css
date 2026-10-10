@@ -49,6 +49,8 @@
   align-items: center;
   gap: var(--space-3);
   width: 100%;
+  /* Igual que `.section`: no se aplasta cuando el contenido crece. */
+  flex-shrink: 0;
   padding: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -120,6 +122,10 @@
   flex-direction: column;
   gap: var(--space-2);
   min-height: 0;
+  /* No encogerse por debajo del contenido: si crecen los amigos, `.scroll`
+     scrollea en vez de aplastar la sección (las filas se desbordaban y pisaban
+     el título de la sección siguiente). */
+  flex-shrink: 0;
 }
 
 .sectionTitle {
