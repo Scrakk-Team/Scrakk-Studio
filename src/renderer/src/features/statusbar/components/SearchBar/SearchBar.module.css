@@ -17,7 +17,9 @@
   background: var(--color-hover);
   border: none;
   border-radius: var(--radius-sm);
-  min-width: 220px;
+  /* Ancho de referencia; el componente lo recorta por medición (inline style). */
+  width: 220px;
+  min-width: 0;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -38,6 +40,12 @@
 
 .icon {
   flex-shrink: 0;
+}
+
+/* Modo botón-icono (ventana angosta): se ve como la campana/ajustes. */
+.compact {
+  padding: 0;
+  gap: 0;
 }
 
 .label {
