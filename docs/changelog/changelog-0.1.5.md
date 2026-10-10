@@ -69,3 +69,5 @@ published are not edited. The file goes per version:
   view.
 - **Clicking your active account in the accounts view opens your profile.** It
   used to do nothing (switching to the already-active account returned early).
+- **Removed the accounts button from the panel header** (the "me" card at the top
+  of the home view still opens the accounts view).
