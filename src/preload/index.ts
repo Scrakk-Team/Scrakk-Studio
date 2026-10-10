@@ -72,7 +72,7 @@ import {
   type ReadEncodedRequest,
   type WriteEncodedRequest
 } from '@shared/encodings'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalFontFile } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalFontFile } from '@shared/terminal'
 import { GIT_IPC, type GitApi } from '@shared/git'
 import {
   EXTENSIONS_IPC,
@@ -413,6 +413,7 @@ const api: WindowApi = {
   terminal: {
     create: (req: TerminalCreateRequest) => ipcRenderer.invoke(TERMINAL_IPC.create, req) as Promise<{ success: boolean; error?: string }>,
     write: (req: TerminalWriteRequest) => ipcRenderer.invoke(TERMINAL_IPC.write, req) as Promise<void>,
+    cd: (req: TerminalCdRequest) => ipcRenderer.invoke(TERMINAL_IPC.cd, req) as Promise<void>,
     resize: (req: TerminalResizeRequest) => ipcRenderer.invoke(TERMINAL_IPC.resize, req) as Promise<void>,
     destroy: (req: TerminalDestroyRequest) => ipcRenderer.invoke(TERMINAL_IPC.destroy, req) as Promise<void>,
     onData: (callback) => {

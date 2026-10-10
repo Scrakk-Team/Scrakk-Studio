@@ -7,6 +7,8 @@ export const TERMINAL_IPC = {
   write: 'terminal:write',
   resize: 'terminal:resize',
   destroy: 'terminal:destroy',
+  /** Reubica el shell en un directorio (comando `cd` específico de la shell). */
+  cd: 'terminal:cd',
   onData: 'terminal:on-data',
   onExit: 'terminal:on-exit',
   getMonoFont: 'terminal:get-mono-font',
@@ -34,6 +36,7 @@ export type TerminalCreateRequest = {
 }
 
 export type TerminalWriteRequest = { id: string; data: string }
+export type TerminalCdRequest = { id: string; path: string }
 export type TerminalResizeRequest = { id: string; cols: number; rows: number }
 export type TerminalDestroyRequest = { id: string }
 
@@ -53,6 +56,8 @@ export type TerminalFontFile = {
 export interface TerminalApi {
   create: (req: TerminalCreateRequest) => Promise<{ success: boolean; error?: string }>
   write: (req: TerminalWriteRequest) => Promise<void>
+  /** Reubica el shell en `path` con el `cd` que corresponda a la shell. */
+  cd: (req: TerminalCdRequest) => Promise<void>
   resize: (req: TerminalResizeRequest) => Promise<void>
   destroy: (req: TerminalDestroyRequest) => Promise<void>
   onData: (callback: (payload: TerminalDataPayload) => void) => () => void

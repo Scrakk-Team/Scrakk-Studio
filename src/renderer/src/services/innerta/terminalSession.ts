@@ -25,8 +25,9 @@ import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { t } from '@core/i18n'
 /** API del terminal expuesta por el preload (window.api.terminal). */
 interface TerminalApi {
-  create: (req: { id: string; shell: string; cwd?: string; cols: number; rows: number }) => Promise<unknown>
+  create: (req: { id: string; shell?: string; cwd?: string; cols: number; rows: number }) => Promise<unknown>
   write: (req: { id: string; data: string }) => Promise<void>
+  cd: (req: { id: string; path: string }) => Promise<void>
   resize: (req: { id: string; cols: number; rows: number }) => Promise<void>
   destroy: (req: { id: string }) => Promise<void>
   onData: (cb: (payload: { id: string; data: string }) => void) => () => void
@@ -361,7 +362,7 @@ class TerminalSessionImpl implements LiveSession {
     // cwd = proyecto abierto (si hay); si no, el main cae a HOME.
     const cwd = readWorkspaceRoot()
     const { cols, rows } = this.getRealDims()
-    void api.create({ id: this.ptyId, shell: 'bash', cwd, cols, rows })
+    void api.create({ id: this.ptyId, cwd, cols, rows })
     view.resize(cols, rows)
     this.unsubData = api.onData((payload) => {
       if (payload.id !== this.ptyId) return
@@ -497,9 +498,9 @@ class TerminalSessionImpl implements LiveSession {
     if (!this.started || this.disposed || !root) return
     const api = getTerminalApi()
     if (!api) return
-    // Comilla simple segura (el path puede tener espacios o comillas).
-    const quoted = root.replace(/'/g, `'\\''`)
-    void api.write({ id: this.ptyId, data: `cd -- '${quoted}'\r` })
+    // El `cd` lo arma el main según la shell (POSIX vs cmd.exe): acá sólo se
+    // pide reubicar. No se recrea el PTY, así no se pierde el historial.
+    void api.cd({ id: this.ptyId, path: root })
   }
 
   /** Menú contextual propio de la terminal (click derecho sobre su canvas). */

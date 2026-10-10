@@ -193,6 +193,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
       const api = (window as unknown as { api?: { terminal?: {
         create: (r: unknown) => Promise<unknown>
         write: (r: unknown) => Promise<void>
+        cd: (r: unknown) => Promise<void>
         onData: (cb: (p: { id: string; data: string }) => void) => () => void
         onExit: (cb: (p: { id: string; exitCode: number }) => void) => () => void
         destroy: (r: unknown) => Promise<void>
@@ -212,14 +213,13 @@ export default function InnertaTerminalPanel(): JSX.Element {
       } catch {
         initialCwd = undefined
       }
-      void api.create({ id: termId, shell: 'bash', cwd: initialCwd, cols: termCols, rows: termRows })
+      void api.create({ id: termId, cwd: initialCwd, cols: termCols, rows: termRows })
       // Cambio de workspace: reubicar esta terminal en el proyecto nuevo (no se
       // recrea el PTY: no se pierde el historial).
       const onWorkspaceChanged = (event: Event): void => {
         const path = (event as CustomEvent<{ path?: string }>).detail?.path
         if (typeof path !== 'string' || path.length === 0) return
-        const quoted = path.replace(/'/g, `'\\''`)
-        void api.write({ id: termId, data: `cd -- '${quoted}'\r` })
+        void api.cd({ id: termId, path })
       }
       window.addEventListener('workspace-changed', onWorkspaceChanged)
       unsubWorkspace = () => window.removeEventListener('workspace-changed', onWorkspaceChanged)

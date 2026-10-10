@@ -1,0 +1,27 @@
+# Normaliza finales de línea en el checkout.
+#
+# En Windows, con `core.autocrlf=true`, los archivos de queries tree-sitter
+# (`.scm`) se escribían con CRLF. El worker de tree-sitter los pasa VERBATIM a
+# `new Query(...)`: si una query no compila, esa categoría se queda sin color y
+# el fallo se traga. Síntoma: "no hay syntax highlighting en Windows". LF fijo.
+*.scm text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+
+# Binarios: nunca normalizar.
+*.wasm binary
+*.node binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.woff binary
+*.woff2 binary

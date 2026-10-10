@@ -5,9 +5,10 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import * as pty from 'node-pty'
 import * as fs from 'fs'
+import * as os from 'os'
 import * as path from 'path'
 import { execSync } from 'child_process'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
 import {
   listMonoFamilies,
   readFontStack,
@@ -35,10 +36,31 @@ function positiveInt(value: unknown, fallback: number): number {
 }
 
 function getShell(shell?: string): string {
+  // Windows no tiene `/bin/*`. El renderer manda el nombre POSIX ('bash') por
+  // compatibilidad con Linux: acá se ignora y se usa el shell del sistema
+  // (ComSpec → cmd.exe). Una ruta explícita (con separador) se respeta tal cual.
+  if (process.platform === 'win32') {
+    if (shell && /[/\\]/.test(shell)) return shell
+    return process.env.ComSpec || process.env.COMSPEC || 'cmd.exe'
+  }
   if (shell && shell.startsWith('/')) return shell
   if (shell === 'zsh') return '/bin/zsh'
   if (shell === 'bash' || !shell) return process.env.SHELL || '/bin/bash'
   return shell
+}
+
+/**
+ * Comando `cd` para reubicar el shell, según la plataforma.
+ *
+ * En Windows el shell es cmd.exe (`/d` cambia de unidad si hace falta); en
+ * POSIX se usa comilla simple (segura con espacios y `$`) y `--` para rutas
+ * que empiezan con guion.
+ */
+function changeDirCommand(dir: string): string {
+  if (process.platform === 'win32') {
+    return `cd /d "${dir.replace(/"/g, '""')}"\r`
+  }
+  return `cd -- '${dir.replace(/'/g, `'\\''`)}'\r`
 }
 
 export function registerTerminalIpc(): void {
@@ -47,7 +69,7 @@ export function registerTerminalIpc(): void {
     if (!id) return { success: false, error: t('main.missing.id') }
     if (terms.has(id)) return { success: true }
     const sh = getShell(shell)
-    const work = cwd || process.env.HOME || '/'
+    const work = cwd || os.homedir()
     // La vista puede medir 0×0 (canvas sin layout todavía): node-pty exige
     // positivos, así que se cae a 80×24.
     const initialCols = positiveInt(cols, 80)
@@ -87,6 +109,11 @@ export function registerTerminalIpc(): void {
   ipcMain.handle(TERMINAL_IPC.write, async (_event, req: TerminalWriteRequest) => {
     const proc = terms.get(req.id)
     if (proc) proc.write(req.data)
+  })
+
+  ipcMain.handle(TERMINAL_IPC.cd, async (_event, req: TerminalCdRequest) => {
+    const proc = terms.get(req.id)
+    if (proc && req.path) proc.write(changeDirCommand(req.path))
   })
 
   ipcMain.handle(TERMINAL_IPC.resize, async (_event, req: TerminalResizeRequest) => {

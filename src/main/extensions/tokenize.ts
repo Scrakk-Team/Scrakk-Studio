@@ -148,10 +148,15 @@ export async function assertGrammarPathAllowed(filePath: string): Promise<void> 
   // Pack de lenguajes preinstalado (`langs/`): mismo contrato que una extensión.
   const langsDir = resolveLangsDir()
   if (langsDir) roots.push(langsDir)
-  const resolved = path.resolve(filePath)
+  // Windows es case-insensitive: comparar en minúsculas evita que una mera
+  // diferencia de mayúsculas entre la ruta que manda el renderer y la raíz real
+  // tumbe la verificación (dejando el archivo sin colores, y en silencio).
+  const fold = (p: string): string => (process.platform === 'win32' ? p.toLowerCase() : p)
+  const resolved = fold(path.resolve(filePath))
   for (const root of roots) {
-    const prefix = root.endsWith(path.sep) ? root : root + path.sep
-    if (resolved.startsWith(prefix)) return
+    const base = fold(path.resolve(root))
+    const prefix = base.endsWith(path.sep) ? base : base + path.sep
+    if (resolved === base || resolved.startsWith(prefix)) return
   }
   throw new Error(`gramática fuera del directorio de extensiones: ${filePath}`)
 }
