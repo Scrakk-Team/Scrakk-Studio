@@ -10,6 +10,7 @@
   "market.comentario.placeholder": "Dejá un comentario (opcional)",
   "market.descargas": "{count} descargas",
   "market.descripcion": "Descripción",
+  "market.editar": "Editar extensión",
   "market.eliminar": "Eliminar",
   "market.eliminar.confirmar": "¿Eliminar \"{name}\"? Esta acción no se puede deshacer.",
   "market.estado.draft": "Borrador",

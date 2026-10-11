@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Licencia completa en LICENSE (Apache License 2.0).
 
-import { useState, type JSX } from 'react'
+import { useEffect, useState, type JSX } from 'react'
+import { HeaderActionButton, usePanelTitleOptional } from '@features/layout'
 import { ProductIcon } from '@services/productIcons/components'
 import type { MarketExtension } from '@shared/market'
 import { useMarket, type MarketTab } from './state/MarketContext'
@@ -23,6 +24,63 @@ export function MarketPanel(): JSX.Element {
   const market = useMarket()
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<MarketExtension | undefined>(undefined)
+
+  // Header del panel: título + botón de volver cuando hay submode (detalle o
+  // form de publicar), igual que la vista de skills del chat.
+  const panelHeader = usePanelTitleOptional()
+  const setHeaderActions = panelHeader?.setActions ?? null
+  const setHeaderTitle = panelHeader?.setTitle ?? null
+
+  useEffect(() => {
+    if (!setHeaderTitle) return undefined
+    if (formOpen) {
+      setHeaderTitle(t(editing ? 'market.editar' : 'market.nueva'))
+      return undefined
+    }
+    if (market.detail) {
+      setHeaderTitle(market.detail.name)
+      return undefined
+    }
+    setHeaderTitle(t('layout.panel.extensions'))
+    return undefined
+  }, [setHeaderTitle, formOpen, editing, market.detail])
+
+  useEffect(() => {
+    if (!setHeaderActions) return undefined
+    setHeaderActions(() => {
+      if (formOpen) {
+        return (
+          <HeaderActionButton
+            key="market.back-form"
+            id="market.back-form"
+            label={t('market.mias')}
+            icon="chevron-right"
+            iconRotation={180}
+            size="sm"
+            onClick={() => {
+              setFormOpen(false)
+              setEditing(undefined)
+            }}
+          />
+        )
+      }
+      if (market.detail) {
+        return (
+          <HeaderActionButton
+            key="market.back-detail"
+            id="market.back-detail"
+            label={t('market.tab.tienda')}
+            icon="chevron-right"
+            iconRotation={180}
+            size="sm"
+            onClick={market.closeDetail}
+          />
+        )
+      }
+      return null
+    })
+    return () => setHeaderActions(null)
+  }, [setHeaderActions, formOpen, market.detail, market.closeDetail])
 
   if (market.detail) {
     return (

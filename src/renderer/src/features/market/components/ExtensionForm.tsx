@@ -67,11 +67,6 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
 
   return (
     <div className={styles.form}>
-      <button type="button" className={styles.ghost} onClick={onDone}>
-        <ProductIcon id="arrow-right" size={13} style={{ transform: 'rotate(180deg)' }} />
-        {t('market.mias')}
-      </button>
-
       <label className={styles.field}>
         <span className={styles.label}>{t('market.form.nombre')}</span>
         <input className={styles.input} value={name} onChange={(e) => setName(e.target.value)} />

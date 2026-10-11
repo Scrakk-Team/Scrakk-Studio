@@ -10,6 +10,7 @@
   "market.comentario.placeholder": "Leave a comment (optional)",
   "market.descargas": "{count} downloads",
   "market.descripcion": "Description",
+  "market.editar": "Edit extension",
   "market.eliminar": "Delete",
   "market.eliminar.confirmar": "Delete \"{name}\"? This cannot be undone.",
   "market.estado.draft": "Draft",

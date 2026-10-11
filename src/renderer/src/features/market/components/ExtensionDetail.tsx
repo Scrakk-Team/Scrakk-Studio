@@ -24,7 +24,6 @@ export function ExtensionDetail(): JSX.Element | null {
     accountId,
     installed,
     busy,
-    closeDetail,
     install,
     rate,
     report
@@ -59,11 +58,6 @@ export function ExtensionDetail(): JSX.Element | null {
 
   return (
     <div className={styles.detail}>
-      <button type="button" className={styles.ghost} onClick={closeDetail}>
-        <ProductIcon id="arrow-right" size={13} style={{ transform: 'rotate(180deg)' }} />
-        {t('market.tab.tienda')}
-      </button>
-
       <div className={styles.detailHead}>
         {detail.iconUrl ? (
           <img className={styles.detailIcon} src={detail.iconUrl} alt="" />

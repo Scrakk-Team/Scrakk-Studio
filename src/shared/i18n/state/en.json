@@ -6624,6 +6624,14 @@
       "at": "2026-10-11T00:47:32.139Z",
       "approvedAt": "2026-10-11T00:47:32.139Z"
     },
+    "market.editar": {
+      "src": "2a775ca576504f30",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T01:04:33.263Z",
+      "approvedAt": "2026-10-11T01:04:33.263Z"
+    },
     "market.eliminar": {
       "src": "c9894cf002f90bd0",
       "area": "market",
