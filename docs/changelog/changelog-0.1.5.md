@@ -95,6 +95,9 @@ published are not edited. The file goes per version:
 - **Removed the profile button from the panel header.** Your profile is still one
   click away: the "me" card opens the accounts view and clicking your account
   there opens the profile.
+- **The composer's emoji and "+" buttons now sit together**, with a smaller
+  hover and a separator on the right of the "+", instead of being spread apart
+  from the input.
 
 ### Extension store
 - **The extensions panel is now a store** (metadata only — we do not host the
