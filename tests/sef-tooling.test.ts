@@ -12,8 +12,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { unzipSync } from 'fflate'
-import { createScaffold, buildBundle, packSef, generateModulesEntry } from '../tools/sef/api'
-import { validateManifest, validatePackage } from '../tools/sef/schema'
+import { createScaffold, buildBundle, packSef, generateModulesEntry } from '../packages/cli/src/api'
+import { validateManifest, validatePackage } from '../packages/cli/src/schema'
 import { makeTempDir, cleanupDir } from './helpers/lsp-test-utils'
 
 let workDir: string | undefined

@@ -44,7 +44,7 @@ npm run dev       # electron-vite dev with renderer hot reload
 | `native:kolargrep` | `cargo build --release -p kolargrep-cli ...` | Build the search sidecar |
 | `native:copy` | `node native/copy-node.mjs` | Copy `.node` next to `out/main` |
 | `desktop:install` | `node tools/desktop/install.mjs` | Install the Linux `.desktop` entry |
-| `sef` / `sef:create` / `sef:build` / `sef:pack` / `sef:validate` | `node tools/sef/index.ts …` | Extension authoring CLI |
+| `sef` / `sef:create` / `sef:build` / `sef:pack` / `sef:validate` | `node packages/cli/src/index.ts …` | Extension authoring CLI (also published as `@scrakk-official/cli`) |
 | `docs` | `node tools/docs/build.mjs` | Build `docs/.generated/` |
 | `docs:init` | `... --init` | Write missing front-matter |
 | `docs:check` | `... --check` | Validate front-matter and links |

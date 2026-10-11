@@ -6,6 +6,9 @@ out/
 dist/
 .vite/
 
+# Paquete CLI publicado (tarball de `npm pack`)
+packages/cli/*.tgz
+
 # Rust nativo (scrakk-search)
 native/search/target/
 native/search/npm/

@@ -6,17 +6,25 @@ summary: "The authoring CLI (sef create/build/pack/validate), the v2 package lay
 ---
 # SEF CLI
 
-Authoring lives in `tools/sef/` and is exposed through npm scripts:
+Authoring lives in [`packages/cli/`](../../../packages/cli) and is exposed through npm
+scripts, as a standalone package published to npm as
+[`@scrakk-official/cli`](https://www.npmjs.com/package/@scrakk-official/cli):
 
 ```sh
+npx @scrakk-official/cli build <dir>    # published CLI (binary: `sef`)
+
 npm run sef:create  -- "<name>" [dir]   # scaffold (sample panel)
 npm run sef:build   -- <dir>            # bundle → dist/modules.js
 npm run sef:pack    -- <dir>            # validates and writes <dir>.sef
 npm run sef:validate -- <dir>           # validate only
 ```
 
-The base script is `node tools/sef/index.ts <command> …` (the `npm run` wrappers
-are sugar).
+The base script is `node packages/cli/src/index.ts <command> …` (the `npm run`
+wrappers are sugar). Offline install of the CLI, without the npm registry:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Scrakk-Team/Scrakk-Studio/master/packages/cli/install.sh | bash
+```
 
 ## `create`
 

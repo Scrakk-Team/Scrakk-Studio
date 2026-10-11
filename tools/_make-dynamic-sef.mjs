@@ -6,7 +6,7 @@
  * Empaqueta un `.sef` de LENGUAJE con parser tree-sitter (`kind: 'treeSitter'`).
  *
  * Lo usa el probe del camino dinámico: un paquete SEF de verdad (zip, como lo
- * produce `tools/sef`), con su `.wasm` y sus queries `.scm`, para que el main lo
+ * produce `packages/cli`), con su `.wasm` y sus queries `.scm`, para que el main lo
  * cargue en el worker y el editor pinte con él.
  *
  * Trae TODAS las categorías de query, no sólo `highlights`: es lo que permite

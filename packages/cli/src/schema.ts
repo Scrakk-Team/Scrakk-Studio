@@ -9,7 +9,7 @@
  * descubra errores antes de empaquetar. Devuelve lista de errores (vacía = ok).
  */
 
-import { parseVersion } from '../../src/shared/version.ts'
+import { parseVersion } from './version.ts'
 import { ID_RE, SEF, collectCodePaths } from './config.ts'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'

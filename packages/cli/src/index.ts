@@ -5,15 +5,38 @@
 /**
  * SEF tooling — CLI.
  *
- *   node tools/sef/index.ts create <nombre> [dir-destino]
- *   node tools/sef/index.ts build <dir-paquete>
- *   node tools/sef/index.ts pack <dir-paquete>
- *   node tools/sef/index.ts validate <dir-paquete>
+ *   sef create <nombre> [dir-destino]
+ *   sef build <dir-paquete>
+ *   sef pack <dir-paquete>
+ *   sef validate <dir-paquete>
  */
 
+import * as fs from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createScaffold, buildBundle, packSef } from './api.ts'
 import { validatePackage } from './schema.ts'
+
+const USAGE = `sef — Scrakk Studio extension tooling (SEF)
+
+uso:
+  sef create <nombre> [dir-destino]   scaffold con panel de ejemplo
+  sef build <dir-paquete>             bundle → dist/modules.js
+  sef pack <dir-paquete>              valida y escribe <dir>.sef
+  sef validate <dir-paquete>          solo valida
+
+opciones:
+  -v, --version                       versión del CLI
+  -h, --help                          esta ayuda`
+
+async function readVersion(): Promise<string> {
+  try {
+    const url = new URL('../package.json', import.meta.url)
+    const raw = await fs.readFile(url, 'utf-8')
+    return (JSON.parse(raw) as { version?: string }).version ?? '0.0.0'
+  } catch {
+    return '0.0.0'
+  }
+}
 
 async function main(): Promise<void> {
   const [command, ...args] = process.argv.slice(2)
@@ -55,8 +78,18 @@ async function main(): Promise<void> {
       }
       break
     }
+    case 'version':
+    case '-v':
+    case '--version':
+      console.log(await readVersion())
+      break
+    case 'help':
+    case '-h':
+    case '--help':
+      console.log(USAGE)
+      break
     default:
-      console.log('uso: sef <create|build|pack|validate> …')
+      console.log(USAGE)
       process.exitCode = command ? 1 : 0
   }
 }
