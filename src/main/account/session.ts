@@ -167,7 +167,9 @@ export function listAccountSummaries(): AccountSummary[] {
     email: account.profile.email,
     displayName: account.profile.displayName,
     handle: account.profile.handle,
-    avatarUrl: account.profile.avatarUrl
+    avatarUrl: account.profile.avatarUrl,
+    // Un snapshot viejo en disco no tiene el campo: se coacciona.
+    verified: account.profile.verified === true
   }))
 }
 

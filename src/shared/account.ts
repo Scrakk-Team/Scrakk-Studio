@@ -44,6 +44,8 @@ export interface AccountProfile {
   displayName: string | null
   avatarUrl: string | null
   bio: string | null
+  /** Cuenta verificada (check al lado del nombre). */
+  verified: boolean
   gender?: string | null
   customStatus?: string | null
   customStatusEmoji?: string | null
@@ -89,6 +91,8 @@ export interface AccountSummary {
   displayName: string | null
   handle: string | null
   avatarUrl: string | null
+  /** Cuenta verificada (check al lado del nombre). */
+  verified: boolean
 }
 
 /** Lista de cuentas guardadas + cuál está activa. */

@@ -39,7 +39,7 @@ import {
 
 import { t } from '@shared/i18n'
 const PROFILE_COLUMNS =
-  'id,email,handle,display_name,avatar_url,bio,gender,custom_status,custom_status_emoji,custom_status_expires_at,created_at'
+  'id,email,handle,display_name,avatar_url,bio,verified,gender,custom_status,custom_status_emoji,custom_status_expires_at,created_at'
 
 function fail<T>(code: AccountErrorCode, error: string): AccountResult<T> {
   return { ok: false, error, code }
@@ -109,7 +109,7 @@ interface LoginResponse {
 }
 
 function emptyProfile(id: string, email: string): AccountProfile {
-  return { id, email, handle: null, displayName: null, avatarUrl: null, bio: null }
+  return { id, email, handle: null, displayName: null, avatarUrl: null, bio: null, verified: false }
 }
 
 /**
@@ -290,6 +290,7 @@ async function fetchProfile(accountId: string): Promise<AccountProfile | null> {
     displayName: (data.display_name as string | null) ?? null,
     avatarUrl: (data.avatar_url as string | null) ?? null,
     bio: (data.bio as string | null) ?? null,
+    verified: data.verified === true,
     gender: (data.gender as string | null) ?? null,
     customStatus: (data.custom_status as string | null) ?? null,
     customStatusEmoji: (data.custom_status_emoji as string | null) ?? null,

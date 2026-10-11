@@ -193,6 +193,7 @@ function toMyProfile(account: AccountProfile): MyProfile {
     dni: account.id,
     name: account.displayName?.trim() || fallback,
     handle: account.handle ? `@${account.handle.replace(/^@/, '')}` : '',
+    verified: account.verified,
     description: account.bio ?? undefined,
     avatarUrl: account.avatarUrl ?? undefined,
     presence: 'online',

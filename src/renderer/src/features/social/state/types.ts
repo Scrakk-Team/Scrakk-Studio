@@ -19,6 +19,8 @@ export interface MyProfile {
   name: string
   handle: string
   avatarUrl?: string
+  /** Cuenta verificada (check al lado del nombre). */
+  verified: boolean
   description?: string
   presence: PresenceStatus
   /** Qué comparte (opt-in): project/file. */

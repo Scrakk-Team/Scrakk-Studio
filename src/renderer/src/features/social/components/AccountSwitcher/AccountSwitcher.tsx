@@ -7,6 +7,7 @@ import { ProductIcon } from '@services/productIcons/components'
 import { IconButton } from '@ui'
 import type { AccountList } from '@shared/account'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './AccountSwitcher.module.css'
 
 import { t } from '@core/i18n'
@@ -82,7 +83,10 @@ export function AccountSwitcher({
                 >
                   <UserAvatar name={label} src={account.avatarUrl ?? undefined} size={32} />
                   <span className={styles.info}>
-                    <span className={styles.name}>{label}</span>
+                    <span className={styles.name}>
+                      {label}
+                      {account.verified ? <VerifiedCheck /> : null}
+                    </span>
                     <span className={styles.email}>{account.email}</span>
                   </span>
                   {active ? <span className={styles.badge}>ACTIVA</span> : null}

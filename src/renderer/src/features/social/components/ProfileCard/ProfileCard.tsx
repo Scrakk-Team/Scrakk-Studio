@@ -85,6 +85,7 @@ export function ProfileCard({
           name: profile.name,
           handle: profile.handle,
           avatarUrl: profile.avatarUrl,
+          verified: profile.verified,
           description: profile.description,
           presence: profile.presence,
           statusLabel: presenceLabel(profile.presence)
