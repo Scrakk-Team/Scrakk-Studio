@@ -19,6 +19,7 @@ import { registerGitIpc } from './ipc/git'
 import { registerAccountIpc } from './account'
 import { registerSocialIpc } from './social'
 import { registerMarketIpc } from './ipc/market'
+import { checkInstalledUpdates } from './market/service'
 import { registerScrakkIpc } from './scrakk'
 import { registerModelsDevIpc } from './models-dev'
 import { registerWebIpc } from './web'
@@ -125,6 +126,11 @@ if (!gotTheLock) {
     })
 
     createMainWindow()
+
+    // Auto-update (en background) de las extensiones instaladas desde la tienda.
+    setTimeout(() => {
+      void checkInstalledUpdates().catch(() => undefined)
+    }, 8_000)
 
     // macOS: re-crear la ventana al activar el dock si no hay ninguna.
     app.on('activate', () => {

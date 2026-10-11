@@ -333,6 +333,58 @@ export async function install(
   return ok({ id: installed.extension.id, name: installed.extension.name, version: rel.version })
 }
 
+/**
+ * Job: auto-update de las extensiones instaladas desde la tienda. Lee el
+ * `.market.json` de cada una, resuelve la última release y, si cambió, la
+ * reinstala. Devuelve cuántas actualizó.
+ */
+export async function checkInstalledUpdates(): Promise<number> {
+  const root = extensionsRoot()
+  let dirs: string[]
+  try {
+    dirs = await fs.readdir(root)
+  } catch {
+    return 0
+  }
+  let updated = 0
+  for (const id of dirs) {
+    let sidecar: {
+      slug?: string
+      version?: string
+      repoProvider?: string
+      repoUrl?: string
+      assetName?: string | null
+    }
+    try {
+      sidecar = JSON.parse(await fs.readFile(path.join(root, id, '.market.json'), 'utf-8')) as typeof sidecar
+    } catch {
+      continue
+    }
+    if (!sidecar.slug || !sidecar.repoUrl) continue
+    const rel = await resolveLatestRelease(
+      (sidecar.repoProvider === 'gitlab' ? 'gitlab' : 'github') as RepoProvider,
+      sidecar.repoUrl,
+      sidecar.assetName ?? null
+    )
+    if (!rel?.assetUrl || rel.version === sidecar.version) continue
+    try {
+      const res = await fetch(rel.assetUrl, { redirect: 'follow' })
+      if (!res.ok) continue
+      const bytes = new Uint8Array(await res.arrayBuffer())
+      const installed = await installSefFromBuffer(bytes)
+      if (!installed.success) continue
+      await fs.writeFile(
+        path.join(root, installed.extension.id, '.market.json'),
+        JSON.stringify({ ...sidecar, version: rel.version })
+      )
+      updated += 1
+    } catch {
+      /* se reintenta en el próximo arranque */
+    }
+  }
+  return updated
+}
+
 /** Job: refresca la última release de las extensiones del usuario (cache). */
 export async function refresh(accountId: string): Promise<number> {
   const client = await getClientFor(accountId)
