@@ -137,16 +137,23 @@
 }
 
 /*
- * Emoji + adjuntar: pegados (2px) y con hover más chico que el resto. El
- * primitive mide 28×28 en `sm`; acá se achica SÓLO en este composer. El
- * selector tiene más especificidad que `.sm` para no depender del orden en que
- * el bundler emita los CSS modules.
+ * Emoji + adjuntar: pegados (2px), con hover más chico que el resto y
+ * centrados con la línea de texto. El primitive mide 28×28 en `sm`; acá se
+ * achica SÓLO en este composer. El selector tiene más especificidad que `.sm`
+ * para no depender del orden en que el bundler emita los CSS modules.
  */
 .tools {
   display: flex;
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
+  /*
+   * El botón de enviar mide 28 y estos 22: se suben 3px (la mitad de la
+   * diferencia) para quedar centrados con él y con la línea del input. Con
+   * `align-self: center` quedarían flotando en el medio cuando el textarea
+   * crece; con este margen siguen anclados abajo, que es lo correcto.
+   */
+  margin-bottom: 3px;
 }
 
 .form .attach {
