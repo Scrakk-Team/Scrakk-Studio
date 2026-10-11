@@ -123,7 +123,13 @@ published are not edited. The file goes per version:
 - **The SEF tooling moved to its own repo**, `Scrakk-Team/sef-builder`, and is
   published to npm as `@scrakk-official/cli` (binary `sef`). `create` / `build` /
   `pack` / `validate` are the same commands, now installable by any author with
-  `npm install -g @scrakk-official/cli`. The CLI keeps its own release channel
-  (npm plus its GitHub Release, with a registry-free `cli.tgz` + `install.sh`
-  fallback), so Scrakk Studio's releases and auto-update are untouched. In
-  exchange the repo no longer ships the `npm run sef:*` scripts.
+  `npm install -g @scrakk-official/cli` — or straight from its GitHub Release
+  with `npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz`,
+  no registry needed. The CLI keeps its own release channel, so Scrakk Studio's
+  releases and auto-update are untouched. In exchange the repo no longer ships
+  the `npm run sef:*` scripts.
+
+### Settings (UI)
+- **The "Performance" section is hidden from the settings navigation.** The
+  section and its code are still there — it still resolves by id and its
+  component is untouched — it is simply not listed in the nav.
