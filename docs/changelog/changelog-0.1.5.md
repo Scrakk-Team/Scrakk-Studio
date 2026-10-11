@@ -146,6 +146,11 @@ published are not edited. The file goes per version:
   silence, so a saved extension looked like it had vanished: publishing leaves it
   **in review** (`pending`) and it only enters the store once it is approved. The
   form now keeps that notice on screen instead of closing.
+- **Installing from the store now actually loads the extension.** The store wrote
+  the package to disk but never **registered** it in the runtime (the "Install
+  .sef" flow in Settings did), so an installed extension showed no contributions
+  at all — a theme extension installed but no new themes appeared until the app
+  was restarted. A store install now registers it live and leaves it enabled.
 - **Extension cards no longer draw an accent outline on hover.** The hover is now
   the same subtle background the rest of the app uses (Explorer, Social), and it
   applies to the cards of all three tabs — store, installed and mine.
