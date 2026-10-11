@@ -18,6 +18,7 @@ import {
   RequestsList,
   SocialProvider,
   UserAvatar,
+  VerifiedCheck,
   useSocial
 } from '@features/social'
 import styles from './SocialPanel.module.css'
@@ -332,7 +333,10 @@ function SocialPanelInner(): JSX.Element {
         <button type="button" className={styles.me} onClick={() => setView('accounts')}>
           <UserAvatar name={me.name} src={me.avatarUrl} size={36} />
           <span className={styles.meText}>
-            <span className={styles.meName}>{me.name}</span>
+            <span className={styles.meName}>
+              {me.name}
+              {me.verified ? <VerifiedCheck size={13} /> : null}
+            </span>
             <span className={styles.meSub}>
               {me.handle ? `${me.handle} · ` : ''}
               {activeAccount?.email ?? me.dni}

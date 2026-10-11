@@ -253,6 +253,7 @@ function MessageListImpl({ messages, meId, friends, meName, meAvatar, meProfile,
     if (meProfile) {
       keep(meId, {
         handle: meProfile.handle || null,
+        verified: meProfile.verified,
         bio: meProfile.description ?? null,
         gender: meProfile.gender ?? null,
         customStatus: meProfile.customStatus ?? null,

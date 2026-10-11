@@ -28,4 +28,5 @@ export type { ProfileDraft, ProfileEditorSubmitResult } from './components/Profi
 export { EmailCodeForm } from './components/EmailCodeForm/EmailCodeForm'
 export { AuthGate } from './components/AuthGate/AuthGate'
 export { AccountSwitcher } from './components/AccountSwitcher/AccountSwitcher'
+export { VerifiedCheck } from './components/VerifiedCheck/VerifiedCheck'
 export { AvatarPicker } from './components/AvatarPicker/AvatarPicker'
