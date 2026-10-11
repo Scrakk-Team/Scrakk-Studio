@@ -67,6 +67,18 @@ published are not edited. The file goes per version:
   copied to `resources/`.
 
 ### Status bar (UI)
+- **The errors/warnings chip now sits to the right of the commits chip.** It was
+  to its left, so the problems count and the Git branch appeared in the opposite
+  order from what was expected; the row now reads LSP · commits · problems ·
+  cursor · encoding.
+- **The errors/warnings chip is hidden when no file is open.** With no editor on
+  screen there is nothing to report, so the chip no longer shows a bare "0 / 0";
+  it appears again as soon as a file is opened.
+- **The notifications panel is now paginated.** The bell popover listed every
+  active and dismissed notification in one long scroll; it now shows **5 cards
+  per page** with a footer (`‹ 1 / 3 ›`), keeping the Active / History headings
+  on the page where each group starts. The "Clear" button stays with the History
+  heading.
 - **The command trigger no longer overlaps the other chips.** It was absolutely
   centred with a fixed `min-width: 220px`, so on a narrow window it ran into the
   chips on the left (encoding, cursor position) and on the right. It now measures
@@ -120,7 +132,18 @@ published are not edited. The file goes per version:
 - **Fixed the store search result being consumed raw.** `market.search` returns
   a result wrapper (`{ ok, data }`), but the panel fed it straight into the list
   state, so the search response was never unwrapped; it now reads `data` and
-  surfaces the error when the call fails.
+  surfaces the error when the call fails. (This is why a published extension
+  could show up nowhere: the list never rendered at all.)
+- **"Submit for review" now says what it did.** The publish form closed in
+  silence, so a saved extension looked like it had vanished: publishing leaves it
+  **in review** (`pending`) and it only enters the store once it is approved. The
+  form now keeps that notice on screen instead of closing.
+- **The store's search field and its separator no longer look brighter than the
+  rest of the IDE.** Both used the full `--color-border` while the panel chrome
+  (slots, headers, resize handles) uses the softer 35% mix, so the line under the
+  search stood out. They now use the same chrome border, and the field's focus is
+  marked with `--color-border-strong` (the input convention used elsewhere)
+  instead of the accent.
 
 ### Extension authoring (SEF CLI)
 - **The SEF tooling moved to its own repo**, `Scrakk-Team/sef-builder`, and is
@@ -136,3 +159,59 @@ published are not edited. The file goes per version:
 - **The "Performance" section is hidden from the settings navigation.** The
   section and its code are still there — it still resolves by id and its
   component is untouched — it is simply not listed in the nav.
+
+### Language servers (LSP)
+- **Installing a server now really installs its language prerequisites.** The
+  Install button only ran the server's own recipe, so **Go** failed when the Go
+  toolchain was not on the machine (`go install gopls@latest` needs `go`). Each
+  server can now declare its language **requirements** (gopls → the Go
+  toolchain) and, when one is missing, it is listed **under the server** with its
+  own **Install** button. Installing it downloads the latest official toolchain
+  from the internet — for Go, the current stable tarball from `go.dev/dl` (the
+  URL is picked from the JSON manifest by OS/arch) is fetched and extracted into
+  `~/.scrakk/toolchains/go`, its `bin` joins the augmented `PATH`, and then
+  `gopls@latest` is installed with that `go`. The server's own Install button
+  does the same in one step (requirements first, then the server). No `sudo` and
+  no system package manager: the toolchain lives in the app's folder.
+- **More servers ship a real recipe**, so their Install button works instead of
+  failing with "no install recipe": **Rust** (the official `rust-analyzer`
+  release, a `.gz` single binary), **Lua** (`lua-language-server`, a full tree
+  extracted into `~/.scrakk/lsp/…`), **Svelte** (`svelte-language-server` from
+  npm) and **Terraform** (`terraform-ls`, whose latest version and file are read
+  from the official HashiCorp release index by OS/arch).
+- **Dart** declares the **Dart SDK** as its prerequisite: installing it fetches
+  the current stable SDK from `storage.googleapis.com/dart-archive` into
+  `~/.scrakk/toolchains/dart` (the Dart language server *is* `dart
+  language-server`, so there is no separate server binary). **Java** and
+  **Elixir** show their runtime requirement (Java 21+ / Elixir + Erlang) so it is
+  clear what is missing.
+- **The prerequisite row under a server no longer renders as a box** pinned to
+  one side: it is a full-width line with no border and the same background as the
+  rest of the row. And when a server has **no** recipe, its **Install** button is
+  **not** shown at all (instead of showing it and failing with "no install
+  recipe" once clicked).
+- **A server that is not installed no longer offers "Turn off".** The row showed
+  the on/off toggle for every server — including the ones with no binary, which
+  are not running — so "Turn off" appeared even for servers the user never
+  installed. The toggle now only shows when there is something to turn off (the
+  server is installed) or when the user had already turned it off (then it
+  offers "Turn on").
+- **Terraform's server now starts.** The recipe installed `terraform-ls` but ran
+  it with no arguments; `terraform-ls` requires the `serve` subcommand and, with
+  none, it printed its help and exited — which surfaced as "unknown error"
+  followed by "server not configured" on restart. The server definition now
+  passes `serve`.
+- **A crashed server no longer reports "unknown error".** When the process died
+  without writing to stderr (just as terraform-ls did: it writes to stdout), the
+  failure detail was empty. It now falls back to the exit code, so the
+  notification always says something real.
+- **Installing an npm server no longer fails on peer-dependency conflicts.**
+  All npm servers share one managed directory, so a peer dependency could not be
+  satisfied at once — `svelte-language-server` wants `typescript ^5.9.2 ||
+  ^6.0.2` while `typescript-language-server` pulls `7`, and npm aborted the whole
+  install with ERESOLVE. The managed install now uses `--legacy-peer-deps` (plus
+  `--no-audit --no-fund`).
+- **Installed servers are recognised after a restart.** The directories the app
+  installs into (`~/.scrakk/lsp/bin` and the managed npm `.bin`) now join the
+  augmented `PATH`, so a server installed from the app reads as *installed* the
+  next time instead of offering **Install** again.
