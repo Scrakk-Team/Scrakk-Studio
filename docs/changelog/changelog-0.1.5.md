@@ -129,11 +129,13 @@ published are not edited. The file goes per version:
 - **Verification** for accounts and extensions (checkmark). A minimal local
   admin app (`tools/admin/`, Python + Tkinter) searches accounts (name + image)
   and extensions and toggles `verified` (and the status).
-- **Fixed the store search result being consumed raw.** `market.search` returns
-  a result wrapper (`{ ok, data }`), but the panel fed it straight into the list
-  state, so the search response was never unwrapped; it now reads `data` and
-  surfaces the error when the call fails. (This is why a published extension
-  could show up nowhere: the list never rendered at all.)
+- **Fixed the store coming up empty.** `market.search` was *declared* as
+  returning a `MarketResult` wrapper, but the IPC returns the **plain array** —
+  like `categories` / `mine` / `get`; only writes return a result. The mismatch
+  failed the type check and, "fixed" on the wrong side, made the panel throw on
+  every load and show *"No hay extensiones."*. The type now matches the
+  implementation, and a failing search RPC is logged instead of looking like an
+  empty store.
 - **"Submit for review" now says what it did.** The publish form closed in
   silence, so a saved extension looked like it had vanished: publishing leaves it
   **in review** (`pending`) and it only enters the store once it is approved. The
