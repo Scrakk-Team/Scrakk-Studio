@@ -98,3 +98,16 @@ published are not edited. The file goes per version:
 - **Verification** for accounts and extensions (checkmark). A minimal local
   admin app (`tools/admin/`, Python + Tkinter) searches accounts (name + image)
   and extensions and toggles `verified` (and the status).
+- **Fixed the store search result being consumed raw.** `market.search` returns
+  a result wrapper (`{ ok, data }`), but the panel fed it straight into the list
+  state, so the search response was never unwrapped; it now reads `data` and
+  surfaces the error when the call fails.
+
+### Extension authoring (SEF CLI)
+- **The SEF tooling is now a standalone package**, `@scrakk-official/cli`
+  (`packages/cli`), published to npm and runnable as `npx @scrakk-official/cli`
+  (binary `sef`). `create` / `build` / `pack` / `validate` are the same commands
+  the repo already exposed through `npm run sef:*`, so one source now serves the
+  IDE and external authors. Releases are published from CI on `cli-v*` tags via
+  npm Trusted Publishing, and the same run attaches `cli.tgz` + `install.sh` to
+  the GitHub Release as a registry-free fallback.
