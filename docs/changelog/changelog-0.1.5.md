@@ -146,6 +146,11 @@ published are not edited. The file goes per version:
 - **Category chips follow the same rule**: no outline at all — neither on hover
   nor on the active chip (selection is marked with the accent tint + text) — and
   a small radius (`6px`) so they read as rounded squares rather than full pills.
+- **The verified mark is now a proper badge**: a filled seal — circular with
+  points around it — with the **check cut out** so the surface shows through,
+  instead of the generic shield. It ships as a product icon (`verified-badge`),
+  so a theme can override it, and it is used on the store card, the detail and
+  the "mine" row.
 - **The store's search field and its separator no longer look brighter than the
   rest of the IDE.** Both used the full `--color-border` while the panel chrome
   (slots, headers, resize handles) uses the softer 35% mix, so the line under the
