@@ -27,7 +27,7 @@ export function ExtensionCard({ extension }: { extension: MarketExtension }): JS
           {extension.name}
           {extension.verified ? (
             <span className={styles.verified} title={t('market.verificado')}>
-              <ProductIcon id="shield-check" size={12} />
+              <ProductIcon id="verified-badge" size={12} />
             </span>
           ) : null}
           {isMine ? <span className={styles.cardMeta}>· {t('market.mias')}</span> : null}

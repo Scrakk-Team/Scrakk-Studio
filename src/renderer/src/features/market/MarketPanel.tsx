@@ -263,7 +263,7 @@ function MineList({
                 {extension.name}
                 {extension.verified ? (
                   <span className={styles.verified}>
-                    <ProductIcon id="shield-check" size={12} />
+                    <ProductIcon id="verified-badge" size={12} />
                   </span>
                 ) : null}
               </span>

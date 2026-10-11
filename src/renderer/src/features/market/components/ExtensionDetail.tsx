@@ -71,7 +71,7 @@ export function ExtensionDetail(): JSX.Element | null {
             {detail.name}
             {detail.verified ? (
               <span className={styles.verified} title={t('market.verificado')}>
-                <ProductIcon id="shield-check" size={14} />
+                <ProductIcon id="verified-badge" size={14} />
               </span>
             ) : null}
           </span>

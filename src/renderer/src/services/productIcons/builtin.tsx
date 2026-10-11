@@ -114,6 +114,37 @@ function wrapCenterPanel(): IconComponent {
   return Comp as unknown as IconComponent
 }
 
+/**
+ * Marca de VERIFICADO — check dentro de un sello circular con puntas, relleno.
+ *
+ * No está en @proicons, así que va como componente propio con el MISMO contrato
+ * que los demás (`currentColor`, `size`, `className`). El check es un HUECO
+ * (`fillRule="evenodd"`, subpath opuesto): así se ve el fondo real detrás en vez
+ * de un color fijo, y la marca sirve sobre cualquier superficie del tema.
+ */
+const VERIFIED_BADGE_PATH =
+  'M 10.28 2.71 L 12 1.15 L 13.72 2.71 A 9.45 9.45 0 0 1 16.07 3.47 L 18.38 3.22 ' +
+  'L 18.85 5.5 A 9.45 9.45 0 0 1 20.3 7.49 L 22.32 8.65 L 21.37 10.77 A 9.45 9.45 0 0 1 21.37 13.23 ' +
+  'L 22.32 15.35 L 20.3 16.51 A 9.45 9.45 0 0 1 18.85 18.5 L 18.38 20.78 L 16.07 20.53 A 9.45 9.45 0 0 1 ' +
+  '13.72 21.29 L 12 22.85 L 10.28 21.29 A 9.45 9.45 0 0 1 7.93 20.53 L 5.62 20.78 L 5.15 18.5 A 9.45 9.45 0 0 1 ' +
+  '3.7 16.51 L 1.68 15.35 L 2.63 13.23 A 9.45 9.45 0 0 1 2.63 10.77 L 1.68 8.65 L 3.7 7.49 A 9.45 9.45 0 0 1 ' +
+  '5.15 5.5 L 5.62 3.22 L 7.93 3.47 A 9.45 9.45 0 0 1 10.28 2.71 Z ' +
+  'M 7.48 12.92 L 11.3 15.74 L 16.53 10.61 L 14.67 8.79 L 10.5 13.26 L 9.32 11.08 Z'
+
+const VerifiedBadgeIcon: IconComponent = ({ size = 16, className, style }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    style={style}
+    aria-hidden="true"
+  >
+    <path fillRule="evenodd" clipRule="evenodd" d={VERIFIED_BADGE_PATH} />
+  </svg>
+)
+
 /** Id del tema builtin (siempre disponible, es el fallback). */
 export const SCRAKK_PRODUCT_ICON_THEME_ID = 'scrakk'
 
@@ -133,7 +164,8 @@ export const BUILTIN_PRODUCT_ICONS: BuiltinProductIconEntry[] = [
   { id: 'search', component: SearchIcon },
   { id: 'settings-gear', component: SettingsIcon, synonyms: ['settings'] },
   { id: 'share', component: ShareIcon, synonyms: ['nodes', 'network'] },
-  { id: 'shield-check', component: ShieldCheckmarkIcon, synonyms: ['shield-checkmark', 'verified'] },
+  { id: 'shield-check', component: ShieldCheckmarkIcon, synonyms: ['shield-checkmark'] },
+  { id: 'verified-badge', component: VerifiedBadgeIcon, synonyms: ['verified-seal', 'badge-check'] },
   { id: 'key', component: KeyIcon },
   { id: 'keyboard', component: KeyboardIcon },
   { id: 'server', component: ServerIcon },
