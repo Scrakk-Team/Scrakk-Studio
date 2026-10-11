@@ -44,7 +44,8 @@ sef pack .                                             # 3. validates and writes
 sef validate .                                         # 4. (optional) validate without packing
 ```
 
-5. Install the `.sef` from **Settings → Extensions → Install .sef**.
+5. Install the `.sef` from the **Extensions** panel (**Install .sef**), or
+   [publish it to the store](guides/store.md) so anyone can install it.
 
 > The `id` comes from the name: use **ASCII** (`"Mi Extensión"` becomes
 > `mi-extensi-n` and the accent is lost; `"My Extension"` becomes

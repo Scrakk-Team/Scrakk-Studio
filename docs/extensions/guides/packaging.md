@@ -123,5 +123,6 @@ improves, as long as the original `.vsix` is still on disk (path stored in
 ## Next steps
 
 - [SEF CLI](../reference/cli.md) — the commands and the rules.
+- [Extension store](store.md) — publish the `.sef` you just built.
 - [Your first extension](../getting-started/your-first-extension.md) — the full
   cycle.
