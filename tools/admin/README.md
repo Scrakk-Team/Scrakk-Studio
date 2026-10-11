@@ -10,9 +10,10 @@ only.
 - **Accounts** tab: search `profiles` by name / handle / email, view a thumbnail
   of `avatar_url`, and toggle the `verified` flag (`verified_at` is set to the
   current UTC time, or cleared on unverify).
-- **Extensions** tab: search via the `search_extensions` RPC (with an optional
-  free-text category), view icon / repo / status / downloads / rating, toggle
-  `verified`, and set `status` to `published`, `pending` or `suspended`.
+- **Extensions** tab: search the `extensions` table directly (all statuses, so
+  pending/suspended are findable) with an optional category, view icon / repo /
+  status / downloads / rating, toggle `verified`, and set `status` to
+  `published`, `pending` or `suspended`.
 
 ## Requirements
 
@@ -45,9 +46,8 @@ python3 admin.py
 
 - The service_role key grants full access — keep it out of the repo and shell
   history.
-- The `search_extensions` RPC only returns extensions whose `status` is
-  `published`, so suspended/pending rows are not listed by the search. Use the
-  dashboard or a direct query for those.
+- The Extensions tab queries the table directly (service_role), so it lists
+  every status — that is how pending extensions get published.
 - The owner column shows the profile `uuid` until you select a row, at which
   point the owner name is fetched lazily (and cached).
 - Network requests run on background threads; thumbnail downloads that fail

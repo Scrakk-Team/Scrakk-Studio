@@ -4,7 +4,7 @@
 Small desktop utility to moderate the ``scrakk-cli`` Supabase project:
 
 * Accounts: search ``profiles`` and toggle the ``verified`` flag.
-* Extensions: search via the ``search_extensions`` RPC and toggle
+* Extensions: search the ``extensions`` table and toggle
   ``verified`` / ``status``.
 
 It talks straight to the PostgREST API using the *service_role* key, which is
@@ -334,13 +334,20 @@ class ExtensionsTab(ttk.Frame):
         cat = sanitize_query(self.category.get())
         self.status.config(text="Searching…")
 
+        params: dict[str, Any] = {
+            "select": "*",
+            "order": "updated_at.desc",
+            "limit": str(SEARCH_LIMIT),
+        }
+        if q:
+            params["or"] = f"(name.ilike.*{q}*,summary.ilike.*{q}*,repo_url.ilike.*{q}*)"
+        if cat:
+            params["categories"] = f"cs.{{{cat}}}"
+
         def work() -> list[dict[str, Any]]:
-            return self.api.post("/rpc/search_extensions", {
-                "p_query": q or None,
-                "p_category": cat or None,
-                "p_limit": SEARCH_LIMIT,
-                "p_offset": 0,
-            })
+            # Direct table (service_role bypasses RLS) so pending/suspended are
+            # visible too — you can only publish what you can find.
+            return self.api.get("/extensions", params=params)
 
         run_async(self, work, self._render, self._fail)
 
@@ -358,7 +365,7 @@ class ExtensionsTab(ttk.Frame):
                         r.get("status", ""), r.get("downloads", 0), r.get("rating_avg", 0),
                         "✔" if r.get("verified") else ""),
             )
-        self.status.config(text=f"{len(rows)} extension(s). Note: RPC only returns published rows.")
+        self.status.config(text=f"{len(rows)} extension(s).")
 
     def _on_select(self, _event: tk.Event) -> None:
         """Lazily resolve the owner uuid to a friendly name (cached)."""
