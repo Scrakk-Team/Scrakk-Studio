@@ -135,6 +135,10 @@ Its CI runs typecheck + tests + build, and publishing is done on `v*` tags via
 **npm Trusted Publishing** (OIDC — no token stored), attaching `cli.tgz` +
 `install.sh` to that repo's GitHub Release as a registry-free fallback.
 
+To ship a version: bump `package.json` in `sef-builder`, tag `vX.Y.Z` and push.
+One-time setup on npm — **`@scrakk-official/cli` → Settings → Trusted Publisher →
+GitHub Actions**, repository `Scrakk-Team/sef-builder`, workflow `publish.yml`.
+
 ## Next steps
 
 - [Packaging](../guides/packaging.md) — the full cycle and how it is installed.
