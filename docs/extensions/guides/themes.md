@@ -82,7 +82,11 @@ string or a list.
 
 - `flat: true` — single-color chrome (the bars add a border).
 - `fonts.ui` — UI font: `{ family, source?, size?, weight?, lineHeight? }`.
-  `source` accepts `https:` or `data:` (≤ 4096 chars).
+  `source` accepts `https:` or `data:` (≤ 4096 chars) in **two shapes**: a **font
+  file** (`.woff2` / `.woff` / `.ttf` / `.otf` — the app writes the `@font-face`
+  for you) or a **stylesheet** (e.g. Google Fonts `/css2?family=…`). `family`
+  must match the family the file or stylesheet declares. If it cannot load, the
+  theme stays on the fallback stack and a red notification says so.
 - `background` — background image: `{ type: "image", image, imageOpacity?, imageSize?, imagePosition?, imageBlur? }`.
   `image` is `https:`/`data:` (no quotes or spaces, ≤ 4096 chars).
 
