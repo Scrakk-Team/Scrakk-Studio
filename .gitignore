@@ -23,6 +23,8 @@ release/
 # Ignorados repo publico
 files-otherapps/
 build-resources/
+# Herramienta admin local (usa service_role, solo para mí): no versionar.
+tools/admin/
 .codebase-memory/
 .freebuff/
 .jokit/
