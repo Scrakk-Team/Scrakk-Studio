@@ -72,9 +72,9 @@ export function SettingsModal({ open, onClose, initialSection }: SettingsModalPr
     setExpanded((prev) => (prev.includes(id) ? prev : [...prev, id]))
   }
 
-  const topSections = SETTINGS_SECTIONS.filter((section) => !section.parent)
+  const topSections = SETTINGS_SECTIONS.filter((section) => !section.parent && !section.hidden)
   const childrenOf = (id: SettingsSectionId): typeof SETTINGS_SECTIONS =>
-    SETTINGS_SECTIONS.filter((section) => section.parent === id)
+    SETTINGS_SECTIONS.filter((section) => section.parent === id && !section.hidden)
 
   const ActiveSection =
     (SETTINGS_SECTIONS.find((section) => section.id === active) ?? SETTINGS_SECTIONS[0]).component

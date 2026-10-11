@@ -48,6 +48,12 @@ export interface SettingsSectionDef {
   icon: string
   /** Id del padre si es hija desplegable (ej. Resaltado ⊂ Servidores). */
   parent?: SettingsSectionId
+  /**
+   * Oculta del nav SIN borrar la sección: sigue resolviéndose por id (enlaces
+   * internos, `openSettingsModal('performance')`) y su componente sigue
+   * montado. Para sacarla de verdad, borrar su entrada.
+   */
+  hidden?: boolean
   component: ComponentType
 }
 
@@ -71,6 +77,11 @@ function section(
   }
 }
 
+/** Igual que `section(...)`, pero fuera del nav (la sección sigue existiendo). */
+function hiddenSection(...args: Parameters<typeof section>): SettingsSectionDef {
+  return { ...section(...args), hidden: true }
+}
+
 export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
   section('appearance', 'settings.nav.appearance', 'grid', AppearanceSection),
   section('editor', 'settings.nav.editor', 'code', EditorSection),
@@ -78,7 +89,8 @@ export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
   section('highlight', 'settings.nav.highlight', 'code', HighlightSection, 'editor'),
   section('terminal', 'settings.nav.terminal', 'terminal', TerminalSection),
   section('extensions', 'settings.nav.extensions', 'extensions', ExtensionsSection),
-  section('performance', 'settings.nav.performance', 'chart', PerformanceSection),
+  // Oculto por pedido (queda el código, no se muestra en el nav).
+  hiddenSection('performance', 'settings.nav.performance', 'chart', PerformanceSection),
   section('chat', 'settings.nav.chat', 'chat', ChatSection),
   section('chatProviders', 'settings.nav.providers', 'server', ProvidersSection, 'chat'),
   section('chatTools', 'settings.nav.tools', 'grid', ToolsSection, 'chat'),
