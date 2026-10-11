@@ -110,7 +110,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
         window.api.market.search({ query, category, limit: 60 }),
         window.api.market.categories()
       ])
-      setResults(extensions)
+      if (!extensions.ok) throw new Error(extensions.error)
+      setResults(extensions.data)
       setCategories(cats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
