@@ -151,6 +151,14 @@ published are not edited. The file goes per version:
   .sef" flow in Settings did), so an installed extension showed no contributions
   at all — a theme extension installed but no new themes appeared until the app
   was restarted. A store install now registers it live and leaves it enabled.
+- **The detail's button tells the truth.** It decided *Install* vs *Update* from
+  the installed list, which was only loaded when you opened the **Installed** tab
+  — so after uninstalling from elsewhere (Settings) it still said **Update**, and
+  because "up to date" compared the *server's* cached release with the *server's*
+  latest version (always equal), the button was **disabled**. The list is now
+  loaded on the store tab too and the match is by **id** (not name), with
+  "up to date" comparing the **installed** version. An uninstalled extension
+  offers **Install** again.
 - **Extension cards no longer draw an accent outline on hover.** The hover is now
   the same subtle background the rest of the app uses (Explorer, Social), and it
   applies to the cards of all three tabs — store, installed and mine.
