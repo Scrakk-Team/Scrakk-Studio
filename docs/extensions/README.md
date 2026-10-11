@@ -36,11 +36,12 @@ later, from the host.
 ## Quick start in 5 steps
 
 ```sh
-npm run sef:create -- "My Extension" ./my-extension   # 1. scaffold (sample panel)
+npm install -g @scrakk-official/cli                    # 0. install the CLI (once)
+sef create "My Extension" ./my-extension               # 1. scaffold (sample panel)
 cd my-extension
-npm run sef:build -- .                                 # 2. bundle → dist/modules.js
-npm run sef:pack -- .                                  # 3. validates and writes ../my-extension.sef
-npm run sef:validate -- .                              # 4. (optional) validate without packing
+sef build .                                            # 2. bundle → dist/modules.js
+sef pack .                                             # 3. validates and writes ../my-extension.sef
+sef validate .                                         # 4. (optional) validate without packing
 ```
 
 5. Install the `.sef` from **Settings → Extensions → Install .sef**.

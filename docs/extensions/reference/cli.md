@@ -6,30 +6,36 @@ summary: "The authoring CLI (sef create/build/pack/validate), the v2 package lay
 ---
 # SEF CLI
 
-Authoring lives in [`packages/cli/`](../../../packages/cli) and is exposed through npm
-scripts, as a standalone package published to npm as
-[`@scrakk-official/cli`](https://www.npmjs.com/package/@scrakk-official/cli):
+Authoring lives in its **own repo**,
+[`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder), and is
+published to npm as
+[`@scrakk-official/cli`](https://www.npmjs.com/package/@scrakk-official/cli). It
+installs the **`sef`** binary:
 
 ```sh
-npx @scrakk-official/cli build <dir>    # published CLI (binary: `sef`)
-
-npm run sef:create  -- "<name>" [dir]   # scaffold (sample panel)
-npm run sef:build   -- <dir>            # bundle → dist/modules.js
-npm run sef:pack    -- <dir>            # validates and writes <dir>.sef
-npm run sef:validate -- <dir>           # validate only
+npm install -g @scrakk-official/cli       # once, global
+npx @scrakk-official/cli <command> …      # or per invocation, without installing
 ```
 
-The base script is `node packages/cli/src/index.ts <command> …` (the `npm run`
-wrappers are sugar). Offline install of the CLI, without the npm registry:
+```sh
+sef create   "<name>" [dir]   # scaffold (sample panel)
+sef build    <dir>            # bundle → dist/modules.js
+sef pack     <dir>            # validates and writes <dir>.sef
+sef validate <dir>            # validate only
+sef --help                    # usage
+sef --version                 # CLI version
+```
+
+Offline install, without the npm registry (tarball of the latest GitHub Release):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/Scrakk-Team/Scrakk-Studio/master/packages/cli/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Scrakk-Team/sef-builder/main/install.sh | bash
 ```
 
 ## `create`
 
 ```sh
-npm run sef:create -- "My Extension" ./my-extension
+sef create "My Extension" ./my-extension
 ```
 
 - Computes the `id` from the name: lowercased and anything that is not
@@ -41,7 +47,7 @@ npm run sef:create -- "My Extension" ./my-extension
 ## `build`
 
 ```sh
-npm run sef:build -- ./my-extension
+sef build ./my-extension
 # ✓ bundle: …/my-extension/dist/modules.js (3 modules)
 ```
 
@@ -60,7 +66,7 @@ The paths collected today are: `panels[].component`, `activityBar[].icon`,
 ## `pack`
 
 ```sh
-npm run sef:pack -- ./my-extension
+sef pack ./my-extension
 # ✓ package: …/my-extension.sef
 ```
 
@@ -72,7 +78,7 @@ npm run sef:pack -- ./my-extension
 ## `validate`
 
 ```sh
-npm run sef:validate -- ./my-extension
+sef validate ./my-extension
 # ✓ valid package
 # ✗ panels/Panel.tsx: code file not found
 ```
@@ -116,6 +122,18 @@ The source code (`.tsx`) **does not** travel: it travels compiled inside
 | `semver version required` | `version` is not `x.y.z` |
 | `permissions must be an array of: …` | A permission outside the catalogue |
 | `manifest.json not found` | You ran the command in the wrong folder |
+
+## Where it lives
+
+The CLI is its **own repo** — [`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder) —
+so its releases (tags, `cli.tgz`, `install.sh`) never mix with Scrakk Studio's
+and the app's auto-update is untouched. `sef build` mirrors the app's runtime
+rules; when the core's validation changes, update `src/schema.ts` there and ship
+a release.
+
+Its CI runs typecheck + tests + build, and publishing is done on `v*` tags via
+**npm Trusted Publishing** (OIDC — no token stored), attaching `cli.tgz` +
+`install.sh` to that repo's GitHub Release as a registry-free fallback.
 
 ## Next steps
 

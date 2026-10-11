@@ -15,14 +15,15 @@ components; Scrakk mounts them where the manifest says.
 
 ## 0. Requirements
 
-- Node and the repo dependencies installed (`npm install` in Scrakk Studio): the
-  packager uses `esbuild`, which already ships as a dependency.
+- **Node 20+** and the `sef` CLI: `npm install -g @scrakk-official/cli` (or use
+  `npx @scrakk-official/cli …` per command). The CLI ships its own `esbuild`, so
+  you do **not** need the Scrakk Studio repo checked out to author.
 - No runtime Node needed: a **declarative** extension does not run its own code.
 
 ## 1. Create the scaffold
 
 ```sh
-npm run sef:create -- "My Extension" ./my-extension
+sef create "My Extension" ./my-extension
 ```
 
 This creates `<dir>/<id>/` (the `id` comes from the name lowercased, with weird
@@ -80,7 +81,7 @@ export default function Panel() {
 
 ```sh
 cd my-extension
-npm run sef:build -- .
+sef build .
 # ✓ bundle: …/my-extension/dist/modules.js (1 modules)
 ```
 
@@ -158,7 +159,7 @@ Build again: now `dist/modules.js` contains all **three** paths.
 ## 4. Package and install
 
 ```sh
-npm run sef:pack -- .        # validates and writes ../my-extension.sef
+sef pack .                   # validates and writes ../my-extension.sef
 ```
 
 The `.sef` is a **ZIP** with the manifest and the bundle (and the data folders, if
@@ -176,13 +177,13 @@ extension becomes **active** instantly: you can see its button in the activity
 bar, open the panel and the tab. You can **disable** it (without uninstalling)
 with the toggle.
 
-> To iterate: edit, `sef:build`, `sef:pack`, and install the `.sef` again. There
+> To iterate: edit, `sef build`, `sef pack`, and install the `.sef` again. There
 > is no hot reload for `.sef` packages; re-installing is how you update.
 
 ## 5. Validate before packing (optional)
 
 ```sh
-npm run sef:validate -- .
+sef validate .
 # ✓ valid package
 # or, if something is missing:
 # ✗ panels/Panel.tsx: code file not found
