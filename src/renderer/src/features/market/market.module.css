@@ -115,8 +115,10 @@
 }
 
 .chipActive {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  /* Sin contorno (ni el de acento ni el sutil): la selección se marca con el
+     tinte de fondo + el texto, igual que el resto del sistema sin bordes. */
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
   color: var(--color-text);
 }
 
