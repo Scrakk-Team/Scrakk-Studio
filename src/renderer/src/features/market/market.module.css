@@ -147,7 +147,10 @@
 }
 
 .card:hover {
-  border-color: var(--color-accent);
+  /* Sin contorno: el acento en el borde se veía como un outline. El hover es el
+     mismo fondo sutil que usan las filas del resto de la app
+     (Explorer/Social). Aplica a las 3 secciones: tienda, instaladas y mías. */
+  background: var(--color-hover);
 }
 
 .cardIcon {
