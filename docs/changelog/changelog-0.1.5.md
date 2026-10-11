@@ -140,6 +140,9 @@ published are not edited. The file goes per version:
   silence, so a saved extension looked like it had vanished: publishing leaves it
   **in review** (`pending`) and it only enters the store once it is approved. The
   form now keeps that notice on screen instead of closing.
+- **Extension cards no longer draw an accent outline on hover.** The hover is now
+  the same subtle background the rest of the app uses (Explorer, Social), and it
+  applies to the cards of all three tabs — store, installed and mine.
 - **The store's search field and its separator no longer look brighter than the
   rest of the IDE.** Both used the full `--color-border` while the panel chrome
   (slots, headers, resize handles) uses the softer 35% mix, so the line under the
