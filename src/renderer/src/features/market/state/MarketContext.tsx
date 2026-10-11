@@ -110,8 +110,9 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
         window.api.market.search({ query, category, limit: 60 }),
         window.api.market.categories()
       ])
-      if (!extensions.ok) throw new Error(extensions.error)
-      setResults(extensions.data)
+      // `search` es una LECTURA: devuelve el array pelado (igual que
+      // `categories`/`mine`/`get`). Los `MarketResult` son para las escrituras.
+      setResults(extensions)
       setCategories(cats)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))

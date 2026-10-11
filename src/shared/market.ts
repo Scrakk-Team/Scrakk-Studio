@@ -128,7 +128,7 @@ export const MARKET_MAX_SCREENSHOTS = 3
 
 /** API expuesta en `window.api.market`. */
 export interface MarketApi {
-  search: (req: MarketSearchRequest) => Promise<MarketResult<MarketExtension[]>>
+  search: (req: MarketSearchRequest) => Promise<MarketExtension[]>
   categories: () => Promise<string[]>
   get: (slug: string) => Promise<MarketExtension | null>
   mine: (accountId: string) => Promise<MarketExtension[]>

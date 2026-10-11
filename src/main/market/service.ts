@@ -108,17 +108,20 @@ async function enrichOwners(client: SupabaseClient, rows: Row[]): Promise<Market
 }
 
 export async function search(req: MarketSearchRequest): Promise<MarketExtension[]> {
-  const { data } = await anon.rpc('search_extensions', {
+  const { data, error } = await anon.rpc('search_extensions', {
     p_query: req.query ?? null,
     p_category: req.category ?? null,
     p_limit: req.limit ?? 40,
     p_offset: req.offset ?? 0
   })
+  // Sin esto, un fallo del RPC se veía como "no hay extensiones" y nada más.
+  if (error) console.warn(`[market] search_extensions falló: ${error.message}`)
   return enrichOwners(anon, (data ?? []) as Row[])
 }
 
 export async function categories(): Promise<string[]> {
-  const { data } = await anon.rpc('extension_categories')
+  const { data, error } = await anon.rpc('extension_categories')
+  if (error) console.warn(`[market] extension_categories falló: ${error.message}`)
   return ((data ?? []) as unknown[]).filter((c): c is string => typeof c === 'string')
 }
 
