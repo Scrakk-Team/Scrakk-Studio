@@ -43,6 +43,7 @@
   "market.permisos": "Permisos",
   "market.permisos.nota": "Se leen del manifest al instalar.",
   "market.publicar": "Enviar a revisión",
+  "market.guardado.en.revision": "Guardado. Queda en revisión: aparece en la tienda cuando se apruebe.",
   "market.rate.enviar": "Enviar",
   "market.rate.titulo": "Valorar",
   "market.repo.invalido": "El link del repo no es válido.",

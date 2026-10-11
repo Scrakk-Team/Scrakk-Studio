@@ -43,6 +43,7 @@
   "market.permisos": "Permissions",
   "market.permisos.nota": "Read from the manifest on install.",
   "market.publicar": "Submit for review",
+  "market.guardado.en.revision": "Saved. It stays in review: it shows up in the store once approved.",
   "market.rate.enviar": "Submit",
   "market.rate.titulo": "Rate",
   "market.repo.invalido": "The repo link is not valid.",

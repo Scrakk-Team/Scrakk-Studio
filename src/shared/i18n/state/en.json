@@ -1712,6 +1712,22 @@
       "at": "2026-09-25T17:29:42.630Z",
       "approvedAt": "2026-09-25T17:32:07.886Z"
     },
+    "features.pagina.anterior": {
+      "src": "9bcad734827a849a",
+      "area": "features",
+      "machine": true,
+      "needsReview": false,
+      "at": "2026-10-10T00:00:00.000Z",
+      "approvedAt": "2026-10-10T00:00:00.000Z"
+    },
+    "features.pagina.siguiente": {
+      "src": "9dd6b398421db42f",
+      "area": "features",
+      "machine": true,
+      "needsReview": false,
+      "at": "2026-10-10T00:00:00.000Z",
+      "approvedAt": "2026-10-10T00:00:00.000Z"
+    },
     "features.panel": {
       "src": "d0d91173008b6f83",
       "area": "features",
@@ -6776,6 +6792,14 @@
       "at": "2026-10-11T00:47:32.139Z",
       "approvedAt": "2026-10-11T00:47:32.139Z"
     },
+    "market.guardado.en.revision": {
+      "src": "d7413cee2d544c13",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T04:37:25.000Z",
+      "approvedAt": "2026-10-11T04:37:25.000Z"
+    },
     "market.imagen.grande": {
       "src": "5fa46bb9349ced65",
       "area": "market",
@@ -9421,6 +9445,14 @@
       "at": "2026-09-25T17:29:52.462Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
     },
+    "settings.instalar.requisito.del.lenguaje": {
+      "src": "fb8d1e885b89cf00",
+      "area": "settings",
+      "machine": true,
+      "needsReview": false,
+      "at": "2026-10-11T03:42:39.833Z",
+      "approvedAt": "2026-10-11T03:42:39.833Z"
+    },
     "settings.instalar.sef": {
       "src": "fb537822806e53c2",
       "area": "settings",
@@ -10051,6 +10083,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:54.309Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "settings.requiere": {
+      "src": "ada0b274af61eae1",
+      "area": "settings",
+      "machine": true,
+      "needsReview": false,
+      "at": "2026-10-11T03:42:39.833Z",
+      "approvedAt": "2026-10-11T03:42:39.833Z"
     },
     "settings.riesgo.alto": {
       "src": "c56e1ac43e07a1e2",

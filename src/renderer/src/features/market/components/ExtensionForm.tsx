@@ -30,6 +30,8 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
   const [screenshots, setScreenshots] = useState<string[]>(initial?.screenshots ?? [])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  /** Guardado OK: el aviso de "queda en revisión" reemplaza al cierre mudo. */
+  const [saved, setSaved] = useState(false)
 
   const pickImage = async (
     event: ChangeEvent<HTMLInputElement>,
@@ -61,7 +63,9 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
       categories: categories.split(',').map((c) => c.trim()).filter(Boolean)
     })
     setBusy(false)
-    if (result.ok) onDone()
+    // No se cierra el form: el aviso de "queda en revisión" tiene que leerse
+    // (antes se cerraba en silencio y parecía que no se había guardado/publicado).
+    if (result.ok) setSaved(true)
     else setError(result.error)
   }
 
@@ -199,6 +203,7 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
       </div>
 
       {error ? <p className={styles.error}>{error}</p> : null}
+      {saved ? <p className={styles.notice}>{t('market.guardado.en.revision')}</p> : null}
 
       <div className={styles.detailActions}>
         <button type="button" className={styles.btn} disabled={busy || !name.trim()} onClick={() => void submit()}>
