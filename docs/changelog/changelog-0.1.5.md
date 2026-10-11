@@ -143,6 +143,9 @@ published are not edited. The file goes per version:
 - **Extension cards no longer draw an accent outline on hover.** The hover is now
   the same subtle background the rest of the app uses (Explorer, Social), and it
   applies to the cards of all three tabs — store, installed and mine.
+- **Category chips follow the same rule**: no accent outline on hover (subtle
+  background instead) and a small radius (`6px`) so they read as rounded squares
+  rather than full pills.
 - **The store's search field and its separator no longer look brighter than the
   rest of the IDE.** Both used the full `--color-border` while the panel chrome
   (slots, headers, resize handles) uses the softer 35% mix, so the line under the
