@@ -98,7 +98,9 @@
   height: 20px;
   padding: 0 8px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-capsule);
+  /* "Cápsula con esquinas cuadradas": radio chico, no 9999px. Con 20px de alto,
+     un radius de 8px+ ya vuelve a leerse como píldora. */
+  border-radius: 6px;
   background: transparent;
   color: var(--color-text-secondary);
   font-family: inherit;
@@ -107,7 +109,8 @@
 }
 
 .chip:hover {
-  border-color: var(--color-accent);
+  /* Sin contorno (igual que las cards): fondo sutil, no borde con acento. */
+  background: var(--color-hover);
   color: var(--color-text);
 }
 
