@@ -10,6 +10,29 @@ A **`.sef`** is a **ZIP** with the `manifest.json` at the root —or inside a si
 folder— and the files the extension needs. It is built with the
 [CLI](../reference/cli.md) (`sef pack`) or by hand.
 
+## How a `.sef` is built
+
+The builder is the **SEF CLI**, in its own repo
+([`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder), npm
+`@scrakk-official/cli`, binary `sef`):
+
+1. **`sef build`** reads `manifest.json`, collects every **code** path
+   (`panels[].component`, `activityBar[].icon`, `centerTabs[].component`/`.icon`)
+   and bundles them with **esbuild** (`format: esm`, `jsx: automatic`,
+   `react`/`react-dom` external) into `dist/modules.js`.
+2. **`sef pack`** validates the package and **zips** `manifest.json` + `dist/` +
+   the data folders into `<name>.sef`.
+
+```sh
+npm install -g @scrakk-official/cli
+sef build . && sef pack .
+```
+
+Without the registry:
+`npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz`.
+And since a `.sef` is just a ZIP, you can also assemble it by hand (see **By
+hand** below).
+
 ## Two package shapes
 
 ### Declarative (the normal case)

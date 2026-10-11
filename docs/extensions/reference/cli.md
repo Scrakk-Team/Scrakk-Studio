@@ -13,9 +13,16 @@ published to npm as
 installs the **`sef`** binary:
 
 ```sh
-npm install -g @scrakk-official/cli       # once, global
-npx @scrakk-official/cli <command> …      # or per invocation, without installing
+# from the GitHub Release — works without the npm registry:
+npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz
+
+# from npm:
+npm install -g @scrakk-official/cli
+npx @scrakk-official/cli <command> …      # per invocation, without installing
 ```
+
+Standalone Linux/macOS/Windows binaries (no Node required) are attached to every
+release as well.
 
 ```sh
 sef create   "<name>" [dir]   # scaffold (sample panel)
@@ -24,12 +31,6 @@ sef pack     <dir>            # validates and writes <dir>.sef
 sef validate <dir>            # validate only
 sef --help                    # usage
 sef --version                 # CLI version
-```
-
-Offline install, without the npm registry (tarball of the latest GitHub Release):
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/Scrakk-Team/sef-builder/main/install.sh | bash
 ```
 
 ## `create`
