@@ -143,7 +143,11 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
 
   useEffect(() => {
     if (tab === 'mine') void refreshMine()
-    if (tab === 'installed') void refreshInstalled()
+    // La TIENDA también necesita la lista de instaladas: el detalle decide
+    // "Instalar" vs "Actualizar" con ella. Si solo se cargara en "Instaladas",
+    // un desinstalado por otro lado (Ajustes) dejaría el estado viejo y el
+    // detalle ofrecería "Actualizar" (y con el botón deshabilitado).
+    if (tab === 'store' || tab === 'installed') void refreshInstalled()
   }, [tab, refreshMine, refreshInstalled])
 
   const openDetail = useCallback(

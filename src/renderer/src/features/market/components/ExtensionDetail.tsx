@@ -35,7 +35,14 @@ export function ExtensionDetail(): JSX.Element | null {
   if (!detail) return null
 
   const mine = accountId !== null && detail.owner === accountId
-  const isInstalled = installed.some((e) => e.name.toLowerCase() === detail.name.toLowerCase())
+  // Por ID (el slug del market == el id del paquete SEF), no por nombre: un
+  // nombre cambia y dejaba el detalle creyendo que seguía instalada.
+  const installedEntry = installed.find((e) => e.id.toLowerCase() === detail.slug.toLowerCase())
+  const isInstalled = Boolean(installedEntry)
+  // "Al día" = la versión INSTALADA es la última. Antes se comparaba el release
+  // cacheado del server contra el latestVersion del server (siempre iguales), así
+  // que el botón quedaba deshabilitado para cualquier cosa "instalada".
+  const upToDate = isInstalled && installedEntry?.version === detail.latestVersion
   const installing = busy === `install:${detail.slug}`
 
   const doInstall = async (): Promise<void> => {
@@ -95,7 +102,7 @@ export function ExtensionDetail(): JSX.Element | null {
         <button
           type="button"
           className={styles.btn}
-          disabled={installing || (isInstalled && detailRelease?.version === detail.latestVersion)}
+          disabled={installing || upToDate}
           onClick={() => void doInstall()}
         >
           <ProductIcon id={installing ? 'refresh' : 'download'} size={13} />
