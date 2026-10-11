@@ -110,6 +110,11 @@ published are not edited. The file goes per version:
 - **The composer's emoji and "+" buttons now sit together and centred with the
   input line**, with a smaller hover and a separator on the right of the "+",
   instead of being spread apart and sitting low.
+- **A verified account now shows the check.** The social RPCs did not return
+  `verified` at all, so the badge could never be drawn: `list_friends`,
+  `search_users` and `list_requests` now include it (migration `0029`) and the
+  mark shows next to the name in the friends list, friend requests, search
+  results, the chat header, the message header and the profile card.
 
 ### Extension store
 - **The extensions panel is now a store** (metadata only — we do not host the
