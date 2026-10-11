@@ -128,6 +128,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       setMine([])
       return
     }
+    // Job: refresca la última release de mis extensiones (cache) antes de listar.
+    await window.api.market.refresh(accountId).catch(() => undefined)
     setMine(await window.api.market.mine(accountId))
   }, [accountId])
 
