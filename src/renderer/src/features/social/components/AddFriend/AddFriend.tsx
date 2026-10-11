@@ -7,6 +7,7 @@ import { ProductIcon } from '@services/productIcons/components'
 import type { SocialUser } from '@shared/social'
 import { SOCIAL_RULES } from '@shared/social'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './AddFriend.module.css'
 
 import { t } from '@core/i18n'
@@ -83,7 +84,10 @@ export function AddFriend({ search, onSend }: AddFriendProps): JSX.Element {
               <div key={user.id} className={styles.row}>
                 <UserAvatar name={label} src={user.avatarUrl ?? undefined} size={30} />
                 <span className={styles.main}>
-                  <span className={styles.name}>{label}</span>
+                  <span className={styles.name}>
+                    {label}
+                    {user.verified ? <VerifiedCheck /> : null}
+                  </span>
                   {user.handle ? <span className={styles.handle}>@{user.handle}</span> : null}
                 </span>
                 <button

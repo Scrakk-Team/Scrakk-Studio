@@ -1,0 +1,18 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+/*
+ * El badge va DENTRO del span del nombre, que es texto con `nowrap` + ellipsis:
+ * por eso `inline-flex` + `vertical-align: middle` (así no hay que tocar el
+ * layout de cada lista).
+ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: var(--color-accent);
+}

@@ -11596,6 +11596,14 @@
       "at": "2026-09-25T17:29:57.350Z",
       "approvedAt": "2026-09-25T17:32:07.888Z"
     },
+    "social.verificada": {
+      "src": "18955969ddafe0ed",
+      "area": "social",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T04:37:25.000Z",
+      "approvedAt": "2026-10-11T04:37:25.000Z"
+    },
     "social.verificando": {
       "src": "c2f6ff98f6957802",
       "area": "social",

@@ -10,6 +10,7 @@ import { decodeCodeFile } from '@shared/socialCodeFile'
 import { SocialCodeCard } from '../SocialCodeCard/SocialCodeCard'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
 import { ProfileView } from '../ProfileView/ProfileView'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import { showFloatingProfile } from '../ProfileFloating/ProfileFloating'
 import styles from './MessageBubble.module.css'
 
@@ -23,6 +24,7 @@ import { t } from '@core/i18n'
  */
 export interface SenderProfile {
   handle?: string | null
+  verified?: boolean
   bio?: string | null
   gender?: string | null
   customStatus?: string | null
@@ -147,6 +149,7 @@ export const MessageBubble = memo(function MessageBubble({
     const profileData = {
       name: senderName,
       handle: p?.handle ?? null,
+      verified: p?.verified,
       avatarUrl: avatarUrl ?? undefined,
       description: p?.bio ?? null,
       presence: p?.presence,
@@ -192,6 +195,7 @@ export const MessageBubble = memo(function MessageBubble({
               className={[styles.name, styles.nameBtn, isOwn ? styles.nameOwn : ''].filter(Boolean).join(' ')}
             >
               {senderName}
+              {senderProfile?.verified ? <VerifiedCheck /> : null}
             </button>
             <span className={styles.time}>{timeOf(message.createdAt)}</span>
             {message.editedAt ? <span className={styles.edited}>(editado)</span> : null}

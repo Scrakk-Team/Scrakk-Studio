@@ -59,6 +59,8 @@ export interface SocialUser {
   handle: string | null
   displayName: string | null
   avatarUrl: string | null
+  /** Cuenta verificada (check al lado del nombre). */
+  verified: boolean
   bio?: string | null
   gender?: string | null
   customStatus?: string | null
@@ -81,6 +83,8 @@ export interface FriendRequest {
   handle: string | null
   displayName: string | null
   avatarUrl: string | null
+  /** Cuenta verificada (check al lado del nombre). */
+  verified: boolean
   createdAt: string
 }
 

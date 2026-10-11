@@ -152,6 +152,7 @@
   "social.usesocial.debe.usarse.dentro.de": "useSocial must be used within <socialprovider></socialprovider>",
   "social.usuario": "User",
   "social.ver.perfil.completo": "View full profile",
+  "social.verificada": "Verified account",
   "social.verificando": "Verifying…",
   "social.viajes": "Travel",
   "social.vista.recortada.a.lineas": "View truncated to{lines}lines",

@@ -9,6 +9,7 @@ import { showModal } from '@services/modals'
 import type { Friend, PresenceStatus } from '@shared/social'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
 import { ProfileView } from '../ProfileView/ProfileView'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './ChatHeader.module.css'
 
 import { t } from '@core/i18n'
@@ -53,6 +54,7 @@ export function ChatHeader({ peer, status, onBack }: ChatHeaderProps): JSX.Eleme
             name: label,
             handle: peer.handle ? `@${peer.handle}` : undefined,
             avatarUrl: peer.avatarUrl,
+            verified: peer.verified,
             description: p.bio ?? null,
             presence: status,
             statusLabel: status ? statusLabel(status) : undefined,
@@ -78,7 +80,10 @@ export function ChatHeader({ peer, status, onBack }: ChatHeaderProps): JSX.Eleme
           {status ? <span className={[styles.dot, styles[status]].join(' ')} /> : null}
         </span>
         <span className={styles.main}>
-          <span className={styles.name}>{label}</span>
+          <span className={styles.name}>
+            {label}
+            {peer.verified ? <VerifiedCheck size={13} /> : null}
+          </span>
           {sub ? <span className={styles.sub}>{sub}</span> : null}
         </span>
       </button>

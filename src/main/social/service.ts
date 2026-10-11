@@ -60,6 +60,7 @@ interface UserRow {
   handle: string | null
   display_name: string | null
   avatar_url: string | null
+  verified: boolean
   bio: string | null
   gender: string | null
   custom_status: string | null
@@ -76,6 +77,7 @@ interface RequestRow {
   handle: string | null
   display_name: string | null
   avatar_url: string | null
+  verified: boolean
   created_at: string
 }
 interface MessageRow {
@@ -138,6 +140,7 @@ function mapUser(row: UserRow): SocialUser {
     handle: row.handle ?? null,
     displayName: row.display_name ?? null,
     avatarUrl: row.avatar_url ?? null,
+    verified: row.verified === true,
     bio: row.bio ?? null,
     gender: row.gender ?? null,
     customStatus: row.custom_status ?? null,
@@ -198,6 +201,7 @@ export async function listRequests(accountId: string): Promise<SocialResult<Frie
       handle: row.handle ?? null,
       displayName: row.display_name ?? null,
       avatarUrl: row.avatar_url ?? null,
+      verified: row.verified === true,
       createdAt: row.created_at
     }))
   )

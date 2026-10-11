@@ -5,6 +5,7 @@
 import type { JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './ProfileView.module.css'
 
 import { t } from '@core/i18n'
@@ -12,6 +13,8 @@ export interface ProfileViewData {
   name: string
   handle?: string | null
   avatarUrl?: string | null
+  /** Cuenta verificada (check al lado del nombre). */
+  verified?: boolean
   description?: string | null
   dni?: string
   presence?: string
@@ -97,7 +100,10 @@ export function ProfileView({ profile, config }: ProfileViewProps): JSX.Element 
           ) : null}
         </span>
       </div>
-      <span className={styles.name}>{profile.name}</span>
+      <span className={styles.name}>
+        {profile.name}
+        {profile.verified ? <VerifiedCheck size={13} /> : null}
+      </span>
       {(profile.handle || profile.gender) && (
         <div className={styles.subnameRow}>
           {profile.handle ? <span className={styles.handle}>{profile.handle}</span> : null}

@@ -267,6 +267,7 @@ function MessageListImpl({ messages, meId, friends, meName, meAvatar, meProfile,
       const presence = friendsPresence?.[f.id]
       keep(f.id, {
         handle: f.handle,
+        verified: f.verified,
         bio: f.bio,
         gender: f.gender,
         customStatus: f.customStatus,

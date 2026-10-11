@@ -5,6 +5,7 @@
 import type { JSX } from 'react'
 import type { Friend, PresenceActivity, PresenceStatus } from '@shared/social'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './FriendList.module.css'
 
 import { t } from '@core/i18n'
@@ -81,7 +82,10 @@ export function FriendList({
               />
             </span>
             <span className={styles.main}>
-              <span className={styles.name}>{label}</span>
+              <span className={styles.name}>
+                {label}
+                {friend.verified ? <VerifiedCheck /> : null}
+              </span>
               <span className={[styles.handle, activity && status === 'online' ? styles.activity : null]
                 .filter(Boolean)
                 .join(' ')}

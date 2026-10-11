@@ -6,6 +6,7 @@ import { useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import type { FriendRequest } from '@shared/social'
 import { UserAvatar } from '../UserAvatar/UserAvatar'
+import { VerifiedCheck } from '../VerifiedCheck/VerifiedCheck'
 import styles from './RequestsList.module.css'
 
 import { t } from '@core/i18n'
@@ -35,7 +36,10 @@ export function RequestsList({ requests, onRespond }: RequestsListProps): JSX.El
           <div key={request.id} className={styles.row}>
             <UserAvatar name={label} src={request.avatarUrl ?? undefined} size={30} />
             <span className={styles.main}>
-              <span className={styles.name}>{label}</span>
+              <span className={styles.name}>
+                {label}
+                {request.verified ? <VerifiedCheck /> : null}
+              </span>
               <span className={styles.handle}>
                 {incoming ? t('social.quiere.ser.tu.amigo') : t('social.solicitud.enviada')}
               </span>
