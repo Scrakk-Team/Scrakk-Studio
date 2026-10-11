@@ -91,6 +91,11 @@ published are not edited. The file goes per version:
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
   build and contributed a side panel, an activity-bar button and a "Dashboard"
   center tab; now it is gone from all builds.
+- **Theme fonts actually apply now.** `fonts.ui.source` was always linked as a
+  `<link rel="stylesheet">`, so a **font file** — which is exactly what the themes
+  guide documents (`.woff2`) — was parsed as CSS, failed, and the UI kept its old
+  typography. A font file now gets its own `@font-face` written for it, and a
+  stylesheet (Google Fonts `/css2?…`) keeps working.
 
 ### Social panel
 - **Fixed the sections collapsing as the friend list grows**: the panel's
