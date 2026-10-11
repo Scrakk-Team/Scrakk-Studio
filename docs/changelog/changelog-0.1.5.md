@@ -43,6 +43,22 @@ published are not edited. The file goes per version:
     path-case mismatch between the renderer and the real root no longer rejects
     the grammar (which also left the file uncoloured, silently).
 
+### Syntax highlighting (any distro — found on Arch)
+- **An installed extension could steal a file from the preinstalled language
+  pack and leave it unpainted.** The pack (`scrakk.langs`) registers **last**,
+  but the file↔language tie-break kept the **first** registered when two
+  languages declare the same extension/glob/filename — so a language extension
+  (a VS Code `.vsix`, say) that also declares `.js`/`.py`/… won the file. If it
+  only shipped a `.tmLanguage`, the tree-sitter layer never ran: with the engine
+  set to **tree-sitter** the file had no colour and no error. Ties now go to the
+  preinstalled pack; a *more specific* pattern still wins.
+- **The "why is this file not painted" reason is no longer invisible.** It was
+  logged with `console.debug` (hidden unless DevTools is on *Verbose*) and one
+  message actually lied — `the chosen engine is TextMate` when the real cause was
+  "you chose tree-sitter and this language has no `.wasm`". The unexpected cases
+  now log at `warn`, naming the extension that won the file, and a disabled
+  extension is no longer skipped in total silence.
+
 ### App icon (Windows)
 - **The packaged app now shows the Scrakk icon instead of Electron's.** The
   window icon points at `assets/scrakk-studio-b.png`, but `assets/` was excluded
