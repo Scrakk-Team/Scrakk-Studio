@@ -21,6 +21,7 @@ import {
   type ReactNode
 } from 'react'
 import type { InstalledExtensionInfo } from '@shared/extensions'
+import { enableExtension, registerInstalledExtension } from '@services/extensions'
 import type {
   MarketExtension,
   MarketRating,
@@ -171,7 +172,20 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       setBusy(`install:${extension.slug}`)
       const result = await window.api.market.install(accountId, extension.slug)
       setBusy(null)
-      if (result.ok) await refreshInstalled()
+      if (result.ok) {
+        // El paquete ya quedó en disco (lo escribe el main), pero el RUNTIME no
+        // lo conoce: hay que registrarlo igual que "Install .sef" en Ajustes, o
+        // sus contribuciones (temas, paneles, iconos) no aparecen hasta
+        // reiniciar la app.
+        const list = await window.api.extensions.listInstalled()
+        const entry = list.find((item) => item.id === result.data.id)
+        if (entry) {
+          await registerInstalledExtension(entry)
+          // Si estaba desactivada, instalarla la deja activa.
+          enableExtension(entry.id)
+        }
+        await refreshInstalled()
+      }
       return result
     },
     [accountId, refreshInstalled]
