@@ -490,31 +490,36 @@ export function MessageComposer({
         </div>
       ) : null}
       <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.emojiWrap} ref={emojiRef}>
+        {/* Emoji + adjuntar van juntos y compactos; el separador cierra el
+            grupo antes del input. */}
+        <div className={styles.tools}>
+          <div className={styles.emojiWrap} ref={emojiRef}>
+            <IconButton
+              type="button"
+              shape="rounded"
+              label={t('social.emojis')}
+              size="sm"
+              className={styles.attach}
+              onClick={() => setShowEmoji((prev) => !prev)}
+              disabled={disabled}
+            >
+              <ProductIcon id="emoji" size={14} />
+            </IconButton>
+            {showEmoji ? <EmojiPicker onPick={insertEmoji} /> : null}
+          </div>
           <IconButton
             type="button"
             shape="rounded"
-            label={t('social.emojis')}
+            label={t('social.adjuntar.imagen')}
             size="sm"
             className={styles.attach}
-            onClick={() => setShowEmoji((prev) => !prev)}
-            disabled={disabled}
+            onClick={() => fileRef.current?.click()}
+            disabled={disabled || sending}
           >
-            <ProductIcon id="emoji" size={14} />
+            <ProductIcon id="plus" size={14} />
           </IconButton>
-          {showEmoji ? <EmojiPicker onPick={insertEmoji} /> : null}
+          <span className={styles.toolsDivider} aria-hidden="true" />
         </div>
-        <IconButton
-          type="button"
-          shape="rounded"
-          label={t('social.adjuntar.imagen')}
-          size="sm"
-          className={styles.attach}
-          onClick={() => fileRef.current?.click()}
-          disabled={disabled || sending}
-        >
-          <ProductIcon id="plus" size={14} />
-        </IconButton>
         <input
           ref={fileRef}
           type="file"

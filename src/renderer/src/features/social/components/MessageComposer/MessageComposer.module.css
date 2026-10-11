@@ -136,6 +136,33 @@
   flex-shrink: 0;
 }
 
+/*
+ * Emoji + adjuntar: pegados (2px) y con hover más chico que el resto. El
+ * primitive mide 28×28 en `sm`; acá se achica SÓLO en este composer. El
+ * selector tiene más especificidad que `.sm` para no depender del orden en que
+ * el bundler emita los CSS modules.
+ */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.form .attach {
+  width: 22px;
+  height: 22px;
+}
+
+/* Separador vertical a la derecha del botón "+". */
+.toolsDivider {
+  width: 1px;
+  height: 16px;
+  margin-left: 5px;
+  flex-shrink: 0;
+  background: var(--color-border);
+}
+
 .emojiWrap {
   display: inline-flex;
   flex-shrink: 0;
