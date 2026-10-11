@@ -23,6 +23,10 @@ release/
 # Ignorados repo publico
 files-otherapps/
 build-resources/
+# Extensiones de autor (paquetes .sef + fuentes). No versionar.
+# Anclado a la raíz: `extensions/` a secas también ignoraba
+# `src/renderer/src/services/extensions/` (código real del IDE).
+/extensions/
 # Herramienta admin local (usa service_role, solo para mí): no versionar.
 tools/admin/
 .codebase-memory/

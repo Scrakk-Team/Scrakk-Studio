@@ -270,10 +270,38 @@ function buildCssVars(def: ThemeDefinition): string {
   return lines.join('\n')
 }
 
+/** Formato de fuente por extensión (lo pide `format()` del @font-face). */
+function fontFormat(url: string): string {
+  const clean = url.split('?')[0].toLowerCase()
+  if (clean.endsWith('.woff2')) return 'woff2'
+  if (clean.endsWith('.woff')) return 'woff'
+  if (clean.endsWith('.ttf')) return 'truetype'
+  if (clean.endsWith('.otf')) return 'opentype'
+  return ''
+}
+
+/** ¿El `source` es una HOJA DE ESTILOS (trae su propio @font-face)? */
+function isStylesheetSource(url: string): boolean {
+  return (
+    url.includes('/css2?') ||
+    url.includes('fonts.googleapis.com/css') ||
+    url.split('?')[0].toLowerCase().endsWith('.css')
+  )
+}
+
 /**
- * Gestiona el <link> de la fuente remota + verifica carga real.
+ * Gestiona la fuente remota del tema + verifica carga real.
  * Si falla (sin internet, URL caída) → noti ROJA del sistema y queda el
  * fallback. Solo corre en browser con document.fonts.
+ *
+ * `source` acepta DOS formas:
+ *  1. una **hoja de estilos** (Google Fonts `/css2?…`, cualquier `.css`) → se
+ *     enlaza con `<link rel="stylesheet">` y su `@font-face` hace el resto; o
+ *  2. un **archivo de fuente** (`.woff2`/`.woff`/`.ttf`/`.otf` — lo que documenta
+ *     la guía de temas) → se inyecta el `@font-face` acá mismo.
+ *
+ * Antes TODO se enlazaba como `<link rel=stylesheet>`, así que un `.woff2` se
+ * intentaba parsear como CSS, fallaba y la tipografía nunca cambiaba.
  */
 function applyThemeFonts(def: ThemeDefinition): void {
   if (typeof document === 'undefined') return
@@ -283,18 +311,31 @@ function applyThemeFonts(def: ThemeDefinition): void {
     prev?.remove()
     return
   }
-  let el = prev as HTMLLinkElement | null
-  if (!el) {
-    el = document.createElement('link')
-    el.id = FONT_LINK_ID
-    el.rel = 'stylesheet'
-    document.head.appendChild(el)
-  }
   const href = ui.source
   const family = ui.family
-  const needsLoad = el.getAttribute('href') !== href
-  el.setAttribute('href', href)
-  if (!needsLoad) return
+  const stylesheet = isStylesheetSource(href)
+  const tag = stylesheet ? 'link' : 'style'
+  // Misma fuente ya aplicada (mismo href y mismo tipo de nodo): no se toca.
+  if (prev?.getAttribute('data-src') === href && prev.tagName.toLowerCase() === tag) return
+  prev?.remove()
+
+  if (stylesheet) {
+    const link = document.createElement('link')
+    link.id = FONT_LINK_ID
+    link.rel = 'stylesheet'
+    link.setAttribute('href', href)
+    link.setAttribute('data-src', href)
+    document.head.appendChild(link)
+  } else {
+    const style = document.createElement('style')
+    style.id = FONT_LINK_ID
+    style.setAttribute('data-src', href)
+    const format = fontFormat(href)
+    style.textContent =
+      `@font-face{font-family:"${family}";src:url("${href}")` +
+      `${format ? ` format("${format}")` : ''};font-display:swap;}`
+    document.head.appendChild(style)
+  }
   verifyFontLoaded(family, href)
 }
 
@@ -316,7 +357,7 @@ async function verifyFontLoaded(family: string, href: string): Promise<void> {
     const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000))
     await Promise.race([fonts.load(spec).catch(() => []), timeout])
     // Re-chequeo post-load: si el href cambió mientras tanto, es otro tema.
-    const current = document.getElementById(FONT_LINK_ID)?.getAttribute('href')
+    const current = document.getElementById(FONT_LINK_ID)?.getAttribute('data-src')
     if (current !== href) return
     let covered = false
     try {
