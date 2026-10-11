@@ -101,6 +101,8 @@ export interface WindowApi {
   account: AccountApi
   /** Social real: amigos + mensajes directos con Realtime. */
   social: SocialApi
+  /** Tienda de extensiones (metadata + releases de GitHub/GitLab). */
+  market: import('./market').MarketApi
   /** API global de la carpeta `.scrakk` (user/project): CRUD + watch. */
   scrakk: import('./scrakk').ScrakkFsApi
   /** Catálogo de modelos (models.dev): proveedores + modelos, con logos. */

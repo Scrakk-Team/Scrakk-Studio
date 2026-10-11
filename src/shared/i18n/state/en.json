@@ -6536,6 +6536,502 @@
       "at": "2026-09-25T17:48:44.352Z",
       "approvedAt": "2026-09-25T17:48:47.914Z"
     },
+    "market.actualizar": {
+      "src": "fe5f6628c7b56bf1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.asset.opcional": {
+      "src": "7227db88b97c33fc",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.autor.verificado": {
+      "src": "66aec059d453ae76",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.buscar.placeholder": {
+      "src": "dff4bcfa79fe838a",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.cancelar": {
+      "src": "bb9dbb406dcbd524",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.cargando": {
+      "src": "205443ee88568e8c",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.categorias": {
+      "src": "7ef4eab73ebc9b95",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.categorias.hint": {
+      "src": "b251b067cdb3d0c0",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.comentario.placeholder": {
+      "src": "982343a55281a6cc",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.descargas": {
+      "src": "f40922c9895413eb",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.descripcion": {
+      "src": "ee00b96fff266fe2",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.eliminar": {
+      "src": "c9894cf002f90bd0",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.eliminar.confirmar": {
+      "src": "17a663f657f83bb7",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.estado.draft": {
+      "src": "9b73881b69ec5f3b",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.estado.pending": {
+      "src": "a193059ef751928c",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.estado.published": {
+      "src": "795e972fb1b04e87",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.estado.suspended": {
+      "src": "c75a4861302bee74",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.categorias": {
+      "src": "7ef4eab73ebc9b95",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.descripcion": {
+      "src": "ee00b96fff266fe2",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.icono": {
+      "src": "051fec278efa0ace",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.licencia": {
+      "src": "3fbec424ab7c03c2",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.nombre": {
+      "src": "562bb15757a8b593",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.repo": {
+      "src": "c85ca708459725c0",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.resumen": {
+      "src": "ed7bdc67c84b3ed6",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.screenshots": {
+      "src": "9c9c30ef9c46c269",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.subir": {
+      "src": "251f0755f51e94d1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.form.video": {
+      "src": "055c1b85ab68a0f7",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.guardando": {
+      "src": "3c8dc4dc7a83dd2d",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.guardar": {
+      "src": "13e51a210f45ed1b",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.imagen.grande": {
+      "src": "5fa46bb9349ced65",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.instalada": {
+      "src": "8cef9a023116b686",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.instalando": {
+      "src": "eff4000bcf5b7642",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.instalar": {
+      "src": "8e8a1dd486769909",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.mias": {
+      "src": "55b6ce562a18c872",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.no.existe": {
+      "src": "1798f00b9b78134f",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.no.puedes.ratear.la": {
+      "src": "a31643c29e421ef7",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.no.se.pudo.guardar": {
+      "src": "836c7b54cf4d3c85",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.no.se.pudo.leer.la": {
+      "src": "6d50f43dee5afa43",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.nombre.requerido": {
+      "src": "d836dbf1568f00fc",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.nueva": {
+      "src": "3b70b726a0c366dc",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.permisos": {
+      "src": "e8d94ecbab5499b1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.permisos.nota": {
+      "src": "ddb7fd7036c3a7a2",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.publicar": {
+      "src": "7c196176fd8cceb1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.rate.enviar": {
+      "src": "e1d12d1a29a77b00",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.rate.titulo": {
+      "src": "447439afee6cd1a0",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.repo.invalido": {
+      "src": "b4f4e43181902455",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.reportar": {
+      "src": "6e9e5f0a0078520b",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.reportar.enviado": {
+      "src": "092d9774485b1333",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.reportar.motivo": {
+      "src": "c7b288b1c0bb6542",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.sin.asset": {
+      "src": "3634a940721f9106",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.sin.resultados": {
+      "src": "0b79160fb962f897",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.sin.valoraciones": {
+      "src": "e786c106cd1af0e8",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.slug.tomado": {
+      "src": "fd3a4f6531846b4a",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.tab.instaladas": {
+      "src": "c216fe7b12b35332",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.tab.mias": {
+      "src": "55b6ce562a18c872",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.tab.tienda": {
+      "src": "49c081725b0b36b1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.todas.las.categorias": {
+      "src": "aff4d19d6ee43b20",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.ultima.version": {
+      "src": "2356f2a5f656dcd5",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.valoraciones": {
+      "src": "c26b580216f13780",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.ver.repo": {
+      "src": "8d5a714f1137fae8",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.verificado": {
+      "src": "bcfa5fc75f44a166",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
+    "market.versiones": {
+      "src": "0299c38fd9e11cf9",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-11T00:47:32.139Z",
+      "approvedAt": "2026-10-11T00:47:32.139Z"
+    },
     "menu.edit": {
       "src": "2eba946b2e1ee4b6",
       "area": "titlebar",

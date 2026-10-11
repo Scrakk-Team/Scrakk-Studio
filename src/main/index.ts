@@ -18,6 +18,7 @@ import { registerTerminalIpc } from './ipc/terminal'
 import { registerGitIpc } from './ipc/git'
 import { registerAccountIpc } from './account'
 import { registerSocialIpc } from './social'
+import { registerMarketIpc } from './ipc/market'
 import { registerScrakkIpc } from './scrakk'
 import { registerModelsDevIpc } from './models-dev'
 import { registerWebIpc } from './web'
@@ -93,6 +94,7 @@ if (!gotTheLock) {
     registerGitIpc()
     registerAccountIpc()
     registerSocialIpc()
+    registerMarketIpc()
     registerScrakkIpc()
     registerModelsDevIpc()
     registerWebIpc()

@@ -125,28 +125,37 @@ async function readSourceSidecar(dir: string): Promise<{ source?: ExtensionSourc
   return { source: 'sef' }
 }
 
+/** Instala un `.sef` ya en memoria (lo usan el IPC y la tienda). */
+export async function installSefFromBuffer(buffer: Uint8Array): Promise<InstallSefResponse> {
+  try {
+    const parsed = parseSef(buffer)
+
+    const root = await extensionsRoot()
+    const targetDir = path.join(root, parsed.id)
+    await fs.rm(targetDir, { recursive: true, force: true })
+    await fs.mkdir(targetDir, { recursive: true })
+
+    for (const [relative, data] of parsed.files) {
+      const target = path.join(targetDir, relative)
+      const normalized = path.normalize(relative)
+      if (normalized.includes('..') || path.isAbsolute(normalized)) continue
+      await fs.mkdir(path.dirname(target), { recursive: true })
+      await fs.writeFile(target, data)
+    }
+
+    return { success: true, extension: manifestInfo(targetDir, parsed.manifest) }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
+
 export function registerExtensionsIpc(): void {
   ipcMain.handle(
     EXTENSIONS_IPC.installSef,
     async (_event, request: InstallSefRequest): Promise<InstallSefResponse> => {
       try {
         const buffer = await fs.readFile(request.path)
-        const parsed = parseSef(new Uint8Array(buffer))
-
-        const root = await extensionsRoot()
-        const targetDir = path.join(root, parsed.id)
-        await fs.rm(targetDir, { recursive: true, force: true })
-        await fs.mkdir(targetDir, { recursive: true })
-
-        for (const [relative, data] of parsed.files) {
-          const target = path.join(targetDir, relative)
-          const normalized = path.normalize(relative)
-          if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-          await fs.mkdir(path.dirname(target), { recursive: true })
-          await fs.writeFile(target, data)
-        }
-
-        return { success: true, extension: manifestInfo(targetDir, parsed.manifest) }
+        return await installSefFromBuffer(new Uint8Array(buffer))
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) }
       }

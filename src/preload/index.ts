@@ -46,6 +46,7 @@ import {
 import { WINDOW_CONTROLS_IPC, I18N_IPC, type WindowApi } from '@shared/window-controls'
 import { SCREENSHOT_IPC } from '@shared/screenshot'
 import { ACCOUNT_IPC } from '@shared/account'
+import { MARKET_IPC, type MarketApi } from '@shared/market'
 import { MODELS_DEV_IPC, type ModelsDevCatalog } from '@shared/modelsDev'
 import { WEB_IPC, type WebFetchRequest, type WebSearchRequest } from '@shared/web'
 import {
@@ -496,6 +497,25 @@ const api: WindowApi = {
     setDefault: (accountId: string) => ipcRenderer.invoke(ACCOUNT_IPC.setDefault, accountId),
     removeAccount: (accountId: string) => ipcRenderer.invoke(ACCOUNT_IPC.removeAccount, accountId)
   },
+  market: {
+    search: (req) => ipcRenderer.invoke(MARKET_IPC.search, req),
+    categories: () => ipcRenderer.invoke(MARKET_IPC.categories),
+    get: (slug: string) => ipcRenderer.invoke(MARKET_IPC.get, slug),
+    mine: (accountId: string) => ipcRenderer.invoke(MARKET_IPC.mine, accountId),
+    upsert: (accountId: string, req) => ipcRenderer.invoke(MARKET_IPC.upsert, accountId, req),
+    remove: (accountId: string, slug: string) =>
+      ipcRenderer.invoke(MARKET_IPC.remove, accountId, slug),
+    rate: (accountId: string, req) => ipcRenderer.invoke(MARKET_IPC.rate, accountId, req),
+    ratings: (accountId: string | null, slug: string) =>
+      ipcRenderer.invoke(MARKET_IPC.ratings, accountId, slug),
+    report: (accountId: string, req) => ipcRenderer.invoke(MARKET_IPC.report, accountId, req),
+    uploadImage: (accountId: string, image) =>
+      ipcRenderer.invoke(MARKET_IPC.uploadImage, accountId, image),
+    resolveRelease: (input) => ipcRenderer.invoke(MARKET_IPC.resolveRelease, input),
+    install: (accountId: string | null, slug: string) =>
+      ipcRenderer.invoke(MARKET_IPC.install, accountId, slug),
+    refresh: (accountId: string) => ipcRenderer.invoke(MARKET_IPC.refresh, accountId)
+  } satisfies MarketApi,
   social: {
     watch: (accountId: string) => ipcRenderer.invoke(SOCIAL_IPC.watch, accountId),
     listFriends: (accountId: string) => ipcRenderer.invoke(SOCIAL_IPC.listFriends, accountId),
