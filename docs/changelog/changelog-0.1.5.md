@@ -15,7 +15,7 @@ published are not edited. The file goes per version:
 
 ---
 
-## 0.1.5 — Windows fixes & UI
+## 0.1.5 — Windows fixes, UI & the extension store
 
 ### Terminal (Windows)
 - **The integrated terminal now loads on Windows.** The shell was resolved with
@@ -79,3 +79,22 @@ published are not edited. The file goes per version:
 - **Removed the profile button from the panel header.** Your profile is still one
   click away: the "me" card opens the accounts view and clicking your account
   there opens the profile.
+
+### Extension store
+- **The extensions panel is now a store** (metadata only — we do not host the
+  `.sef`). You paste the link to your **GitHub** or **GitLab** repo and the app
+  finds the `.sef` asset in the **latest release** and installs it from there.
+- Browse with **full-text search** and categories coming from the data (no
+  hardcoded list), cards with **verified** badges, and a detail view with icon,
+  screenshots, a **YouTube/Vimeo preview**, the repo link, the latest version,
+  **ratings** (one per user) and a report button.
+- **Publish from your account** (the same account as the social panel): name,
+  summary, description, repo + asset name, categories, license, video link, an
+  icon and up to **3 screenshots** (images are uploaded).
+- **Auto-update + cache**: a refresh job resolves each of your extensions'
+  latest release into the cache, and store-installed extensions carry a
+  `.market.json` sidecar so a newer release is detected and installed on the
+  next boot.
+- **Verification** for accounts and extensions (checkmark). A minimal local
+  admin app (`tools/admin/`, Python + Tkinter) searches accounts (name + image)
+  and extensions and toggles `verified` (and the status).
