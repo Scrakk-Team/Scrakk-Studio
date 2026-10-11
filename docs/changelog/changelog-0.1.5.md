@@ -104,10 +104,10 @@ published are not edited. The file goes per version:
   surfaces the error when the call fails.
 
 ### Extension authoring (SEF CLI)
-- **The SEF tooling is now a standalone package**, `@scrakk-official/cli`
-  (`packages/cli`), published to npm and runnable as `npx @scrakk-official/cli`
-  (binary `sef`). `create` / `build` / `pack` / `validate` are the same commands
-  the repo already exposed through `npm run sef:*`, so one source now serves the
-  IDE and external authors. Releases are published from CI on `cli-v*` tags via
-  npm Trusted Publishing, and the same run attaches `cli.tgz` + `install.sh` to
-  the GitHub Release as a registry-free fallback.
+- **The SEF tooling moved to its own repo**, `Scrakk-Team/sef-builder`, and is
+  published to npm as `@scrakk-official/cli` (binary `sef`). `create` / `build` /
+  `pack` / `validate` are the same commands, now installable by any author with
+  `npm install -g @scrakk-official/cli`. The CLI keeps its own release channel
+  (npm plus its GitHub Release, with a registry-free `cli.tgz` + `install.sh`
+  fallback), so Scrakk Studio's releases and auto-update are untouched. In
+  exchange the repo no longer ships the `npm run sef:*` scripts.
