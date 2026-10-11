@@ -74,7 +74,12 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
   const manifest = JSON.parse(manifestRes.content) as ExtensionManifest
   if (!manifest?.id) return
   // Desactivada → no registrar (ni en boot ni en vivo sin reactivar antes).
-  if (!isExtensionEnabled(manifest.id)) return
+  if (!isExtensionEnabled(manifest.id)) {
+    // Sin este aviso, "la extensión está desactivada" y "la extensión no
+    // funciona" se ven idénticos desde afuera (el pack de lenguajes incluido).
+    console.info(`[extensions] «${manifest.id}» desactivada: no se registra`)
+    return
+  }
 
   const contributes = manifest.contributes ?? {}
   const needsBundle =

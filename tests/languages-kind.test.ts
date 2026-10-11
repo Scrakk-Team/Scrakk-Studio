@@ -204,6 +204,39 @@ describe('resolveLanguageForPath — el disparador de onLanguage', () => {
   })
 })
 
+describe('resolveLanguageForPath — el pack preinstalado gana los empates', () => {
+  // El pack (`scrakk.langs`) se registra ÚLTIMO. Sin regla de desempate, cualquier
+  // extensión instalada con el mismo `.ext`/glob/nombre le robaba el archivo; si
+  // esa extensión no traía parser `.wasm`, el archivo quedaba sin color aunque el
+  // usuario hubiera elegido tree-sitter.
+  const PACK = 'scrakk.langs'
+
+  it('empate por extensión → gana el pack (en cualquier orden)', () => {
+    const pack = language({ id: 'javascript', extensions: ['.js'], extensionId: PACK })
+    const user = language({ id: 'user-js', extensions: ['.js'], extensionId: 'acme.js' })
+    expect(resolveLanguageForPath('/a/app.js', [user, pack])?.id).toBe('javascript')
+    expect(resolveLanguageForPath('/a/app.js', [pack, user])?.id).toBe('javascript')
+  })
+
+  it('empate por glob → gana el pack', () => {
+    const pack = language({ id: 'markdown', filenamePatterns: ['*.md'], extensionId: PACK })
+    const user = language({ id: 'user-md', filenamePatterns: ['*.md'], extensionId: 'acme.md' })
+    expect(resolveLanguageForPath('/a/x.md', [user, pack])?.id).toBe('markdown')
+  })
+
+  it('empate por nombre exacto → gana el pack', () => {
+    const pack = language({ id: 'dockerfile', filenames: ['Dockerfile'], extensionId: PACK })
+    const user = language({ id: 'user-docker', filenames: ['Dockerfile'], extensionId: 'acme.docker' })
+    expect(resolveLanguageForPath('/a/Dockerfile', [user, pack])?.id).toBe('dockerfile')
+  })
+
+  it('sin empate, un patrón MÁS específico le sigue ganando al pack', () => {
+    const pack = language({ id: 'typescript', extensions: ['.ts'], extensionId: PACK })
+    const user = language({ id: 'ts-decl', extensions: ['.d.ts'], extensionId: 'acme.dts' })
+    expect(resolveLanguageForPath('/a/tipos.d.ts', [pack, user])?.id).toBe('ts-decl')
+  })
+})
+
 describe('resolveLanguageByFirstLine — shebang', () => {
   it('encuentra el lenguaje por la primera línea', () => {
     const python = language({ id: 'python', firstLine: '^#!/.*\\bpython[0-9.]*\\b' })

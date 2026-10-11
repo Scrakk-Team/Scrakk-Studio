@@ -384,6 +384,27 @@ function extensionCount(language: RegisteredLanguage): number {
 }
 
 /**
+ * Id del pack de lenguajes PREINSTALADO (`resources/langs`).
+ *
+ * En un empate de especificidad gana él: es la línea base que shippea el IDE y
+ * siempre trae parser tree-sitter (`.wasm`) + queries usables. Sin esta regla el
+ * desempate era "el primero que se registró" y el pack se registra ÚLTIMO, así
+ * que cualquier extensión instalada que declarara el mismo `.ext`/glob/filename
+ * le robaba el archivo; si esa extensión no traía `.wasm`, el archivo quedaba
+ * sin color aunque el usuario hubiera elegido tree-sitter, y sin ningún error
+ * que lo explicara.
+ */
+export const LANGS_PACK_ID = 'scrakk.langs'
+
+/** En un empate exacto gana el pack preinstalado; si no, el primero (`a`). */
+function preferPack(a: RegisteredLanguage, b: RegisteredLanguage): RegisteredLanguage {
+  const aPack = a.extensionId === LANGS_PACK_ID
+  const bPack = b.extensionId === LANGS_PACK_ID
+  if (aPack === bPack) return a
+  return aPack ? a : b
+}
+
+/**
  * Elige el lenguaje de un archivo por asociación declarada.
  *
  * Orden (el de VS Code): nombre exacto → glob → extensión más larga → nada.
@@ -402,12 +423,12 @@ export function resolveLanguageForPath(
   if (candidates.length === 0) return null
 
   // 1. Nombre exacto (case-sensitive primero, después sin distinguir).
-  const byFilename = candidates.find((language) => language.filenames.includes(name))
-  if (byFilename) return byFilename
-  const byFilenameLoose = candidates.find((language) =>
+  const byFilename = candidates.filter((language) => language.filenames.includes(name))
+  if (byFilename.length > 0) return byFilename.reduce((a, b) => preferPack(a, b))
+  const byFilenameLoose = candidates.filter((language) =>
     language.filenames.some((filename) => filename.toLowerCase() === name.toLowerCase())
   )
-  if (byFilenameLoose) return byFilenameLoose
+  if (byFilenameLoose.length > 0) return byFilenameLoose.reduce((a, b) => preferPack(a, b))
 
   // 2. Glob, con el patrón más largo ganando (más específico).
   let bestPattern: { language: RegisteredLanguage; length: number } | null = null
@@ -416,6 +437,8 @@ export function resolveLanguageForPath(
       if (!globToRegExp(pattern).test(name) && !globToRegExp(pattern).test(path)) continue
       if (!bestPattern || pattern.length > bestPattern.length) {
         bestPattern = { language, length: pattern.length }
+      } else if (pattern.length === bestPattern.length) {
+        bestPattern = { language: preferPack(language, bestPattern.language), length: pattern.length }
       }
     }
   }
@@ -429,6 +452,11 @@ export function resolveLanguageForPath(
       if (!lowerName.endsWith(extension.toLowerCase())) continue
       if (!bestExtension || extension.length > bestExtension.length) {
         bestExtension = { language, length: extension.length }
+      } else if (extension.length === bestExtension.length) {
+        bestExtension = {
+          language: preferPack(language, bestExtension.language),
+          length: extension.length
+        }
       }
     }
   }

@@ -49,7 +49,6 @@ import { applyInnertaFolds, innertaFoldsState } from './hostBridge'
 import {
   dynamicGrammarOf,
   grammarEnginePreference,
-  hasTextMateGrammar,
   resolveLanguage,
   selectGrammarEngine,
   GRAMMAR_ENGINE_EVENT
@@ -211,10 +210,17 @@ export function refreshDynamicHighlight(
    * Explica por qué NO se tokenizó. Sólo al abrir el archivo (no en cada
    * tecla): sin esto, "el archivo no tiene color" no se puede diagnosticar — el
    * camino dinámico es silencioso por diseño (no hay gramática ≠ hay error).
+   *
+   * `expected` = es una situación NORMAL (el usuario eligió TextMate, el
+   * lenguaje no tiene parser pero igual pinta el motor). Los normales van a
+   * `debug`; los inesperados van a `warn`, que se ve en la consola sin tener que
+   * activar el nivel Verbose — si no, el motivo existía pero no lo veía nadie.
    */
-  const explain = (reason: string): void => {
+  const explain = (reason: string, expected = false): void => {
     if (!options.immediate) return
-    console.debug(`[languages] sin tree-sitter dinámico (${reason}): ${path}`)
+    const line = `[languages] sin tree-sitter dinámico (${reason}): ${path}`
+    if (expected) console.debug(line)
+    else console.warn(line)
   }
 
   const run = (): void => {
@@ -226,7 +232,10 @@ export function refreshDynamicHighlight(
 
     const language = resolveLanguage(path, options.languageId)
     if (!language) {
-      explain('ninguna extensión registró este lenguaje')
+      // Normal para un archivo sin lenguaje declarado (.txt, .log…): no es un
+      // síntoma. Si el archivo SÍ debería tener lenguaje, el problema está en el
+      // registro de la extensión, no acá.
+      explain('ninguna extensión registró este lenguaje', true)
       return
     }
     // La preferencia del usuario manda: si eligió TextMate (o `auto` con
@@ -237,18 +246,28 @@ export function refreshDynamicHighlight(
       // Si veníamos publicando (el usuario cambió de motor), se limpia: los
       // folds del árbol no pueden quedar en un archivo que ahora pinta TextMate.
       if (published.get(mod)) clearDynamicHighlight(mod, path)
-      // El motivo distingue las TRES situaciones, porque cada una se arregla
-      // distinto: el usuario eligió otro motor, eligió TextMate y el lenguaje no
-      // lo trae, o el paquete no declara ninguna gramática.
-      const reason =
-        choice === 'textMate'
-          ? 'el motor elegido es TextMate'
-          : grammarEnginePreference() === 'textMate'
-            ? 'el motor elegido es TextMate y este lenguaje no trae .tmLanguage'
-            : hasTextMateGrammar(language)
-              ? 'el lenguaje tiene gramática TextMate'
-              : 'sin gramática usable'
-      explain(reason)
+      // El motivo distingue la situación REAL, porque cada una se arregla
+      // distinto. En particular, "elegiste tree-sitter y este lenguaje no trae
+      // .wasm" casi siempre significa que OTRA extensión le ganó el archivo al
+      // pack preinstalado (mismo `.ext`/glob/filename): se reporta con el id de
+      // la extensión que ganó, que es el dato que lo destapa.
+      const preference = grammarEnginePreference()
+      const treeSitter = dynamicGrammarOf(language) !== null
+
+      if (choice === 'textMate' && preference === 'treeSitter' && !treeSitter) {
+        explain(
+          `elegiste tree-sitter pero «${language.id}» (${language.extensionId}) no trae parser .wasm`,
+          false
+        )
+      } else if (choice === 'textMate' && preference === 'textMate') {
+        explain('el motor elegido es TextMate', true)
+      } else if (choice === 'textMate') {
+        explain('auto: el lenguaje tiene gramática TextMate', true)
+      } else if (preference === 'textMate') {
+        explain('el motor elegido es TextMate y este lenguaje no trae .tmLanguage', true)
+      } else {
+        explain(`${language.id} (${language.extensionId}) sin gramática usable`, false)
+      }
       return
     }
     const grammar = dynamicGrammarOf(language)
