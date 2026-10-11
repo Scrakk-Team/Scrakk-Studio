@@ -1,3 +1,7 @@
+# Copyright 2026 Scrakk Studio
+# SPDX-License-Identifier: Apache-2.0
+# Licencia completa en LICENSE (Apache License 2.0).
+
 name: publish-cli
 
 # Publishes @scrakk-official/cli to npm when a `cli-v*` tag is pushed.
@@ -26,7 +30,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install
         run: npm install --no-audit --no-fund
