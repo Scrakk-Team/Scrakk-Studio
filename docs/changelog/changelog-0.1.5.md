@@ -91,6 +91,32 @@ published are not edited. The file goes per version:
   until it sits next to the left chips. Past that it becomes an icon-only button
   like the bell/settings, and it is not painted when there is no room at all.
 
+### Workspaces (titlebar)
+- **The workspace history is paginated.** The popover was a `max-height: 320px`
+  scroller, so a long history turned it into a scroll box; it now shows **6 cards
+  per page**, and the pager lives in the header (see below).
+- **The pager sits in the popover header**, next to the "Workspaces" title, and
+  its arrows are the ContextMenu chevron SVGs instead of text glyphs. For that,
+  an anchored modal can now opt out of the host's title bar (`hideHeader`) and
+  paint its own: the header is rendered outside the body component, so a pager
+  up there could not otherwise share its page state with the list.
+- **The cards are compact and borderless.** The 1px border is gone and each card
+  shrank — padding `8px` → `4px 6px`, radius 12 → 8, name 13 → 12px, path
+  11 → 10px, folder icon 15 → 13px — so more of them fit per page.
+- **The "Add workspace" button is a menu-style row, not a full-width bar.** It no
+  longer spans the popover (`width: 100%`), it is smaller, it sits at the bottom,
+  and its hover now matches the ContextMenu items: a `--color-hover` block with
+  the text going to full colour.
+- **The "ACTIVO" badge is gone.** The active workspace is still marked by the
+  accent tinted background (and `aria-selected`), so the label was redundant.
+
+### Panels (UI)
+- **The resize handle converts instead of switching.** On hover it shows the
+  three dots; pressing used to swap them for the line in a single frame. The dots
+  now **stretch and merge into the line** (~150ms) and go back to dots on release,
+  with the line settling on top — so it reads as one liquid movement. Respects
+  `prefers-reduced-motion`.
+
 ### Extensions
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
   build and contributed a side panel, an activity-bar button and a "Dashboard"
@@ -119,6 +145,12 @@ published are not edited. The file goes per version:
 - **The composer's emoji and "+" buttons now sit together and centred with the
   input line**, with a smaller hover and a separator on the right of the "+",
   instead of being spread apart and sitting low.
+- **The composer's send button is gone.** Messages go out with **Enter** (and
+  `Shift+Enter` inserts a line break) — that was already the way the input is
+  used, so the accent square on the right was a second control for the same
+  action and only took width away from the text field. Emoji and image
+  attachments are untouched; the validation that used to disable the button is
+  the same one that `submit` applies on its own.
 - **A verified account now shows the check — yours included.** The social RPCs
   did not return `verified` at all, so the badge could never be drawn:
   `list_friends`, `search_users` and `list_requests` now include it (migration
