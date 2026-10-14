@@ -124,9 +124,10 @@ published are not edited. The file goes per version:
   bundles), so a panel can toggle its own look. Values are validated (no CSS
   injection) and a `reset()` always yields back to the active theme. The builtin
   **OpenCode AI** theme already ships with `"radius": "rect"`. The welcome page,
-  the **tool-dock pill** and the small controls (via a new `--radius-xs`) follow
-  it too; round **shapes** — avatars, the presence/resize dots and the tip pills —
-  keep their form on purpose.
+  the **tool-dock pill**, the **activity-bar buttons** (hover and active
+  included) and the small controls (via a new `--radius-xs`) follow it too; round
+  **shapes** — avatars, the presence/resize dots and the tip pills — keep their
+  form on purpose.
 
 ### Extensions
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
