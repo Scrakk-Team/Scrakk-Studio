@@ -2,7 +2,7 @@
 title: "Scrakk API"
 group: extensions
 order: 235
-summary: "The API an extension gets: files, language servers, tooltips, notifications and the chrome radius."
+summary: "The API an extension gets: files, language servers, tooltips, notifications, the chrome radius, palette commands and AI tools."
 ---
 # Extension API
 
@@ -55,6 +55,46 @@ there is a global the app installs at boot:
 window.scrakk.radius.set('rect')       // same values as api.radius.set
 window.scrakk.radius.reset()
 ```
+
+### Commands (the command palette)
+
+A bundle can add its own entries to the command palette:
+
+```js
+window.scrakk.commands.register({
+  id: 'clear',                         // stored as "my-extension:clear"
+  title: 'Canvas: clear the board',
+  category: 'Canvas',
+  run: () => board.clear()
+})
+```
+
+- The id is **namespaced with your extension id** (`my-extension:clear`), so two
+  packages can use the same short id without stepping on each other.
+- `run` is yours: it runs in the renderer, in the same module graph as your
+  panel, so it can share state with it.
+- Register in the **top level of a module that the manifest references** (the
+  panel's, for example): the loader imports those modules when it registers the
+  extension. A registration made later (inside a `setTimeout`, say) has no owner
+  and is dropped with a warning.
+- Uninstalling/disabling the extension removes its commands.
+
+### AI tool handlers (extensions without code)
+
+If your extension is **declarative** (no `runtime`/Extension Host), its tools are
+answered from the bundle instead of the host:
+
+```js
+window.scrakk.tools.register('canvas.draw', (args) => {
+  board.draw(args.shapes)              // args = the tool's JSON arguments
+  return 'Drawn on the board.'         // string, or anything JSON-serializable
+})
+```
+
+The `command` string is the one your manifest declares in
+[`tools`](contributes.md#tools). With a `runtime`, the command goes to the
+Extension Host instead (the VS Code model) — the app picks the path for you, and
+if neither exists the tool answers with a clear error.
 
 Nothing else is exposed there: the rest of the API is per-extension and goes
 through `api` (which is the one behind the permission gate).

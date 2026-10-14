@@ -134,6 +134,18 @@ published are not edited. The file goes per version:
   form on purpose.
 
 ### Extensions
+- **Declarative extensions can now add palette commands and answer AI tools.**
+  Until now the only path to run an extension's code was the Extension Host, so
+  an extension with no `runtime` (just a panel, a theme…) could not execute
+  anything: its `tools` went to a host that did not exist and there was no way to
+  put a command in the command palette at all (the palette only reads the app's
+  registry, and the host's `command/registered` event was never consumed). A
+  bundle now registers both from its own top level:
+  `window.scrakk.commands.register({ id, title, run })` (namespaced with the
+  extension id) and `window.scrakk.tools.register(command, run)`. Registration is
+  attributed to the extension that was being loaded and withdrawn when it is
+  uninstalled or disabled, so no ghost commands survive. With a `runtime` the
+  command still goes to the host, exactly as before.
 - **An installed `.sef` with a panel now actually loads.** A bundle leaves
   `react` (and `@features/layout`) as **bare specifiers** and the loader imported
   it as a `data:` URL — which cannot resolve bare specifiers — so the import threw

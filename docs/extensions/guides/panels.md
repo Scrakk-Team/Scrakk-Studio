@@ -60,7 +60,8 @@ The app provides the imports a bundle can use: `react`, `react-dom` (and
 `react-dom/client`), `react/jsx-runtime` and `@features/layout`. Do **not** bundle
 your own React — the hooks and the tree have to share the app's copy. Anything
 else the IDE exposes goes through `window.scrakk` (see
-[Scrakk API](../reference/api.md)).
+[Scrakk API](../reference/api.md)) — including adding entries to the **command
+palette** from your panel's own code.
 
 ## Header actions
 
