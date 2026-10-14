@@ -34,8 +34,8 @@
   /* Píldora pegada al fondo: solo las esquinas de ARRIBA redondeadas.
      Mismo fondo que la statusbar (chrome, no surface-raised) y OPACO: antes
      era un color-mix al 80% con transparent, así que el contenido se veía
-     a través de la píldora. */
-  border-radius: 8px 8px 0 0;
+     a través de la píldora. El radio sale del token (`rect` la deja plana). */
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: var(--statusbar-bg, var(--color-surface));
   flex-wrap: wrap;
   pointer-events: auto;
@@ -52,7 +52,7 @@
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: none;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -87,7 +87,7 @@
   display: flex;
   flex-direction: column;
   border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
-  border-radius: var(--radius-md, 10px);
+  border-radius: var(--radius-panel, var(--radius-md, 10px));
   background: var(--color-bg);
   overflow: hidden;
   z-index: 99; /* sobre contenido de paneles, DEBAJO de Modal (100) y ContextMenu (9999) */
