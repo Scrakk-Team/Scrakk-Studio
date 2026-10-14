@@ -107,6 +107,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
@@ -217,6 +218,47 @@
 /* Botones de la fila: rectangulares y discretos; el loader animado es el
    mismo que ya existía. */
 .rowActions button {
+  border-radius: var(--radius-input);
+  padding: 3px 10px;
+  font-size: 11px;
+}
+
+/* ── Requisitos del lenguaje (prerrequisitos faltantes) ───────────────────── */
+
+/* Fila propia DEBAJO de la del server (ancho completo). Sin caja: mismo fondo
+   que el resto (transparente) y tipografía normal. */
+.requires {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+}
+
+.requireRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.requireLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.requireLabel strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.requireHint {
+  font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.requireRow button {
   border-radius: var(--radius-input);
   padding: 3px 10px;
   font-size: 11px;

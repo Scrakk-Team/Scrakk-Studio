@@ -70,5 +70,5 @@ export function initLspWorkspaceSync(): void {
   })
 }
 export { aggregateServerState, type AggregateLspState } from './aggregate'
-export { lspRestartServer, lspInstallServer } from './api'
+export { lspRestartServer, lspInstallServer, lspInstallRequirement } from './api'
 export { decodeSemanticTokens, type DecodedSemanticToken } from './semanticTokens'

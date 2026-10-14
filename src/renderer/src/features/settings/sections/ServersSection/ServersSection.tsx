@@ -15,6 +15,7 @@ import {
   lspStatus,
   lspRestartServer,
   lspInstallServer,
+  lspInstallRequirement,
   aggregateServerState,
   onLspServerEvent,
   onLspInstallProgress,
@@ -97,6 +98,7 @@ interface ServerRowProps {
 
 function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
   const [busy, setBusy] = useState<'restart' | 'install' | 'toggle' | null>(null)
+  const [busyReq, setBusyReq] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState<LspInstallProgressPayload | null>(null)
   const disabled = server.disabled === true
@@ -137,6 +139,21 @@ function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
     setProgress(null)
   }, [server.name, onRefresh])
 
+  const handleInstallRequirement = useCallback(
+    async (requirementId: string) => {
+      setBusyReq(requirementId)
+      setError(null)
+      setProgress(null)
+      const res = await withMinLoading(lspInstallRequirement(server.name, requirementId))
+      notifyInstallResult(server.name, res)
+      if (!res.ok) setError(res.error ?? t('settings.error.al.instalar'))
+      await onRefresh()
+      setBusyReq(null)
+      setProgress(null)
+    },
+    [server.name, onRefresh]
+  )
+
   const handleToggle = useCallback(async () => {
     setBusy('toggle')
     setError(null)
@@ -152,6 +169,9 @@ function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
   // Fase a mostrar como tooltip del botón que carga (el % sólo existe en la
   // descarga real; el resto es texto de fase).
   const installLabel = progress ? installProgressText(progress) : t('settings.instalando')
+
+  // Requisitos del lenguaje que faltan (ej. el toolchain de Go para gopls).
+  const missingReqs = (server.requires ?? []).filter((req) => !req.available)
 
   return (
     <div className={[styles.row, disabled ? styles.rowDisabled : null].filter(Boolean).join(' ')}>
@@ -188,21 +208,25 @@ function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
         {/*
           Encender/apagar: la decisión se persiste y se empuja al main, que es
           quien la aplica al arrancar (un server apagado no corre EN REALIDAD,
-          no sólo se ve gris aquí).
+          no sólo se ve gris aquí). Sólo se muestra si hay algo que apagar: un
+          server sin instalar no está corriendo, así que no ofrece "Apagar"
+          (y si el usuario lo apagó antes, sí ofrece "Encender").
         */}
-        <LoadingButton
-          loading={busy === 'toggle'}
-          loadingLabel={disabled ? t('settings.apagando') : t('settings.encendiendo')}
-          disabled={busy !== null}
-          onClick={() => void handleToggle()}
-          title={
-            disabled
-              ? t('settings.volver.a.arrancar.este.server')
-              : t('settings.no.arrancar.este.server.ni')
-          }
-        >
-          {disabled ? t('settings.encender') : t('settings.apagar')}
-        </LoadingButton>
+        {disabled || server.available ? (
+          <LoadingButton
+            loading={busy === 'toggle'}
+            loadingLabel={disabled ? t('settings.apagando') : t('settings.encendiendo')}
+            disabled={busy !== null}
+            onClick={() => void handleToggle()}
+            title={
+              disabled
+                ? t('settings.volver.a.arrancar.este.server')
+                : t('settings.no.arrancar.este.server.ni')
+            }
+          >
+            {disabled ? t('settings.encender') : t('settings.apagar')}
+          </LoadingButton>
+        ) : null}
         {disabled || !server.available ? null : (
           <LoadingButton
             loading={busy === 'restart'}
@@ -213,7 +237,7 @@ function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
             {t('settings.reiniciar')}
           </LoadingButton>
         )}
-        {installable && !disabled ? (
+        {installable && !disabled && server.canInstall ? (
           <LoadingButton
             loading={busy === 'install'}
             loadingLabel={installLabel}
@@ -225,6 +249,31 @@ function ServerRow({ server, onRefresh }: ServerRowProps): JSX.Element {
           </LoadingButton>
         ) : null}
       </div>
+
+      {!disabled && missingReqs.length > 0 ? (
+        <div className={styles.requires}>
+          {missingReqs.map((req) => (
+            <div key={req.id} className={styles.requireRow}>
+              <span className={styles.requireLabel}>
+                {t('settings.requiere')} <strong>{req.label}</strong>
+              </span>
+              {req.installable ? (
+                <LoadingButton
+                  loading={busyReq === req.id}
+                  loadingLabel={t('settings.instalando')}
+                  disabled={busy !== null || busyReq !== null}
+                  onClick={() => void handleInstallRequirement(req.id)}
+                  title={t('settings.instalar.requisito.del.lenguaje')}
+                >
+                  {t('settings.instalar')}
+                </LoadingButton>
+              ) : (
+                <span className={styles.requireHint}>{req.command}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }

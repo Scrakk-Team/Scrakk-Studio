@@ -38,9 +38,11 @@ import {
   BUILTIN_SERVERS,
   discoverBuiltinServers,
   builtinAvailability,
-  commandResolves
+  commandResolves,
+  requirementStatuses,
+  serverCanInstall
 } from './builtinServers'
-import { downloadsDisabled, install, resolveManagedCommand, managedNpmDir, type InstallRecipe } from './install'
+import { downloadsDisabled, install, installRequirement, resolveManagedCommand, managedNpmDir, type InstallRecipe } from './install'
 import { loadConfiguredServers } from './config'
 import { resolveServers } from './routing'
 
@@ -460,7 +462,7 @@ export class LspManager {
       onState: (state, error) => {
         this.emitEvent({ serverName, state, error })
       },
-      onProcessExit: (_code, stderrTail) => void this.handleCrash(serverName, root, stderrTail),
+      onProcessExit: (code, stderrTail) => void this.handleCrash(serverName, root, stderrTail, code),
       onProgress: (payload) => this.emitProgress?.(payload)
     })
 
@@ -887,6 +889,13 @@ export class LspManager {
           extensions: Object.keys(config?.extensions ?? {}),
           ...(this.dynamicOwnerOf(name) ? { extensionId: this.dynamicOwnerOf(name) } : {}),
           ...(this.disabledServers.has(name) ? { disabled: true } : {}),
+          ...(() => {
+            const requires = requirementStatuses(name)
+            return requires.length > 0 ? { requires } : {}
+          })(),
+          canInstall:
+            serverCanInstall(name) ||
+            !!this.allDynamicDefs().find((candidate) => candidate.id === name)?.install,
           error
         })
       }
@@ -908,15 +917,20 @@ export class LspManager {
   private async handleCrash(
     serverName: string,
     root: string,
-    stderrTail?: string
+    stderrTail?: string,
+    exitCode?: number | null
   ): Promise<void> {
     const clientKey = this.clientKey(serverName, root)
     this.clients.delete(clientKey)
 
     const hint = crashHint(stderrTail ?? '')
-    const detail = [stderrTail?.split('\n').filter(Boolean).pop(), hint]
-      .filter(Boolean)
-      .join(' · ')
+    // Nunca dejar `detail` vacío: si el server no imprimió nada por stderr
+    // (p. ej. terraform-ls sin `serve`, que escribe la ayuda en stdout), el
+    // usuario veía "fallo desconocido". El código de salida siempre existe.
+    const tail = stderrTail?.split('\n').filter(Boolean).pop()
+    const detail =
+      [tail, hint].filter(Boolean).join(' · ') ||
+      `el proceso terminó (código ${exitCode ?? 'desconocido'})`
 
     // Sin restartOnCrash: contar muertes SÚBITAS seguidas y bloquear el
     // auto-start tras 3 — evita el spam de spawn/muerte por cada archivo.
@@ -1076,6 +1090,32 @@ export class LspManager {
   getRunningPid(serverName: string): number | undefined {
     const entry = [...this.clients.entries()].find(([key]) => key.startsWith(`${serverName}@`))
     return entry?.[1].pid
+  }
+
+  /**
+   * Instala un REQUISITO del lenguaje (p. ej. el toolchain de Go) y, si queda,
+   * instala el propio server (que recién ahí puede compilarse/instalarse).
+   */
+  async installRequirementNow(
+    serverName: string,
+    requirementId: string
+  ): Promise<{ ok: boolean; error?: string }> {
+    if (downloadsDisabled()) {
+      return { ok: false, get error() { return t('main.descargas.deshabilitadas.scrakk.disable.lsp') } }
+    }
+    const root = this.roots.find((r) => this.serversByRoot.get(r)?.[serverName])
+    if (!root) return { ok: false, get error() { return t('main.server.no.registrado') } }
+
+    const emit = (progress: Omit<LspInstallProgressPayload, 'serverName'>): void =>
+      this.emitInstallProgress?.({ serverName, ...progress })
+
+    try {
+      await installRequirement(requirementId, emit)
+      // Con el requisito resuelto, el server ya se puede instalar.
+      return await this.installNow(serverName)
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : String(error) }
+    }
   }
 
   async shutdownAll(): Promise<void> {

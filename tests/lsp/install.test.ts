@@ -42,7 +42,15 @@ describe('buildInstallCommand', () => {
   it('npm instala con --prefix gestionado', () => {
     const cmd = buildInstallCommand({ kind: 'npm', package: 'pyright' })
     expect(cmd.cmd).toBe('npm')
-    expect(cmd.args).toEqual(['install', '--prefix', managedNpmDir(), 'pyright'])
+    expect(cmd.args).toEqual([
+      'install',
+      '--prefix',
+      managedNpmDir(),
+      '--legacy-peer-deps',
+      '--no-audit',
+      '--no-fund',
+      'pyright'
+    ])
   })
 
   it('go instala con GOBIN en el dir gestionado', () => {

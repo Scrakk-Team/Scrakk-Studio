@@ -370,6 +370,11 @@ const api: WindowApi = {
       ipcRenderer.invoke(LSP_IPC.restartServer, { serverName }) as Promise<LspServerActionResult>,
     installServer: (serverName: string) =>
       ipcRenderer.invoke(LSP_IPC.installServer, { serverName }) as Promise<LspServerActionResult>,
+    installRequirement: (serverName: string, requirementId: string) =>
+      ipcRenderer.invoke(LSP_IPC.installRequirement, {
+        serverName,
+        requirementId
+      }) as Promise<LspServerActionResult>,
     registerDynamicServers: (sourceId: string, servers: RegisterDynamicServersRequest['servers']) =>
       ipcRenderer.invoke(LSP_IPC.registerDynamicServers, {
         sourceId,

@@ -43,6 +43,11 @@ export const LSP_IPC = {
   /** Fuerza instalación de la receta de un builtin (si tiene). */
   installServer: 'lsp:install-server',
   /**
+   * Instala un REQUISITO de un server (p. ej. el toolchain de Go para gopls)
+   * cuando falta en el sistema.
+   */
+  installRequirement: 'lsp:install-requirement',
+  /**
    * Tipo de extensión 'lspServers': registra/quit servers aportados por una
    * extensión (.sef o builtin). Prioridad: user > project > dynamic > builtin.
    */
@@ -162,9 +167,34 @@ export interface LspServerStatus {
    * la que se registró, para poder apagarlo desde Ajustes sabiendo de quién es.
    */
   extensionId?: string
+  /**
+   * true si hay receta para instalarlo (o un requisito instalable): si es
+   * false, la UI NO muestra el botón Instalar (en vez de fallar con "sin
+   * receta").
+   */
+  canInstall: boolean
   /** El usuario lo apagó: no arranca (y se ve como tal, no como "detenido"). */
   disabled?: boolean
+  /**
+   * Requisitos del LANGUAGE (prerrequisitos del server): p. ej. gopls necesita
+   * el toolchain de Go. Si `available: false`, la UI lo muestra debajo del
+   * server con su botón Instalar.
+   */
+  requires?: LspRequirementStatus[]
   error?: string
+}
+
+/** Estado de UN requisito de un server. */
+export interface LspRequirementStatus {
+  id: string
+  /** Nombre a mostrar (ej. "Go (toolchain)"). */
+  label: string
+  /** Ejecutable que se buscó en el PATH. */
+  command: string
+  /** true si el ejecutable existe en el sistema. */
+  available: boolean
+  /** true si hay receta para instalarlo desde la app. */
+  installable: boolean
 }
 
 export interface LspServerEventPayload {
@@ -350,6 +380,8 @@ export interface LspApi {
   restartServer(serverName: string): Promise<LspServerActionResult>
   /** Instala la receta del server si no está en el sistema. */
   installServer(serverName: string): Promise<LspServerActionResult>
+  /** Instala un REQUISITO (prerrequisito del lenguaje) de un server. */
+  installRequirement(serverName: string, requirementId: string): Promise<LspServerActionResult>
   /** Tipo de extensión 'lspServers': registra servers dinámicos. */
   registerDynamicServers(sourceId: string, servers: DynamicLspServerDef[]): Promise<RegisterDynamicServersResponse>
   removeDynamicServers(sourceId: string): Promise<{ ok: boolean }>

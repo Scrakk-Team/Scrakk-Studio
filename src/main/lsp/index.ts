@@ -184,6 +184,12 @@ export function registerLspIpc(): void {
     LSP_IPC.installServer,
     (_event, request: { serverName: string }) => manager.installNow(request.serverName)
   )
+
+  ipcMain.handle(
+    LSP_IPC.installRequirement,
+    (_event, request: { serverName: string; requirementId: string }) =>
+      manager.installRequirementNow(request.serverName, request.requirementId)
+  )
 }
 
 /** Acceso directo al manager (para tests y futuros módulos main). */

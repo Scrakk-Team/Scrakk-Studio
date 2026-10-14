@@ -671,3 +671,12 @@ export async function lspInstallServer(serverName: string): Promise<LspServerAct
   if (!window.api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
   return window.api.lsp.installServer(serverName)
 }
+
+/** Instala un requisito del lenguaje (prerrequisito) de un server. */
+export async function lspInstallRequirement(
+  serverName: string,
+  requirementId: string
+): Promise<LspServerActionResult> {
+  if (!window.api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
+  return window.api.lsp.installRequirement(serverName, requirementId)
+}

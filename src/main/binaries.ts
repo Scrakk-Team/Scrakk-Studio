@@ -121,6 +121,10 @@ export function extraBinDirs(
     const programFiles = env['ProgramFiles'] ?? t('main.c.program.files')
     return [
       path.join(appData, 'npm'),
+      path.join(home, '.scrakk', 'toolchains', 'go', 'go', 'bin'),
+      path.join(home, '.scrakk', 'toolchains', 'dart', 'bin'),
+      path.join(home, '.scrakk', 'lsp', 'bin'),
+      path.join(home, '.scrakk', 'lsp', 'npm', 'node_modules', '.bin'),
       path.join(localAppData, 'Volta', 'bin'),
       path.join(home, '.volta', 'bin'),
       path.join(programFiles, 'nodejs'),
@@ -132,6 +136,12 @@ export function extraBinDirs(
   return [
     path.join(home, '.local', 'bin'),
     path.join(home, '.npm-global', 'bin'),
+    // Toolchains que descarga la propia app (gopls → Go).
+    path.join(home, '.scrakk', 'toolchains', 'go', 'go', 'bin'),
+    path.join(home, '.scrakk', 'toolchains', 'dart', 'bin'),
+    // Language servers instalados por la app (github/hashicorp → bin; npm → .bin).
+    path.join(home, '.scrakk', 'lsp', 'bin'),
+    path.join(home, '.scrakk', 'lsp', 'npm', 'node_modules', '.bin'),
     ...versionManagerBinDirs(home),
     path.join(home, '.volta', 'bin'),
     path.join(home, '.fnm', 'aliases', 'default', 'bin'),

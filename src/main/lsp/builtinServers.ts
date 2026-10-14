@@ -20,7 +20,8 @@ import * as path from 'path'
 import type { LspServerConfig } from '@shared/lsp'
 import { resolveExecutable } from '../binaries'
 import { parseLspServerConfig } from './config'
-import type { InstallRecipe } from './install'
+import { canInstallRequirement, type InstallRecipe } from './install'
+import type { LspRequirementStatus } from '@shared/lsp'
 
 import { t } from '@shared/i18n'
 export interface BuiltinServerDef {
@@ -35,6 +36,21 @@ export interface BuiltinServerDef {
   gatedBy?: string
   /** Receta de auto-instalación si el binario no existe. */
   install?: InstallRecipe
+  /**
+   * Prerrequisitos del LENGUAJE que el server necesita para instalarse/correr
+   * (ej. gopls → toolchain de Go). Si faltan, la UI los muestra debajo con su
+   * botón Instalar.
+   */
+  requires?: LspRequirementDef[]
+}
+
+/** Prerrequisito de un server (ej. el toolchain de Go). */
+export interface LspRequirementDef {
+  id: string
+  /** Nombre a mostrar. */
+  label: string
+  /** Ejecutable a detectar en el PATH (aumentado). */
+  command: string
 }
 
 export const BUILTIN_SERVERS: BuiltinServerDef[] = [
@@ -95,7 +111,13 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'rust',
     command: 'rust-analyzer',
     extensions: { '.rs': 'rust' },
-    rootMarkers: [t('main.cargo.toml')]
+    rootMarkers: [t('main.cargo.toml')],
+    install: {
+      kind: 'github',
+      repo: 'rust-lang/rust-analyzer',
+      assetPattern: 'rust-analyzer-x86_64-unknown-linux-gnu\\.gz',
+      binaryPath: 'rust-analyzer'
+    }
   },
   {
     id: 'go',
@@ -103,6 +125,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     extensions: { '.go': 'go' },
     rootMarkers: ['go.mod', 'go.work'],
     install: { kind: 'go', package: 'golang.org/x/tools/gopls@latest' },
+    // gopls se compila con el toolchain de Go: si falta, la app lo descarga.
+    requires: [{ id: 'go', label: 'Go (toolchain)', command: 'go' }]
   },
   {
     id: 'cpp',
@@ -116,7 +140,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'java',
     command: 'jdtls',
     extensions: { '.java': 'java' },
-    rootMarkers: ['pom.xml', 'build.gradle', 'build.gradle.kts', '.git']
+    rootMarkers: ['pom.xml', 'build.gradle', 'build.gradle.kts', '.git'],
+    requires: [{ id: 'java', label: 'Java 21+ (JDK)', command: 'java' }]
   },
   {
     id: 'kotlin',
@@ -143,7 +168,13 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'lua',
     command: 'lua-language-server',
     extensions: { '.lua': 'lua' },
-    rootMarkers: ['.luarc.json', '.git']
+    rootMarkers: ['.luarc.json', '.git'],
+    install: {
+      kind: 'githubTree',
+      repo: 'LuaLS/lua-language-server',
+      assetPattern: 'lua-language-server-.*-linux-x64\\.tar\\.gz',
+      binaryPath: 'bin/lua-language-server'
+    }
   },
   {
     id: 'css',
@@ -190,14 +221,17 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     id: 'elixir',
     command: 'elixir-ls',
     extensions: { '.ex': 'elixir', '.exs': 'elixir' },
-    rootMarkers: ['mix.exs']
+    rootMarkers: ['mix.exs'],
+    requires: [{ id: 'elixir', label: 'Elixir + Erlang', command: 'elixir' }]
   },
   {
     id: 'dart',
     command: 'dart',
     args: ['language-server', '--protocol=lsp4raw'],
     extensions: { '.dart': 'dart' },
-    rootMarkers: ['pubspec.yaml']
+    rootMarkers: ['pubspec.yaml'],
+    // El language server ES `dart language-server`: el SDK es el prerrequisito.
+    requires: [{ id: 'dart', label: 'Dart SDK', command: 'dart' }]
   },
   {
     id: 'prisma',
@@ -210,8 +244,10 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
   {
     id: 'terraform',
     command: 'terraform-ls',
+    args: ['serve'],
     extensions: { '.tf': 'terraform' },
-    rootMarkers: ['.terraform', '*.tf']
+    rootMarkers: ['.terraform', '*.tf'],
+    install: { kind: 'hashicorp', product: 'terraform-ls' }
   },
   {
     id: 'dockerfile',
@@ -238,7 +274,8 @@ export const BUILTIN_SERVERS: BuiltinServerDef[] = [
     command: 'svelteserver',
     args: ['--stdio'],
     extensions: { '.svelte': 'svelte' },
-    rootMarkers: ['package.json']
+    rootMarkers: ['package.json'],
+    install: { kind: 'npm', package: 'svelte-language-server' }
   }
 ]
 
@@ -252,6 +289,32 @@ export function rootMarkersFor(serverName: string): string[] | undefined {
   if (!def?.rootMarkers) return undefined
   const literals = def.rootMarkers.filter(isLiteralMarker)
   return literals.length > 0 ? literals : undefined
+}
+
+/**
+ * ¿El server tiene RECETA de instalación propia? (Los requisitos tienen su
+ * propio botón; por eso no cuentan aquí.)
+ */
+export function serverCanInstall(serverName: string): boolean {
+  const def = BUILTIN_SERVERS.find((server) => server.id === serverName)
+  return Boolean(def?.install)
+}
+
+/**
+ * Estado de los REQUISITOS de un server builtin ([] si no tiene). Síncrono
+ * (usa `resolveExecutable`, igual que el binario del server) para poder
+ * incluirlo en `status()`.
+ */
+export function requirementStatuses(serverName: string): LspRequirementStatus[] {
+  const def = BUILTIN_SERVERS.find((server) => server.id === serverName)
+  if (!def?.requires?.length) return []
+  return def.requires.map((req) => ({
+    id: req.id,
+    label: req.label,
+    command: req.command,
+    available: resolveExecutable(req.command) !== null,
+    installable: canInstallRequirement(req.id)
+  }))
 }
 
 /**
