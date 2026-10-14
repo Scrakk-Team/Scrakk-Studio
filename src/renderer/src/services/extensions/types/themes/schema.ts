@@ -108,6 +108,22 @@ export interface ThemeToken {
   fontStyle?: string
 }
 
+/** Slots de radio (esquinas) que un tema puede redefinir. */
+export const THEME_RADIUS_SLOTS = ['panel', 'input', 'sm', 'md', 'capsule'] as const
+export type ThemeRadiusSlot = (typeof THEME_RADIUS_SLOTS)[number]
+
+/** Mapa fino por slot: `{ panel: "16px", input: "6px" }`. */
+export type ThemeRadiusMap = Partial<Record<ThemeRadiusSlot, string>>
+
+/**
+ * Esquinas del tema:
+ *  - `'round'` (default): los radios del sistema.
+ *  - `'rect'`: todo CUADRADO (menos la cápsula: es una forma — avatares, puntos
+ *    del resize — no una esquina).
+ *  - un mapa (`{ panel: "16px" }`) para afinarlo por slot.
+ */
+export type ThemeRadius = 'round' | 'rect' | ThemeRadiusMap
+
 export interface ThemeDefinition {
   name: string
   type: 'dark' | 'light'
@@ -116,6 +132,8 @@ export interface ThemeDefinition {
   tokenColors?: ThemeToken[]
   /** True = chrome de un solo color (temas flat): las barras le ponen borde. */
   flat?: boolean
+  /** Esquinas del chrome: 'rect' | 'round' | mapa por slot. */
+  radius?: ThemeRadius
   /** Fuentes custom (v1: solo slot ui). */
   fonts?: ThemeFonts
 }
@@ -318,6 +336,32 @@ export function normalizeThemeFontSlot(raw: unknown): ThemeFontSlot | null {
   return slot
 }
 
+/** Un radio válido: px/rem/em/% con tope razonable. */
+export function normalizeRadiusValue(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const v = value.trim()
+  if (!/^\d+(\.\d+)?(px|rem|em|%)$/.test(v)) return null
+  if (v.endsWith('%') && parseFloat(v) > 50) return null
+  return v
+}
+
+/** Valida el bloque `radius` del tema (shorthand o mapa por slot). */
+export function normalizeThemeRadius(raw: unknown): ThemeRadius | undefined {
+  if (typeof raw === 'string') {
+    const v = raw.trim().toLowerCase()
+    if (v === 'rect' || v === 'round') return v
+    console.warn('[extensions/themes] radius: solo "rect" | "round" o un mapa; se ignora:', raw)
+    return undefined
+  }
+  if (!raw || typeof raw !== 'object') return undefined
+  const out: ThemeRadiusMap = {}
+  for (const slot of THEME_RADIUS_SLOTS) {
+    const value = normalizeRadiusValue((raw as Record<string, unknown>)[slot])
+    if (value) out[slot] = value
+  }
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
 /** Valida el bloque `fonts` (v1: solo slot ui). */
 export function normalizeThemeFonts(raw: unknown): ThemeFonts | undefined {
   if (!raw || typeof raw !== 'object') return undefined
@@ -394,6 +438,7 @@ export function normalizeThemeDefinition(raw: unknown): ThemeDefinition | null {
         : undefined,
     tokenColors,
     flat: r.flat === true ? true : undefined,
+    radius: normalizeThemeRadius(r.radius),
     fonts: normalizeThemeFonts(r.fonts)
   }
 }

@@ -19,6 +19,10 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   --radius-input: 10px;
+  /* Radio de los PANELES del layout. Es DINÁMICO: un tema lo redefine desde su
+     JSON (`radius`) y una extensión puede overridearlo en runtime. 0 = modo
+     "rect" (sin esquinas redondeadas). */
+  --radius-panel: var(--radius-md);
 
   /* Espaciado */
   --space-1: 4px;

@@ -26,6 +26,8 @@ import {
   dismissNotification,
   type NotifyInput
 } from '@services/notifications'
+import { setRadiusOverride, clearRadiusOverride } from './types/themes/logic'
+import type { ThemeRadius } from './types/themes/schema'
 import type {
   FileDiagnostics,
   LspRequestResponse,
@@ -66,6 +68,18 @@ export interface ExtensionNotificationsApi {
   dismiss(id: string): void
 }
 
+/**
+ * Personalización del chrome (esquinas/radios). El tema las define en su JSON
+ * (`radius`) y este API deja que una extensión las cambie en vivo — por ejemplo
+ * un panel con un botón "esquinas rectas". `reset()` vuelve a las del tema.
+ */
+export interface ExtensionRadiusApi {
+  /** `'rect'`, `'round'` o un mapa por slot (`panel`, `input`, `sm`, `md`, `capsule`). */
+  set(value: ThemeRadius): void
+  /** Limpia el override: manda el tema activo. */
+  reset(): void
+}
+
 export interface ExtensionApi {
   /** FS enjaulado: solo workspace, rutas sensibles bloqueadas (main). */
   fs: ExtensionFsApi
@@ -75,6 +89,8 @@ export interface ExtensionApi {
   tooltips: ExtensionTooltipApi
   /** Notificaciones globales (mismo registry que usa la app). */
   notifications: ExtensionNotificationsApi
+  /** Esquinas/radios del chrome (el tema las define; acá se overridean). */
+  radius: ExtensionRadiusApi
 }
 
 export interface BuildExtensionApiOptions {
@@ -131,6 +147,10 @@ export function buildExtensionApi(options: BuildExtensionApiOptions): ExtensionA
     notifications: {
       show: (input) => notify(input),
       dismiss: (id) => dismissNotification(id)
+    },
+    radius: {
+      set: (value) => setRadiusOverride(value),
+      reset: () => clearRadiusOverride()
     }
   }
 }

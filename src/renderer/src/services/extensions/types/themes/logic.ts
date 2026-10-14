@@ -17,7 +17,15 @@
  * El applier NO toca la font del editor.
  */
 
-import type { ThemeBackground, ThemeColors, ThemeDefinition, ThemeFonts } from './schema'
+import type {
+  ThemeBackground,
+  ThemeColors,
+  ThemeDefinition,
+  ThemeFonts,
+  ThemeRadius,
+  ThemeRadiusMap
+} from './schema'
+import { THEME_RADIUS_SLOTS, normalizeRadiusValue } from './schema'
 import {
   loadStoredActive,
   saveStoredActive,
@@ -182,6 +190,17 @@ export function resolveThemeFonts(def: ThemeDefinition): ThemeFonts | undefined 
   return def.fonts ?? baseFonts
 }
 
+/**
+ * Esquinas efectivas del tema. Igual que las fonts: si el tema no las define,
+ * valen las de la base (que tampoco las trae → los radios del sistema).
+ */
+export function resolveThemeRadius(def: ThemeDefinition): ThemeRadius | undefined {
+  const baseId = def.type === 'light' ? DEFAULT_LIGHT_THEME_ID : DEFAULT_THEME_ID
+  const base = themes.get(baseId)
+  const baseRadius = base && base.definition !== def ? base.definition.radius : undefined
+  return def.radius ?? baseRadius
+}
+
 /** colors del theme → CSS vars. Solo overridea lo definido. */
 function buildCssVars(def: ThemeDefinition): string {
   const c = def.colors
@@ -266,6 +285,19 @@ function buildCssVars(def: ThemeDefinition): string {
     push(ui.size, '--theme-font-ui-size')
     push(ui.weight, '--theme-font-ui-weight')
     push(ui.lineHeight, '--theme-font-ui-line-height')
+  }
+  // Esquinas/radios del chrome. `'rect'` aplana todo menos la cápsula (que es
+  // una FORMA — avatares, puntos del resize — no una esquina; se puede pedir
+  // cuadrada a mano con el mapa). Sin esto, los paneles quedaban siempre con el
+  // radio hardcodeado del layout.
+  const radius = resolveThemeRadius(def)
+  if (radius === 'rect') {
+    for (const slot of THEME_RADIUS_SLOTS) {
+      if (slot === 'capsule') continue
+      push('0px', `--radius-${slot}`)
+    }
+  } else if (radius && radius !== 'round') {
+    for (const slot of THEME_RADIUS_SLOTS) push(radius[slot], `--radius-${slot}`)
   }
   return lines.join('\n')
 }
@@ -368,6 +400,41 @@ async function verifyFontLoaded(family: string, href: string): Promise<void> {
     if (!covered) fail()
   } catch {
     fail()
+  }
+}
+
+/**
+ * Override de RADIOS en runtime — API para extensiones.
+ *
+ * El tema los define en su JSON (`radius`); esto deja que una extensión los
+ * cambie en vivo (p. ej. un panel con un botón "esquinas rectas"). Va inline en
+ * `<html>`, así que gana sobre el tema activo; `clearRadiusOverride()` lo limpia
+ * y vuelve a lo que diga el theme.json. Los valores se validan igual que en el
+ * schema: una extensión no puede inyectar CSS arbitrario.
+ */
+export function setRadiusOverride(value: ThemeRadius): void {
+  if (typeof document === 'undefined') return
+  const style = document.documentElement.style
+  clearRadiusOverride()
+  if (value === 'round') return
+  if (value === 'rect') {
+    for (const slot of THEME_RADIUS_SLOTS) {
+      if (slot === 'capsule') continue
+      style.setProperty(`--radius-${slot}`, '0px')
+    }
+    return
+  }
+  for (const slot of THEME_RADIUS_SLOTS) {
+    const v = normalizeRadiusValue((value as ThemeRadiusMap)[slot])
+    if (v) style.setProperty(`--radius-${slot}`, v)
+  }
+}
+
+/** Limpia el override inline: el tema activo vuelve a mandar. */
+export function clearRadiusOverride(): void {
+  if (typeof document === 'undefined') return
+  for (const slot of THEME_RADIUS_SLOTS) {
+    document.documentElement.style.removeProperty(`--radius-${slot}`)
   }
 }
 

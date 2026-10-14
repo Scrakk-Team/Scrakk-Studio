@@ -10,6 +10,7 @@ import { ThemeProvider } from '@core/theme/ThemeProvider'
 import { initI18n } from '@core/i18n'
 import { registerBuiltinFileHandlers } from '@features/fileHandlers'
 import { applyStartupTheme } from '@services/extensions/types/themes/bootstrap'
+import { setRadiusOverride, clearRadiusOverride } from '@services/extensions/types/themes/logic'
 import { bootExtensions } from '@services/extensions/boot'
 import { initDiagnosticsDecorations, initLspFileSync, initLspWorkspaceSync } from '@services/lsp'
 import { initDiffViews } from '@services/diff'
@@ -30,6 +31,16 @@ initI18n()
 // Visores por formato: los handlers built-in quedan listos antes del primer
 // render, así un `.md` abre directo en modo visor.
 registerBuiltinFileHandlers()
+
+// Puente para bundles .sef: no pueden importar módulos del IDE, así que la
+// misma API de personalización que reciben los handlers queda en `window.scrakk`
+// (p. ej. `window.scrakk.radius.set('rect')`). El tema la define por JSON.
+declare global {
+  interface Window {
+    scrakk?: { radius: { set: typeof setRadiusOverride; reset: typeof clearRadiusOverride } }
+  }
+}
+window.scrakk ??= { radius: { set: setRadiusOverride, reset: clearRadiusOverride } }
 
 // Sistema de extensiones SEF: carga builtin + extensiones del usuario.
 void bootExtensions()

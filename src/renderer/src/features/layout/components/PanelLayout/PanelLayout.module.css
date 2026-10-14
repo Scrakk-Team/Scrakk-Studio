@@ -23,7 +23,7 @@
   display: flex;
   min-width: 0;
   min-height: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-panel);
   background: var(--color-bg);
   border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
   overflow: hidden;
@@ -85,7 +85,7 @@
   display: flex;
   min-width: 0;
   min-height: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-panel);
   background: var(--color-bg);
   border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
   overflow: hidden;
