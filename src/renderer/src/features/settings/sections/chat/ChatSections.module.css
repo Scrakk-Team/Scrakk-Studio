@@ -153,6 +153,9 @@
 
 .linkBtn {
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -389,4 +392,146 @@
 
 .dangerBtn:hover {
   background: color-mix(in srgb, #f87171 12%, transparent);
+}
+
+/* ── Permisos: tarjeta, acción con color, reglas ──────────────────────────── */
+
+/* Tarjeta genérica (mismo look que `.editor`). */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+/* Selector segmentado (Proyecto / Usuario). */
+.segmented {
+  display: inline-flex;
+  width: fit-content;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.segment {
+  padding: 5px 14px;
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.segment:hover {
+  color: var(--color-text);
+}
+
+.segmentActive {
+  background: var(--color-hover);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Barra de color a la izquierda de cada regla. */
+.actionMark {
+  align-self: stretch;
+  width: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.markAllow {
+  background: #22c55e;
+}
+.markAsk {
+  background: #eab308;
+}
+.markDeny {
+  background: #f87171;
+}
+
+/* Pill de acción. El color lo pinta el modificador (allow/ask/deny). */
+.pillAllow {
+  background: color-mix(in srgb, #22c55e 16%, transparent);
+  color: #22c55e;
+}
+.pillAsk {
+  background: color-mix(in srgb, #eab308 16%, transparent);
+  color: #eab308;
+}
+.pillDeny {
+  background: color-mix(in srgb, #f87171 16%, transparent);
+  color: #f87171;
+}
+
+/* Selector de acción (tres opciones). */
+.actionPicker {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.actionOption {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.actionOption:hover {
+  background: var(--color-hover);
+}
+
+.optAllow {
+  border-color: #22c55e;
+  background: color-mix(in srgb, #22c55e 14%, transparent);
+  color: #22c55e;
+}
+.optAsk {
+  border-color: #eab308;
+  background: color-mix(in srgb, #eab308 14%, transparent);
+  color: #eab308;
+}
+.optDeny {
+  border-color: #f87171;
+  background: color-mix(in srgb, #f87171 14%, transparent);
+  color: #f87171;
+}
+
+/* Botón compacto "Plantillas". */
+.templateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.templateBtn:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
 }

@@ -8,6 +8,10 @@
  * Reglas de permitir / preguntar / negar por herramienta, con alcance opcional
  * a ciertos modos. Al guardar se aplica al policy engine al instante y se
  * conserva el bloque `modeRules` (no lo pisa).
+ *
+ * Layout en tarjetas: arriba DÓNDE se guardan + el modo inicial; después la
+ * LISTA de reglas (cada una con su color) y, aparte, el CONSTRUCTOR de una
+ * regla nueva (acción → regla → a qué modos aplica → agregar).
  */
 
 import { useEffect, useState, type JSX, type MouseEvent } from 'react'
@@ -38,12 +42,6 @@ interface RuleRow {
 }
 
 type ModeLists = Record<Action, string[]>
-
-const ACTION_LABEL: Record<Action, string> = {
-  allow: 'Permitir',
-  ask: 'Preguntar',
-  deny: 'Negar'
-}
 
 const ALIAS_MODES = new Set(['auto_edit', 'all_allow'])
 
@@ -108,6 +106,24 @@ export function PermissionsSection(): JSX.Element {
 
   const labelOf = (id: string): string => modeRegistry.get(id)?.label ?? id
 
+  // Etiquetas + color por acción (verde / ámbar / rojo).
+  const actionLabel = (value: Action): string =>
+    value === 'allow'
+      ? t('settings.permitir')
+      : value === 'ask'
+        ? t('settings.preguntar')
+        : t('settings.negar')
+  const pillClass = (value: Action): string =>
+    value === 'allow' ? styles.pillAllow : value === 'ask' ? styles.pillAsk : styles.pillDeny
+  const markClass = (value: Action): string =>
+    value === 'allow' ? styles.markAllow : value === 'ask' ? styles.markAsk : styles.markDeny
+  const optClass = (value: Action): string =>
+    value === 'allow'
+      ? styles.optAllow
+      : value === 'ask'
+        ? styles.optAsk
+        : styles.optDeny
+
   // Carga el archivo de la capa elegida.
   useEffect(() => {
     let alive = true
@@ -166,6 +182,7 @@ export function PermissionsSection(): JSX.Element {
     setError(null)
     setRules((prev) => [...prev, { action, rule: text, modes: [...selectedModes] }])
     setRuleDraft('')
+    setSelectedModes([])
   }
 
   const removeRule = (index: number): void => {
@@ -210,61 +227,62 @@ export function PermissionsSection(): JSX.Element {
 
   return (
     <div className={styles.section}>
-      <p className={styles.hint}>
-        {t('settings.cada.regla.permite.pregunta.o')}
-      </p>
+      <p className={styles.hint}>{t('settings.cada.regla.permite.pregunta.o')}</p>
 
-      <div className={styles.formRow}>
-        <button
-          type="button"
-          className={styles.select}
-          aria-haspopup="menu"
-          onClick={(event) =>
-            openSelect(event, [
-              {
-                label: t('settings.proyecto'),
-                checked: scope === 'project',
-                onClick: () => setScope('project')
-              },
-              {
-                label: t('settings.usuario'),
-                checked: scope === 'user',
-                onClick: () => setScope('user')
-              }
-            ])
-          }
-        >
-          <span className={styles.selectLabel}>
-            {scope === 'project' ? t('settings.proyecto') : t('settings.usuario')}
-          </span>
-          <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
-        </button>
-        <button
-          type="button"
-          className={styles.select}
-          aria-haspopup="menu"
-          onClick={(event) =>
-            openSelect(
-              event,
-              modes.map((mode) => ({
-                label: mode.label,
-                checked: mode.id === defaultMode,
-                onClick: () => setDefaultMode(mode.id)
-              }))
-            )
-          }
-        >
-          <span className={styles.selectLabel}>
-            {t('settings.modo.inicial')} {modes.find((mode) => mode.id === defaultMode)?.label ?? defaultMode}
-          </span>
-          <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
-        </button>
+      {/* Dónde se guardan + modo inicial */}
+      <div className={styles.card}>
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('settings.donde.se.guardan.las.reglas')}</span>
+          <div className={styles.segmented} role="group">
+            <button
+              type="button"
+              className={`${styles.segment} ${scope === 'project' ? styles.segmentActive : ''}`}
+              aria-pressed={scope === 'project'}
+              onClick={() => setScope('project')}
+            >
+              {t('settings.proyecto')}
+            </button>
+            <button
+              type="button"
+              className={`${styles.segment} ${scope === 'user' ? styles.segmentActive : ''}`}
+              aria-pressed={scope === 'user'}
+              onClick={() => setScope('user')}
+            >
+              {t('settings.usuario')}
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('settings.modo.inicial')}</span>
+          <button
+            type="button"
+            className={styles.select}
+            aria-haspopup="menu"
+            onClick={(event) =>
+              openSelect(
+                event,
+                modes.map((mode) => ({
+                  label: mode.label,
+                  checked: mode.id === defaultMode,
+                  onClick: () => setDefaultMode(mode.id)
+                }))
+              )
+            }
+          >
+            <span className={styles.selectLabel}>
+              {modes.find((mode) => mode.id === defaultMode)?.label ?? defaultMode}
+            </span>
+            <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
+          </button>
+        </div>
       </div>
 
       {scope === 'project' && !scrakkProjectRoot() ? (
         <p className={styles.empty}>{t('settings.no.hay.proyecto.abierto.usa')}</p>
       ) : null}
 
+      {/* Reglas activas */}
       <div className={styles.group}>
         <span className={styles.groupLabel}>{t('settings.reglas')}</span>
         {rules.length === 0 ? (
@@ -273,15 +291,21 @@ export function PermissionsSection(): JSX.Element {
           <div className={styles.list}>
             {rules.map((row, index) => (
               <div key={`${row.action}-${row.rule}-${index}`} className={styles.row}>
+                <span
+                  className={`${styles.actionMark} ${markClass(row.action)}`}
+                  aria-hidden="true"
+                />
                 <div className={styles.rowMain}>
                   <span className={styles.rowTitle}>
                     <code className={styles.code}>{row.rule}</code>
-                    <span className={styles.badge}>{ACTION_LABEL[row.action]}</span>
+                    <span className={`${styles.badge} ${pillClass(row.action)}`}>
+                      {actionLabel(row.action)}
+                    </span>
                   </span>
                   <span className={styles.rowDesc}>
                     {row.modes.length === 0
                       ? t('settings.todos.los.modos')
-                      : `Solo: ${row.modes.map(labelOf).join(', ')}`}
+                      : `${t('settings.aplica.a')}: ${row.modes.map(labelOf).join(', ')}`}
                   </span>
                 </div>
                 <button
@@ -298,85 +322,98 @@ export function PermissionsSection(): JSX.Element {
         )}
       </div>
 
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>{t('settings.aplica.a')}</span>
-        <div className={styles.chips}>
-          <button
-            type="button"
-            className={`${styles.chip} ${selectedModes.length === 0 ? styles.chipActive : ''}`}
-            onClick={() => setSelectedModes([])}
-          >
-            {t('settings.todos.los.modos')}
-          </button>
-          {modes.map((mode) => (
+      {/* Constructor de una regla nueva */}
+      <div className={styles.card}>
+        <span className={styles.groupLabel}>{t('settings.agregar.regla')}</span>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('settings.accion')}</span>
+          <div className={styles.actionPicker} role="group">
+            {ACTIONS.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={[
+                  styles.actionOption,
+                  action === value ? optClass(value) : null
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-pressed={action === value}
+                onClick={() => setAction(value)}
+              >
+                {actionLabel(value)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('settings.regla')}</span>
+          <div className={styles.formRow}>
+            <input
+              className={styles.input}
+              value={ruleDraft}
+              placeholder={t('settings.bash.git.push.o.read')}
+              spellCheck={false}
+              onChange={(event) => setRuleDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') addRule()
+              }}
+            />
             <button
-              key={mode.id}
               type="button"
-              className={`${styles.chip} ${selectedModes.includes(mode.id) ? styles.chipActive : ''}`}
-              onClick={() => toggleSelectedMode(mode.id)}
+              className={styles.templateBtn}
+              aria-haspopup="menu"
+              title={t('settings.plantillas')}
+              onClick={(event) =>
+                openSelect(
+                  event,
+                  TOOL_TEMPLATES.map((template) => ({
+                    label: template.label,
+                    onClick: () => setRuleDraft(template.value)
+                  }))
+                )
+              }
             >
-              {mode.label}
+              {t('settings.plantillas')}
+              <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
             </button>
-          ))}
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>{t('settings.aplica.a')}</span>
+          <div className={styles.chips}>
+            <button
+              type="button"
+              className={`${styles.chip} ${selectedModes.length === 0 ? styles.chipActive : ''}`}
+              onClick={() => setSelectedModes([])}
+            >
+              {t('settings.todos.los.modos')}
+            </button>
+            {modes.map((mode) => (
+              <button
+                key={mode.id}
+                type="button"
+                className={`${styles.chip} ${selectedModes.includes(mode.id) ? styles.chipActive : ''}`}
+                onClick={() => toggleSelectedMode(mode.id)}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <button type="button" className={styles.linkBtn} onClick={addRule}>
+            <ProductIcon id="plus" size={12} />
+            {t('settings.agregar')}
+          </button>
         </div>
       </div>
 
-      <div className={styles.formRow}>
-        <button
-          type="button"
-          className={styles.select}
-          aria-haspopup="menu"
-          onClick={(event) =>
-            openSelect(
-              event,
-              ACTIONS.map((value) => ({
-                label: ACTION_LABEL[value],
-                checked: value === action,
-                onClick: () => setAction(value)
-              }))
-            )
-          }
-        >
-          <span className={styles.selectLabel}>{ACTION_LABEL[action]}</span>
-          <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
-        </button>
-        <button
-          type="button"
-          className={styles.select}
-          aria-haspopup="menu"
-          onClick={(event) =>
-            openSelect(
-              event,
-              TOOL_TEMPLATES.map((template) => ({
-                label: template.label,
-                onClick: () => setRuleDraft(template.value)
-              }))
-            )
-          }
-        >
-          <span className={styles.selectLabel}>{t('settings.herramienta')}</span>
-          <ProductIcon id="chevron-down" size={12} className={styles.selectChevron} />
-        </button>
-      </div>
-
-      <div className={styles.formRow}>
-        <input
-          className={styles.input}
-          value={ruleDraft}
-          placeholder={t('settings.bash.git.push.o.read')}
-          spellCheck={false}
-          onChange={(event) => setRuleDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') addRule()
-          }}
-        />
-        <button type="button" className={styles.saveBtn} onClick={addRule}>
-          <ProductIcon id="plus" size={12} />
-          {t('settings.agregar')}
-        </button>
-      </div>
-
-      <div className={styles.formRow}>
+      <div className={styles.actions}>
         <button type="button" className={styles.saveBtn} onClick={() => void save()}>
           <ProductIcon id="check" size={12} />
           {t('settings.guardar.y.aplicar')}

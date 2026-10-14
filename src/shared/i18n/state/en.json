@@ -8752,6 +8752,14 @@
       "at": "2026-09-25T17:45:36.561Z",
       "approvedAt": "2026-09-25T17:45:46.198Z"
     },
+    "settings.accion": {
+      "src": "212e06c386ff2f18",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
+    },
     "settings.acerca.descripcion": {
       "src": "7043364bcf68b683",
       "area": "settings",
@@ -8822,6 +8830,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:52.461Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "settings.agregar.regla": {
+      "src": "8fa049291a142c61",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
     },
     "settings.ajustes": {
       "src": "4f2debbbf4fab6c9",
@@ -8975,12 +8991,12 @@
       "approvedAt": "2026-09-25T18:04:49.749Z"
     },
     "settings.cada.regla.permite.pregunta.o": {
-      "src": "267c01a830284b16",
+      "src": "bf1cf077abbf924d",
       "area": "settings",
-      "machine": true,
+      "machine": false,
       "needsReview": false,
-      "at": "2026-09-25T18:04:48.684Z",
-      "approvedAt": "2026-09-25T18:04:49.749Z"
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
     },
     "settings.cancelar": {
       "src": "bb9dbb406dcbd524",
@@ -9140,6 +9156,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:52.461Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "settings.donde.se.guardan.las.reglas": {
+      "src": "0db0a820b182708d",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
     },
     "settings.duplicar": {
       "src": "88f77287cbdba827",
@@ -9836,6 +9860,14 @@
       "at": "2026-09-25T17:31:24.688Z",
       "approvedAt": "2026-09-25T17:32:07.888Z"
     },
+    "settings.negar": {
+      "src": "2dd178d467cb6fda",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
+    },
     "settings.negar.en.silencio": {
       "src": "55a742431bb3894d",
       "area": "settings",
@@ -10020,6 +10052,22 @@
       "at": "2026-09-25T17:29:54.309Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
     },
+    "settings.permitir": {
+      "src": "4bf4e9a66ed74ab7",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
+    },
+    "settings.plantillas": {
+      "src": "cf9a907442af6aa6",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
+    },
     "settings.ponle.un.nombre.al.agente": {
       "src": "66c45001066ffe99",
       "area": "settings",
@@ -10043,6 +10091,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:54.309Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "settings.preguntar": {
+      "src": "8eec3555dd18c908",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
     },
     "settings.preparando": {
       "src": "d2b925965ea8d2b9",
@@ -10107,6 +10163,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:54.309Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "settings.regla": {
+      "src": "70addf9b71c8b765",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:14:11.828Z",
+      "approvedAt": "2026-10-14T21:14:11.828Z"
     },
     "settings.reglas": {
       "src": "db8661d1e95a31b0",
