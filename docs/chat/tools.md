@@ -42,7 +42,7 @@ which contain tools:
 
 | Family | Types |
 | --- | --- |
-| `environment` (Entorno) | `file`, `code`, `system`, `browser`, `skills`, `utility` |
+| `environment` (Entorno) | `file`, `code`, `system`, `browser`, `skills`, `notes`, `utility` |
 | `agentic` (Agénticos) | `subagent` |
 | `extensions` (Extensiones) | `extension` |
 
@@ -94,7 +94,7 @@ or `openEditToolDiff` for the file-edit tools, which opens a diff tab from the
 
 ## Tools that exist today
 
-Registered by `registerAll()` (22):
+Registered by `registerAll()` (23):
 
 | Tool | Type | Danger | What it does |
 | --- | --- | --- | --- |
@@ -117,6 +117,7 @@ Registered by `registerAll()` (22):
 | `history_title` | utility | safe | Set the chat title |
 | `list_skills` | skills | safe | List available skills |
 | `skill` | skills | safe | Load a skill body by name |
+| `notes` | notes | medium | List, read, create, update or delete the user's notes (scoped global/project, gated by per-note AI permissions) |
 | `web_search` | browser | safe | Search the web (main, no CORS) |
 | `web_fetch` | browser | safe | Fetch a URL as markdown (SSRF-guarded) |
 | `task` | subagent | safe | Launch a subagent |
@@ -135,8 +136,10 @@ Registered by `registerAll()` (22):
   uses `paths`; user path rules therefore may not match it.
 - A single tool call is capped at 90 s (`TOOL_TIMEOUT_MS` in
   `toolExecutor.ts`).
-- Tools without an access mapping (e.g. `lsp`, `list_directory`, `task`) are not
-  covered by user allow/ask/deny rules; the mode still governs mutations.
+- Tools without an access mapping (e.g. `lsp`, `list_directory`, `task`,
+  `notes`) are not covered by user allow/ask/deny rules. `notes` gates itself:
+  it refuses to create/update/delete in a read-only (Plan) mode, and the
+  per-note AI permissions are the real boundary.
 
 ## Next steps
 

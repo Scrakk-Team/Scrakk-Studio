@@ -127,6 +127,19 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 
+### Notes
+- **A note now carries its own config.** Each note is **global** (visible in
+  every project) or **project** (visible only in the project that owns it), and
+  you decide **per note** whether the **AI may read, edit or delete** it. The
+  panel shows the scope selector and the three toggles above the editor, and a
+  project note stops appearing once you open another project. Existing notes are
+  migrated (global, AI read/edit on, delete off).
+- **New AI tool `notes`** so the agent can list, read, create, update and delete
+  notes. It runs on a dedicated API (`@services/notes`) that enforces the scope
+  and the per-note permissions **before** touching the store: a denied action
+  returns an error the model cannot override, and it is told to ask you to change
+  it in the panel instead. In read-only modes (Plan) it can read but not write.
+
 ### Social panel
 - **Fixed the sections collapsing as the friend list grows**: the panel's
   scroll container is a flex column and the sections had `min-height: 0`, so as
