@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
 import {
   THEME_RADIUS_SLOTS,
   normalizeRadiusValue,
@@ -84,5 +85,20 @@ describe('resolveThemeRadius', () => {
       radius: { panel: '0px' }
     })
     expect(resolveThemeRadius(def!)).toEqual({ panel: '0px' })
+  })
+})
+
+describe('temas builtin', () => {
+  it('opencode-ai viaja con esquinas rectas', () => {
+    const raw = readFileSync(
+      new URL(
+        '../src/renderer/src/services/extensions/builtin/themes/opencode-ai/theme.json',
+        import.meta.url
+      ),
+      'utf-8'
+    )
+    const def = normalizeThemeDefinition(JSON.parse(raw))
+    expect(def).not.toBeNull()
+    expect(def!.radius).toBe('rect')
   })
 })

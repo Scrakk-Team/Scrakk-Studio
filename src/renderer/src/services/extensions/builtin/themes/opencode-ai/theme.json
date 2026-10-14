@@ -1,6 +1,7 @@
 {
   "name": "OpenCode AI",
   "type": "dark",
+  "radius": "rect",
   "colors": {
     "bg": "#0a0a0a",
     "surface": "#141414",
