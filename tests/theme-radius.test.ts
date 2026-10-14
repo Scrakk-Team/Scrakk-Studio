@@ -120,4 +120,23 @@ describe('temas builtin', () => {
       xs: '4px'
     })
   })
+
+  it('discord viaja con esquinas AUMENTADAS', () => {
+    const raw = readFileSync(
+      new URL(
+        '../src/renderer/src/services/extensions/builtin/themes/discord/theme.json',
+        import.meta.url
+      ),
+      'utf-8'
+    )
+    const def = normalizeThemeDefinition(JSON.parse(raw))
+    expect(def).not.toBeNull()
+    expect(def!.radius).toEqual({
+      panel: '16px',
+      md: '16px',
+      input: '12px',
+      sm: '10px',
+      xs: '6px'
+    })
+  })
 })

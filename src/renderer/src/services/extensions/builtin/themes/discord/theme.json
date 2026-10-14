@@ -1,6 +1,13 @@
 {
   "name": "Discord",
   "type": "dark",
+  "radius": {
+    "panel": "16px",
+    "md": "16px",
+    "input": "12px",
+    "sm": "10px",
+    "xs": "6px"
+  },
   "colors": {
     "bg": "#111214",
     "surface": "#2b2d31",
