@@ -116,6 +116,13 @@ published are not edited. The file goes per version:
   now **stretch and merge into the line** (~150ms) and go back to dots on release,
   with the line settling on top — so it reads as one liquid movement. Respects
   `prefers-reduced-motion`.
+- **The panel corners are dynamic.** They were hard-coded in the layout
+  (`--radius-md`). A theme now sets them from its JSON — `"radius": "rect"` for
+  square chrome, `"round"` for the system radii, or a map per slot
+  (`{ "panel": "16px" }`). An extension can also override them **at runtime**
+  (`api.radius.set('rect')` / `reset()`, plus `window.scrakk.radius` for `.sef`
+  bundles), so a panel can toggle its own look. Values are validated (no CSS
+  injection) and a `reset()` always yields back to the active theme.
 
 ### Extensions
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
