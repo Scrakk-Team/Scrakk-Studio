@@ -9,14 +9,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   listNotes,
+  listVisibleNotes,
   getNote,
   subscribeToNotes,
   createNote,
   updateNote,
+  patchNote,
+  setNoteConfig,
   deleteNote,
   noteTitle,
   _resetNotesForTests
 } from '../src/renderer/src/services/notes/store'
+import {
+  aiCreateNote,
+  aiListNotes,
+  aiReadNote,
+  aiUpdateNote,
+  aiDeleteNote
+} from '../src/renderer/src/services/notes/ai'
 
 describe('notes — noteTitle', () => {
   it('primera línea no vacía o fallback', () => {
@@ -72,5 +82,90 @@ describe('notes — store', () => {
     deleteNote(note.id)
     expect(calls).toBe(3)
     unsub()
+  })
+})
+
+describe('notes — scope (global vs proyecto)', () => {
+  beforeEach(() => {
+    _resetNotesForTests()
+  })
+
+  it('una global se ve en cualquier proyecto; una de proyecto sólo en el suyo', () => {
+    const global = createNote({ content: 'g' })
+    const a = createNote({ content: 'a', scope: 'project', projectRoot: '/proj/a' })
+    const b = createNote({ content: 'b', scope: 'project', projectRoot: '/proj/b' })
+
+    expect(listVisibleNotes('/proj/a').map((n) => n.id).sort()).toEqual([global.id, a.id].sort())
+    expect(listVisibleNotes('/proj/b').map((n) => n.id).sort()).toEqual([global.id, b.id].sort())
+    // Sin proyecto abierto, sólo las globales.
+    expect(listVisibleNotes(null).map((n) => n.id)).toEqual([global.id])
+  })
+
+  it('setNoteConfig cambia scope y dueño; volver a global borra el dueño', () => {
+    const note = createNote()
+    const moved = setNoteConfig(note.id, { scope: 'project', projectRoot: '/p' })
+    expect(moved?.scope).toBe('project')
+    expect(moved?.projectRoot).toBe('/p')
+
+    const back = setNoteConfig(note.id, { scope: 'global' })
+    expect(back?.scope).toBe('global')
+    expect(back?.projectRoot).toBeUndefined()
+  })
+
+  it('patchNote actualiza contenido y ai sin pisar el resto', () => {
+    const note = createNote({ content: 'a' })
+    const patched = patchNote(note.id, { content: 'b', ai: { delete: true } })
+    expect(patched?.content).toBe('b')
+    expect(patched?.ai).toEqual({ read: true, edit: true, delete: true })
+  })
+})
+
+describe('notes — API de la IA', () => {
+  beforeEach(() => {
+    _resetNotesForTests()
+  })
+
+  it('crea de proyecto si hay proyecto abierto; global si no', () => {
+    const withProject = aiCreateNote({ content: 'x' }, '/p')
+    expect(withProject.ok).toBe(true)
+    if (withProject.ok) {
+      expect(withProject.note.scope).toBe('project')
+      expect(withProject.note.projectRoot).toBe('/p')
+    }
+    const withoutProject = aiCreateNote({ content: 'y' }, null)
+    if (withoutProject.ok) expect(withoutProject.note.scope).toBe('global')
+  })
+
+  it('respeta ai.read en listar y leer', () => {
+    const note = createNote({ content: 'secreta' })
+    setNoteConfig(note.id, { ai: { read: false } })
+    expect(aiListNotes(null)).toEqual([])
+    expect(aiReadNote(note.id, null).ok).toBe(false)
+
+    setNoteConfig(note.id, { ai: { read: true } })
+    expect(aiReadNote(note.id, null).ok).toBe(true)
+  })
+
+  it('respeta ai.edit y ai.delete', () => {
+    const note = createNote({ content: 'v1' })
+    setNoteConfig(note.id, { ai: { edit: false } })
+    expect(aiUpdateNote(note.id, 'v2', null).ok).toBe(false)
+    expect(getNote(note.id)?.content).toBe('v1')
+
+    setNoteConfig(note.id, { ai: { delete: false } })
+    expect(aiDeleteNote(note.id, null).ok).toBe(false)
+
+    setNoteConfig(note.id, { ai: { edit: true, delete: true } })
+    expect(aiUpdateNote(note.id, 'v3', null).ok).toBe(true)
+    expect(aiDeleteNote(note.id, null).ok).toBe(true)
+    expect(getNote(note.id)).toBeNull()
+  })
+
+  it('no ve ni toca notas de otro proyecto', () => {
+    const note = createNote({ content: 'p', scope: 'project', projectRoot: '/a' })
+    expect(aiReadNote(note.id, '/b').ok).toBe(false)
+    expect(aiUpdateNote(note.id, 'x', '/b').ok).toBe(false)
+    expect(aiDeleteNote(note.id, '/b').ok).toBe(false)
+    expect(aiReadNote(note.id, '/a').ok).toBe(true)
   })
 })

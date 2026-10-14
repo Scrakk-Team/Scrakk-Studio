@@ -8,15 +8,27 @@ import { HeaderActionButton, usePanelTitle } from '@features/layout'
 import {
   createNote,
   deleteNote,
-  listNotes,
+  listVisibleNotes,
   noteTitle,
+  setNoteConfig,
   subscribeToNotes,
   updateNote,
-  type Note
+  type Note,
+  type NoteScope
 } from '@services/notes'
 import styles from './NotePanel.module.css'
 
 import { t } from '@core/i18n'
+
+/** Root del proyecto abierto (`null` si no hay ninguno). */
+function currentProjectRoot(): string | null {
+  try {
+    return localStorage.getItem('scrakk-studio:root-path') || null
+  } catch {
+    return null
+  }
+}
+
 function formatDate(epochMs: number): string {
   const date = new Date(epochMs)
   const today = new Date()
@@ -32,19 +44,24 @@ function formatDate(epochMs: number): string {
 
 /**
  * Panel de notas — historial REAL del store: botón + en el header (como el
- * chat), lista por actualización y editor inline con eliminar. Solo aporta
- * su contenido; el frame lo maneja el sistema de layouts.
+ * chat), lista por actualización y editor inline con eliminar. Además, cada
+ * nota tiene su CONFIG: ámbito (global vs proyecto) y qué puede hacer la IA
+ * (leer/editar/eliminar). Solo aporta su contenido; el frame lo maneja el
+ * sistema de layouts.
  */
 export function NotePanel(): JSX.Element {
   const { setTitle, setActions } = usePanelTitle()
-  const [notes, setNotes] = useState<Note[]>(() => listNotes())
-  const [activeId, setActiveId] = useState<string | null>(() => listNotes()[0]?.id ?? null)
+  const projectRoot = currentProjectRoot()
+  const [notes, setNotes] = useState<Note[]>(() => listVisibleNotes(projectRoot))
+  const [activeId, setActiveId] = useState<string | null>(
+    () => listVisibleNotes(projectRoot)[0]?.id ?? null
+  )
 
   useEffect(() => {
     setTitle(t('layout.panel.notes'))
   }, [setTitle])
 
-  useEffect(() => subscribeToNotes(() => setNotes(listNotes())), [])
+  useEffect(() => subscribeToNotes(() => setNotes(listVisibleNotes(projectRoot))), [projectRoot])
 
   const handleNewNote = useCallback((): void => {
     const note = createNote()
@@ -66,7 +83,7 @@ export function NotePanel(): JSX.Element {
     return () => setActions(null)
   }, [setActions, handleNewNote])
 
-  // Si la activa se eliminó en otro lado, caer a la primera.
+  // Si la activa se eliminó en otro lado (o dejó de ser visible), caer a la primera.
   useEffect(() => {
     if (activeId !== null && !notes.some((n) => n.id === activeId)) {
       setActiveId(notes[0]?.id ?? null)
@@ -134,6 +151,59 @@ export function NotePanel(): JSX.Element {
           </nav>
           {active ? (
             <div className={styles.editor}>
+              <div className={styles.config}>
+                <label className={styles.configField}>
+                  <span className={styles.configLabel}>{t('layout.ambito.de.la.nota')}</span>
+                  <select
+                    className={styles.configSelect}
+                    value={active.scope}
+                    onChange={(event) => {
+                      const scope = event.target.value as NoteScope
+                      setNoteConfig(active.id, {
+                        scope,
+                        projectRoot: scope === 'project' ? projectRoot : null
+                      })
+                    }}
+                  >
+                    <option value="global">{t('layout.ambito.global')}</option>
+                    <option value="project" disabled={!projectRoot}>
+                      {t('layout.ambito.del.proyecto')}
+                    </option>
+                  </select>
+                </label>
+                <div className={styles.aiToggles} role="group" aria-label={t('layout.acceso.de.la.ia')}>
+                  <label className={styles.toggle}>
+                    <input
+                      type="checkbox"
+                      checked={active.ai.read}
+                      onChange={(event) =>
+                        setNoteConfig(active.id, { ai: { read: event.target.checked } })
+                      }
+                    />
+                    {t('layout.ia.puede.leer')}
+                  </label>
+                  <label className={styles.toggle}>
+                    <input
+                      type="checkbox"
+                      checked={active.ai.edit}
+                      onChange={(event) =>
+                        setNoteConfig(active.id, { ai: { edit: event.target.checked } })
+                      }
+                    />
+                    {t('layout.ia.puede.editar')}
+                  </label>
+                  <label className={styles.toggle}>
+                    <input
+                      type="checkbox"
+                      checked={active.ai.delete}
+                      onChange={(event) =>
+                        setNoteConfig(active.id, { ai: { delete: event.target.checked } })
+                      }
+                    />
+                    {t('layout.ia.puede.eliminar')}
+                  </label>
+                </div>
+              </div>
               <textarea
                 key={active.id}
                 className={styles.editorInput}

@@ -4112,6 +4112,14 @@
       "at": "2026-09-25T17:29:46.385Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
     },
+    "layout.acceso.de.la.ia": {
+      "src": "6abe1e258dfcdc44",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
+    },
     "layout.advertencias": {
       "src": "c459d1c9972456a0",
       "area": "layout",
@@ -4135,6 +4143,30 @@
       "needsReview": false,
       "at": "2026-09-25T17:59:22.545Z",
       "approvedAt": "2026-09-25T17:59:30.392Z"
+    },
+    "layout.ambito.de.la.nota": {
+      "src": "a238e904a172f8ab",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
+    },
+    "layout.ambito.del.proyecto": {
+      "src": "ca01d47947be66c8",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
+    },
+    "layout.ambito.global": {
+      "src": "a258b30f88c30650",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
     },
     "layout.amigos": {
       "src": "bead8677698a4b14",
@@ -4567,6 +4599,30 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:46.392Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
+    },
+    "layout.ia.puede.editar": {
+      "src": "87929d753931760f",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
+    },
+    "layout.ia.puede.eliminar": {
+      "src": "1af8087d575969e3",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
+    },
+    "layout.ia.puede.leer": {
+      "src": "26b9348b675b25a9",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:02:07.552Z",
+      "approvedAt": "2026-10-14T21:02:07.552Z"
     },
     "layout.informacion": {
       "src": "7263ec8c2d08c2c0",
