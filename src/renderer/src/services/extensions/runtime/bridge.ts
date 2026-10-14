@@ -6,7 +6,7 @@
  * Puente de RUNTIME para bundles `.sef` (lo que el paquete registra en el IDE).
  *
  * Un bundle corre en el renderer pero no puede importar módulos del IDE (salvo
- * los shims de `runtime/`): lo que necesita del IDE lo registra acá. Dos cosas:
+ * los que el loader le presta): lo que necesita del IDE lo registra acá. Dos:
  *
  *  - **Comandos de paleta** (`window.scrakk.commands.register`): quedan en la
  *    barra de comandos del IDE.

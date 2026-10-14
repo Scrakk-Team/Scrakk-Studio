@@ -11,9 +11,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import {
   BUNDLE_EXTERNALS,
   createBundleModuleUrl,
+  providedModuleSource,
   rewriteBundleExternals
 } from '../src/renderer/src/services/extensions/loader/externals'
 
@@ -71,6 +76,43 @@ describe('rewriteBundleExternals', () => {
     expect(BUNDLE_EXTERNALS).toContain('react')
     expect(BUNDLE_EXTERNALS).toContain('react/jsx-runtime')
     expect(BUNDLE_EXTERNALS).toContain('@features/layout')
+  })
+})
+
+describe('providedModuleSource', () => {
+  const REGISTRY = '__SCRAKK_PROVIDED__'
+
+  it('re-exporta todos los nombres del namespace, incluido default', () => {
+    const source = providedModuleSource(
+      { useState: () => 1, Fragment: {}, default: {} },
+      'react/jsx-runtime'
+    )
+    expect(source).toContain(`globalThis["${REGISTRY}"]["react/jsx-runtime"]`)
+    expect(source).toContain('export { n0 as useState };')
+    expect(source).toContain('export { n1 as Fragment };')
+    expect(source).toContain('export { n2 as default };')
+  })
+
+  it('soporta nombres que no son identificadores', () => {
+    const source = providedModuleSource({ 'no-ident': 1 }, 'x')
+    expect(source).toContain('export { n0 as "no-ident" };')
+  })
+
+  it('el módulo generado exporta el namespace REAL (mismas funciones)', async () => {
+    // Es el punto del diseño: la extensión tiene que recibir la MISMA copia de
+    // React que la app (con otra, los hooks no comparten dispatcher). En el
+    // build, además, los nombres tienen que sobrevivir al recorte del bundler.
+    const namespace = (await import('react')) as Record<string, unknown>
+    ;(globalThis as Record<string, unknown>)[REGISTRY] = { react: namespace }
+
+    const source = providedModuleSource(namespace, 'react')
+    const file = join(mkdtempSync(join(tmpdir(), 'sef-provided-')), 'module.mjs')
+    writeFileSync(file, source, 'utf-8')
+
+    const generated = (await import(pathToFileURL(file).href)) as Record<string, unknown>
+    expect(generated.useState).toBe(namespace.useState)
+    expect(generated.useEffect).toBe(namespace.useEffect)
+    expect(generated.createElement).toBe(namespace.createElement)
   })
 })
 

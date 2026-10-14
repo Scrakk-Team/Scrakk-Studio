@@ -16,7 +16,7 @@
  */
 
 import { registerManifest } from './resolve'
-import { createBundleModuleUrl, rewriteBundleExternals, shimUrls } from './externals'
+import { createBundleModuleUrl, providedModuleUrls, rewriteBundleExternals } from './externals'
 import { withExtensionOwner, disposeRuntimeHandlers } from '../runtime/bridge'
 import { forgetExtensionDir, setExtensionDir } from '../extensionDirs'
 import { ExtensionRegistry } from '../registry'
@@ -86,10 +86,11 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
   if (needsBundle) {
     const bundleRes = await window.api.fs.readFile(`${entry.dir}/${manifest.entry ?? 'dist/index.js'}`)
     if (!bundleRes.success || typeof bundleRes.content !== 'string') return
-    // Los externals (react, hooks del layout) vienen BARE y una `data:` URL no
-    // los puede resolver: se reescriben a la URL real de cada shim. Y el
-    // contenedor tiene que ser un BLOB (la CSP no permite `data:` en scripts).
-    const source = rewriteBundleExternals(bundleRes.content, await shimUrls())
+    // Los externals (react, hooks del layout) vienen BARE y un blob URL no los
+    // puede resolver: se reescriben a un módulo que re-exporta el namespace
+    // REAL del módulo que la app ya tiene (misma copia de React). El contenedor
+    // del bundle también es un blob (la CSP no permite `data:` en scripts).
+    const source = rewriteBundleExternals(bundleRes.content, await providedModuleUrls())
     const bundleUrl = createBundleModuleUrl(source)
     try {
       // El dueño se marca DURANTE el import: lo que el bundle registre en su
