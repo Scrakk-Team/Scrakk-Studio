@@ -122,7 +122,13 @@ async function withTimeout<T>(
  */
 export function installShutdownHandler(
   app: {
-    on: (event: string, listener: (event: { preventDefault: () => void }) => void) => void
+    // Firma acotada a `before-quit`: `Electron.App.on` está sobrecargado por
+    // nombre de evento, así que un `(event: string, …)` genérico no es
+    // asignable. Sólo registramos ese evento.
+    on(
+      event: 'before-quit',
+      listener: (event: { preventDefault: () => void }) => void
+    ): unknown
     quit: () => void
   },
   deps: Omit<ShutdownDeps, 'quit'>,
