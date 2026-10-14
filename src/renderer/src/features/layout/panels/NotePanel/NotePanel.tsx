@@ -160,7 +160,7 @@ export function NotePanel(): JSX.Element {
           {active ? (
             <div className={styles.editor}>
               <div className={styles.config}>
-                <div className={styles.configRow}>
+                <div className={styles.configField}>
                   <span className={styles.configLabel}>{t('layout.ambito.de.la.nota')}</span>
                   <SegmentedTabs
                     items={scopeItems}
@@ -174,33 +174,33 @@ export function NotePanel(): JSX.Element {
                     ariaLabel={t('layout.ambito.de.la.nota')}
                   />
                 </div>
-                <div className={styles.configRow}>
+                <div className={styles.configField}>
                   <span className={styles.configLabel}>{t('layout.acceso.de.la.ia')}</span>
-                  <div className={styles.switches}>
-                    <span className={styles.switchItem}>
+                  <div className={styles.switchList}>
+                    <div className={styles.switchRow}>
                       <span className={styles.switchLabel}>{t('layout.leer')}</span>
                       <ToggleSwitch
                         checked={active.ai.read}
                         onChange={(value) => setNoteConfig(active.id, { ai: { read: value } })}
                         label={t('layout.ia.puede.leer')}
                       />
-                    </span>
-                    <span className={styles.switchItem}>
+                    </div>
+                    <div className={styles.switchRow}>
                       <span className={styles.switchLabel}>{t('layout.editar')}</span>
                       <ToggleSwitch
                         checked={active.ai.edit}
                         onChange={(value) => setNoteConfig(active.id, { ai: { edit: value } })}
                         label={t('layout.ia.puede.editar')}
                       />
-                    </span>
-                    <span className={styles.switchItem}>
+                    </div>
+                    <div className={styles.switchRow}>
                       <span className={styles.switchLabel}>{t('layout.eliminar')}</span>
                       <ToggleSwitch
                         checked={active.ai.delete}
                         onChange={(value) => setNoteConfig(active.id, { ai: { delete: value } })}
                         label={t('layout.ia.puede.eliminar')}
                       />
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>

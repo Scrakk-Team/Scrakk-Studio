@@ -150,36 +150,37 @@
 .config {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  gap: var(--space-3);
+  padding: var(--space-3);
   border-radius: var(--radius-input);
   background: var(--color-surface-raised);
 }
 
-.configRow {
+.configField {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .configLabel {
   font-size: var(--text-xs);
+  font-weight: 600;
   color: var(--color-text-muted);
-  white-space: nowrap;
 }
 
-.switches {
-  display: inline-flex;
+.switchList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.switchRow {
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
   gap: var(--space-3);
-}
-
-.switchItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  min-width: 0;
 }
 
 .switchLabel {
