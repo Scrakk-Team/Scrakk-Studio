@@ -128,7 +128,8 @@ published are not edited. The file goes per version:
   and **Discord** with *bigger* ones (`{ panel: 16px, input: 12px, sm: 10px,
   xs: 6px }`). The welcome page,
   the **tool-dock pill**, the **activity-bar buttons** (hover and active
-  included) and the small controls (via a new `--radius-xs`) follow it too; round
+  included), the **status-bar chips** (all with the same radius as the command
+  trigger) and the small controls (via a new `--radius-xs`) follow it too; round
   **shapes** — avatars, the presence/resize dots and the tip pills — keep their
   form on purpose.
 
