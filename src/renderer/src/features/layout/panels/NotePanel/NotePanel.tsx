@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
+import { SegmentedTabs, ToggleSwitch } from '@ui'
 import { HeaderActionButton, usePanelTitle } from '@features/layout'
 import {
   createNote,
@@ -92,6 +93,13 @@ export function NotePanel(): JSX.Element {
 
   const active = activeId ? (notes.find((n) => n.id === activeId) ?? null) : null
 
+  // Ámbito: el proyecto solo se ofrece si hay uno abierto (no se puede poseer
+  // una nota de proyecto sin proyecto).
+  const scopeItems = [
+    { id: 'global', label: t('layout.ambito.global') },
+    ...(projectRoot ? [{ id: 'project', label: t('layout.ambito.del.proyecto') }] : [])
+  ]
+
   const handleDelete = useCallback(
     (id: string): void => {
       const remaining = notes.filter((n) => n.id !== id)
@@ -152,56 +160,48 @@ export function NotePanel(): JSX.Element {
           {active ? (
             <div className={styles.editor}>
               <div className={styles.config}>
-                <label className={styles.configField}>
+                <div className={styles.configRow}>
                   <span className={styles.configLabel}>{t('layout.ambito.de.la.nota')}</span>
-                  <select
-                    className={styles.configSelect}
-                    value={active.scope}
-                    onChange={(event) => {
-                      const scope = event.target.value as NoteScope
+                  <SegmentedTabs
+                    items={scopeItems}
+                    activeId={active.scope}
+                    onChange={(id) =>
                       setNoteConfig(active.id, {
-                        scope,
-                        projectRoot: scope === 'project' ? projectRoot : null
+                        scope: id as NoteScope,
+                        projectRoot: id === 'project' ? projectRoot : null
                       })
-                    }}
-                  >
-                    <option value="global">{t('layout.ambito.global')}</option>
-                    <option value="project" disabled={!projectRoot}>
-                      {t('layout.ambito.del.proyecto')}
-                    </option>
-                  </select>
-                </label>
-                <div className={styles.aiToggles} role="group" aria-label={t('layout.acceso.de.la.ia')}>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={active.ai.read}
-                      onChange={(event) =>
-                        setNoteConfig(active.id, { ai: { read: event.target.checked } })
-                      }
-                    />
-                    {t('layout.ia.puede.leer')}
-                  </label>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={active.ai.edit}
-                      onChange={(event) =>
-                        setNoteConfig(active.id, { ai: { edit: event.target.checked } })
-                      }
-                    />
-                    {t('layout.ia.puede.editar')}
-                  </label>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      checked={active.ai.delete}
-                      onChange={(event) =>
-                        setNoteConfig(active.id, { ai: { delete: event.target.checked } })
-                      }
-                    />
-                    {t('layout.ia.puede.eliminar')}
-                  </label>
+                    }
+                    ariaLabel={t('layout.ambito.de.la.nota')}
+                  />
+                </div>
+                <div className={styles.configRow}>
+                  <span className={styles.configLabel}>{t('layout.acceso.de.la.ia')}</span>
+                  <div className={styles.switches}>
+                    <span className={styles.switchItem}>
+                      <span className={styles.switchLabel}>{t('layout.leer')}</span>
+                      <ToggleSwitch
+                        checked={active.ai.read}
+                        onChange={(value) => setNoteConfig(active.id, { ai: { read: value } })}
+                        label={t('layout.ia.puede.leer')}
+                      />
+                    </span>
+                    <span className={styles.switchItem}>
+                      <span className={styles.switchLabel}>{t('layout.editar')}</span>
+                      <ToggleSwitch
+                        checked={active.ai.edit}
+                        onChange={(value) => setNoteConfig(active.id, { ai: { edit: value } })}
+                        label={t('layout.ia.puede.editar')}
+                      />
+                    </span>
+                    <span className={styles.switchItem}>
+                      <span className={styles.switchLabel}>{t('layout.eliminar')}</span>
+                      <ToggleSwitch
+                        checked={active.ai.delete}
+                        onChange={(value) => setNoteConfig(active.id, { ai: { delete: value } })}
+                        label={t('layout.ia.puede.eliminar')}
+                      />
+                    </span>
+                  </div>
                 </div>
               </div>
               <textarea

@@ -149,55 +149,42 @@
 
 .config {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  padding: var(--space-1) var(--space-2);
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-input);
   background: var(--color-surface-raised);
-  font-size: var(--text-xs);
 }
 
-.configField {
-  display: inline-flex;
+.configRow {
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .configLabel {
-  color: var(--color-text-muted);
-}
-
-.configSelect {
-  padding: 2px 6px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-input);
-  background: transparent;
-  color: var(--color-text);
-  font-family: inherit;
   font-size: var(--text-xs);
-  cursor: pointer;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
-.aiToggles {
+.switches {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
-.toggle {
+.switchItem {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
 }
 
-.toggle input {
-  margin: 0;
-  accent-color: var(--color-accent, var(--color-text));
+.switchLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
 }
 
 .editorInput {

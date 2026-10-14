@@ -4424,6 +4424,14 @@
       "at": "2026-09-25T17:29:46.391Z",
       "approvedAt": "2026-09-25T17:32:07.887Z"
     },
+    "layout.editar": {
+      "src": "2eba946b2e1ee4b6",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:45:21.280Z",
+      "approvedAt": "2026-10-14T21:45:21.280Z"
+    },
     "layout.el.modelo.no.declara.variantes": {
       "src": "90656795301dc6b8",
       "area": "layout",
@@ -4647,6 +4655,14 @@
       "needsReview": false,
       "at": "2026-09-25T18:11:19.345Z",
       "approvedAt": "2026-09-25T18:11:20.451Z"
+    },
+    "layout.leer": {
+      "src": "f4e0ac08042c987a",
+      "area": "layout",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-14T21:45:21.280Z",
+      "approvedAt": "2026-10-14T21:45:21.280Z"
     },
     "layout.listo": {
       "src": "53da567089bec8da",
