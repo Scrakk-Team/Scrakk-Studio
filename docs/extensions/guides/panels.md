@@ -56,6 +56,12 @@ export default function Board() {
 Available hooks: `usePanelTitle()` (`{ setTitle, setActions }`) and
 `usePanelId()` (the id of the mounted panel).
 
+The app provides the imports a bundle can use: `react`, `react-dom` (and
+`react-dom/client`), `react/jsx-runtime` and `@features/layout`. Do **not** bundle
+your own React — the hooks and the tree have to share the app's copy. Anything
+else the IDE exposes goes through `window.scrakk` (see
+[Scrakk API](../reference/api.md)).
+
 ## Header actions
 
 `setActions` registers buttons to the right of the title. Every button you want

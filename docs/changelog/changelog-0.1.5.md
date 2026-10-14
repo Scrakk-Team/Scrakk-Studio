@@ -134,6 +134,13 @@ published are not edited. The file goes per version:
   form on purpose.
 
 ### Extensions
+- **An installed `.sef` with a panel now actually loads.** A bundle leaves
+  `react` (and `@features/layout`) as **bare specifiers** and the loader imported
+  it as a `data:` URL — which cannot resolve bare specifiers — so the import threw
+  (`Failed to resolve module specifier "react/jsx-runtime"`) and the panel never
+  appeared. The loader now rewrites those specifiers to the app's own shim
+  modules, so the extension shares the app's React (hooks keep working) and the
+  layout hooks are importable. `window.scrakk` is the bridge for everything else.
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
   build and contributed a side panel, an activity-bar button and a "Dashboard"
   center tab; now it is gone from all builds.

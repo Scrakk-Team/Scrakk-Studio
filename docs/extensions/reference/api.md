@@ -46,9 +46,10 @@ The theme side of the same system (the JSON `radius` field) is documented in
 
 ## `window.scrakk`
 
-Runtime code that cannot `import` app modules (for example a component shipped
-inside a `.sef`) reaches the same personalization surface through a global the
-app installs at boot:
+A `.sef` bundle runs in the renderer, but it can only import a small set of
+modules the app provides: `react`, `react-dom` (and `react-dom/client`),
+`react/jsx-runtime` and `@features/layout` (the panel hooks). For everything else
+there is a global the app installs at boot:
 
 ```js
 window.scrakk.radius.set('rect')       // same values as api.radius.set
@@ -56,7 +57,7 @@ window.scrakk.radius.reset()
 ```
 
 Nothing else is exposed there: the rest of the API is per-extension and goes
-through `api` (which is what receives the permission gate).
+through `api` (which is the one behind the permission gate).
 
 ## Next steps
 
