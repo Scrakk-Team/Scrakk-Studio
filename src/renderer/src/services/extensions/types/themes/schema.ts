@@ -109,7 +109,7 @@ export interface ThemeToken {
 }
 
 /** Slots de radio (esquinas) que un tema puede redefinir. */
-export const THEME_RADIUS_SLOTS = ['panel', 'input', 'sm', 'md', 'capsule'] as const
+export const THEME_RADIUS_SLOTS = ['panel', 'input', 'sm', 'xs', 'md', 'capsule'] as const
 export type ThemeRadiusSlot = (typeof THEME_RADIUS_SLOTS)[number]
 
 /** Mapa fino por slot: `{ panel: "16px", input: "6px" }`. */
