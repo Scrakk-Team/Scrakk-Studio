@@ -113,11 +113,11 @@ describe('temas builtin', () => {
     const def = normalizeThemeDefinition(JSON.parse(raw))
     expect(def).not.toBeNull()
     expect(def!.radius).toEqual({
-      panel: '6px',
-      md: '6px',
-      input: '4px',
-      sm: '3px',
-      xs: '2px'
+      panel: '8px',
+      md: '8px',
+      input: '6px',
+      sm: '5px',
+      xs: '4px'
     })
   })
 })
