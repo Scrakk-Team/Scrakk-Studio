@@ -92,6 +92,12 @@ The JSON (the **SEF productIcons** format):
 
 A theme with no fonts **or** no definitions is dropped with a warning.
 
+The builtin pack (`scrakk`) uses **VS Code codicon ids** where the concept
+exists, so a theme overrides them exactly by id. It also ships Scrakk-only ids
+that are **components**, not glyphs — for example **`verified-badge`** (the seal
+next to a verified account or extension). A theme that does not define them keeps
+the builtin one.
+
 ## Activate
 
 Both are listed in **Settings → Extensions** (the "File icons" and "UI icons"

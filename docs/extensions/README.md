@@ -105,7 +105,8 @@ contributes:
 | [Manifest](reference/manifest.md) | Every field of `manifest.json`. |
 | [Contributes](reference/contributes.md) | The **14** contribution kinds with their real fields. |
 | [SEF CLI](reference/cli.md) | `sef create/build/pack/validate` and the v2 layout. |
-| [Extension API](reference/vscode-api.md) | The emulated `vscode.*` surface and its real status. |
+| [Scrakk API](reference/api.md) | What a handler receives: `fs`, `lsp`, `tooltips`, `notifications`, `radius`. |
+| [Extension API (vscode)](reference/vscode-api.md) | The emulated `vscode.*` surface and its real status. |
 | [Builtin](reference/builtin.md) | Creating an extension that ships inside the app. |
 
 ## Architecture

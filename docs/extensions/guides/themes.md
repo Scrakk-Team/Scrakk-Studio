@@ -127,7 +127,8 @@ window.scrakk.radius.reset()
 ```
 
 Values are validated exactly like in the JSON, so an extension cannot inject
-arbitrary CSS.
+arbitrary CSS. The API reference for the same surface is
+[Scrakk API](../reference/api.md).
 
 ## Activate
 

@@ -73,7 +73,7 @@ The paths are **relative to the package folder**
 |---|---|---|
 | `innerta-terminal` | panels | the native terminal panel |
 | `material-icon-theme` | fileIcons | the default file icon theme |
-| `themes/*` | themes | ~100 color themes |
+| `themes/*` | themes | ~100 color themes (a few carry extra chrome: `opencode-ai` sets `radius: "rect"`, `vscode-dark-modern` and `discord` set reduced/bigger corners, and many set their own UI `fonts`) |
 | `langs` (outside `builtin/`, in `langs/`) | languages | the tree-sitter grammar pack (exposed as one more extension, with `hidden`) |
 
 ## Builtin vs. `.sef`
@@ -90,3 +90,4 @@ The paths are **relative to the package folder**
 
 - [Packaging](../guides/packaging.md) — for the ones that do get installed.
 - [Contributes](contributes.md) — the kinds it can contribute.
+- [Extension API](api.md) — what a handler receives (`fs`, `lsp`, `tooltips`, `notifications`, `radius`).
