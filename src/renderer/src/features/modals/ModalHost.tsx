@@ -145,9 +145,11 @@ function AnchoredPanel({ id, spec }: { id: string; spec: AnchoredModalSpec }): J
       className={styles.anchored}
       style={positionStyle}
     >
-      <div className={styles.anchoredHeader}>
-        <span className={styles.anchoredTitle}>{spec.title}</span>
-      </div>
+      {spec.hideHeader ? null : (
+        <div className={styles.anchoredHeader}>
+          <span className={styles.anchoredTitle}>{spec.title}</span>
+        </div>
+      )}
       <div className={styles.anchoredBody}>{rendered}</div>
     </div>
   )

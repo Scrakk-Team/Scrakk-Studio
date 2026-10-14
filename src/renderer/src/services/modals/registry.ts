@@ -91,6 +91,12 @@ export interface AnchoredModalSpec {
    * viewport. Default 'end' para no cambiar los callers existentes.
    */
   align?: AnchoredAlign
+  /**
+   * Oculta la barra de título del host: el cuerpo pinta la suya con el MISMO
+   * chrome. Lo usa el historial de workspaces, que necesita el paginador
+   * alineado con el título (y por tanto compartir estado con la lista).
+   */
+  hideHeader?: boolean
   render: (ctx: ModalRenderContext) => unknown
   /** Se llama cuando el host lo cierra (Esc/click afuera/toggle). */
   onClose?: () => void
