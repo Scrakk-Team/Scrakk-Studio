@@ -65,4 +65,12 @@ describe('CSP del renderer', () => {
     // iframe no carga nunca (panel en blanco, sin error visible).
     expect(directive(readCsp(), 'frame-src')).toContain('scrakk-ext:')
   })
+
+  it('script-src permite blob: (así se importa el bundle de un .sef)', () => {
+    // Un `.sef` con panel se importa como módulo dinámico desde un blob URL
+    // (`createBundleModuleUrl`). `data:` NO está en la política: con data-URL el
+    // import muere con "Failed to fetch dynamically imported module" y el panel
+    // no aparece nunca — el caso real que se comía toda extensión con código.
+    expect(directive(readCsp(), 'script-src')).toContain('blob:')
+  })
 })

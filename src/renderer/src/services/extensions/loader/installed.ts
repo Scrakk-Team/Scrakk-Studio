@@ -16,7 +16,7 @@
  */
 
 import { registerManifest } from './resolve'
-import { rewriteBundleExternals, shimUrls } from './externals'
+import { createBundleModuleUrl, rewriteBundleExternals, shimUrls } from './externals'
 import { withExtensionOwner, disposeRuntimeHandlers } from '../runtime/bridge'
 import { forgetExtensionDir, setExtensionDir } from '../extensionDirs'
 import { ExtensionRegistry } from '../registry'
@@ -37,13 +37,6 @@ export interface InstalledExtensionEntry {
   version: string
   author?: string
   dir: string
-}
-
-function toBase64(text: string): string {
-  const bytes = new TextEncoder().encode(text)
-  let binary = ''
-  for (const byte of bytes) binary += String.fromCharCode(byte)
-  return btoa(binary)
 }
 
 /** Envuelve una extensión rota sin cortar el boot. */
@@ -94,15 +87,21 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
     const bundleRes = await window.api.fs.readFile(`${entry.dir}/${manifest.entry ?? 'dist/index.js'}`)
     if (!bundleRes.success || typeof bundleRes.content !== 'string') return
     // Los externals (react, hooks del layout) vienen BARE y una `data:` URL no
-    // los puede resolver: se reescriben a la URL real de cada shim.
+    // los puede resolver: se reescriben a la URL real de cada shim. Y el
+    // contenedor tiene que ser un BLOB (la CSP no permite `data:` en scripts).
     const source = rewriteBundleExternals(bundleRes.content, await shimUrls())
-    const bundleUrl = `data:text/javascript;base64,${toBase64(source)}`
-    // El dueño se marca DURANTE el import: lo que el bundle registre en su
-    // top-level (comandos de paleta, handlers de tools) queda a su nombre.
-    const bundle = await withExtensionOwner(manifest.id, async () =>
-      (await import(/* @vite-ignore */ bundleUrl)) as SefBundle
-    )
-    modules = bundle.modules ?? {}
+    const bundleUrl = createBundleModuleUrl(source)
+    try {
+      // El dueño se marca DURANTE el import: lo que el bundle registre en su
+      // top-level (comandos de paleta, handlers de tools) queda a su nombre.
+      const bundle = await withExtensionOwner(manifest.id, async () =>
+        (await import(/* @vite-ignore */ bundleUrl)) as SefBundle
+      )
+      modules = bundle.modules ?? {}
+    } finally {
+      // El módulo ya quedó en el module map: la URL no hace falta nunca más.
+      URL.revokeObjectURL(bundleUrl)
+    }
   }
 
   // La validación de módulos faltantes vive en el schema de cada tipo

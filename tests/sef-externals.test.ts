@@ -13,6 +13,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   BUNDLE_EXTERNALS,
+  createBundleModuleUrl,
   rewriteBundleExternals
 } from '../src/renderer/src/services/extensions/loader/externals'
 
@@ -70,5 +71,23 @@ describe('rewriteBundleExternals', () => {
     expect(BUNDLE_EXTERNALS).toContain('react')
     expect(BUNDLE_EXTERNALS).toContain('react/jsx-runtime')
     expect(BUNDLE_EXTERNALS).toContain('@features/layout')
+  })
+})
+
+describe('createBundleModuleUrl', () => {
+  it('devuelve una URL de BLOB, nunca data: (la CSP bloquea data: en scripts)', async () => {
+    const blobs: Blob[] = []
+    const url = createBundleModuleUrl('export const modules = {}', {
+      createObjectURL: (blob) => {
+        blobs.push(blob)
+        return 'blob:http://localhost:5173/6f1c'
+      }
+    })
+
+    expect(url.startsWith('blob:')).toBe(true)
+    expect(url.startsWith('data:')).toBe(false)
+    expect(blobs).toHaveLength(1)
+    expect(blobs[0].type).toBe('text/javascript')
+    expect(await blobs[0].text()).toBe('export const modules = {}')
   })
 })

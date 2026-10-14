@@ -58,6 +58,25 @@ function escapeSpecifier(spec: string): string {
   return spec.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/** Objeto/URL factory inyectable: en Node no hay `URL.createObjectURL`. */
+export interface ObjectUrlFactory {
+  createObjectURL: (blob: Blob) => string
+}
+
+/**
+ * URL de módulo para el bundle compilado.
+ *
+ * **Blob, nunca `data:`**: la CSP del renderer es
+ * `script-src 'self' blob: 'wasm-unsafe-eval'` — `data:` NO está permitido, así
+ * que importar el bundle como data-URL falla con
+ * "Failed to fetch dynamically imported module" y el panel nunca aparece.
+ * `blob:` sí está en la política (y es el mismo contenedor que usa la app en
+ * otros lados).
+ */
+export function createBundleModuleUrl(source: string, urls: ObjectUrlFactory = URL): string {
+  return urls.createObjectURL(new Blob([source], { type: 'text/javascript' }))
+}
+
 /**
  * Reescribe los externals del bundle por las URLs de los shims.
  *
