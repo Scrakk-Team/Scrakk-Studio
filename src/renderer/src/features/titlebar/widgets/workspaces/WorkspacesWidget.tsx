@@ -74,6 +74,8 @@ export function WorkspacesWidget(): JSX.Element {
       width: 300,
       placement: 'below',
       align: 'center',
+      /* El panel pinta su propia cabecera para llevar ahí el paginador. */
+      hideHeader: true,
       render: ({ close }) => <WorkspacesHistoryPanel onNavigate={close} />
     })
   }, [])

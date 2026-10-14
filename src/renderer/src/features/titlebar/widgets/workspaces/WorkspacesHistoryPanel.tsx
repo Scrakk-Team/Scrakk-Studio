@@ -20,14 +20,18 @@ interface WorkspacesHistoryPanelProps {
   onNavigate?: () => void
 }
 
+/** Cuántas cards se muestran por página en el popover. */
+const PAGE_SIZE = 6
+
 /**
  * Historial de workspaces — contenido del popover anclado (botón de la
- * titlebar). Lista el historial con badge ACTIVO + botón de agregar.
+ * titlebar). Lista el historial + botón de agregar.
  * Mismo lenguaje que el historial de notificaciones (popover sin overlay).
  */
 export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelProps): JSX.Element {
   const [history, setHistory] = useState<string[]>(() => listWorkspaces())
   const [current, setCurrent] = useState<string | null>(() => getActiveWorkspace())
+  const [page, setPage] = useState(0)
 
   useEffect(() => {
     const sync = (): void => {
@@ -62,13 +66,50 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
     }
   }
 
+  // Paginación (no scroll): `current` ya es el workspace activo, así que la
+  // página va en `currentPage`. Se recorta por si el historial encoge
+  // (desinstalar/olvidar) mientras el popover está abierto.
+  const pageCount = Math.max(1, Math.ceil(history.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount - 1)
+  const visible = history.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE)
+
   return (
     <div className={styles.panel}>
+      {/* Cabecera propia (el spec va con hideHeader): así el paginador queda
+          alineado con el título y comparte estado con la lista. */}
+      <div className={styles.header}>
+        <span className={styles.headerTitle}>{t('titlebar.workspaces')}</span>
+        {pageCount > 1 ? (
+          <div className={styles.pager}>
+            <button
+              type="button"
+              className={styles.pagerBtn}
+              disabled={currentPage === 0}
+              aria-label={t('features.pagina.anterior')}
+              onClick={() => setPage(Math.max(0, currentPage - 1))}
+            >
+              <ProductIcon id="chevron-right" size={12} style={{ transform: 'rotate(180deg)' }} />
+            </button>
+            <span className={styles.pagerLabel}>
+              {currentPage + 1} / {pageCount}
+            </span>
+            <button
+              type="button"
+              className={styles.pagerBtn}
+              disabled={currentPage === pageCount - 1}
+              aria-label={t('features.pagina.siguiente')}
+              onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+            >
+              <ProductIcon id="chevron-right" size={12} />
+            </button>
+          </div>
+        ) : null}
+      </div>
       {history.length === 0 ? (
         <p className={styles.empty}>{t('titlebar.sin.workspaces.todavia')}</p>
       ) : (
         <div className={styles.list} role="listbox" aria-label={t('titlebar.historial.de.workspaces')}>
-          {history.map((path) => {
+          {visible.map((path) => {
             const active = path === current
             return (
               <button
@@ -83,12 +124,11 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
                 onClick={() => openWorkspace(path)}
               >
                 <span className={styles.rowIcon} aria-hidden="true">
-                  <ProductIcon id="folder" size={15} />
+                  <ProductIcon id="folder" size={13} />
                 </span>
                 <span className={styles.rowMain}>
                   <span className={styles.rowTop}>
                     <span className={styles.rowName}>{baseNameOf(path)}</span>
-                    {active ? <span className={styles.badge}>ACTIVO</span> : null}
                   </span>
                   <span className={styles.rowPath}>{path}</span>
                 </span>
@@ -97,8 +137,9 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
           })}
         </div>
       )}
+
       <button type="button" className={styles.add} onClick={() => void addWorkspace()}>
-        <ProductIcon id="plus" size={13} />
+        <ProductIcon id="plus" size={12} />
         {t('titlebar.agregar.workspace')}
       </button>
     </div>
