@@ -154,9 +154,13 @@ published are not edited. The file goes per version:
   policy does allow), verified in Chromium with the app's own CSP. Second, the
   bundle leaves `react` (and `@features/layout`) as **bare specifiers**, which a
   `data:`/`blob:` module cannot resolve either (`Failed to resolve module specifier
-  "react/jsx-runtime"`); the loader rewrites them to the app's own shim modules, so
-  the extension shares the app's React (hooks keep working) and the layout hooks
-  are importable. `window.scrakk` is the bridge for everything else.
+  "react/jsx-runtime"`); the loader rewrites them to modules built from the app's
+  **real** React and layout namespaces, so the extension shares the app's React
+  (hooks keep working) and the layout hooks are importable. Those modules are
+  generated at runtime on purpose: a plain `export * from 'react'` re-exporter gets
+  tree-shaken down to nothing in the production build (its exports are unused *in
+  the app*), and then an extension cannot import `useState`/`jsx` at all.
+  `window.scrakk` is the bridge for everything else.
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
   build and contributed a side panel, an activity-bar button and a "Dashboard"
   center tab; now it is gone from all builds.
