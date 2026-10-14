@@ -14,7 +14,7 @@
   padding: 0 var(--space-2);
   height: 22px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted, #9aa0a6);
   font: inherit;
