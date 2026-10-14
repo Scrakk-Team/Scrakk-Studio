@@ -109,7 +109,7 @@ theme redefines them:
   **shape**, not a corner (avatars, the resize dots); square it explicitly in the
   map if you really want to.
 - `"round"` — the system radii (the default).
-- a map — any of `panel`, `input`, `sm`, `md`, `capsule` (`px`/`rem`/`em`/`%`).
+- a map — any of `panel`, `input`, `sm`, `xs`, `md`, `capsule` (`px`/`rem`/`em`/`%`).
 
 ## Corners from extension code
 
