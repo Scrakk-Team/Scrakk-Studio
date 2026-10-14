@@ -24,12 +24,16 @@
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 
-const PANELS_DIR = new URL(
-  '../src/renderer/src/features/layout/panels',
-  import.meta.url
-).pathname
+// `URL.pathname` devuelve una ruta CON CODIFICACIÓN URL y con la barra inicial
+// siempre: en Windows da `/C:/Users/...`, y `readdirSync` la resuelve contra la
+// unidad del directorio actual -> `C:\C:\Users\...` -> ENOENT.
+// `fileURLToPath` devuelve una ruta del sistema de archivos válida.
+const PANELS_DIR = fileURLToPath(
+  new URL('../src/renderer/src/features/layout/panels', import.meta.url)
+)
 
 /** Todos los .tsx de los paneles built-in. */
 function panelSources(): { file: string; src: string }[] {

@@ -25,8 +25,13 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          npm install --ignore-scripts
+          npm ci --ignore-scripts
           node node_modules/electron/install.js
+
+      # Una release construida con un árbol distinto al del lockfile es
+      # irreproducible: si algo toca el lockfile aquí, que falle ya.
+      - name: El lockfile no cambió
+        run: git diff --exit-code -- package-lock.json
 
       # node-pty no publica prebuild para linux-x64 (solo win32/darwin). Como
       # el install del CI corre con --ignore-scripts, sin este paso el paquete
@@ -70,8 +75,13 @@ jobs:
           node-version: 24
           cache: npm
 
+      # `npm ci` conserva los install-scripts (a diferencia del job de linux, aquí
+      # los hacen falta: electron baja su binario y node-pty trae su prebuild).
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
+
+      - name: El lockfile no cambió
+        run: git diff --exit-code -- package-lock.json
 
       # Guarda: el .exe necesita el binario nativo. En Windows sale del
       # prebuild (win32-x64); si faltara, el paquete no arrancaría.
@@ -85,9 +95,14 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # Sin tests en Windows: la suite completa gatea en el job linux.
-      # grammar-cli rompe la colección bajo vitest+win32 (import .ts-desde-.mjs)
-      # y hay casos POSIX-only; se corre build + empaquetado del .exe.
+      # El motivo histórico para no correr tests aquí ("grammar-cli rompe la
+      # colección bajo vitest+win32") era en realidad un problema que NO era de
+      # plataforma: un shebang `#!/usr/bin/env node` en un módulo ESM, que el
+      # transform SSR de Vite dejaba huérfano. Ya está corregido y la suite
+      # pasa en windows-latest, así que aquí se corre también.
+      - name: Tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
