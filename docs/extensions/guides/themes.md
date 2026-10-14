@@ -81,6 +81,8 @@ string or a list.
 ## Other fields
 
 - `flat: true` — single-color chrome (the bars add a border).
+- `radius` — the corners of the chrome (see **Corners** below): `"rect"`,
+  `"round"` or a per-slot map.
 - `fonts.ui` — UI font: `{ family, source?, size?, weight?, lineHeight? }`.
   `source` accepts `https:` or `data:` (≤ 4096 chars) in **two shapes**: a **font
   file** (`.woff2` / `.woff` / `.ttf` / `.otf` — the app writes the `@font-face`
@@ -92,6 +94,40 @@ string or a list.
 
 The theme is validated **tolerantly**: anything invalid is dropped with a warning
 and the rest of the theme still applies.
+
+## Corners
+
+The layout draws the panels, inputs and chips from a few radius tokens, and a
+theme redefines them:
+
+```json
+{ "radius": "rect" }
+{ "radius": { "panel": "16px", "input": "6px" } }
+```
+
+- `"rect"` — everything square. The `capsule` stays round on purpose: it is a
+  **shape**, not a corner (avatars, the resize dots); square it explicitly in the
+  map if you really want to.
+- `"round"` — the system radii (the default).
+- a map — any of `panel`, `input`, `sm`, `md`, `capsule` (`px`/`rem`/`em`/`%`).
+
+## Corners from extension code
+
+An extension can override the corners **at runtime** — handy for a panel that
+toggles its own look. The override wins over the active theme, and `reset()`
+gives control back to it:
+
+```js
+api.radius.set('rect')                 // type handlers receive `api`
+api.radius.set({ panel: '0px' })
+api.radius.reset()                     // back to the theme's value
+
+window.scrakk.radius.set('rect')       // .sef bundle components (no imports)
+window.scrakk.radius.reset()
+```
+
+Values are validated exactly like in the JSON, so an extension cannot inject
+arbitrary CSS.
 
 ## Activate
 
