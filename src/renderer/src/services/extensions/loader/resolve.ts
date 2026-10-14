@@ -79,6 +79,9 @@ export async function registerManifest(
         const registered = await handler.register(contribution, {
           extensionId: extId,
           isBuiltin,
+          // Un tool se ejecuta en el host si la extensión tiene código; si no,
+          // lo atiende el bundle (ver types/tools/logic.tsx).
+          hasRuntime: manifest.runtime !== undefined,
           // Sólo las .sef tienen raíz en disco (ver `readFile` arriba).
           extensionPath: packageDir || undefined,
           resolver,

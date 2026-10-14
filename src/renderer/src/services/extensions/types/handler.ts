@@ -38,6 +38,14 @@ export interface ExtensionTypeContext {
   /** True = compilada dentro del bundle de la app. */
   isBuiltin: boolean
   /**
+   * True = la extensión declara `runtime` (tiene Extension Host).
+   *
+   * Decide QUIÉN ejecuta sus tools: con host, el `command` viaja al host
+   * (modelo VS Code); sin host (extensión declarativa), lo atiende el handler
+   * que su bundle registró con `window.scrakk.tools.register`.
+   */
+  hasRuntime?: boolean
+  /**
    * Raíz del paquete instalado (vacío/ausente para builtin).
    *
    * Existe para los tipos que necesitan una ruta ABSOLUTA a un archivo del

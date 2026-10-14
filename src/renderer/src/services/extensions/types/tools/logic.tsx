@@ -6,14 +6,22 @@
  * Tipo 'tools' — lógica.
  *
  * Construye la `Tool` real (misma forma que las built-in: definition, meta con
- * visual, permissions y execute) y la registra en el registry global. El
- * `execute` despacha a un COMANDO de la extensión, que corre en el Extension
- * Host: así el código de la tool vive en el paquete y el chat solo ve el
- * contrato.
+ * visual, permissions y execute) y la registra en el registry global.
+ *
+ * El `execute` tiene DOS caminos, y cuál se usa lo decide la extensión:
+ *
+ *  - **Con `runtime`** (Extension Host): despacha a un COMANDO de la extensión
+ *    que corre en el host — el modelo de VS Code: el código vive en el paquete
+ *    y el chat solo ve el contrato.
+ *  - **Declarativa** (sin host): lo atiende el handler que el bundle de UI
+ *    registró con `window.scrakk.tools.register`. Sin este camino, un tool de
+ *    una extensión sin código no tendría quién lo ejecute, y justo es el caso
+ *    en el que la extensión SÍ puede tocar la UI que monta (un lienzo, p. ej.).
  */
 
 import { registry, type ExecutionResult, type Tool } from '@services/ai/tools'
 import { toolCatalog, EXTENSIONS_FAMILY, EXTENSION_TOOL_TYPE } from '@services/ai/tools/catalog'
+import { getToolHandler } from '../../runtime/bridge'
 import type { ComponentType, JSX } from 'react'
 import type { ExtensionTypeContext } from '../handler'
 import { ExtensionToolVisual, type ToolVisualProps } from './ExtensionToolVisual'
@@ -108,6 +116,33 @@ export function buildExtensionTool(contribution: ToolContribution, ctx: Extensio
         )
     },
     execute: async (args): Promise<ExecutionResult> => {
+      // Extensión DECLARATIVA (sin Extension Host): el handler vive en el
+      // bundle de UI, que lo registró con `window.scrakk.tools.register`. Es el
+      // único camino cuando la extensión no tiene código de host — y el único
+      // que puede tocar la UI que la misma extensión monta (un lienzo, p. ej.).
+      const runtimeHandler = getToolHandler(extensionId, contribution.command)
+      if (runtimeHandler) {
+        try {
+          const result = await runtimeHandler(args)
+          return {
+            success: true,
+            content:
+              typeof result === 'string' ? result : JSON.stringify(result ?? null, null, 2)
+          }
+        } catch (error) {
+          return {
+            success: false,
+            content: `Error ejecutando "${contribution.name}": ${String(error)}`
+          }
+        }
+      }
+      if (!ctx.isBuiltin && ctx.hasRuntime === false) {
+        // Sin host y sin handler: se dice QUÉ falta, en vez de un error del host.
+        return {
+          success: false,
+          content: `Error: la extensión "${extensionId}" no atiende "${contribution.command}" (registralo con window.scrakk.tools.register en el bundle)`
+        }
+      }
       try {
         const response = await window.api.extensions.host.executeCommand({
           id: extensionId,

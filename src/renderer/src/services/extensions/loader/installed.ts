@@ -17,6 +17,7 @@
 
 import { registerManifest } from './resolve'
 import { rewriteBundleExternals, shimUrls } from './externals'
+import { withExtensionOwner, disposeRuntimeHandlers } from '../runtime/bridge'
 import { forgetExtensionDir, setExtensionDir } from '../extensionDirs'
 import { ExtensionRegistry } from '../registry'
 import { ExtensionTypeRegistry } from '../types'
@@ -96,7 +97,11 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
     // los puede resolver: se reescriben a la URL real de cada shim.
     const source = rewriteBundleExternals(bundleRes.content, await shimUrls())
     const bundleUrl = `data:text/javascript;base64,${toBase64(source)}`
-    const bundle = (await import(/* @vite-ignore */ bundleUrl)) as SefBundle
+    // El dueño se marca DURANTE el import: lo que el bundle registre en su
+    // top-level (comandos de paleta, handlers de tools) queda a su nombre.
+    const bundle = await withExtensionOwner(manifest.id, async () =>
+      (await import(/* @vite-ignore */ bundleUrl)) as SefBundle
+    )
     modules = bundle.modules ?? {}
   }
 
@@ -140,5 +145,7 @@ export async function loadInstalledExtensions(): Promise<void> {
 export function unregisterInstalledExtension(id: string): void {
   ExtensionTypeRegistry.unregisterExtension(id)
   ExtensionRegistry.unregister(id)
+  // Los comandos de paleta y los handlers de tools que registró su bundle.
+  disposeRuntimeHandlers(id)
   forgetExtensionDir(id)
 }
