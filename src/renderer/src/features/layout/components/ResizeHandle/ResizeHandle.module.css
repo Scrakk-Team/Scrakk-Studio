@@ -43,16 +43,24 @@
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-out);
+  /* Nace encogida y "cuaja" encima de los puntos ya estirados: la conversión se
+     lee como UNA pieza (líquido), no como dos estados que se cruzan. */
+  transform: scaleY(0.35);
+  transition:
+    opacity 90ms var(--ease-out) 45ms,
+    transform 160ms var(--ease-out) 45ms;
   pointer-events: none;
 }
 
 .handle[data-direction='horizontal'] .capsule {
   width: 56px;
   height: 3px;
+  transform: scaleX(0.35);
 }
 
-/* 3 puntos del hover/foco: color del tema, sin hardcodear. */
+/* 3 puntos del hover/foco: color del tema, sin hardcodear.
+   En drag NO se apagan de golpe: se ESTIRAN y se juntan hasta ser la raya
+   (morph de ~150ms). Al soltar vuelven a ser 3 puntos. */
 .dots {
   position: absolute;
   z-index: 1;
@@ -62,7 +70,11 @@
   justify-content: center;
   gap: 3px;
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-out);
+  transform: scale(0.9);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    gap 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
   pointer-events: none;
 }
 
@@ -75,24 +87,59 @@
   height: 3px;
   border-radius: var(--radius-capsule);
   background: var(--color-accent);
+  transition:
+    width 150ms var(--ease-out),
+    height 150ms var(--ease-out),
+    border-radius 150ms var(--ease-out);
 }
 
-/* Hover/foco → puntos. Drag → cápsula (los puntos se ocultan). */
+/* Hover/foco → puntos. Drag → la cápsula, con los puntos convertidos en ella. */
 .handle:hover .dots,
 .handle:focus-visible .dots,
 .corner:hover .dots,
 .corner:focus-visible .dots {
   opacity: 1;
+  transform: scale(1);
 }
 
+/* Drag: los puntos se juntan (gap 0) y cada uno se estira hasta que 3 × su
+   alto ≈ la cápsula. El resultado ES la raya; la cápsula solo le pone los
+   extremos redondeados y el color exacto. */
 .handle[data-dragging='true'] .dots,
 .corner[data-dragging='true'] .dots {
-  opacity: 0;
+  gap: 0;
+  /* Se fuerza visible: durante el drag el puntero puede salirse del handle
+     (hay captura) y sin esto el `:hover` se perdía y los puntos parpadeaban. */
+  opacity: 1;
+  transform: scale(1);
+}
+
+.handle[data-dragging='true'] .dots > span {
+  height: 18.67px;
+  border-radius: 1px;
+}
+
+/* Horizontal: el estirado va en ANCHO (los puntos van en fila). */
+.handle[data-direction='horizontal'][data-dragging='true'] .dots > span {
+  width: 18.67px;
+  height: 3px;
+}
+
+/* Esquinera: la cápsula mide 12px → 3 puntos de 4px sin gap. */
+.corner[data-dragging='true'] .dots > span {
+  width: 4px;
+  height: 3px;
+  border-radius: 1px;
 }
 
 .handle[data-dragging='true'] .capsule,
 .corner[data-dragging='true'] .capsule {
   opacity: 1;
+  transform: scaleY(1);
+}
+
+.handle[data-direction='horizontal'][data-dragging='true'] .capsule {
+  transform: scaleX(1);
 }
 
 /* Esquinera diagonal: vive en los extremos de la fila del handle inferior,
@@ -152,4 +199,14 @@
 .handle[data-square='true'][data-direction='horizontal'] {
   border-left: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+}
+
+/* Sin animaciones si el sistema las pide: la conversión es instantánea. */
+@media (prefers-reduced-motion: reduce) {
+  .dots,
+  .dots > span,
+  .capsule {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
 }
