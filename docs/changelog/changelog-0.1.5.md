@@ -122,10 +122,11 @@ published are not edited. The file goes per version:
   (`{ "panel": "16px" }`). An extension can also override them **at runtime**
   (`api.radius.set('rect')` / `reset()`, plus `window.scrakk.radius` for `.sef`
   bundles), so a panel can toggle its own look. Values are validated (no CSS
-  injection) and a `reset()` always yields back to the active theme. Two builtin
-  themes already use it: **OpenCode AI** ships `"radius": "rect"`, and **VS Code
-  Dark Modern** ships *reduced* corners (`{ panel: 8px, input: 6px, sm: 5px,
-  xs: 4px }`), closer to the real editor. The welcome page,
+  injection) and a `reset()` always yields back to the active theme. Three
+  builtin themes ship it: **OpenCode AI** with `"radius": "rect"`, **VS Code Dark
+  Modern** with *reduced* corners (`{ panel: 8px, input: 6px, sm: 5px, xs: 4px }`)
+  and **Discord** with *bigger* ones (`{ panel: 16px, input: 12px, sm: 10px,
+  xs: 6px }`). The welcome page,
   the **tool-dock pill**, the **activity-bar buttons** (hover and active
   included) and the small controls (via a new `--radius-xs`) follow it too; round
   **shapes** — avatars, the presence/resize dots and the tip pills — keep their
