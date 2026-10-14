@@ -21,18 +21,30 @@
 import { useEffect, useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { countProblems, subscribeToDiagnostics, type ProblemCounts } from '@services/lsp'
+import { getEditorFiles, subscribeToEditorFiles } from '@features/editor'
 import { toggleSlotPanel } from '@features/layout'
 import styles from './ProblemsChip.module.css'
 
 import { t } from '@core/i18n'
-export function ProblemsChip(): JSX.Element {
+export function ProblemsChip(): JSX.Element | null {
   const [counts, setCounts] = useState<ProblemCounts>(() => countProblems())
+  // Sin archivos abiertos no hay nada que contar: el chip no se muestra (como
+  // el resto de indicadores, que sólo tienen sentido con un editor).
+  const [hasFiles, setHasFiles] = useState(() => getEditorFiles().openFiles.length > 0)
 
   useEffect(() => {
     const refresh = (): void => setCounts(countProblems())
     refresh()
     return subscribeToDiagnostics(refresh)
   }, [])
+
+  useEffect(() => {
+    const refresh = (): void => setHasFiles(getEditorFiles().openFiles.length > 0)
+    refresh()
+    return subscribeToEditorFiles(refresh)
+  }, [])
+
+  if (!hasFiles) return null
 
   const clean = counts.errors === 0 && counts.warnings === 0
   const title = clean

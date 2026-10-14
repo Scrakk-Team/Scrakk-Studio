@@ -71,9 +71,10 @@ export function StatusBar({ onOpenSettings }: StatusBarProps): JSX.Element {
     <footer className={styles.bar} aria-label={t('statusbar.barra.de.estado')}>
       <div className={styles.group}>
         <LspChip />
-        {/* Errores/advertencias: click = panel de Problemas (como VS Code). */}
-        <ProblemsChip />
         <GitChip />
+        {/* Errores/advertencias: a la DERECHA de los commits (click = panel de
+            Problemas, como VS Code). */}
+        <ProblemsChip />
         <span className={styles.separator} aria-hidden="true" />
         <CursorPosition />
         <EncodingChip />

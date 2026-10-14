@@ -79,6 +79,10 @@ published are not edited. The file goes per version:
   per page** with a footer (`‹ 1 / 3 ›`), keeping the Active / History headings
   on the page where each group starts. The "Clear" button stays with the History
   heading.
+- **The status dots are now rounded squares.** The LSP state dot and the Git
+  status dot on the left of the bar were circles; they are now small squares
+  with rounded corners (`border-radius: 2px`), matching the squared shape used
+  by the surrounding chips.
 - **The command trigger no longer overlaps the other chips.** It was absolutely
   centred with a fixed `min-width: 220px`, so on a narrow window it ran into the
   chips on the left (encoding, cursor position) and on the right. It now measures
