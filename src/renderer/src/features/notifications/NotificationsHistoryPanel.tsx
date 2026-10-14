@@ -9,7 +9,7 @@
  * que las cards del host (acento de severidad abajo).
  */
 
-import { useEffect, useState, type JSX } from 'react'
+import { Fragment, useEffect, useState, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import {
   notificationRegistry,
@@ -79,8 +79,17 @@ function HistoryRow({ entry }: { entry: NotificationHistoryEntry }): JSX.Element
   )
 }
 
+/** Cuántas tarjetas se muestran por página en el popover. */
+const PAGE_SIZE = 5
+
+/** Fila unificada del panel: una activa o una del historial. */
+type PanelItem =
+  | { kind: 'active'; notification: AppNotification }
+  | { kind: 'past'; entry: NotificationHistoryEntry }
+
 export function NotificationsHistoryPanel(): JSX.Element {
   const [, setTick] = useState(0)
+  const [page, setPage] = useState(0)
 
   useEffect(() => notificationRegistry.subscribe(() => setTick((t) => t + 1)), [])
 
@@ -91,33 +100,75 @@ export function NotificationsHistoryPanel(): JSX.Element {
     return <p className={styles.empty}>{t('features.sin.notificaciones.todavia')}</p>
   }
 
+  // Activas primero, luego el historial: UNA sola lista paginada. El título de
+  // cada grupo se pinta cuando el grupo cambia dentro de la página.
+  const items: PanelItem[] = [
+    ...active.map((notification): PanelItem => ({ kind: 'active', notification })),
+    ...past.map((entry): PanelItem => ({ kind: 'past', entry }))
+  ]
+  const pageCount = Math.max(1, Math.ceil(items.length / PAGE_SIZE))
+  const current = Math.min(page, pageCount - 1)
+  const visible = items.slice(current * PAGE_SIZE, current * PAGE_SIZE + PAGE_SIZE)
+
   return (
     <div className={styles.list}>
-      {active.length > 0 ? (
-        <section aria-label={t('features.notificaciones.activas')}>
-          <h3 className={styles.sectionTitle}>{t('features.activas')}</h3>
-          {active.map((notification) => (
-            <ActiveRow key={notification.id} notification={notification} />
-          ))}
-        </section>
-      ) : null}
+      {visible.map((item, index) => {
+        const startsGroup = index === 0 || visible[index - 1].kind !== item.kind
+        const key =
+          item.kind === 'active'
+            ? `active-${item.notification.id}`
+            : `past-${item.entry.id}-${item.entry.dismissedAt}`
+        return (
+          <Fragment key={key}>
+            {startsGroup ? (
+              <div className={styles.sectionHead}>
+                <h3 className={styles.sectionTitle}>
+                  {item.kind === 'active' ? t('features.activas') : t('features.historial')}
+                </h3>
+                {item.kind === 'past' ? (
+                  <button
+                    type="button"
+                    className={styles.clearBtn}
+                    onClick={() => clearNotificationHistory()}
+                  >
+                    {t('features.limpiar')}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {item.kind === 'active' ? (
+              <ActiveRow notification={item.notification} />
+            ) : (
+              <HistoryRow entry={item.entry} />
+            )}
+          </Fragment>
+        )
+      })}
 
-      {past.length > 0 ? (
-        <section aria-label={t('features.historial.de.notificaciones')}>
-          <div className={styles.sectionHead}>
-            <h3 className={styles.sectionTitle}>{t('features.historial')}</h3>
-            <button
-              type="button"
-              className={styles.clearBtn}
-              onClick={() => clearNotificationHistory()}
-            >
-              {t('features.limpiar')}
-            </button>
-          </div>
-          {past.map((entry) => (
-            <HistoryRow key={`${entry.id}-${entry.dismissedAt}`} entry={entry} />
-          ))}
-        </section>
+      {pageCount > 1 ? (
+        <div className={styles.pager}>
+          <button
+            type="button"
+            className={styles.pagerBtn}
+            disabled={current === 0}
+            aria-label={t('features.pagina.anterior')}
+            onClick={() => setPage(Math.max(0, current - 1))}
+          >
+            ‹
+          </button>
+          <span className={styles.pagerLabel}>
+            {current + 1} / {pageCount}
+          </span>
+          <button
+            type="button"
+            className={styles.pagerBtn}
+            disabled={current === pageCount - 1}
+            aria-label={t('features.pagina.siguiente')}
+            onClick={() => setPage(Math.min(pageCount - 1, current + 1))}
+          >
+            ›
+          </button>
+        </div>
       ) : null}
     </div>
   )
