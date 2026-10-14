@@ -149,11 +149,6 @@ export function MessageComposer({
   const maxChars = SOCIAL_RULES.messageMax
   const remaining = maxChars - value.length
   const showCounter = value.length > 0 && remaining <= 300
-  const canSend =
-    !disabled &&
-    !sending &&
-    value.length <= maxChars &&
-    (value.trim().length > 0 || pending.length > 0 || linked.length > 0)
 
   // Cerrar el selector de emojis al clickear afuera.
   useEffect(() => {
@@ -542,17 +537,6 @@ export function MessageComposer({
           disabled={disabled}
           aria-label={t('social.mensaje')}
         />
-        <IconButton
-          type="submit"
-          variant="accent"
-          shape="rounded"
-          label={sending ? t('social.enviando') : t('social.enviar')}
-          disabled={!canSend}
-          size="sm"
-          className={styles.send}
-        >
-          <ProductIcon id="arrow-up" size={14} />
-        </IconButton>
       </form>
     </div>
   )

@@ -128,10 +128,6 @@
   color: var(--color-text-muted);
 }
 
-.send {
-  flex-shrink: 0;
-}
-
 .attach {
   flex-shrink: 0;
 }
@@ -148,9 +144,9 @@
   gap: 2px;
   flex-shrink: 0;
   /*
-   * El botón de enviar mide 28 y estos 22: se suben 3px (la mitad de la
-   * diferencia) para quedar centrados con él y con la línea del input. Con
-   * `align-self: center` quedarían flotando en el medio cuando el textarea
+   * Los botones (22px) van centrados con la LÍNEA de texto del input, no con
+   * el borde del textarea: se suben 3px para compensar su padding inferior.
+   * Con `align-self: center` quedarían flotando en el medio cuando el textarea
    * crece; con este margen siguen anclados abajo, que es lo correcto.
    */
   margin-bottom: 3px;
