@@ -122,7 +122,8 @@ published are not edited. The file goes per version:
   (`{ "panel": "16px" }`). An extension can also override them **at runtime**
   (`api.radius.set('rect')` / `reset()`, plus `window.scrakk.radius` for `.sef`
   bundles), so a panel can toggle its own look. Values are validated (no CSS
-  injection) and a `reset()` always yields back to the active theme.
+  injection) and a `reset()` always yields back to the active theme. The builtin
+  **OpenCode AI** theme already ships with `"radius": "rect"`.
 
 ### Extensions
 - **Removed the builtin Clock extension** (`panels/clock`). It shipped in every
