@@ -53,12 +53,18 @@ sef build ./my-extension
 ```
 
 Generates the **virtual entry** from the manifest (nothing hardcoded) and
-compiles with `esbuild` (`format: esm`, `jsx: automatic`, `platform: browser`,
-`external: ['react','react-dom']`) to `dist/modules.js`, which exports:
+compiles with `esbuild` (`format: esm`, `jsx: automatic`, `platform: browser`) to
+`dist/modules.js`, which exports:
 
 ```js
 export const modules = { "panels/Panel.tsx": Panel, … }
 ```
+
+The modules the **IDE lends** stay as imports — they are never bundled in:
+`react`, `react-dom` (and `react-dom/client`), `react/jsx-runtime` and
+`@features/layout` (the panel hooks). The loader resolves them to the app's own
+modules, so your panel shares the app's React (hooks keep working). Anything else
+you import *is* compiled in.
 
 The paths collected today are: `panels[].component`, `activityBar[].icon`,
 `centerTabs[].component` and `centerTabs[].icon`. (`fileHandlers.component` and

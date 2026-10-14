@@ -267,6 +267,17 @@ published are not edited. The file goes per version:
   instead of the accent.
 
 ### Extension authoring (SEF CLI)
+- **A panel that imports the documented hooks could not be built.** `sef build`
+  only marked `react`/`react-dom` as external, so `import { usePanelTitle } from
+  '@features/layout'` — straight from the panels guide — failed with
+  `Could not resolve "@features/layout"`. The IDE-lent modules are now the
+  external list, so the bundle imports them (and never carries a second copy of
+  React, which would break hooks and context).
+- **The `.sef` no longer carries the source of modules it already compiles.** An
+  activity-bar icon is a module under `icons/` (as the guide shows), and packing
+  copied that folder as *data*, so the raw `.tsx` travelled next to the compiled
+  bundle. The packer now skips files that the manifest references: what travels
+  is `dist/modules.js` plus the real data (`themes/`, `icons/*.json`, …).
 - **The SEF tooling moved to its own repo**, `Scrakk-Team/sef-builder`, and is
   published to npm as `@scrakk-official/cli` (binary `sef`). `create` / `build` /
   `pack` / `validate` are the same commands, now installable by any author with
