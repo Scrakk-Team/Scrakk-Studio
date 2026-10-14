@@ -45,7 +45,9 @@
   width: 34px;
   height: 34px;
   border: none;
-  border-radius: 8px;
+  /* El redondeo es el MISMO para el botón, su hover y su activo: sale del token
+     del tema (en `rect` el hover/activo quedan cuadrados). */
+  border-radius: var(--radius-sm);
   background: transparent;
   /* Inactivo: tono muted (patrón de scrakk). */
   color: var(--color-text-muted);
@@ -99,12 +101,12 @@
 
 .bar[data-side='left'] .button::before {
   left: 0;
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
 
 .bar[data-side='right'] .button::before {
   right: 0;
-  border-radius: 2px 0 0 2px;
+  border-radius: var(--radius-xs) 0 0 var(--radius-xs);
 }
 
 .button.active::before {
@@ -147,7 +149,7 @@
   width: 34px;
   height: 34px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
   color: var(--color-text);
   pointer-events: none;
