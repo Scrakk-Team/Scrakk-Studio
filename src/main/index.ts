@@ -29,6 +29,7 @@ import {
   shutdownExtensionHosts
 } from './ipc/extension-host'
 import { flushAllTokens } from './supabaseClient'
+import { installShutdownHandler } from './shutdown'
 import { loadLocalEnv } from './env'
 import { createMainWindow, isAppLocalUrl } from './windows/main-window'
 import { stopKolargrepServers } from './search/kolargrepServer'
@@ -138,16 +139,13 @@ if (!gotTheLock) {
     })
   })
 
-  // Flush de sesiones al cerrar: garantiza que los últimos tokens queden
-  // guardados aunque el refresh haya ocurrido justo antes de salir.
-  app.on('before-quit', () => {
-    void flushAllTokens()
-    // Los hosts de extensión son procesos aparte: sin esto quedan vivos
-    // (y en Windows impiden que el instalador reemplace archivos).
-    void shutdownExtensionHosts()
-    // Los servidores de búsqueda (kolargrep serve) también: el índice tiene un
-    // lock exclusivo por directorio, así que uno colgado bloquea al siguiente.
-    stopKolargrepServers()
+  // Cierre ordenado: se espera a que los tokens queden en disco antes de dejar
+  // morir el proceso. Sin esta espera el flush se pierde y el usuario tiene que
+  // re-autenticarse al reabrir.
+  installShutdownHandler(app, {
+    flushTokens: flushAllTokens,
+    shutdownHosts: shutdownExtensionHosts,
+    stopSearchServers: stopKolargrepServers
   })
 
   app.on('window-all-closed', () => {
