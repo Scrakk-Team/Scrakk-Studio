@@ -40,7 +40,7 @@ The Node/Electron side. Grouped by domain: `ipc/` (the handlers behind
 `llm/`, `models-dev/`, `search/`, `account/`, `social/`, `web/`, `windows/`,
 `encodings/`, `fonts/`, `images/`, `perf/`, `scrakk/`. Entry point:
 `src/main/index.ts`. Auto-update lives in `app-updates.ts` and
-`auto-updater.ts`.
+`auto-updater.ts`; the ordered quit is in `shutdown.ts`.
 
 ### `src/preload`
 

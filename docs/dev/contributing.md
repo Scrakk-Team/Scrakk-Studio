@@ -130,10 +130,20 @@ Pushing the tag triggers the release workflow (see [Updates](../updates.md)).
 ## CI
 
 `.github/workflows/ci.yml` runs on pushes to `main`/`master` and on pull
-requests: install, **typecheck**, **tests**, `node tools/i18n.mjs --check`
-(non-blocking warning) and **build**. The release workflow additionally
-`npm rebuild node-pty`, runs tests, and makes the i18n check blocking with
-`--check --strict`.
+requests, in two jobs:
+
+- **`ci` (`ubuntu-latest`)** — install with **`npm ci --ignore-scripts`** (it
+  pins the tree to `package-lock.json`; a step fails if anything rewrites it),
+  then **typecheck**, **tests**, `node tools/i18n.mjs --check` (non-blocking
+  warning) and **build**.
+- **`windows` (`windows-latest`)** — the same install, **typecheck** and the full
+  suite. Windows is a shipped target and much of the suite touches the real
+  filesystem (atomic installs, accounts, LSP child processes), so a win32-only
+  failure no longer passes review.
+
+The release workflow additionally `npm rebuild node-pty`, runs the suite on both
+platforms (Windows included — it used to skip it) and makes the i18n check
+blocking with `--check --strict`.
 
 ## Limits
 
@@ -141,9 +151,11 @@ requests: install, **typecheck**, **tests**, `node tools/i18n.mjs --check`
   by `typecheck` and the test suite.
 - In CI the i18n check is a **warning**, not a failure; only a release is
   strict.
-- The **Windows job does not run the tests** (`release.yml`): `grammar-cli` breaks
-  the Vitest collection under win32 and some cases are POSIX-only, so that job
-  runs build + packaging.
+- **CI runs the suite on both Linux and Windows.** A few suites skip themselves
+  when the host lacks a tool or artifact — `terminal-font-stack` without
+  `fc-match`, `tree-sitter-tokenizer` without the built parser — and
+  `binaries.test.ts` is POSIX-only (`it.skipIf(win32)`). The files declare their
+  own skip conditions, so a green run is not automatically full coverage.
 - The docs build imports `react-dom/server`, so building the docs bundle needs
   the app dependencies installed.
 - Conventional Commit prefixes are a **convention**, not enforced by CI.

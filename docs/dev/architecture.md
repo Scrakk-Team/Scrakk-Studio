@@ -25,7 +25,9 @@ engine. This page is the map; the subsystem docs go deeper.
 its handlers by domain under `src/main/ipc/` (`fs`, `llm`, `terminal`, `git`,
 `extensions`, `extension-host`, `screenshot`, `window-controls`) plus `lsp/`,
 `llm/`, `extensions/`, `search/`, `web/`, `models-dev/`, `windows/`, `scrakk/`,
-`encodings/`, `fonts/`, `images/` and `perf/`.
+`encodings/`, `fonts/`, `images/` and `perf/`. The ordered quit (waking the token
+flush, the extension hosts and the search servers before the process dies) lives
+in the top-level `shutdown.ts`.
 
 `src/shared` holds the IPC contracts the two sides compile against — `fs.ts`,
 `lsp.ts`, `llm.ts`, `git.ts`, `terminal.ts`, `updates.ts`, `permissions.ts`,

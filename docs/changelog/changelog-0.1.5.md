@@ -252,3 +252,39 @@ published are not edited. The file goes per version:
   installs into (`~/.scrakk/lsp/bin` and the managed npm `.bin`) now join the
   augmented `PATH`, so a server installed from the app reads as *installed* the
   next time instead of offering **Install** again.
+
+### Community contributions
+Fixes merged from outside the core team. Each entry names the pull request, what
+it fixes, and who reported it.
+
+- **The extension path jail could be escaped with `..` path segments**
+  ([#17](https://github.com/Scrakk-Team/Scrakk-Studio/pull/17), reported and
+  fixed by [@CodeIbrah](https://github.com/CodeIbrah)). `checkPathAccess`
+  compared the **raw** requested path against the workspace roots with
+  `startsWith`, and `<workspace>/../../etc/passwd` still begins with the
+  workspace root — so any extension with `fs.read`/`fs.write` could read,
+  overwrite or recursively **delete** any file the user account can reach, and
+  the blocked sensitive paths were reachable the same way. Both sides of the
+  containment check are now **normalised** (`.`, `..` and separators resolved)
+  before the comparison — and before the sensitive-path check — `ext:fs-read`
+  validates the resolved path (as `ext:fs-write` already did), and the extension
+  id is validated before it is used to build a path.
+- **The session flush was discarded on quit**
+  ([#19](https://github.com/Scrakk-Team/Scrakk-Studio/pull/19), reported and
+  fixed by [@CodeIbrah](https://github.com/CodeIbrah)). `before-quit` ran
+  `flushAllTokens()` fire-and-forget, and Electron does not await it — a token
+  refresh that landed just before closing was lost and the user had to sign in
+  again. Shutdown is now sequenced: the first `before-quit` is `preventDefault`ed,
+  the flush, the extension-host shutdown and the search servers are awaited (each
+  with a 3s cap) and the quit resumes when they settle, even if one fails.
+- **CI ignored the lockfile and never ran the suite on Windows**
+  ([#21](https://github.com/Scrakk-Team/Scrakk-Studio/pull/21), reported and
+  fixed by [@CodeIbrah](https://github.com/CodeIbrah)). The install jobs used
+  `npm install`, which resolves caret ranges against the registry — a Vite minor
+  broke the build with no repo change — so they now use `npm ci` and fail if a
+  step rewrites `package-lock.json`. A `windows` job now runs the typecheck and
+  the full suite, and the release job runs the suite too (it used to skip it).
+  Two real bugs surfaced while making the suite pass on win32:
+  `new URL(...).pathname` built a broken path on Windows (now `fileURLToPath`),
+  and a `#!/usr/bin/env node` shebang in an ESM module broke the collection of
+  two suites under Vite's SSR transform.
