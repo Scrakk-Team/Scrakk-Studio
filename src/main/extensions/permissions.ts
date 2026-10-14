@@ -125,12 +125,16 @@ interface ScopedFsRequest {
 
 export function registerExtensionFsIpc(): void {
   ipcMain.handle('ext:fs-read', async (_event, request: ScopedFsRequest) => {
-    const verdict = await checkExtensionPathAccess(request.extensionId, 'read', request.path)
+    // Validar SIEMPRE la ruta ya resuelta: si el check corre sobre la ruta cruda
+    // y el read sobre la resuelta, `..` evade el jail. (`ext:fs-write` ya lo
+    // hacía así; aquí se alineaba el otro sentido.)
+    const target = path.resolve(request.path)
+    const verdict = await checkExtensionPathAccess(request.extensionId, 'read', target)
     if (!verdict.allowed) {
       return { success: false, error: `[permisos] ${verdict.reason}` }
     }
     try {
-      const content = await fs.readFile(path.resolve(request.path), 'utf-8')
+      const content = await fs.readFile(target, 'utf-8')
       return { success: true, content }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : String(error) }

@@ -16,6 +16,16 @@ import type { QueryCategory } from './syntax/queries'
 
 export type { DocumentEvent } from './extensionHost/protocol'
 
+/**
+ * Forma válida de un id de extensión.
+ *
+ * Vive en `shared` (y no duplicado por handler) porque todo handler que
+ * construya una ruta de instalación a partir de un id lo necesita: sin esta
+ * validación, un id con `..` se normaliza con `path.join` y el `startsWith`
+ * posterior da verde sobre una ruta fuera del directorio de extensiones.
+ */
+export const EXTENSION_ID_RE = /^[a-z0-9][a-z0-9._-]*$/i
+
 export const EXTENSIONS_IPC = {
   installSef: 'extensions:install-sef',
   installVsix: 'extensions:install-vsix',

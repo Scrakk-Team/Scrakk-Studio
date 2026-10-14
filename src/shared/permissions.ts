@@ -93,10 +93,73 @@ function isSensitive(path: string): boolean {
   return SENSITIVE_PATH_PATTERNS.some((pattern) => pattern.test(path))
 }
 
-function isInsideAny(path: string, roots: readonly string[]): boolean {
+/**
+ * Normalización LEXICAL de una ruta: resuelve `.` y `..` como haría el sistema
+ * de archivos al abrir la ruta, colapsa separadores duplicados y quita la barra
+ * final. Sin `node:path` a propósito — este módulo es puro y lo importa el
+ * renderer — pero con la misma semántica.
+ *
+ * POR QUÉ EXISTE: el jail comparaba la ruta CRUDA contra los roots. Eso hace
+ * que `<root>/../../Users/victim/.ssh` empiece por `<root>/` y se cuele como si
+ * estuviera dentro. Normalizar ANTES de comparar es lo que cierra el agujero.
+ *
+ * No resuelve symlinks (eso necesita `fs.realpath`, en el proceso main).
+ */
+export function normalizeFsPath(input: string): string {
+  // 1) Separadores Windows y POSIX a '/'.
+  let rest = input.replace(/\\/g, '/')
+
+  // 2) Prefijo de raíz: 'C:/', UNC '//servidor/...' o '/'.
+  let root = ''
+  const drive = /^([a-zA-Z]:)\//.exec(rest)
+  if (drive) {
+    root = `${drive[1]}/`
+    rest = rest.slice(drive[0].length)
+  } else if (rest.startsWith('//')) {
+    root = '//'
+    rest = rest.slice(2)
+  } else if (rest.startsWith('/')) {
+    root = '/'
+    rest = rest.slice(1)
+  }
+
+  // 3) Resolver segmentos, dejando pasar los '..' que no se pueden absorber.
+  const out: string[] = []
+  for (const segment of rest.split('/')) {
+    if (segment === '' || segment === '.') continue
+    if (segment === '..') {
+      const last = out[out.length - 1]
+      if (last !== undefined && last !== '..') out.pop()
+      else if (root === '') out.push('..')
+      // Con raíz absoluta, un '..' de más se descarta contra la propia raíz
+      // (igual que `path.resolve`).
+      continue
+    }
+    out.push(segment)
+  }
+
+  const joined = out.join('/')
+  if (root === '//') return `//${joined}`
+  if (root === '/') return `/${joined}`
+  if (root) return joined ? `${root}${joined}` : root
+  return joined === '' ? '.' : joined
+}
+
+/**
+ * ¿`targetPath` cae dentro de alguno de los `roots`?
+ *
+ * Normaliza AMBOS lados: si sólo se normalizara el target, un root con '..'
+ * dejaría de casar. Una ruta relativa nunca está dentro de un root absoluto, así
+ * que el fallo sigue siendo fail-closed.
+ */
+function isInsideAny(targetPath: string, roots: readonly string[]): boolean {
+  const target = normalizeFsPath(targetPath)
   return roots.some((root) => {
-    const normalized = root.replace(/\\/g, '/').replace(/\/+$/, '')
-    return path === normalized || path.startsWith(normalized + '/')
+    const normalized = normalizeFsPath(root)
+    // Un root que YA termina en '/' (raíz POSIX o UNC) no debe compararse
+    // contra '//': usarlo tal cual evita que '/' nunca case con nada.
+    const prefix = normalized.endsWith('/') ? normalized : `${normalized}/`
+    return target === normalized || target.startsWith(prefix)
   })
 }
 
@@ -114,8 +177,17 @@ export function checkPathAccess(
     return { allowed: false, reason: 'extensión no registrada' }
   }
 
+  // 0b) Un NUL truncaría la ruta en cualquier capa inferior (y `path.resolve`
+  // lo lanza). Se rechaza antes de normalizar.
+  if (targetPath.includes('\0')) {
+    return { allowed: false, reason: 'ruta inválida' }
+  }
+
+  // La normalización va ANTES de las dos comprobaciones: sin ella, `..` esquiva
+  // tanto el patrón de ruta sensible como el jail.
+  const normalized = normalizeFsPath(targetPath)
+
   // 1) Rutas sensibles: bloqueadas siempre.
-  const normalized = targetPath.replace(/\\/g, '/')
   if (isSensitive(normalized)) {
     return { allowed: false, reason: 'ruta sensible protegida' }
   }

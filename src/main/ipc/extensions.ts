@@ -29,7 +29,8 @@ import {
   type DynamicTokenizeResult,
   type TokenizeRequest,
   type TokenizeResult,
-  type ExtensionSource
+  type ExtensionSource,
+  EXTENSION_ID_RE
 } from '@shared/extensions'
 import { convertVsix } from '@shared/compatibility'
 import { tokenizeText } from '../extensions/tokenize'
@@ -37,7 +38,6 @@ import { treeSitterManager } from '../extensions/treeSitter/manager'
 import { resolveLangsDir } from '../langs'
 
 import { t } from '@shared/i18n'
-const EXTENSION_ID_RE = /^[a-z0-9][a-z0-9._-]*$/i
 
 async function extensionsRoot(): Promise<string> {
   const dir = path.join(app.getPath('userData'), 'extensions')

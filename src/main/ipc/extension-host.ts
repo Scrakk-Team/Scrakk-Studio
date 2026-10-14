@@ -37,7 +37,8 @@ import {
   type HostTreeSelectRequest,
   type HostTreeSelectResponse,
   type HostViewMessageRequest,
-  type HostViewRequest
+  type HostViewRequest,
+  EXTENSION_ID_RE
 } from '@shared/extensions'
 import type { ExtensionHostMode, NotifyPayload } from '@shared/extensionHost/protocol'
 import { ExtensionHostManager, type RendererInvoker } from '../extensions/hostManager'
@@ -83,13 +84,29 @@ function extensionsRoot(): string {
   return path.join(app.getPath('userData'), 'extensions')
 }
 
+/**
+ * Id de extensión seguro para construir rutas.
+ *
+ * Sin esto, un `extensionId` con `..` escapaba del directorio de extensiones
+ * ANTES de que `safeResolveInside` comparara: `path.join(root, id)` ya venía
+ * normalizado, así que el `startsWith` daba verde sobre una ruta fuera del root.
+ */
+function safeExtensionId(extensionId: string): string | null {
+  if (typeof extensionId !== 'string' || !EXTENSION_ID_RE.test(extensionId)) return null
+  const resolved = path.normalize(extensionId)
+  if (resolved.includes('..') || path.isAbsolute(resolved)) return null
+  return resolved
+}
+
 /** Manifest SEF del paquete instalado (o null si no se puede leer). */
 async function readInstalledManifest(
   extensionId: string
 ): Promise<Record<string, unknown> | null> {
+  const safeId = safeExtensionId(extensionId)
+  if (!safeId) return null
   try {
     const raw = await fs.readFile(
-      path.join(extensionsRoot(), extensionId, 'manifest.json'),
+      path.join(extensionsRoot(), safeId, 'manifest.json'),
       'utf-8'
     )
     return JSON.parse(raw) as Record<string, unknown>
@@ -100,7 +117,9 @@ async function readInstalledManifest(
 
 /** Resuelve una ruta pedida dentro del paquete, o null si se escapa. */
 function safeResolveInside(extensionId: string, relative: string): string | null {
-  const root = path.join(extensionsRoot(), extensionId)
+  const safeId = safeExtensionId(extensionId)
+  if (!safeId) return null
+  const root = path.join(extensionsRoot(), safeId)
   const target = path.resolve(root, relative)
   const normalizedRoot = path.resolve(root)
   if (target !== normalizedRoot && !target.startsWith(normalizedRoot + path.sep)) return null

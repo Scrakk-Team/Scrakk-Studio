@@ -46,6 +46,29 @@ Even with `fs.read`/`fs.write`, every access goes through `checkPathAccess`:
 Rename/copy validates the **source** (read) and the **destination** (write)
 separately: without that, a `rename` could move a file out of the workspace.
 
+### How containment is decided
+
+Both the requested path and the workspace roots are **normalised before they are
+compared** — separators collapsed, `.` and `..` resolved, trailing slash dropped.
+This matters: comparing the *raw* path with `startsWith` would accept
+`<workspace>/../../etc/passwd`, because that string still begins with the
+workspace root. A path is inside a root only if, once resolved, it is the root
+itself or sits under `<root>/`. Relative paths are never inside an absolute root,
+so the check stays fail-closed. A NUL byte is rejected outright.
+
+### Known limits
+
+Normalisation is **lexical**. It closes `..` traversal but does not follow
+symlinks, so a symlink *inside* the workspace that points outside it is still a
+way out. Closing that needs `fs.realpath` on the main-process side and is tracked
+as follow-up work.
+
+## Implementation note
+
+`checkPathAccess` is pure and lives in `shared/`, so it cannot use `node:path`
+(the renderer imports it). `normalizeFsPath` reproduces `path.resolve`'s lexical
+semantics by hand; keep the two in sync if either changes.
+
 ## What the extension sees
 
 - The `workspace.fs` API (readFile/writeFile/stat/readDirectory/createDirectory/
