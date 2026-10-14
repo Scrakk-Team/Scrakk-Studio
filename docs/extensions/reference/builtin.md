@@ -81,7 +81,7 @@ The paths are **relative to the package folder**
 | | Builtin | Installed `.sef` |
 |---|---|---|
 | Where it lives | in the app bundle | `userData/extensions/<id>/` |
-| Modules | globs, embedded | `dist/modules.js` bundle (data-URL) |
+| Modules | globs, embedded | `dist/modules.js` bundle (blob-URL) |
 | Data | embedded by folder convention | read from disk (`ctx.readFile`) |
 | `isBuiltin` | `true` | `false` |
 | Can be uninstalled | no (but disabled/hidden) | yes |

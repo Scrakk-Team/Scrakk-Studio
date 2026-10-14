@@ -18,8 +18,10 @@ The builder is the **SEF CLI**, in its own repo
 
 1. **`sef build`** reads `manifest.json`, collects every **code** path
    (`panels[].component`, `activityBar[].icon`, `centerTabs[].component`/`.icon`)
-   and bundles them with **esbuild** (`format: esm`, `jsx: automatic`,
-   `react`/`react-dom` external) into `dist/modules.js`.
+   and bundles them with **esbuild** (`format: esm`, `jsx: automatic`) into
+   `dist/modules.js`, leaving the **IDE-lent modules** as imports (`react`,
+   `react-dom`, `react/jsx-runtime`, `@features/layout`): the app resolves them
+   to its own, so your panel shares the app's React.
 2. **`sef pack`** validates the package and **zips** `manifest.json` + `dist/` +
    the data folders into `<name>.sef`.
 
@@ -78,8 +80,9 @@ everything stays at the same relative location it had in the `.vsix`.
 - The **main** extracts the zip into `userData/extensions/<id>/`, validates the
   `id` (anti path-traversal) and rejects invalid ids.
 - In the **renderer**, the declarative bundle is read over IPC and imported as a
-  **data-URL** (`data:text/javascript;base64,…`), because the renderer runs in a
-  sandbox and has no filesystem.
+  **blob URL** (the renderer has no filesystem, and its CSP allows `blob:` for
+  scripts but **not** `data:`), with the IDE-lent modules rewritten to the app's
+  own modules.
 - The loader registers the contributions (on boot, or when installing from
   Settings → Extensions) and the extension is ready.
 

@@ -83,7 +83,7 @@ services/extensions/
 ├── loader/
 │   ├── resolve.ts           # manifest → contributions (GENERIC)
 │   ├── builtin.ts           # builtins: embedded import.meta.glob
-│   └── installed.ts         # .sef: disk over IPC + bundle via data-URL
+│   └── installed.ts         # .sef: disk over IPC + bundle via blob-URL
 ├── types/                   # ONE kind per folder: schema/api/logic/store
 │   ├── index.ts             # ensureTypesRegistered(): one line per kind
 │   ├── handler.ts           # ExtensionTypeHandler contract
