@@ -8,8 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type JSX,
-  type KeyboardEvent
+  type JSX
 } from 'react'
 import { ContextMenu, type ContextMenuItem } from '@ui'
 import { isHistoryViewOpen, setSkillsViewOpen, subscribeToHistoryView, toggleHistoryView, useLayout } from '@features/layout'
@@ -59,22 +58,23 @@ export function MenuBar(): JSX.Element {
   const [historyOpen, setHistoryOpen] = useState(() => isHistoryViewOpen())
   useEffect(() => subscribeToHistoryView(() => setHistoryOpen(isHistoryViewOpen())), [])
 
-  const [openMenu, setOpenMenu] = useState<MenuId | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-  const buttonRefs = useRef<Map<MenuId, HTMLButtonElement>>(new Map())
+  const hamRef = useRef<HTMLButtonElement>(null)
 
   const close = useCallback(() => {
-    setOpenMenu(null)
+    setMenuOpen(false)
     setAnchor(null)
   }, [])
 
-  const openMenuFor = useCallback((menuId: MenuId): void => {
-    const btn = buttonRefs.current.get(menuId)
+  // Abre el menú del hamburger, anclado abajo del botón.
+  const openMenu = useCallback((): void => {
+    const btn = hamRef.current
     if (!btn) return
     const rect = btn.getBoundingClientRect()
     setAnchor({ x: rect.left, y: rect.bottom + 2 })
-    setOpenMenu(menuId)
+    setMenuOpen(true)
   }, [])
 
   // ¿El foco, ANTES de abrir el menú, estaba en un campo de texto? El botón del
@@ -229,42 +229,22 @@ export function MenuBar(): JSX.Element {
     editAction
   ])
 
-  const handleButtonClick = (menuId: MenuId): void => {
-    if (openMenu === menuId) {
-      close()
-    } else {
-      openMenuFor(menuId)
-    }
-  }
-
-  const handleButtonEnter = (menuId: MenuId): void => {
-    if (openMenu && openMenu !== menuId) {
-      openMenuFor(menuId)
-    }
-  }
-
-  const handleButtonKeyDown = (
-    event: KeyboardEvent<HTMLButtonElement>,
-    menuId: MenuId
-  ): void => {
-    if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      openMenuFor(menuId)
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault()
-      const index = MENU_IDS.indexOf(menuId)
-      const direction = event.key === 'ArrowRight' ? 1 : -1
-      const nextId = MENU_IDS[(index + direction + MENU_IDS.length) % MENU_IDS.length]
-      const nextBtn = buttonRefs.current.get(nextId)
-      nextBtn?.focus()
-      if (openMenu) {
-        openMenuFor(nextId)
+  // Menú del hamburger: cada opción de la titlebar es un SUBMENÚ con sus items
+  // reales (los mismos dropdowns de antes), más Terminal.
+  const hamburgerItems = useMemo<ContextMenuItem[]>(
+    () => [
+      ...MENU_IDS.map((id) => ({
+        label: menuDefinitions[id].label,
+        submenu: menuDefinitions[id].items
+      })),
+      {
+        label: t('titlebar.terminal'),
+        separatorBefore: true,
+        onClick: () => toggleSlotPanel('bottom', 'innerta-terminal')
       }
-    } else if (event.key === 'Escape') {
-      event.preventDefault()
-      close()
-    }
-  }
+    ],
+    [menuDefinitions, toggleSlotPanel]
+  )
 
   return (
     <div
@@ -274,48 +254,28 @@ export function MenuBar(): JSX.Element {
       aria-label={t('titlebar.menu.de.la.aplicacion')}
       onPointerDownCapture={rememberFocus}
     >
-      {MENU_IDS.map((menuId) => {
-        const menu = menuDefinitions[menuId]
-        const isOpen = openMenu === menuId
-        const buttonClasses = [styles.button, isOpen ? styles.buttonOpen : null]
-          .filter(Boolean)
-          .join(' ')
-
-        return (
-          <div key={menuId} className={styles.menu}>
-            <button
-              ref={(node) => {
-                if (node) buttonRefs.current.set(menuId, node)
-                else buttonRefs.current.delete(menuId)
-              }}
-              type="button"
-              role="menuitem"
-              aria-haspopup="menu"
-              aria-expanded={isOpen}
-              className={buttonClasses}
-              onClick={() => handleButtonClick(menuId)}
-              onMouseEnter={() => handleButtonEnter(menuId)}
-              onKeyDown={(event) => handleButtonKeyDown(event, menuId)}
-            >
-              {menu.label}
-            </button>
-          </div>
-        )
-      })}
       <div className={styles.menu}>
         <button
+          ref={hamRef}
           type="button"
           role="menuitem"
-          className={styles.button}
-          onClick={() => toggleSlotPanel('bottom', 'innerta-terminal')}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label={t('titlebar.menu.de.la.aplicacion')}
+          className={[styles.button, menuOpen ? styles.buttonOpen : null].filter(Boolean).join(' ')}
+          onClick={() => (menuOpen ? close() : openMenu())}
         >
-          {t('titlebar.terminal')}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
         </button>
       </div>
 
-      {openMenu && anchor ? (
+      {menuOpen && anchor ? (
         <ContextMenu
-          items={menuDefinitions[openMenu].items}
+          items={hamburgerItems}
           x={anchor.x}
           y={anchor.y}
           onClose={close}

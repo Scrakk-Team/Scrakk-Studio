@@ -24,6 +24,13 @@ export interface ContextMenuItem {
   danger?: boolean
   disabled?: boolean
   separatorBefore?: boolean
+  /** Atajo a la derecha (ej. `Ctrl+O`). */
+  shortcut?: string
+  /**
+   * Submenú: si tiene items, el item abre un submenú (al hover o al click)
+   * en vez de ejecutar `onClick`. Un solo nivel (los menús de la app).
+   */
+  submenu?: ContextMenuItem[]
 }
 
 interface ContextMenuProps {
@@ -45,6 +52,8 @@ const MENU_MAX_HEIGHT = 380
 export function ContextMenu({ items, x, y, onClose, placement = 'below' }: ContextMenuProps): JSX.Element | null {
   const menuRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ left: x, top: y })
+  // Índice del item cuyo submenú está abierto (uno a la vez).
+  const [openSub, setOpenSub] = useState<number | null>(null)
 
   // Posiciona después del primer paint (mide el menú y lo clamp a la ventana).
   useLayoutEffect(() => {
@@ -78,41 +87,90 @@ export function ContextMenu({ items, x, y, onClose, placement = 'below' }: Conte
 
   if (items.length === 0) return null
 
+  // Si hay submenús, el menú NO recorta (si no, el submenú de la derecha queda
+  // clipeado por el overflow del panel scrolleable).
+  const hasSubmenus = items.some((it) => !!it.submenu && it.submenu.length > 0)
+
   return createPortal(
     <div
       ref={menuRef}
       className={styles.menu}
-      style={{ left: position.left, top: position.top, maxHeight: MENU_MAX_HEIGHT }}
+      style={{
+        left: position.left,
+        top: position.top,
+        maxHeight: hasSubmenus ? undefined : MENU_MAX_HEIGHT,
+        overflow: hasSubmenus ? 'visible' : undefined
+      }}
       role="menu"
     >
-      {items.map((item, index) => (
-        <div key={index}>
-          {item.separatorBefore ? <div className={styles.separator} /> : null}
-          <button
-            type="button"
-            role="menuitem"
-            className={[styles.item, item.danger ? styles.danger : null, item.disabled ? styles.disabled : null]
-              .filter(Boolean)
-              .join(' ')}
-            disabled={item.disabled}
-            onClick={() => {
-              onClose()
-              item.onClick?.()
-            }}
+      {items.map((item, index) => {
+        const hasSub = !!item.submenu && item.submenu.length > 0
+        return (
+          <div
+            key={index}
+            className={styles.row}
+            onMouseEnter={() => setOpenSub(hasSub ? index : null)}
           >
-            {item.checked ? <span className={styles.check}>✓</span> : null}
-            {item.icon ? <span className={styles.icon}>{item.icon}</span> : null}
-            {item.sublabel ? (
-              <span className={styles.itemText}>
+            {item.separatorBefore ? <div className={styles.separator} /> : null}
+            <button
+              type="button"
+              role="menuitem"
+              aria-haspopup={hasSub || undefined}
+              className={[styles.item, item.danger ? styles.danger : null, item.disabled ? styles.disabled : null]
+                .filter(Boolean)
+                .join(' ')}
+              disabled={item.disabled}
+              onClick={() => {
+                if (hasSub) {
+                  setOpenSub(index)
+                  return
+                }
+                onClose()
+                item.onClick?.()
+              }}
+            >
+              {item.checked ? <span className={styles.check}>✓</span> : null}
+              {item.icon ? <span className={styles.icon}>{item.icon}</span> : null}
+              {item.sublabel ? (
+                <span className={styles.itemText}>
+                  <span className={styles.label}>{item.label}</span>
+                  <span className={styles.sublabel}>{item.sublabel}</span>
+                </span>
+              ) : (
                 <span className={styles.label}>{item.label}</span>
-                <span className={styles.sublabel}>{item.sublabel}</span>
-              </span>
-            ) : (
-              <span className={styles.label}>{item.label}</span>
-            )}
-          </button>
-        </div>
-      ))}
+              )}
+              {hasSub ? <span className={styles.caret}>›</span> : null}
+              {!hasSub && item.shortcut ? <span className={styles.shortcut}>{item.shortcut}</span> : null}
+            </button>
+            {hasSub && openSub === index ? (
+              <div className={styles.submenu} role="menu">
+                {item.submenu!.map((sub, si) => (
+                  <div key={si}>
+                    {sub.separatorBefore ? <div className={styles.separator} /> : null}
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className={[styles.item, sub.danger ? styles.danger : null, sub.disabled ? styles.disabled : null]
+                        .filter(Boolean)
+                        .join(' ')}
+                      disabled={sub.disabled}
+                      onClick={() => {
+                        onClose()
+                        sub.onClick?.()
+                      }}
+                    >
+                      {sub.checked ? <span className={styles.check}>✓</span> : null}
+                      {sub.icon ? <span className={styles.icon}>{sub.icon}</span> : null}
+                      <span className={styles.label}>{sub.label}</span>
+                      {sub.shortcut ? <span className={styles.shortcut}>{sub.shortcut}</span> : null}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )
+      })}
     </div>,
     document.body
   )
