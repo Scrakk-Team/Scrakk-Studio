@@ -124,8 +124,8 @@ published are not edited. The file goes per version:
   bundles), so a panel can toggle its own look. Values are validated (no CSS
   injection) and a `reset()` always yields back to the active theme. Two builtin
   themes already use it: **OpenCode AI** ships `"radius": "rect"`, and **VS Code
-  Dark Modern** ships *reduced* corners (`{ panel: 6px, input: 4px, sm: 3px,
-  xs: 2px }`), closer to the real editor. The welcome page,
+  Dark Modern** ships *reduced* corners (`{ panel: 8px, input: 6px, sm: 5px,
+  xs: 4px }`), closer to the real editor. The welcome page,
   the **tool-dock pill**, the **activity-bar buttons** (hover and active
   included) and the small controls (via a new `--radius-xs`) follow it too; round
   **shapes** — avatars, the presence/resize dots and the tip pills — keep their
