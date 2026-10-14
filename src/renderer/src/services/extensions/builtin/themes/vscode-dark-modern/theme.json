@@ -1,6 +1,13 @@
 {
   "name": "VS Code Dark Modern",
   "type": "dark",
+  "radius": {
+    "panel": "6px",
+    "md": "6px",
+    "input": "4px",
+    "sm": "3px",
+    "xs": "2px"
+  },
   "colors": {
     "bg": "#1f1f1f",
     "surface": "#181818",

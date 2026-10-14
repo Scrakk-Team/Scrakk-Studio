@@ -101,4 +101,23 @@ describe('temas builtin', () => {
     expect(def).not.toBeNull()
     expect(def!.radius).toBe('rect')
   })
+
+  it('vscode-dark-modern viaja con esquinas DISMINUIDAS (no rectas)', () => {
+    const raw = readFileSync(
+      new URL(
+        '../src/renderer/src/services/extensions/builtin/themes/vscode-dark-modern/theme.json',
+        import.meta.url
+      ),
+      'utf-8'
+    )
+    const def = normalizeThemeDefinition(JSON.parse(raw))
+    expect(def).not.toBeNull()
+    expect(def!.radius).toEqual({
+      panel: '6px',
+      md: '6px',
+      input: '4px',
+      sm: '3px',
+      xs: '2px'
+    })
+  })
 })
