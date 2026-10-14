@@ -1,0 +1,26 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+/* notes card styles — injected via displayCss */
+.notes-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  min-width: 0;
+}
+
+.notes-card__label {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.notes-card__value {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

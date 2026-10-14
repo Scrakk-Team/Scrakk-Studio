@@ -26,6 +26,7 @@ import { multipleToolsTool } from './multiple_tools'
 import { lspTool } from './lsp'
 import { listSkillsTool } from './list_skills'
 import { skillTool } from './skill'
+import { notesTool } from './notes'
 import { webSearchTool } from './web_search'
 import { webFetchTool } from './web_fetch'
 import { taskTool } from './task'
@@ -93,6 +94,7 @@ function registerAll(): void {
   registry.register(lspTool, opts)
   registry.register(listSkillsTool, opts)
   registry.register(skillTool, opts)
+  registry.register(notesTool, opts)
   registry.register(webSearchTool, opts)
   registry.register(webFetchTool, opts)
   registry.register(taskTool, opts)

@@ -159,7 +159,8 @@ const BUILTIN_TYPES: ToolType[] = [
   { id: 'system', label: 'Sistema', family: ENVIRONMENT_FAMILY, order: 2, icon: 'terminal' },
   { id: 'browser', label: 'Navegador', family: ENVIRONMENT_FAMILY, order: 3, icon: 'globe' },
   { id: 'skills', label: 'Skills', family: ENVIRONMENT_FAMILY, order: 4, icon: 'layers' },
-  { id: DEFAULT_TOOL_TYPE, label: 'Utilidades', family: ENVIRONMENT_FAMILY, order: 5, icon: 'grid' },
+  { id: 'notes', label: 'Notas', family: ENVIRONMENT_FAMILY, order: 5, icon: 'note' },
+  { id: DEFAULT_TOOL_TYPE, label: 'Utilidades', family: ENVIRONMENT_FAMILY, order: 6, icon: 'grid' },
   { id: SUBAGENT_TOOL_TYPE, label: 'Subagentes', family: AGENTIC_FAMILY, order: 0, icon: 'people' },
   { id: EXTENSION_TOOL_TYPE, label: 'Extensiones', family: EXTENSIONS_FAMILY, order: 0, icon: 'extensions' }
 ]
