@@ -18,6 +18,11 @@ There are **two sources** for the same contract:
 - a **`.sef`** installed by the user (a **ZIP** extracted into
   `userData/extensions/<id>/`).
 
+Scrakk's own installable extensions — the first-party catalogue, as opposed to
+anyone's — live in
+[`Scrakk-Team/extensions`](https://github.com/Scrakk-Team/extensions); see
+[Official extensions](guides/official-extensions.md).
+
 And **two kinds** depending on whether it runs code:
 
 | | **Declarative SEF** | **SEF with code** |

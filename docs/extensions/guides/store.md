@@ -72,6 +72,14 @@ One rating per user per extension (1–5 stars and an optional comment), and **y
 cannot rate your own**. Any signed-in user can send a **report** with a reason
 and a note; those rows are what the admin tool reviews.
 
+## The official catalogue
+
+Scrakk's own installable extensions live in one repository,
+[`Scrakk-Team/extensions`](https://github.com/Scrakk-Team/extensions) — one
+folder per extension and one release per extension. See
+[Official extensions](official-extensions.md) for the layout, the tagging
+convention and why the store resolves a release *per extension*.
+
 ## Where the data lives
 
 | Piece | Where |

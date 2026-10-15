@@ -267,6 +267,22 @@ published are not edited. The file goes per version:
   header, the profile card, your own profile and the account switcher.
 
 ### Extension store
+- **A repository can now host several extensions, each with its own version.**
+  The store resolved `owner/repo` → *the latest release* → the `.sef`; with a
+  catalogue repository (one folder per extension, one release per extension
+  tagged `<id>@<version>`) "the latest release" is whoever published last, so a
+  second extension would have installed the first one's package. Now, when a row
+  pins an asset (`asset_name`) the resolver picks **the newest release that
+  contains that asset**, and the version comes from the tag suffix
+  (`halloween-themes@1.3.0` → `1.3.0`). Repositories that publish a single
+  extension keep working exactly as before.
+- **Exotic Themes is now Halloween Themes** (`exotic-themes` →
+  `halloween-themes`, v1.3.0): the same 12 themes, renamed in the store (name,
+  slug, asset) so the package, the repository and the catalogue folder match.
+  Scrakk's own installable extensions now live in one place, the
+  [`Scrakk-Team/extensions`](https://github.com/Scrakk-Team/extensions)
+  repository — documented in [Official
+  extensions](../extensions/guides/official-extensions.md).
 - **The extensions panel is now a store** (metadata only — we do not host the
   `.sef`). You paste the link to your **GitHub** or **GitLab** repo and the app
   finds the `.sef` asset in the **latest release** and installs it from there.
