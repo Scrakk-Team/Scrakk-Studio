@@ -41,6 +41,13 @@ asar: true
 asarUnpack:
   - '**/*.node'
   - '**/node_modules/node-pty/**'
+  # web-tree-sitter lo carga el worker de tree-sitter con un `require` de nivel
+  # superior. El worker corre DESEMPACADO (ver spawnEntry.ts) y Node NO resuelve
+  # módulos que están adentro del asar desde una ruta desempacada: sin esto el
+  # worker moría al arrancar con "Cannot find module 'web-tree-sitter'" y el
+  # editor quedaba SIN COLOR en todo build empaquetado (en dev no hay asar, por
+  # eso ahí funcionaba).
+  - '**/node_modules/web-tree-sitter/**'
   - out/main/extension-host.js
   - out/main/tree-sitter-worker.js
   - out/main/*.node
