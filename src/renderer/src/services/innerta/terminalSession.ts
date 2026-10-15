@@ -21,6 +21,7 @@ import { wireInnertaInput } from '@features/editor/engines/innerta/innertaInput'
 import { applyInnertaTheme, listenThemeChanges } from '@features/editor/engines/innerta/innertaTheme'
 import type { ContextMenuItem } from '@ui'
 import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
+import { OscTitleParser } from './oscTitle'
 
 import { t } from '@core/i18n'
 /** API del terminal expuesta por el preload (window.api.terminal). */
@@ -230,6 +231,10 @@ class TerminalSessionImpl implements LiveSession {
    * resolución que va a ocupar en pantalla (ver `setRenderScale`).
    */
   private renderScale = 1
+  /** Título que reporta la terminal por OSC (0/2). Vacío si nunca lo hizo. */
+  private title = ''
+  private readonly oscTitle = new OscTitleParser()
+  private readonly titleListeners = new Set<(title: string) => void>()
   /** Tamaño de fuente del motor a escala 1 (el que NO depende del zoom). */
   private baseFontSize = 0
   /**
@@ -369,6 +374,10 @@ class TerminalSessionImpl implements LiveSession {
       this.view?.append(payload.data)
       this.maybeLoadCjk(payload.data)
       this.maybeLoadEmoji(payload.data)
+      // El título lo reporta la propia terminal (OSC 0/2): se parsea acá porque
+      // el host ve los bytes crudos del PTY.
+      const title = this.oscTitle.push(payload.data)
+      if (title !== null) this.setTitle(title)
     })
     this.unsubExit = api.onExit((payload) => {
       if (payload.id !== this.ptyId) return
@@ -475,6 +484,30 @@ class TerminalSessionImpl implements LiveSession {
     }
     const { cols, rows } = this.getRealDims()
     if (cols > 0 && rows > 0) this.view.resize(cols, rows)
+  }
+
+  /** Ver `LiveSession.getTitle`. */
+  getTitle(): string {
+    return this.title
+  }
+
+  /** Ver `LiveSession.onTitleChange`. */
+  onTitleChange(cb: (title: string) => void): () => void {
+    this.titleListeners.add(cb)
+    return () => {
+      this.titleListeners.delete(cb)
+    }
+  }
+
+  private setTitle(title: string): void {
+    this.title = title
+    for (const cb of [...this.titleListeners]) {
+      try {
+        cb(title)
+      } catch {
+        // Un suscriptor roto no tumba a los demás.
+      }
+    }
   }
 
   /** Ver `LiveSession.setRenderScale`. */
@@ -852,6 +885,7 @@ class TerminalSessionImpl implements LiveSession {
     this.unsubExit?.()
     this.unsubTheme?.()
     this.inputDispose?.()
+    this.titleListeners.clear()
     const api = getTerminalApi()
     if (api) void api.destroy({ id: this.ptyId })
     this.view?.dispose()

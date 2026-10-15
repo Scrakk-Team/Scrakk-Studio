@@ -86,7 +86,13 @@ export function registerTerminalIpc(): void {
         LINES: String(initialRows)
       } as Record<string, string>,
       cols: initialCols,
-      rows: initialRows
+      rows: initialRows,
+      // Windows: usar el ConPTY MODERNO que node-pty ya trae empacado (el de
+      // Windows Terminal, `prebuilds/win32-x64/conpty/conpty.dll`). El ConPTY del
+      // OS NO transporta el mouse-reporting de xterm, así que dentro de una TUI
+      // (Claude Code, htop, vim…) los clicks/hover/rueda no hacían NADA; en Linux
+      // anda porque es un PTY real. No-op en las demás plataformas.
+      ...(process.platform === 'win32' ? { useConpty: true, useConptyDll: true } : {})
     }) as unknown as PtyProc
 
     terms.set(id, proc)

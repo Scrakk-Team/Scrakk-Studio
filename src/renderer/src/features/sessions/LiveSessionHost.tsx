@@ -30,6 +30,13 @@ export interface LiveSession {
    * cuando el canvas existe.
    */
   setRenderScale?(scale: number): void
+  /**
+   * Título que la terminal reporta por OSC (0/2). Vacío si nunca lo hizo. La tab
+   * lo usa como su etiqueta.
+   */
+  getTitle?(): string
+  /** Avisa cuando cambia el título. Devuelve el unsubscribe. */
+  onTitleChange?(cb: (title: string) => void): () => void
 }
 
 interface LiveSessionHostProps {

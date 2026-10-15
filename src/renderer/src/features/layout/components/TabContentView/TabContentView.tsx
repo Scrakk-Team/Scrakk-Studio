@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Licencia completa en LICENSE (Apache License 2.0).
 
-import type { JSX } from 'react'
-import { tabsStore, type StripId, type TabSpec } from '@features/tabs'
+import { useEffect, type JSX } from 'react'
+import { setTabHeader, tabsStore, type StripId, type TabSpec } from '@features/tabs'
 import { PanelHost } from '../PanelHost/PanelHost'
 import { PanelTitleAutoProvider } from '../../state'
 import { getPanel } from '../../registry'
@@ -35,6 +35,36 @@ function panelTitleFor(spec: TabSpec): string {
  * La key es el id de la tab: cada tab tiene su propio estado (un panel que
  * cambia de tab NO comparte instancia).
  */
+/**
+ * Publica el título que la terminal reporta (OSC 0/2) como etiqueta de la tab.
+ * `TabStrip.defaultLabel` YA prefiere el título publicado, así que no hay que
+ * tocar el store ni el strip. `actions: () => null` deja el contrato satisfecho
+ * (y el menú ⋯ queda igual: `extractHeaderMenuItems` de un render nulo da []).
+ */
+function TerminalTitleBridge({
+  session,
+  publishKey
+}: {
+  session: { getTitle?: () => string; onTitleChange?: (cb: (title: string) => void) => () => void }
+  publishKey: string
+}): null {
+  useEffect(() => {
+    const push = (title: string): void => {
+      setTabHeader(publishKey, {
+        title: title.trim() || t('features.terminal'),
+        actions: () => null
+      })
+    }
+    push(session.getTitle?.() ?? '')
+    const off = session.onTitleChange?.(push)
+    return () => {
+      off?.()
+      setTabHeader(publishKey, null)
+    }
+  }, [session, publishKey])
+  return null
+}
+
 export function TabContentView({ tab, stripId }: { tab: TabSpec; stripId?: StripId }): JSX.Element | null {
   const spec = tabsStore.getTab(tab.id) ?? tab
   // Clave de publicación del header (`stripId:tabId`) para el botón ⋯.
@@ -61,7 +91,18 @@ export function TabContentView({ tab, stripId }: { tab: TabSpec; stripId?: Strip
       ) : null
     case 'terminal':
       return spec.sessionId ? (
-        <LiveSessionHost key={spec.id} session={getTerminalSession(spec.sessionId)} />
+        <>
+          {/* La etiqueta de la tab la pone el TÍTULO que reporta la terminal
+              (OSC 0/2), no un "Terminal" fijo. */}
+          {publishKey ? (
+            <TerminalTitleBridge
+              key={`title-${spec.id}`}
+              session={getTerminalSession(spec.sessionId)}
+              publishKey={publishKey}
+            />
+          ) : null}
+          <LiveSessionHost key={spec.id} session={getTerminalSession(spec.sessionId)} />
+        </>
       ) : null
     case 'explorer':
       return spec.rootPath ? <ExplorerView key={spec.id} root={spec.rootPath} interactive /> : null
