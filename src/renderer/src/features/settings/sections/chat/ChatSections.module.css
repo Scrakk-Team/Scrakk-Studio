@@ -33,6 +33,93 @@
   gap: var(--space-2);
 }
 
+/* Encabezado PLEGABLE de una categoría (familia del catálogo). Todo el ancho es
+   clickeable: es un botón, así el teclado y el lector de pantalla lo ven igual. */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.groupHeader:hover {
+  background: var(--color-hover);
+}
+
+.chevron,
+.chevronOpen {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.chevronOpen {
+  color: var(--color-text-secondary);
+  transform: rotate(90deg);
+}
+
+/* Contador de tools de la categoría (a la derecha del encabezado). */
+/* Título del grupo plegable (sin el `margin-top` de `.groupLabel`, que es para
+   los encabezados sueltos de las otras secciones). */
+.groupTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.groupCount {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: var(--radius-capsule);
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.groupBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-1);
+}
+
+/* La lista de tools va EN HORIZONTAL: tarjetas que se acomodan solas al ancho
+   del panel (2-3 por fila según el espacio). */
+.toolCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-2);
+}
+
+.toolCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.toolCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
 .groupLabel {
   margin-top: var(--space-2);
   font-size: var(--text-sm);

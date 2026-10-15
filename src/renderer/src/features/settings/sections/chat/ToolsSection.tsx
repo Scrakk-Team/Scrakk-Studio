@@ -6,6 +6,10 @@
  * Sección "Herramientas" — activa/desactiva tools, agrupadas por
  * **Familia → Tipo** (catálogo extensible, ver `services/ai/tools/catalog.ts`).
  *
+ * Cada **familia** (la categoría) es un grupo PLEGABLE y las tools de adentro se
+ * ven en tarjetas EN HORIZONTAL (grid que se acomoda al ancho): con decenas de
+ * tools, una lista vertical de renglones largos era imposible de leer.
+ *
  * Desactivar una tool la saca del prompt y del request (el modelo no la ve);
  * el executor además la rechaza por si el modelo la llama igual. La lista se
  * arma del registry EN VIVO, así las tools de extensiones (y sus packs)
@@ -26,6 +30,8 @@ type ToolRow = ReturnType<typeof toolSettingsService.getAllTools>[number]
 export function ToolsSection(): JSX.Element {
   const [tools, setTools] = useState<ToolRow[]>(() => toolSettingsService.getAllTools())
   const [version, setVersion] = useState(0)
+  /** Familias plegadas por el usuario (por id): arriba arrancan todas abiertas. */
+  const [collapsed, setCollapsed] = useState<string[]>([])
 
   useEffect(() => {
     const reload = (): void => setTools(toolSettingsService.getAllTools())
@@ -42,9 +48,14 @@ export function ToolsSection(): JSX.Element {
 
   const typeOf = (tool: ToolRow): string => tool.meta.type || DEFAULT_TOOL_TYPE
 
+  const toggleFamily = (id: string): void =>
+    setCollapsed((current) =>
+      current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]
+    )
+
   const renderTool = (tool: ToolRow): JSX.Element => (
-    <div key={tool.name} className={styles.row}>
-      <div className={styles.rowMain}>
+    <div key={tool.name} className={styles.toolCard}>
+      <div className={styles.toolCardTop}>
         <span className={styles.rowTitle}>
           {tool.meta.label}
           {tool.extensionId ? <span className={styles.badge}>{t('settings.extension')}</span> : null}
@@ -52,18 +63,41 @@ export function ToolsSection(): JSX.Element {
             <span className={`${styles.badge} ${styles.badgeDanger}`}>{t('settings.riesgo.alto')}</span>
           ) : null}
         </span>
-        <span className={styles.rowDesc}>{tool.meta.description || tool.name}</span>
+        <ToggleSwitch
+          checked={tool.enabled}
+          onChange={(next) => toolSettingsService.setGloballyEnabled(tool.name, next)}
+          label={`Habilitar ${tool.meta.label}`}
+        />
       </div>
-      <ToggleSwitch
-        checked={tool.enabled}
-        onChange={(next) => toolSettingsService.setGloballyEnabled(tool.name, next)}
-        label={`Habilitar ${tool.meta.label}`}
-      />
+      <span className={styles.rowDesc}>{tool.meta.description || tool.name}</span>
     </div>
   )
 
   const knownTypes = new Set(toolCatalog.listTypes().map((type) => type.id))
   const orphans = tools.filter((tool) => !knownTypes.has(typeOf(tool)))
+
+  /** Grupo plegable: encabezado con chevron + contador, y el cuerpo adentro. */
+  const renderGroup = (id: string, label: string, count: number, body: JSX.Element[]): JSX.Element => {
+    const isOpen = !collapsed.includes(id)
+    return (
+      <div key={id} className={styles.group}>
+        <button
+          type="button"
+          className={styles.groupHeader}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? `Contraer ${label}` : `Desplegar ${label}`}
+          onClick={() => toggleFamily(id)}
+        >
+          <span className={isOpen ? styles.chevronOpen : styles.chevron} aria-hidden="true">
+            <ProductIcon id="chevron-right" size={12} />
+          </span>
+          <span className={styles.groupTitle}>{label}</span>
+          <span className={styles.groupCount}>{count}</span>
+        </button>
+        {isOpen ? <div className={styles.groupBody}>{body}</div> : null}
+      </div>
+    )
+  }
 
   return (
     <div className={styles.section}>
@@ -75,42 +109,43 @@ export function ToolsSection(): JSX.Element {
           .map((type) => ({ type, list: tools.filter((tool) => typeOf(tool) === type.id) }))
           .filter((group) => group.list.length > 0)
         if (groups.length === 0) return null
-        return (
-          <div key={family.id} className={styles.group}>
-            <span className={styles.groupLabel}>{family.label}</span>
-            {groups.map(({ type, list }) => {
-              const allEnabled = list.every((tool) => tool.enabled)
-              return (
-                <div key={type.id} className={styles.typeGroup}>
-                  <div className={styles.typeHeader}>
-                    <span className={styles.typeLabel}>
-                      {type.icon ? <ProductIcon id={type.icon} size={12} aria-hidden="true" /> : null}
-                      {type.label}
-                    </span>
-                    <ToggleSwitch
-                      checked={allEnabled}
-                      onChange={(next) => {
-                        for (const tool of list) {
-                          toolSettingsService.setGloballyEnabled(tool.name, next)
-                        }
-                      }}
-                      label={`Habilitar todo el grupo ${type.label}`}
-                    />
-                  </div>
-                  <div className={styles.list}>{list.map(renderTool)}</div>
-                </div>
-              )
-            })}
-          </div>
-        )
+
+        const count = groups.reduce((total, group) => total + group.list.length, 0)
+        const body = groups.map(({ type, list }) => {
+          const allEnabled = list.every((tool) => tool.enabled)
+          return (
+            <div key={type.id} className={styles.typeGroup}>
+              <div className={styles.typeHeader}>
+                <span className={styles.typeLabel}>
+                  {type.icon ? <ProductIcon id={type.icon} size={12} aria-hidden="true" /> : null}
+                  {type.label}
+                </span>
+                <ToggleSwitch
+                  checked={allEnabled}
+                  onChange={(next) => {
+                    for (const tool of list) {
+                      toolSettingsService.setGloballyEnabled(tool.name, next)
+                    }
+                  }}
+                  label={`Habilitar todo el grupo ${type.label}`}
+                />
+              </div>
+              <div className={styles.toolCards}>{list.map(renderTool)}</div>
+            </div>
+          )
+        })
+
+        return renderGroup(family.id, family.label, count, body)
       })}
 
-      {orphans.length > 0 ? (
-        <div className={styles.group}>
-          <span className={styles.groupLabel}>{t('settings.sin.grupo')}</span>
-          <div className={styles.list}>{orphans.map(renderTool)}</div>
-        </div>
-      ) : null}
+      {orphans.length > 0
+        ? renderGroup(
+            'sin-grupo',
+            t('settings.sin.grupo'),
+            orphans.length,
+            [<div key="orphans" className={styles.toolCards}>{orphans.map(renderTool)}</div>]
+          )
+        : null}
     </div>
   )
 }
