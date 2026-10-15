@@ -8,6 +8,10 @@
 #  - asar con solo lo de runtime (nada de fuentes, docs, tests, tools, secretos).
 #  - sin sourcemaps (los delata prod: `sourcemap: false` en electron-vite.prod).
 #  - nativo fuera del asar (node-pty / *.node) para que cargue.
+#  - el icono vive en `assets/icon.png`, que SÍ está trackeado: `build-resources/`
+#    está en .gitignore, así que en CI ese archivo no existía y electron-builder
+#    caía al icono por defecto de Electron ("default Electron icon is used") —
+#    el bug del icono en Windows.
 #
 # Firma de código (win/mac) se agrega cuando haya certificados. ASAR integrity
 # se controla desde el main (ver EnableEmbeddedAsarIntegrityValidation).
@@ -112,16 +116,16 @@ linux:
     # AppImage (FUSE). Es el mismo linux-unpacked comprimido.
     - tar.gz
   category: Development
-  icon: build-resources/icon.png
+  icon: assets/icon.png
   # Asocia las ventanas al .desktop (WM_CLASS) en Linux.
   syncDesktopName: true
 
 win:
   target:
     - nsis
-  icon: build-resources/icon.png
+  icon: assets/icon.png
 
 mac:
   target:
     - dmg
-  icon: build-resources/icon.png
+  icon: assets/icon.png
