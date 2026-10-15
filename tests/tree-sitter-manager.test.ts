@@ -46,6 +46,8 @@ const { TreeSitterManager } = await import('../src/main/extensions/treeSitter/ma
 class FakeWorker {
   posted: Array<{ id: number; type: string; payload: DynamicTokenizeRequest }> = []
   killed = 0
+  /** Si se define, el manager espera a que resuelva antes de postear. */
+  whenReady?: () => Promise<void>
   private messageListener: ((message: unknown) => void) | null = null
   private exitListener: ((code: number) => void) | null = null
 
@@ -106,6 +108,8 @@ function manager(idleShutdownMs = 10_000): InstanceType<typeof TreeSitterManager
   return new TreeSitterManager({
     spawn: () => worker,
     requestTimeoutMs: 50,
+    // El primer pedido usa su propio margen; en tests también corto.
+    firstRequestTimeoutMs: 50,
     idleShutdownMs
   })
 }
@@ -173,6 +177,34 @@ describe('manager de tree-sitter dinámico', () => {
     await expect(first).rejects.toThrow(/terminó \(código 7\)/)
     await expect(second).rejects.toThrow(/terminó \(código 7\)/)
     expect(mgr.isRunning()).toBe(false)
+  })
+
+  it('no postea hasta que el worker avisa que está listo (race de arranque)', async () => {
+    let release = (): void => {}
+    const ready = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const local = new FakeWorker()
+    local.whenReady = () => ready
+    const mgr = new TreeSitterManager({
+      spawn: () => local,
+      requestTimeoutMs: 500,
+      firstRequestTimeoutMs: 500
+    })
+
+    const pending = mgr.tokenize(request())
+    // La verificación de rutas pasa (async), pero NO se posteó: falta el ready.
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(local.posted).toHaveLength(0)
+
+    release()
+    for (let i = 0; i < 100 && local.posted.length < 1; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+    expect(local.posted).toHaveLength(1)
+
+    local.respond()
+    await expect(pending).resolves.toMatchObject({ ok: true })
   })
 
   it('apaga el worker cuando nadie lo usa', async () => {

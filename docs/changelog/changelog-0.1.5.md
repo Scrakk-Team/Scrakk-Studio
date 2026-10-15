@@ -58,6 +58,15 @@ published are not edited. The file goes per version:
   "you chose tree-sitter and this language has no `.wasm`". The unexpected cases
   now log at `warn`, naming the extension that won the file, and a disabled
   extension is no longer skipped in total silence.
+- **The dynamic tree-sitter worker no longer loses the first request** — the
+  "sometimes there is no colour, sometimes there is". Two fixes in the worker
+  manager: the first `postMessage` now waits for the process to be **spawned**
+  (a message posted before the child existed was lost, and the request then died
+  on its timeout), and the **first** request after a cold start gets a longer
+  timeout (25 s) — loading the tree-sitter runtime plus a grammar can take far
+  longer than the 10 s a warm request needs. The worker's **stderr is forwarded**
+  now (prefixed `[tree-sitter]`), so failing to load a `.wasm` or compile a `.scm`
+  is visible instead of silent.
 
 ### App icon (Windows)
 - **The packaged app now shows the Scrakk icon instead of Electron's.** The

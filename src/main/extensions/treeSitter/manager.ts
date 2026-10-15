@@ -43,6 +43,13 @@ import { resolveSpawnEntry } from '../../spawnEntry'
 
 /** Cuánto se espera a un tokenizado antes de dar el worker por colgado. */
 export const REQUEST_TIMEOUT_MS = 10_000
+/**
+ * Timeout del PRIMER pedido tras levantar el proceso (arranque en frío). Más
+ * generoso: spawn + cargar el runtime wasm + el grammar + las queries puede
+ * tardar mucho en un equipo lento (antivirus, disco frío) y matarlo ahí dejaba
+ * el archivo sin color.
+ */
+export const FIRST_REQUEST_TIMEOUT_MS = 25_000
 /** Sin pedidos por este tiempo, el proceso se apaga (se vuelve a levantar solo). */
 export const IDLE_SHUTDOWN_MS = 60_000
 
@@ -51,6 +58,12 @@ export interface TreeSitterManagerOptions {
   spawn?: TreeSitterSpawner
   /** Timeout por pedido (los tests lo bajan para no esperar 10 s). */
   requestTimeoutMs?: number
+  /**
+   * Timeout del PRIMER pedido después de levantar el proceso: el arranque en
+   * frío (spawn + cargar web-tree-sitter.wasm + el grammar + las queries) puede
+   * tardar mucho más que un pedido normal. Default: `FIRST_REQUEST_TIMEOUT_MS`.
+   */
+  firstRequestTimeoutMs?: number
   /** Apagado por inactividad. */
   idleShutdownMs?: number
 }
@@ -68,6 +81,13 @@ export interface TreeSitterWorkerLike {
   on(event: 'message', listener: (message: unknown) => void): void
   on(event: 'exit', listener: (code: number) => void): void
   kill(): void
+  /**
+   * Resuelve cuando el proceso está LISTO para recibir mensajes. Sin esto, el
+   * primer `postMessage` puede salir antes de que el hijo exista y perderse
+   * (el pedido después muere por timeout): el "a veces no pinta". Opcional —
+   * los spawners de test no lo implementan y se postea directo.
+   */
+  whenReady?(): Promise<void>
 }
 
 /** Manejador de procesos: se inyecta en tests para no levantar procesos reales. */
@@ -88,8 +108,43 @@ export function workerEntryPath(): string {
 
 function defaultSpawn(entryPath: string): TreeSitterWorkerLike {
   const child: UtilityProcess = utilityProcess.fork(entryPath, [], {
-    serviceName: 'tree-sitter-dynamic'
+    serviceName: 'tree-sitter-dynamic',
+    // El stderr del worker es la ÚNICA pista cuando "no pinta": sin `pipe` se
+    // pierde (errores de wasm, queries que no compilan, ABI).
+    stdio: 'pipe'
   })
+
+  // Listo para recibir mensajes = evento `spawn`. También se resuelve en `exit`
+  // para no colgar el `await` si el proceso murió antes de arrancar.
+  const ready = new Promise<void>((resolve) => {
+    let settled = false
+    const done = (): void => {
+      if (settled) return
+      settled = true
+      resolve()
+    }
+    child.on('spawn', done)
+    child.on('exit', done)
+  })
+
+  // Diagnóstico: se reenvía el stderr (prefijado) y se guarda la cola para
+  // reportarla si el proceso sale.
+  let stderrTail = ''
+  child.stderr?.on('data', (chunk: Buffer) => {
+    const text = chunk.toString()
+    stderrTail = (stderrTail + text).slice(-2000)
+    for (const line of text.split('\n')) {
+      if (line.trim()) console.warn(`[tree-sitter] ${line}`)
+    }
+  })
+  child.on('exit', (code: number) => {
+    if (stderrTail.trim()) {
+      console.warn(
+        `[tree-sitter] el worker salió (código ${code}); último stderr:\n${stderrTail.trim()}`
+      )
+    }
+  })
+
   return {
     postMessage: (message) => child.postMessage(message),
     on: (event, listener) => {
@@ -101,7 +156,8 @@ function defaultSpawn(entryPath: string): TreeSitterWorkerLike {
         child.on('exit', (code: number) => target(code))
       }
     },
-    kill: () => child.kill()
+    kill: () => child.kill(),
+    whenReady: () => ready
   }
 }
 
@@ -112,11 +168,15 @@ export class TreeSitterManager {
   private idleTimer: ReturnType<typeof setTimeout> | null = null
   private readonly spawn: TreeSitterSpawner
   private readonly requestTimeoutMs: number
+  private readonly firstRequestTimeoutMs: number
   private readonly idleShutdownMs: number
+  /** El worker actual todavía no respondió NADA: su primer pedido es en frío. */
+  private cold = true
 
   constructor(options: TreeSitterManagerOptions = {}) {
     this.spawn = options.spawn ?? defaultSpawn
     this.requestTimeoutMs = options.requestTimeoutMs ?? REQUEST_TIMEOUT_MS
+    this.firstRequestTimeoutMs = options.firstRequestTimeoutMs ?? FIRST_REQUEST_TIMEOUT_MS
     this.idleShutdownMs = options.idleShutdownMs ?? IDLE_SHUTDOWN_MS
   }
 
@@ -131,6 +191,8 @@ export class TreeSitterManager {
     worker.on('message', (message: unknown) => this.onMessage(message))
     worker.on('exit', (code: number) => this.onExit(code))
     this.worker = worker
+    // Proceso nuevo: su primer pedido cuenta como frío (margen más largo).
+    this.cold = true
     return worker
   }
 
@@ -148,6 +210,8 @@ export class TreeSitterManager {
     }
     this.pending.clear()
     this.worker = null
+    // El próximo worker arranca en frío otra vez.
+    this.cold = true
     if (this.idleTimer) {
       clearTimeout(this.idleTimer)
       this.idleTimer = null
@@ -161,8 +225,13 @@ export class TreeSitterManager {
     if (!pending) return
     this.pending.delete(response.id)
     clearTimeout(pending.timer)
-    if (response.ok && response.result) pending.resolve(response.result)
-    else pending.reject(new Error(response.error ?? 'tokenizado dinámico falló'))
+    if (response.ok && response.result) {
+      // Respondió: el worker ya está caliente (los próximos usan el timeout normal).
+      this.cold = false
+      pending.resolve(response.result)
+    } else {
+      pending.reject(new Error(response.error ?? 'tokenizado dinámico falló'))
+    }
     this.scheduleIdleShutdown()
   }
 
@@ -239,6 +308,14 @@ export class TreeSitterManager {
       this.idleTimer = null
     }
 
+    // El primer `postMessage` NO puede salir antes de que el proceso exista: si
+    // se pierde, el pedido muere por timeout y el archivo queda sin color (el
+    // "a veces no pinta"). Se espera a que el worker esté listo.
+    if (typeof worker.whenReady === 'function') await worker.whenReady()
+
+    // El arranque en frío tarda más: el primer pedido tiene su propio margen.
+    const timeoutMs = this.cold ? this.firstRequestTimeoutMs : this.requestTimeoutMs
+
     const id = this.nextId++
     return await new Promise<DynamicTokenizeResult>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -246,8 +323,8 @@ export class TreeSitterManager {
         // Un wasm colgado no se recupera: se mata el proceso entero. Es
         // preferible perder el resaltado de un lenguaje a perder la ventana.
         this.stop()
-        reject(new Error(`tokenizado dinámico sin respuesta en ${this.requestTimeoutMs} ms`))
-      }, this.requestTimeoutMs)
+        reject(new Error(`tokenizado dinámico sin respuesta en ${timeoutMs} ms`))
+      }, timeoutMs)
       this.pending.set(id, { resolve, reject, timer, startedAt: Date.now() })
       try {
         worker.postMessage({ id, type: 'tokenize', payload: request })
