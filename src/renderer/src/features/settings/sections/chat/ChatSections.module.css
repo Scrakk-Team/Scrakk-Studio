@@ -136,11 +136,14 @@
   padding-left: var(--space-1);
 }
 
+/* La etiqueta del tipo y su switch van JUNTOS: anclar el switch a la derecha lo
+   dejaba flotando lejos de su categoría y desalineado con la grilla de tarjetas
+   (que no llega al borde: `auto-fill` deja la última columna corta). */
 .typeHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
+  padding-left: var(--space-2);
 }
 
 .typeLabel {
