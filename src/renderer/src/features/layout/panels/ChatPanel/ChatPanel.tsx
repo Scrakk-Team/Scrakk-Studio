@@ -7,7 +7,7 @@ import { isSlashInput, slashCommands } from '@services/slash-commands'
 import { agentRegistry, subagentSessions } from '@services/ai/agents'
 import { spawnSubagentChat } from '@features/chat/agents'
 import type { ToolCallInfo, ToolResultInfo } from '@services/chat/types'
-import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type JSX } from 'react'
 import { useProviders } from '@features/providers'
 import { useChats, ModeGlow, ChatModeBar } from '@features/chat'
 import { HeaderActionButton, usePanelTitleOptional } from '@features/layout'
@@ -26,6 +26,15 @@ import {
 import { SkillsPanel } from '../SkillsPanel/SkillsPanel'
 import { isSkillsViewOpen, setSkillsViewOpen, subscribeToSkillsView } from '../SkillsPanel/viewState'
 import { ComposerFooter } from './ComposerFooter'
+import {
+  beginRun,
+  endRun,
+  getRunPromise,
+  isGenerating,
+  setRunPromise,
+  stopRun,
+  subscribeRuns
+} from '@services/chat/chatRuns'
 import styles from './ChatPanel.module.css'
 
 import { t } from '@core/i18n'
@@ -56,16 +65,11 @@ export function ChatPanel(): JSX.Element {
   const effortSteps = getAvailableVariants().options
   const effortMaxed =
     effortSteps.length > 1 && activeVariant === effortSteps[effortSteps.length - 1]
-  const [isBusy, setIsBusy] = useState(false)
-  // Controller del stream en curso: el botón "Detener" lo aborta. Mientras
-  // genera, el input queda escribible (no se deshabilita).
-  const abortRef = useRef<AbortController | null>(null)
-  /**
-   * El stream EN CURSO. Se guarda para poder ESPERARLO: editar la última
-   * pregunta mientras el modelo responde lo aborta y hay que dejarlo cerrar
-   * antes de reenviar, si no los dos escriben la misma sesión.
-   */
-  const activeStreamRef = useRef<Promise<void> | null>(null)
+  // "¿Está generando ESTA sesión?" sale de un registro por sesión (módulo), NO de
+  // un `useState` local: mover/cambiar el panel REMONTA este componente y el botón
+  // volvía a "Enviar" (dejando mandar otro mensaje con la IA generando, y el stream
+  // viejo huérfano). El controller también vive ahí → "Detener" sigue funcionando.
+  const isBusy = useSyncExternalStore(subscribeRuns, () => isGenerating(sessionId))
 
   // Mientras hay un subagente spawneado abierto, el input principal se bloquea
   // (estás "dentro" del subagente).
@@ -210,9 +214,8 @@ export function ChatPanel(): JSX.Element {
   // ejecuta y las cards aparecen inline en la burbuja (ToolCallsBlock).
   const streamReply = useCallback(
     async (targetId: string, content: string, history: ChatMessage[]): Promise<void> => {
-      setIsBusy(true)
       const controller = new AbortController()
-      abortRef.current = controller
+      beginRun(targetId, controller)
 
       /**
        * Un SEGMENTO por ronda del ciclo agéntico — espeja 1:1 el array de
@@ -362,8 +365,7 @@ export function ChatPanel(): JSX.Element {
       } finally {
         // El último delta pudo quedar en el buffer: se vuelca antes de cerrar.
         flushNow()
-        abortRef.current = null
-        setIsBusy(false)
+        endRun(targetId, controller)
       }
     },
     [service, activeProvider, getApiKey, getModel, getThinkingMode, appendMessage, updateMessage]
@@ -371,8 +373,8 @@ export function ChatPanel(): JSX.Element {
 
   // Detener la generación en curso: aborta el stream y las tools pendientes.
   const handleStop = useCallback((): void => {
-    abortRef.current?.abort()
-  }, [])
+    stopRun(sessionId)
+  }, [sessionId])
 
   const handleSend = useCallback(
     async (content: string): Promise<void> => {
@@ -428,7 +430,7 @@ export function ChatPanel(): JSX.Element {
       })
 
       const run = streamReply(targetId, trimmed, messages)
-      activeStreamRef.current = run
+      setRunPromise(targetId, run)
       await run
     },
     [isBusy, sessionId, createSession, appendMessage, updateMessage, streamReply, messages]
@@ -453,7 +455,7 @@ export function ChatPanel(): JSX.Element {
 
     removeMessagesAfter(sessionId, lastUserIndex + 1)
     const run = streamReply(sessionId, content, history)
-    activeStreamRef.current = run
+    setRunPromise(sessionId, run)
     await run
   }, [sessionId, isBusy, messages, removeMessagesAfter, streamReply])
 
@@ -487,19 +489,19 @@ export function ChatPanel(): JSX.Element {
         removeMessagesAfter(sid, index + 1)
         // El historial es lo ANTERIOR al mensaje editado: el texto nuevo viaja
         // como el turno del usuario (igual que en el envío inicial).
-        activeStreamRef.current = streamReply(sid, content, current.slice(0, index))
+        setRunPromise(sid, streamReply(sid, content, current.slice(0, index)))
       }
 
       // Se puede editar la ÚLTIMA pregunta mientras el modelo responde: hay que
       // CORTAR el stream y ESPERARLO antes de reenviar. Si no, su `finally`
       // apagaría el `isBusy` del stream nuevo y los dos escribirían la sesión.
-      const inFlight = activeStreamRef.current
+      const inFlight = getRunPromise(sid)
       if (!inFlight) {
         apply()
         return
       }
-      abortRef.current?.abort()
-      activeStreamRef.current = null
+      stopRun(sid)
+      setRunPromise(sid, null)
       void inFlight.catch(() => undefined).then(apply)
     },
     [sessionId, updateMessage, removeMessagesAfter, streamReply]

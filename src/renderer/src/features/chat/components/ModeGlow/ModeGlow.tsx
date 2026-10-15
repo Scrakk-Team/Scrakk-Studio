@@ -10,14 +10,14 @@
  * all_allow=rojo). Solo aparece fugazmente al cambiar de modo.
  */
 
-import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { useShortcut } from '@services/shortcuts'
 import { cycleMode, getModeColor, getModeId } from '@services/ai/prompts/modes'
 import styles from './ModeGlow.module.css'
 
 const MODE_CHANGED_EVENT = 'approval-mode-changed'
 
-export function ModeGlow(): JSX.Element {
+export const ModeGlow = memo(function ModeGlow(): JSX.Element {
   const [color, setColor] = useState<string>(() => getModeColor(getModeId()))
   const [visible, setVisible] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -57,4 +57,4 @@ export function ModeGlow(): JSX.Element {
       aria-hidden="true"
     />
   )
-}
+})

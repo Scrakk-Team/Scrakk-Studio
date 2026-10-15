@@ -77,24 +77,15 @@ export function ChatsProvider({ children }: { children: ReactNode }) {
   // que se hace cuando el hilo está libre (no durante el stream). El timeout
   // es la red de seguridad si idle nunca llega.
   useEffect(() => {
-    const idle = (
-      globalThis as {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
-        cancelIdleCallback?: (handle: number) => void
-      }
-    ).requestIdleCallback
-    const cancelIdle = (
-      globalThis as { cancelIdleCallback?: (handle: number) => void }
-    ).cancelIdleCallback
-    const write = (): void => persistChatSessions(sessions)
-    const handle =
-      typeof idle === 'function'
-        ? idle(write, { timeout: 1000 })
-        : window.setTimeout(write, 400)
-    return () => {
-      if (typeof idle === 'function' && typeof cancelIdle === 'function') cancelIdle(handle)
-      else window.clearTimeout(handle)
-    }
+    // Debounce TRAILING de verdad: durante el stream `sessions` cambia ~1 vez por
+    // frame, así que esto se re-arma solo y la escritura cae ~400 ms DESPUÉS del
+    // último cambio (o sea al terminar de generar). Antes se usaba
+    // `requestIdleCallback(write, { timeout: 1000 })`, que dispara apenas hay un
+    // hueco libre → serializaba TODA la historia ~1 vez por frame (O(n²) por
+    // generación): ESE era el lag durante la IA. El flush de `beforeunload`
+    // sigue cubriendo el cierre de la ventana.
+    const handle = window.setTimeout(() => persistChatSessions(sessions), 400)
+    return () => window.clearTimeout(handle)
   }, [sessions])
 
   useEffect(() => {

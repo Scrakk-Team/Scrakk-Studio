@@ -43,6 +43,8 @@ export const MessageList = memo(function MessageList({
 }: MessageListProps): JSX.Element {
   const listRef = useRef<HTMLDivElement>(null)
   const mountedRef = useRef(false)
+  /** Cantidad de mensajes de la última sonda DEV (ver el efecto de abajo). */
+  const probeCountRef = useRef(-1)
 
   /**
    * Sonda de huecos (solo DEV).
@@ -55,6 +57,11 @@ export const MessageList = memo(function MessageList({
    */
   useEffect(() => {
     if (!import.meta.env.DEV) return
+    // Sólo cuando CAMBIA la cantidad de mensajes: si corriera en cada delta de
+    // contenido mediría TODOS los mensajes (`getBoundingClientRect`) ~1 vez por
+    // frame — puro costo durante el stream.
+    if (messages.length === probeCountRef.current) return
+    probeCountRef.current = messages.length
     const el = listRef.current
     if (!el) return
     const handle = requestAnimationFrame(() => {

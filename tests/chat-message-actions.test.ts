@@ -67,8 +67,14 @@ describe('editar es funcional, no decorativo', () => {
     // Y hay que ESPERAR al stream abortado antes de reenviar: si no, su finally
     // apaga el isBusy del stream nuevo y los dos escriben la misma sesión.
     const panel = read(PANEL)
-    expect(panel).toContain('activeStreamRef')
-    expect(panel).toMatch(/abortRef\.current\?\.abort\(\)[\s\S]*?await|inFlight\.catch/)
+    // El stream en curso vive en un registro por SESIÓN (sobrevive al remonte del
+    // panel): se publica (`setRunPromise`) y se lee (`getRunPromise`) para abortarlo
+    // y ESPERARLO antes de reenviar; si no, su `finally` apaga el run del stream
+    // nuevo y los dos escriben la misma sesión.
+    expect(panel).toContain('setRunPromise')
+    expect(panel).toContain('getRunPromise')
+    expect(panel).toContain('stopRun')
+    expect(panel).toMatch(/inFlight\.catch\([\s\S]*?\.then\(apply\)/)
   })
 
   it('"volver al mensaje" sólo en el ancla', () => {

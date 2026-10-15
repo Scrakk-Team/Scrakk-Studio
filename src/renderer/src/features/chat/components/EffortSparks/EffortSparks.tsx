@@ -10,7 +10,7 @@
  * avisa de cada tecla con `bumpEffortTyping()`.
  */
 
-import { useEffect, useRef, type JSX } from 'react'
+import { memo, useEffect, useRef, type JSX } from 'react'
 import { useReducedMotion } from 'motion/react'
 import styles from './EffortSparks.module.css'
 
@@ -44,7 +44,7 @@ function resolveColor(value: string): string {
   }
 }
 
-export function EffortSparks({
+export const EffortSparks = memo(function EffortSparks({
   active,
   color = 'var(--color-accent)',
   boost = 1
@@ -161,4 +161,4 @@ export function EffortSparks({
 
   if (!active) return <></>
   return <canvas ref={canvasRef} className={styles.sparks} aria-hidden="true" />
-}
+})

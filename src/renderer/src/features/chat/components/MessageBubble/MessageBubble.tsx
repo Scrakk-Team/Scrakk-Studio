@@ -3,13 +3,41 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 import type { ChatMessage } from '@services/chat'
-import { memo, useState, type JSX, type KeyboardEvent } from 'react'
+import { memo, useEffect, useRef, useState, type JSX, type KeyboardEvent } from 'react'
 import { Markdown } from '../Markdown/Markdown'
 import { MessageActions } from '../MessageActions/MessageActions'
 import { ToolCallsBlock } from '../ToolCallsBlock'
 import styles from './MessageBubble.module.css'
 
 import { t } from '@core/i18n'
+
+/**
+ * Contenido para el markdown, actualizado a lo sumo cada `ms`.
+ *
+ * Mientras la IA streamea, `content` cambia por frame; parsear markdown
+ * (react-markdown + Prism) en cada frame es O(n) por frame. Con el throttle se
+ * refresca ~7 veces/s: el markdown se ve EN VIVO sin comerse el hilo. Al terminar
+ * (`pending` false) se usa el contenido completo, sin throttle.
+ */
+function useThrottled(value: string, ms: number): string {
+  const [out, setOut] = useState(value)
+  const lastRef = useRef(0)
+  useEffect(() => {
+    if (value === out) return
+    const elapsed = Date.now() - lastRef.current
+    if (elapsed >= ms) {
+      lastRef.current = Date.now()
+      setOut(value)
+      return
+    }
+    const handle = window.setTimeout(() => {
+      lastRef.current = Date.now()
+      setOut(value)
+    }, ms - elapsed)
+    return () => window.clearTimeout(handle)
+  }, [value, ms, out])
+  return out
+}
 
 interface MessageBubbleProps {
   message: ChatMessage
@@ -56,6 +84,8 @@ export const MessageBubble = memo(function MessageBubble({
   // Edición inline del mensaje (textarea en el lugar del contenido).
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
+  // Markdown en vivo: el contenido del stream, throttleado (ver `useThrottled`).
+  const liveContent = useThrottled(message.content, 150)
 
   const hasToolCalls = !isUser && message.tool_calls && message.tool_calls.length > 0
   const hasText = message.content.trim().length > 0
@@ -148,13 +178,11 @@ export const MessageBubble = memo(function MessageBubble({
             </div>
           ) : isUser ? (
             <span className={styles.userText}>{message.content}</span>
-          ) : pending ? (
-            // Mientras streamea NO se parsea markdown (react-markdown + Prism es
-            // lo más caro): texto plano que respeta saltos. Al terminar la ronda
-            // se pinta markdown una sola vez.
-            <div className={styles.streamText}>{message.content}</div>
           ) : (
-            <Markdown content={message.content} />
+            // Markdown EN VIVO: también mientras streamea (antes se pintaba texto
+            // plano hasta que terminaba). El contenido va throttleado durante el
+            // stream para no re-parsear por frame.
+            <Markdown content={pending ? liveContent : message.content} />
           )}
 
           {/* Tool calls DESPUÉS del texto: una tool que el modelo llama tras

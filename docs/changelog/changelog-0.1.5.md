@@ -387,6 +387,41 @@ published are not edited. The file goes per version:
   an "insert template" dropdown, and the modes it applies to. "Save and apply" is
   the single primary action at the bottom. The action labels also moved out of
   hardcoded Spanish into i18n.
+- **Settings → About now has an "Uninstall" button that really uninstalls.** It
+  asks for confirmation (with what will and won't be removed) and then removes the
+  app using each platform's own mechanism, instead of a fake button:
+  - **Windows**: it reads the uninstaller registered by the NSIS installer
+    (`QuietUninstallString` in the registry) and runs it silently.
+  - **Linux**: an **AppImage** deletes the `.AppImage` file and its menu entries;
+    a **deb** is removed with `dpkg -r` through `pkexec` (if you cancel the
+    polkit prompt the app stays open and tells you the manual command);
+    a **tar.gz / portable** build removes its own folder (only when it looks like
+    the app folder).
+  - Development builds and unsupported formats say so instead of pretending.
+  Your settings and user data (`~/.scrakk`, the config folder) are **not**
+  touched.
+
+### Chat (streaming)
+- **The chat no longer lags while the model is generating.** The conversation was
+  persisted with `requestIdleCallback`, which fires as soon as the thread is idle:
+  during a stream (a state change per frame) it serialised the **entire history**
+  to `localStorage` roughly **once per frame** — O(n) per frame, O(n²) per
+  generation, plus constant re-allocation. That was the jank, and it only showed
+  while the model streamed. It is now a real trailing debounce (the write lands
+  ~400 ms after the stream stops; `beforeunload` still flushes). The composer
+  chrome (spark, glow, footer) is memoized so a content delta no longer re-renders
+  it, and the DEV layout probe stopped measuring every message on every frame.
+- **Markdown renders live.** While a message streamed it was drawn as plain text
+  and only parsed once the round ended. It is now markdown **as it streams**, with
+  the content throttled (~150 ms) so react-markdown + Prism do not re-parse the
+  whole message on every frame.
+- **Moving the chat panel no longer loses the "Stop".** "Is this session
+  generating" lived in a `useState` of the panel, and moving/changing the panel
+  remounts it: the button flipped back to **Send**, which let you send a second
+  message while the model was still writing — with the first stream orphaned and
+  impossible to stop. The run state now lives in a per-**session** registry outside
+  the component (controller + promise), so it survives a remount: the button stays
+  on Stop, sending stays blocked, and Stop still aborts.
 
 ### AI tools
 - **Editing a file no longer mangles backslash escapes.** The tool pipeline ran a

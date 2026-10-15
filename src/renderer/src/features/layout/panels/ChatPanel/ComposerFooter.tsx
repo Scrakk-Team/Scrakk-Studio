@@ -15,7 +15,7 @@
  * de render).
  */
 
-import { useEffect, useLayoutEffect, useRef, useState, type JSX, type MouseEvent } from 'react'
+import { memo, useEffect, useLayoutEffect, useRef, useState, type JSX, type MouseEvent } from 'react'
 import { ContextMenu, type ContextMenuItem } from '@ui'
 import { ProductIcon } from '@services/productIcons/components'
 import { ModeLabel } from '@features/chat'
@@ -33,7 +33,7 @@ const HIDE_SKILLS = 400
 const HIDE_VARIANTS = 350
 const HIDE_MODEL = 300
 
-export function ComposerFooter({ variant }: { variant: string }): JSX.Element {
+export const ComposerFooter = memo(function ComposerFooter({ variant }: { variant: string }): JSX.Element {
   const footerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null)
@@ -163,4 +163,4 @@ export function ComposerFooter({ variant }: { variant: string }): JSX.Element {
       ) : null}
     </div>
   )
-}
+})
