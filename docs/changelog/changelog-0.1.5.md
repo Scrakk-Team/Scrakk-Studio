@@ -296,6 +296,16 @@ published are not edited. The file goes per version:
   the `npm run sef:*` scripts.
 
 ### Settings (UI)
+- **The tools list is now horizontal and grouped by collapsible category.**
+  Settings → Tools used to be a single vertical column of full-width rows, one
+  per tool, under a flat category label — with dozens of tools (and the ones
+  extensions add) it was a wall of rows you had to scroll to find anything.
+  Each **category** (the tool catalogs' *family*) is now a header you can fold
+  (`aria-expanded`, same chevron as the settings nav) with a counter, and the
+  tools inside sit in cards that flow **horizontally** — a grid that adapts to
+  the panel width, so two or three fit per row. The per-type group toggle (enable
+  the whole group at once) stays, and so does the "Uncategorized" bucket for
+  tools whose type is not in the catalog.
 - **The "Performance" section is hidden from the settings navigation.** The
   section and its code are still there — it still resolves by id and its
   component is untouched — it is simply not listed in the nav.
