@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
 import {
   beginRun,
   endRun,
@@ -71,5 +72,25 @@ describe('chatRuns — estado de generación por sesión', () => {
     setRunPromise('s', p)
     expect(getRunPromise('s')).toBe(p)
     expect(getRunPromise('nope')).toBeNull()
+  })
+})
+
+describe('ChatPanel — el estado de generación se lee después de declarar sessionId', () => {
+  it('no hay uso antes de la declaración (TDZ)', () => {
+    // `tsc` NO detecta esto: el `sessionId` se usa dentro de una función
+    // (`() => isGenerating(sessionId)`), así que una declaración posterior pasaba
+    // el typecheck y explotaba en runtime ("Cannot access 'sessionId' before
+    // initialization"). Este test fija el orden en el código fuente.
+    const panel = readFileSync(
+      new URL(
+        '../src/renderer/src/features/layout/panels/ChatPanel/ChatPanel.tsx',
+        import.meta.url
+      ),
+      'utf8'
+    )
+    const declaredAt = panel.indexOf('const sessionId =')
+    const usedAt = panel.indexOf('isGenerating(sessionId)')
+    expect(declaredAt).toBeGreaterThan(-1)
+    expect(usedAt).toBeGreaterThan(declaredAt)
   })
 })

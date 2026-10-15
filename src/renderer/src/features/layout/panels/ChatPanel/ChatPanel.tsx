@@ -65,12 +65,6 @@ export function ChatPanel(): JSX.Element {
   const effortSteps = getAvailableVariants().options
   const effortMaxed =
     effortSteps.length > 1 && activeVariant === effortSteps[effortSteps.length - 1]
-  // "¿Está generando ESTA sesión?" sale de un registro por sesión (módulo), NO de
-  // un `useState` local: mover/cambiar el panel REMONTA este componente y el botón
-  // volvía a "Enviar" (dejando mandar otro mensaje con la IA generando, y el stream
-  // viejo huérfano). El controller también vive ahí → "Detener" sigue funcionando.
-  const isBusy = useSyncExternalStore(subscribeRuns, () => isGenerating(sessionId))
-
   // Mientras hay un subagente spawneado abierto, el input principal se bloquea
   // (estás "dentro" del subagente).
   const [subagentViewOpen, setSubagentViewOpen] = useState(() => subagentSessions.isViewOpen())
@@ -81,6 +75,12 @@ export function ChatPanel(): JSX.Element {
 
   const messages = activeSession?.messages ?? []
   const sessionId = activeSession?.id
+  // "¿Está generando ESTA sesión?" sale de un registro por sesión (módulo), NO de
+  // un `useState` local: mover/cambiar el panel REMONTA este componente y el botón
+  // volvía a "Enviar" (dejando mandar otro mensaje con la IA generando, y el stream
+  // viejo huérfano). El controller también vive ahí → "Detener" sigue funcionando.
+  // Va DESPUÉS de `sessionId` a propósito (si no, TDZ).
+  const isBusy = useSyncExternalStore(subscribeRuns, () => isGenerating(sessionId))
 
   // Header: "+" de nuevo chat e historial. El historial YA NO es un panel
   // aparte: es una vista que se abre adentro de este panel (columna a la
