@@ -1,0 +1,98 @@
+# Copyright 2026 Scrakk Studio
+# SPDX-License-Identifier: Apache-2.0
+# Licencia completa en LICENSE (Apache License 2.0).
+
+name: Build (test) → Gofile
+
+# Compila el .exe para PROBARLO en Windows y lo sube a Gofile. NO es un release:
+# no hay tag, ni GitHub Release, ni fila en Supabase, ni aviso a los usuarios.
+#
+# Disparo: push a master (siempre) o manual (Actions → Run workflow, cualquier rama).
+# `concurrency` cancela el build anterior si pusheás de nuevo: siempre queda el
+# link del commit más nuevo.
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+concurrency:
+  group: build-gofile-master
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # `npm ci` con scripts: electron baja su binario y node-pty trae el
+      # prebuild win32-x64 (sin eso el .exe no arranca).
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Empaquetar (.exe)
+        run: npx electron-builder --win nsis --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: release/*.exe
+          if-no-files-found: error
+
+  upload-gofile:
+    needs: [build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+          path: exe
+
+      - name: Subir a Gofile
+        env:
+          GOFILE_TOKEN: ${{ secrets.GOFILE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GOFILE_TOKEN:-}" ]; then
+            echo "::error::falta el secret GOFILE_TOKEN (gh secret set GOFILE_TOKEN)"; exit 1
+          fi
+
+          EXE=$(ls exe/*.exe | head -1)
+          SERVER=$(curl -fsS https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+          echo "Subiendo $(basename "$EXE") a $SERVER…"
+
+          RESP=$(curl -fsS \
+            -F "file=@$EXE" \
+            -H "Authorization: Bearer $GOFILE_TOKEN" \
+            "https://$SERVER.gofile.io/contents/uploadfile")
+          echo "$RESP" | jq .
+
+          STATUS=$(echo "$RESP" | jq -r '.status')
+          if [ "$STATUS" != "ok" ]; then
+            echo "::error::Gofile respondió: $STATUS"; exit 1
+          fi
+          URL=$(echo "$RESP" | jq -r '.data.downloadPage')
+
+          {
+            echo "### ⬇️ Descargá el .exe (test build)"
+            echo ""
+            echo "- **Archivo:** $(basename "$EXE")"
+            echo "- **Link:** $URL"
+            echo ""
+            echo "_No firmado → SmartScreen: Más información → Ejecutar de todos modos._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Gofile: $URL"
