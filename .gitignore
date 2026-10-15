@@ -51,3 +51,6 @@ supabase/.temp/
 
 # Video promo de presentación (proyecto aislado, no versionar)
 video/
+
+# Nota local: cómo probar en Windows sin release oficial (build a Gofile).
+WINDOWS-TESTING.md
