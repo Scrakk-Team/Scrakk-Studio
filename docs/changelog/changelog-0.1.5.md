@@ -431,6 +431,12 @@ published are not edited. The file goes per version:
   impossible to stop. The run state now lives in a per-**session** registry outside
   the component (controller + promise), so it survives a remount: the button stays
   on Stop, sending stays blocked, and Stop still aborts.
+- **A very long message no longer stretches the chat.** A user message that was a
+  pasted log or file pushed the conversation a screen down. The bubble is now
+  clamped to six lines (with the "…") and a caret button **inside** the bubble
+  expands it — and collapses it back. The button only appears when the text
+  actually overflows: the clamp is **measured**, not guessed from a character
+  count, so short messages keep the bubble exactly as before.
 
 ### AI tools
 - **Editing a file no longer mangles backslash escapes.** The tool pipeline ran a

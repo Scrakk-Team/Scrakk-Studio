@@ -102,6 +102,41 @@
   white-space: pre-wrap;
 }
 
+/* Mensaje del USUARIO largo: se recorta a unas líneas — el propio recorte
+   agrega el "…" — en vez de empujar el chat hacia abajo. El ancho sigue siendo
+   el de la burbuja (es una fila de largo completo, no una caja al costado). */
+.userTextClamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Botón expandir/contraer: chiquito, pegado al "…" (abajo), no al centro de
+   las seis líneas. El icono es `chevron-down` y se da vuelta al expandir. */
+.expandBtn {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-bottom: 1px;
+  color: inherit;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.expandBtn:hover {
+  opacity: 1;
+}
+
+.expandBtnOpen {
+  transform: rotate(180deg);
+}
+
 /* Mensajes de la IA: texto plano, sin fondo ni borde. El ancho llega hasta
    la esquina inferior derecha de la burbuja del usuario (borde derecho del
    contenedor, menos el gutter del scrollbar), así la lectura llega más lejos. */

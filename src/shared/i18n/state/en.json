@@ -368,6 +368,14 @@
       "at": "2026-09-25T17:45:22.590Z",
       "approvedAt": "2026-09-25T17:45:46.190Z"
     },
+    "chat.contraer": {
+      "src": "a4698e72ab9f1c09",
+      "area": "chat",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
     "chat.copiado": {
       "src": "f1a619264a2d0c14",
       "area": "chat",
@@ -487,6 +495,14 @@
       "needsReview": false,
       "at": "2026-09-25T18:24:34.541Z",
       "approvedAt": "2026-09-25T18:24:40.588Z"
+    },
+    "chat.expandir": {
+      "src": "e095e6d5592b06d0",
+      "area": "chat",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
     },
     "chat.exportar.como.md": {
       "src": "e2131f76f12b737f",

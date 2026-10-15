@@ -3,6 +3,7 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 import type { ChatMessage } from '@services/chat'
+import { ProductIcon } from '@services/productIcons/components'
 import { memo, useEffect, useRef, useState, type JSX, type KeyboardEvent } from 'react'
 import { Markdown } from '../Markdown/Markdown'
 import { MessageActions } from '../MessageActions/MessageActions'
@@ -86,6 +87,26 @@ export const MessageBubble = memo(function MessageBubble({
   const [draft, setDraft] = useState('')
   // Markdown en vivo: el contenido del stream, throttleado (ver `useThrottled`).
   const liveContent = useThrottled(message.content, 150)
+
+  // Mensaje del USUARIO largo: se recorta a unas líneas (el recorte agrega el
+  // "…") y el botón de al lado lo expande/contrae. Sin el tope, un pegado
+  // enorme (un log, un archivo) empujaba el chat una pantalla entera hacia
+  // abajo. `canExpand` sale de MEDIR, no de un largo en caracteres: así el
+  // botón sólo aparece cuando el texto realmente desborda el recorte.
+  const [expanded, setExpanded] = useState(false)
+  const [canExpand, setCanExpand] = useState(false)
+  const userTextRef = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = userTextRef.current
+    if (!el || !isUser) {
+      setCanExpand(false)
+      return
+    }
+    // Ya expandido no se re-mide: sin el recorte el texto entra entero y el
+    // botón (que ahora es "contraer") desaparecería.
+    if (expanded) return
+    setCanExpand(el.scrollHeight > el.clientHeight + 1)
+  }, [message.content, isUser, expanded])
 
   const hasToolCalls = !isUser && message.tool_calls && message.tool_calls.length > 0
   const hasText = message.content.trim().length > 0
@@ -177,7 +198,33 @@ export const MessageBubble = memo(function MessageBubble({
               </div>
             </div>
           ) : isUser ? (
-            <span className={styles.userText}>{message.content}</span>
+            <>
+              {/* El recorte va en un span INTERNO: `-webkit-line-clamp` exige
+                  `display:-webkit-box` y no es fiable como ítem de flex, que es
+                  lo que es `.userText` (texto + botón + acciones en una fila). */}
+              <span className={styles.userText}>
+                <span
+                  ref={userTextRef}
+                  className={expanded ? undefined : styles.userTextClamped}
+                >
+                  {message.content}
+                </span>
+              </span>
+              {/* Sólo cuando el mensaje desborda el recorte. El `chevron-down`
+                  gira al expandir (no hay `chevron-up` en el set). */}
+              {canExpand ? (
+                <button
+                  type="button"
+                  className={`${styles.expandBtn}${expanded ? ` ${styles.expandBtnOpen}` : ''}`}
+                  aria-expanded={expanded}
+                  aria-label={t(expanded ? 'chat.contraer' : 'chat.expandir')}
+                  title={t(expanded ? 'chat.contraer' : 'chat.expandir')}
+                  onClick={() => setExpanded((prev) => !prev)}
+                >
+                  <ProductIcon id="chevron-down" size={13} />
+                </button>
+              ) : null}
+            </>
           ) : (
             // Markdown EN VIVO: también mientras streamea (antes se pintaba texto
             // plano hasta que terminaba). El contenido va throttleado durante el
