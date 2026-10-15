@@ -6,6 +6,16 @@ import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
 import { lspAfterEdit } from '../../../lsp'
 
+/**
+ * Regex que matchea `text` tolerando un CR final y espacios/tabs finales de
+ * línea (el archivo real puede tener CRLF o trailing whitespace que el old_str
+ * no trae).
+ */
+function tolerantMatch(text: string): RegExp {
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(escaped.replace(/\n/g, '[ \\t]*\\r?\\n'), 'g')
+}
+
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
     const path = args.path as string
@@ -22,27 +32,23 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
       }
     }
 
-    let content = readResponse.content
+    const content = readResponse.content
 
-    // Normalize for matching
-    const normalize = (s: string) => s.replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '')
-    const normalizedContent = normalize(content)
-    const normalizedOldStr = normalize(oldStr)
+    // Match EXACTO sobre el original. El reemplazo usa una FUNCIÓN para que un
+    // `$1`/`$&` en el new_str quede literal (con `String.replace` string se
+    // interpretaría como patrón).
+    let count = content.split(oldStr).length - 1
+    let newContent: string | null = count === 1 ? content.replace(oldStr, () => newStr) : null
 
-    // Try exact match first
-    let searchStr = oldStr
-    let replacementStr = newStr
-    let count = content.split(searchStr).length - 1
-
-    // If exact match fails, try normalized matching
+    // Fallback tolerante: el archivo puede tener CRLF o espacios finales que el
+    // old_str no trae. Se busca tolerando eso, pero se reemplaza SOLO el tramo
+    // matcheado — el resto del archivo queda intacto (antes se escribía TODO el
+    // archivo normalizado, perdiendo trailing spaces y CRLF).
     if (count === 0) {
-      const normalizedCount = normalizedContent.split(normalizedOldStr).length - 1
-      if (normalizedCount > 0) {
-        content = normalizedContent
-        searchStr = normalizedOldStr
-        replacementStr = newStr
-        count = normalizedCount
-      }
+      const rx = tolerantMatch(oldStr)
+      const hits = content.match(rx)?.length ?? 0
+      count = hits
+      if (hits === 1) newContent = content.replace(rx, () => newStr)
     }
 
     if (count === 0) {
@@ -60,9 +66,8 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
       }
     }
 
-    // Replace
-    const newContent = content.replace(searchStr, replacementStr)
-    const writeResponse = await window.api.fs.writeFile(fullPath, newContent)
+    const finalContent = newContent ?? content
+    const writeResponse = await window.api.fs.writeFile(fullPath, finalContent)
 
     if (writeResponse.success) {
       window.dispatchEvent(new CustomEvent('refresh-explorer'))
@@ -70,19 +75,19 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
         detail: {
           path: fullPath,
           originalContent: content,
-          modifiedContent: newContent
+          modifiedContent: finalContent
         }
       }))
 
       // Gancho LSP post-edición: sync + drain → <lsp-diagnostics> al contexto.
-      const lspBlock = await lspAfterEdit(fullPath, newContent)
+      const lspBlock = await lspAfterEdit(fullPath, finalContent)
 
       return {
         success: true,
         content: `Replaced text in: ${path}` + (lspBlock ? `\n\n${lspBlock}` : ''),
         filePath: path,
         originalContent: content,
-        modifiedContent: newContent
+        modifiedContent: finalContent
       }
     } else {
       return {

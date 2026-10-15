@@ -8,8 +8,11 @@
  * Normalizes:
  *   - UTF-8 BOM stripping
  *   - CRLF → LF conversion
- *   - Trailing whitespace stripping per line
  *   - Guaranteed final newline
+ *
+ * Trailing whitespace is preserved on purpose: in Markdown two trailing spaces
+ * are a hard break and in some languages it is significant — stripping it here
+ * mutated the file on a read→write round-trip.
  */
 
 export interface NormalizedText {
@@ -36,7 +39,6 @@ export function detectLineEnding(text: string): 'lf' | 'crlf' | 'mixed' {
  * Normalize text content for AI consumption:
  *   - Strip UTF-8 BOM
  *   - Convert CRLF to LF
- *   - Strip trailing whitespace per line
  *   - Guarantee final newline
  */
 export function normalizeText(text: string): NormalizedText {
@@ -53,9 +55,6 @@ export function normalizeText(text: string): NormalizedText {
 
   // Normalize line endings to LF
   result = result.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-
-  // Strip trailing whitespace per line
-  result = result.replace(/[ \t]+$/gm, '')
 
   // Guarantee final newline (unless file is empty)
   if (result.length > 0 && !result.endsWith('\n')) {
