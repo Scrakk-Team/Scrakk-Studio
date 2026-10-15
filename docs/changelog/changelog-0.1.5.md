@@ -402,6 +402,15 @@ published are not edited. The file goes per version:
   touched.
 
 ### Chat (streaming)
+- **Many tool calls no longer re-render all of them.** Every tool result rebuilt
+  the `tool_results` map, and that re-rendered **every** card in the message (each
+  re-parses its args, re-renders its visual and re-emits its `<style>`). Each row
+  is memoized now, so only the card whose result changed re-renders — the one that
+  was making a turn with many tool calls feel laggy.
+- **Long tool arguments no longer break the row.** A tool call's summary card
+  ("Ran $ …", "Edited …", "Read …") is a single line: a very long command or path
+  now truncates with "…" instead of overflowing the row. The full preview is still
+  in the result modal, which is untouched.
 - **The chat no longer lags while the model is generating.** The conversation was
   persisted with `requestIdleCallback`, which fires as soon as the thread is idle:
   during a stream (a state change per frame) it serialised the **entire history**

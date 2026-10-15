@@ -39,3 +39,15 @@
 .row:hover {
   color: var(--color-text);
 }
+
+/* El resumen de la card es UNA línea: cuando la IA mete un comando/path
+   larguísimo, se corta con "…" en vez de desbordar la fila. Todas las visuals
+   del chat devuelven un único `<span>` (el preview rico vive en el MODAL, no en
+   la fila), así que esto no recorta nada que haya que leer entero. */
+.row > span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

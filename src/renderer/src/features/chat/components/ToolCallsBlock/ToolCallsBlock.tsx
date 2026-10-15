@@ -25,6 +25,53 @@ interface ToolCallsBlockProps {
   status?: ToolCallStatusType
 }
 
+/**
+ * Una fila (ícono + card). MEMO a propósito: el bloque re-renderiza en cada
+ * `onToolResult` (`tool_results` es un mapa NUEVO), pero las entradas que no
+ * cambiaron conservan su identidad → sólo se re-renderiza la fila que cambió.
+ * Con muchas tools, sin esto se re-renderizaban TODAS por cada resultado.
+ */
+const ToolRow = memo(function ToolRow({
+  toolCall,
+  resultInfo,
+  status
+}: {
+  toolCall: ToolCallInfo
+  resultInfo?: ToolResultInfo
+  status: ToolCallStatusType
+}): JSX.Element {
+  const callStatus: ToolCallStatusType = resultInfo
+    ? resultInfo.success
+      ? 'success'
+      : 'error'
+    : status
+
+  // Config real de la tool: label, icono, renderBody, plain…
+  const meta = registry.get(toolCall.function.name)?.meta
+
+  const execution: ToolCallExecution = {
+    toolCall,
+    status: callStatus,
+    result: resultInfo?.content,
+    filePath: resultInfo?.filePath,
+    originalContent: resultInfo?.originalContent,
+    modifiedContent: resultInfo?.modifiedContent,
+    runId: resultInfo?.runId ?? sessionIdForToolCall(toolCall.id),
+    toolCallId: toolCall.id
+  }
+
+  return (
+    <div className={styles.toolRow}>
+      <span className={styles.toolIconBox}>
+        <ToolCallIcon toolName={toolCall.function.name} icon={meta?.icon} size={13} />
+      </span>
+      <div className={styles.toolVisual}>
+        <ToolCallShell execution={execution} meta={meta} />
+      </div>
+    </div>
+  )
+})
+
 export const ToolCallsBlock = memo(function ToolCallsBlock({
   toolCalls,
   toolResults,
@@ -32,46 +79,9 @@ export const ToolCallsBlock = memo(function ToolCallsBlock({
 }: ToolCallsBlockProps): JSX.Element {
   return (
     <div className={styles.block}>
-      {toolCalls.map((tc) => {
-        const resultInfo = toolResults?.[tc.id]
-        const callStatus: ToolCallStatusType = resultInfo
-          ? resultInfo.success ? 'success' : 'error'
-          : status
-
-        // Config real de la tool: label, expandible, renderBody, plain…
-        // La INTERACCIÓN (hover + click) la resuelve `ToolCallShell` con el
-        // `onOpen` que declara cada tool en su propia carpeta: acá no se decide.
-        const meta = registry.get(tc.function.name)?.meta
-
-        const execution: ToolCallExecution = {
-          toolCall: tc,
-          status: callStatus,
-          result: resultInfo?.content,
-          filePath: resultInfo?.filePath,
-          originalContent: resultInfo?.originalContent,
-          modifiedContent: resultInfo?.modifiedContent,
-          runId: resultInfo?.runId ?? sessionIdForToolCall(tc.id),
-          toolCallId: tc.id,
-        }
-
-        return (
-          <div key={tc.id} className={styles.toolRow}>
-            <span className={styles.toolIconBox}>
-              <ToolCallIcon
-                toolName={tc.function.name}
-                icon={meta?.icon}
-                size={13}
-              />
-            </span>
-            <div className={styles.toolVisual}>
-              <ToolCallShell
-                execution={execution}
-                meta={meta}
-              />
-            </div>
-          </div>
-        )
-      })}
+      {toolCalls.map((tc) => (
+        <ToolRow key={tc.id} toolCall={tc} resultInfo={toolResults?.[tc.id]} status={status} />
+      ))}
     </div>
   )
 })
