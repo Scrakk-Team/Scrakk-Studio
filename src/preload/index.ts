@@ -212,7 +212,7 @@ const api: WindowApi = {
     homeDir: () => ipcRenderer.invoke(FS_IPC.homeDir) as Promise<string>,
     execCommand: (command: string, cwd?: string, timeoutMs?: number) => ipcRenderer.invoke(FS_IPC.execCommand, { command, cwd, timeoutMs }),
     searchFiles: (root: string, query: string, excludePattern?: string, maxResults?: number) => ipcRenderer.invoke(FS_IPC.searchFiles, { root, query, excludePattern, maxResults }),
-    searchInFiles: (root: string, query: string, includePattern?: string, caseSensitive?: boolean, maxResults?: number) => ipcRenderer.invoke(FS_IPC.searchInFiles, { root, query, includePattern, caseSensitive, maxResults }),
+    searchInFiles: (root: string, query: string, includePattern?: string, caseSensitive?: boolean, maxResults?: number, regex?: boolean) => ipcRenderer.invoke(FS_IPC.searchInFiles, { root, query, includePattern, caseSensitive, maxResults, regex }),
     exists: (path: string) => ipcRenderer.invoke(FS_IPC.exists, { path }),
     stat: (path: string) => ipcRenderer.invoke(FS_IPC.stat, { path })
   },

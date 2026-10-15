@@ -11,6 +11,7 @@ import { promisify } from 'util'
 import * as os from 'node:os'
 import { tryNativeSearchFiles, tryNativeGrep, ensureWatch } from '../search/nativeSearch'
 import { sidecarGrep } from '../search/kolargrepServer'
+import { escapeRegex } from '../search/queryMode'
 import { sniffMime } from '../images/r2'
 import {
   FS_IPC,
@@ -411,25 +412,45 @@ export function registerFsIpc(): void {
   ipcMain.handle(FS_IPC.searchInFiles, async (_event, request: unknown): Promise<SearchInFilesResponse> => {
     const req = request as SearchInFilesRequest
     ensureWatch(req.root)
+
+    const regex = req.regex === true
+    const caseSensitive = req.caseSensitive ?? false
+    const maxResults = req.maxResults ?? 50
+
+    // Un regex inválido tiene que doler: error claro, no "cero resultados".
+    if (regex) {
+      try {
+        new RegExp(req.query)
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error)
+        return { success: false, error: `invalid regex: ${msg}` }
+      }
+    }
+
+    // Los backends regex (sidecar / addon) reciben el PATRÓN; en modo literal se
+    // les manda ESCAPADO para que busquen el texto exacto. El scan TS usa la
+    // query cruda (literal) o el regex según el modo.
+    const pattern = regex ? req.query : escapeRegex(req.query)
+
     // 1) Sidecar `kolargrep serve`: índice vivo + `spans`/`columns` por match.
     // 2) Addon NAPI (kolargrep-core). 3) Scan en TS.
     try {
-      const sidecar = await sidecarGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)
+      const sidecar = await sidecarGrep(req.root, pattern, caseSensitive, maxResults)
       if (sidecar) return { success: true, matches: sidecar }
     } catch {
       // Fallback abajo.
     }
     // Vía nativa (kolargrep trigram + rayon) si disponible; fallback al scan TS.
     try {
-      const native = tryNativeGrep(req.root, req.query, req.caseSensitive ?? false, req.maxResults ?? 50)
+      const native = tryNativeGrep(req.root, pattern, caseSensitive, maxResults)
       if (native) return { success: true, matches: native }
     } catch {
       // Fallback abajo.
     }
     try {
-      const maxResults = req.maxResults ?? 50
       const matches: GrepMatch[] = []
-      const query = req.caseSensitive ? req.query : req.query.toLowerCase()
+      const matcher = regex ? new RegExp(req.query, caseSensitive ? '' : 'i') : null
+      const literal = caseSensitive ? req.query : req.query.toLowerCase()
       const includePattern = req.includePattern?.toLowerCase()
       const maxFileSize = req.maxFileSize ?? 1024 * 1024 // 1MB default
 
@@ -483,8 +504,9 @@ export function registerFsIpc(): void {
             for (let i = 0; i < lines.length; i++) {
               if (matches.length >= maxResults) return
               const line = lines[i]
-              const lineContent = req.caseSensitive ? line : line.toLowerCase()
-              if (lineContent.includes(query)) {
+              const lineContent = caseSensitive ? line : line.toLowerCase()
+              const hit = matcher ? matcher.test(line) : lineContent.includes(literal)
+              if (hit) {
                 matches.push({
                   file: fullPath,
                   line: i + 1,

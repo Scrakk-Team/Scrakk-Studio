@@ -22,8 +22,14 @@ stale answers are dropped:
 // src/renderer/src/features/layout/panels/SearchPanel/SearchPanel.tsx
 const MAX_RESULTS = 100
 const res = await window.api.fs.searchInFiles(root, query, undefined, false, MAX_RESULTS)
-//  fs.searchInFiles(root, query, includePattern?, caseSensitive?, maxResults?)
+//  fs.searchInFiles(root, query, includePattern?, caseSensitive?, maxResults?, regex?)
 ```
+
+The `query` is **literal by default**; pass `regex = true` to treat it as a
+ripgrep regular expression. An invalid regex returns a clear error instead of an
+empty list. (Before, the sidecar/addon backends treated the query as regex while
+the TypeScript fallback used `includes`, so the result depended on which backend
+was built — `chr(10)` matched `chr10` and a lone `\` failed silently.)
 
 The panel always passes `includePattern = undefined`, `caseSensitive = false` and
 `maxResults = 100`. When another caller lets the handler use its own default,

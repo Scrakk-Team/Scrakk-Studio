@@ -107,7 +107,7 @@ Registered by `registerAll()` (23):
 | `delete_file` | file | high | Delete a file |
 | `move_file` | file | medium | Move or rename a file |
 | `file_search` | code | safe | Search files by name |
-| `grep_search` | code | safe | Search text within files |
+| `grep_search` | code | safe | Search text within files (literal by default; `regex: true` for a regex) |
 | `get_diagnostics` | code | safe | Read diagnostics for paths |
 | `lsp` | code | safe | 19 LSP operations (definition, references, hover, symbols, rename, call hierarchy, diagnostics, …) |
 | `execute_command` | system | high | Run a shell command |

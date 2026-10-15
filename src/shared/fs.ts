@@ -221,6 +221,11 @@ export interface SearchInFilesRequest {
   caseSensitive?: boolean
   maxResults?: number
   maxFileSize?: number
+  /**
+   * Tratar `query` como **regex** (estilo ripgrep). Default `false` = texto
+   * exacto (literal), que es lo que espera la mayoría de los usos.
+   */
+  regex?: boolean
 }
 
 export interface GrepMatch {
@@ -298,7 +303,7 @@ export interface FsApi {
   homeDir: () => Promise<string>
   execCommand: (command: string, cwd?: string, timeoutMs?: number) => Promise<ExecCommandResponse>
   searchFiles: (root: string, query: string, excludePattern?: string, maxResults?: number) => Promise<SearchFilesResponse>
-  searchInFiles: (root: string, query: string, includePattern?: string, caseSensitive?: boolean, maxResults?: number) => Promise<SearchInFilesResponse>
+  searchInFiles: (root: string, query: string, includePattern?: string, caseSensitive?: boolean, maxResults?: number, regex?: boolean) => Promise<SearchInFilesResponse>
   exists: (path: string) => Promise<ExistsResponse>
   stat: (path: string) => Promise<StatResponse>
 }

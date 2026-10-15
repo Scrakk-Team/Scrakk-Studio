@@ -11,7 +11,8 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
       args.query as string,
       args.include_pattern as string | undefined,
       args.case_sensitive as boolean | undefined,
-      50
+      50,
+      args.regex as boolean | undefined
     )
 
     if (!response.success) {

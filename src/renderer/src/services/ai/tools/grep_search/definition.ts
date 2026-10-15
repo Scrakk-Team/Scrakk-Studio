@@ -8,13 +8,18 @@ export const definition: ToolDefinition = {
   type: 'function',
   function: {
     name: 'grep_search',
-    description: 'Search for text within files in the project.',
+    description:
+      'Search for text within files in the project. The query is EXACT (literal) by default — set `regex: true` to use a regular expression.',
     parameters: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Text to search for'
+          description: 'The text to search for. Treated literally unless `regex` is true.'
+        },
+        regex: {
+          type: 'boolean',
+          description: 'Treat `query` as a regular expression (default: false = exact text).'
         },
         include_pattern: {
           type: 'string',
