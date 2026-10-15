@@ -255,3 +255,25 @@ export function isExecutableFile(file: string, platform: NodeJS.Platform = proce
     return false
   }
 }
+
+/**
+ * Cómo lanzar `command` con `child_process.spawn`.
+ *
+ * En Windows los shims `*.cmd`/`*.bat` (npm, gem, yarn, …) NO se pueden
+ * spawnear sin `shell: true`: desde Node 18.20/20.12 `spawn('npm.cmd')` falla
+ * con `EINVAL` (el fix de seguridad de Windows). El resto se spawnnea directo,
+ * sin shell. Cuando hace falta shell, los argumentos se citan: una ruta con
+ * espacios (como `…/Scrakk Studio/lsp/npm`) rompería la línea de comando.
+ */
+export function spawnInvocation(
+  command: string,
+  args: readonly string[],
+  platform: NodeJS.Platform = process.platform
+): { file: string; args: string[]; shell: boolean } {
+  const isWindowsShim = platform === 'win32' && /\.(cmd|bat)$/i.test(command)
+  if (!isWindowsShim) return { file: command, args: [...args], shell: false }
+
+  const quote = (value: string): string =>
+    /[\s"]/.test(value) ? `"${value.replace(/"/g, '\\"')}"` : value
+  return { file: [command, ...args].map(quote).join(' '), args: [], shell: true }
+}

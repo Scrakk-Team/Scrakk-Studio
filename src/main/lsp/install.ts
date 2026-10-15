@@ -22,7 +22,7 @@ import { gunzipSync } from 'node:zlib'
 import { unzipSync } from 'fflate'
 import type { LspInstallProgressPayload, LspServerConfig } from '@shared/lsp'
 import { scrakkHome } from '../scrakkFolder'
-import { resolveExecutable } from '../binaries'
+import { resolveExecutable, spawnInvocation } from '../binaries'
 import { t } from '@shared/i18n'
 
 /**
@@ -342,11 +342,15 @@ function run(
   onLine?: (line: string) => void
 ): Promise<{ code: number; stderr: string }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, {
+    // En Windows los shims `.cmd`/`.bat` (npm, gem, …) no se pueden spawnear sin
+    // shell: desde Node 18.20/20.12 tira EINVAL. `spawnInvocation` decide.
+    const invocation = spawnInvocation(cmd, args)
+    const child = spawn(invocation.file, invocation.args, {
       // stdout TAMBIÉN se lee: npm/go reportan el avance ahí. No se usa para
       // calcular un % (no lo dan), pero sí como texto de fase para la UI.
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: env ? { ...process.env, ...env } : process.env
+      env: env ? { ...process.env, ...env } : process.env,
+      shell: invocation.shell
     })
     let stderr = ''
 

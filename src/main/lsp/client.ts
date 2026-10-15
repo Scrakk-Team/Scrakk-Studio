@@ -19,6 +19,7 @@ import * as net from 'net'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { pathToFileURL, fileURLToPath } from 'url'
+import { spawnInvocation } from '../binaries'
 import {
   createMessageConnection,
   StreamMessageReader,
@@ -392,10 +393,14 @@ export class LspClient {
   }
 
   private async spawnStdio(): Promise<MessageConnection> {
-    const child = spawn(this.config.command, this.config.args ?? [], {
+    // Un server instalado por npm es un shim `.cmd` en Windows: sin `shell` el
+    // spawn falla con EINVAL (ver `spawnInvocation`).
+    const invocation = spawnInvocation(this.config.command, this.config.args ?? [])
+    const child = spawn(invocation.file, invocation.args, {
       cwd: this.workspaceRoot,
       env: { ...process.env, ...(this.config.env ?? {}) },
-      stdio: ['pipe', 'pipe', 'pipe']
+      stdio: ['pipe', 'pipe', 'pipe'],
+      shell: invocation.shell
     })
 
     this.child = child
