@@ -28,6 +28,17 @@ published are not edited. The file goes per version:
   longer writes a POSIX command from the renderer: the `cd` is built by the main
   process (`terminal:cd`), emitting `cd /d "…"` on cmd.exe and the POSIX
   `cd -- '…'` on Linux. The renderer no longer hardcodes `shell: 'bash'`.
+- **The terminal no longer renders huge on Windows.** Its size is a single
+  number — the engine's `fontSize`, set from the system font. Linux derives a
+  **logical** em px (`pt × 96/72 × text-scaling`, ≈13); Windows returned the raw
+  `HKCU\Console\FontSize` — the console's **cell height in device pixels** (16 by
+  default, larger on HiDPI) — and fed it straight into the font rasteriser, so the
+  whole terminal scaled up (worse at 125/150%). `windowsConsoleEmPx` now
+  normalises device→logical and cell→em, and the handler passes the monitor's scale
+  factor; only the number changes, the engine re-derives the cell metrics from it.
+  Separately, the node-canvas zoom was pushed into every session and never reset,
+  so a plain terminal tab kept the canvas zoom (up to 2×) after leaving the node
+  view; it resets to 1 now.
 
 ### Syntax highlighting (Windows)
 - **Hardening of the highlight path.** For the preinstalled languages the only
@@ -67,6 +78,14 @@ published are not edited. The file goes per version:
   longer than the 10 s a warm request needs. The worker's **stderr is forwarded**
   now (prefixed `[tree-sitter]`), so failing to load a `.wasm` or compile a `.scm`
   is visible instead of silent.
+- **A packaged build had NO colour at all: the worker could not load its
+  dependency.** The dynamic tree-sitter worker runs from `app.asar.unpacked` (so
+  the OS can execute it) and its bundle `require`s `web-tree-sitter`, which was
+  left **inside** `app.asar` — Node never resolves into `app.asar` from an
+  unpacked path, so the worker died at startup with `Cannot find module`,
+  published no tokens and the editor stayed plain (the shipped engine has no
+  embedded grammars, so there is no fallback). Development worked because there is
+  no asar there. `web-tree-sitter` is now in `asarUnpack`.
 
 ### App icon (Windows)
 - **The packaged app now shows the Scrakk icon instead of Electron's.** The
@@ -74,6 +93,13 @@ published are not edited. The file goes per version:
   from the bundle, so in a packaged build that path did not exist and the window
   had no icon — Windows fell back to the default Electron one. The asset is now
   copied to `resources/`.
+- **…and a packaged Windows build was *still* showing Electron's.** The icon
+  path pointed at `build-resources/icon.png`, but `build-resources/` is in
+  `.gitignore`: the file never reached CI, so electron-builder logged `default
+  Electron icon is used` and the `.exe` (taskbar/alt-tab) shipped with Electron's.
+  It only looked right on a local build, where the file happens to exist on disk.
+  The icon is now `assets/scrakk-studio-b.png` — tracked, and the same image the
+  window paints — used by all three platforms.
 
 ### Status bar (UI)
 - **The errors/warnings chip now sits to the right of the commits chip.** It was
@@ -318,6 +344,39 @@ published are not edited. The file goes per version:
 - **The "Performance" section is hidden from the settings navigation.** The
   section and its code are still there — it still resolves by id and its
   component is untouched — it is simply not listed in the nav.
+- **The Permissions section was rebuilt so it can be read.** The rule builder was
+  a scatter of unlabelled dropdowns, a mode-chip row that sat **above** the
+  builder, and two identical-looking selects — and allow/ask/deny had no colour.
+  It is now card-based and top-down: a labelled card for **where** the rules live
+  (a Project/User segmented control) and the initial mode; the rules list with a
+  coloured bar and a coloured allow/ask/deny pill per rule; and a dedicated card
+  to add one, **in order** — action (a coloured three-way control), the rule with
+  an "insert template" dropdown, and the modes it applies to. "Save and apply" is
+  the single primary action at the bottom. The action labels also moved out of
+  hardcoded Spanish into i18n.
+
+### AI tools
+- **Editing a file no longer mangles backslash escapes.** The tool pipeline ran a
+  second "repair" pass over `content`, `old_str`, `new_str`, `command` and `query`
+  **after** `JSON.parse`, turning literal `\n`/`\t`/`\r` into real characters and
+  decoding HTML entities — so writing Python (`print("a\nb")`), a regex or a
+  Windows path produced extra lines, split strings and broken code. The first
+  parse already yields the exact characters the model sent; the pass now only
+  normalises path arguments (and decodes a double-encoded payload if a gateway
+  sends one).
+- **`grep_search` is exact by default.** The query went straight to a regex
+  engine, so `chr(10)` matched `chr10` and a lone `\` failed silently — and the
+  sidecar/native backends treated it as a regex while the TypeScript fallback used
+  `includes`, so the result depended on which backend was built. There is now a
+  `regex` flag — **off by default** (literal text) — the regex backends get the
+  escaped pattern in literal mode, and an invalid regex returns a clear error
+  instead of an empty list.
+- **`replace_in_file` no longer rewrites the whole file.** When the exact match
+  missed it fell back to a normalised copy and wrote **that copy** back, silently
+  stripping trailing whitespace and CRLF across the whole file; it now replaces
+  only the matched span (and `$1`/`$&` in the replacement stay literal).
+  `read_file` also stopped stripping trailing whitespace (in Markdown two trailing
+  spaces are a hard break).
 
 ### Language servers (LSP)
 - **Installing a server now really installs its language prerequisites.** The
@@ -374,6 +433,22 @@ published are not edited. The file goes per version:
   installs into (`~/.scrakk/lsp/bin` and the managed npm `.bin`) now join the
   augmented `PATH`, so a server installed from the app reads as *installed* the
   next time instead of offering **Install** again.
+- **Installing a server on Windows no longer fails with `spawn EINVAL`.** Since
+  Node 18.20/20.12 a `.cmd`/`.bat` file cannot be spawned without `shell: true`
+  (the Windows command-injection fix) and `npm` resolves to `npm.cmd`, so every
+  npm server (html, json, pyright, bash, yaml, vue, svelte…) failed to install;
+  the LSP client had the same bug, so an installed server — itself a `.cmd` shim —
+  would not start either. A `spawnInvocation` helper now routes Windows
+  `.cmd`/`.bat` through the shell with its arguments quoted (a `…/Scrakk
+  Studio/lsp/npm` prefix with spaces would otherwise break the command line), and
+  spawns everything else directly.
+
+### Development
+- **A Windows test build lands on Gofile without cutting a release.** A workflow
+  compiles the NSIS `.exe` and uploads it to Gofile, printing the download link in
+  the run summary — no tag, no GitHub Release and no Supabase row, so it never
+  reaches the updater. Handy for trying a change on a Windows machine without
+  shipping it.
 
 ### Community contributions
 Fixes merged from outside the core team. Each entry names the pull request, what
