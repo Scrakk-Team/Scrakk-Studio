@@ -3,78 +3,18 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 /**
- * Converter - Converts escape sequences to real characters
- * Step 1 of the command processing pipeline
+ * Converter — path normalization for tool-call arguments.
+ * Step 1 of the command processing pipeline.
  *
- * The problem: AI sometimes sends \\n (escaped) instead of real newlines in JSON.
- * After JSON.parse, \\n becomes \n (literal backslash + n), not a newline.
- * We need to convert these literal \n to real newlines.
+ * IMPORTANT: it does NOT touch the CONTENT fields. After `JSON.parse` the strings
+ * already hold the exact characters the model sent, so "repairing" escapes a
+ * second time (turning a literal `\n` into a newline, `&amp;` into `&`, …)
+ * corrupts real code (Python, regexes, Windows paths, HTML). Other harnesses
+ * decode the arguments exactly once and write the string verbatim.
  */
 
 const IS_WINDOWS: boolean =
   typeof navigator !== 'undefined' && /Win/i.test(navigator.platform || navigator.userAgent || '')
-
-/**
- * Convert HTML entities to their actual characters
- */
-export function convertHtmlEntities(content: string): string {
-  if (!content || typeof content !== 'string') {
-    return content
-  }
-
-  const htmlEntities: Record<string, string> = {
-    '&lt;': '<',
-    '&gt;': '>',
-    '&amp;': '&',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&apos;': "'",
-    '&#x27;': "'",
-    '&#x2F;': '/',
-    '&#47;': '/',
-    '&nbsp;': ' '
-  }
-
-  let result = content
-
-  for (const [entity, char] of Object.entries(htmlEntities)) {
-    result = result.split(entity).join(char)
-  }
-
-  // Also handle numeric entities
-  result = result.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
-  result = result.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-
-  return result
-}
-
-/**
- * Convert literal escape sequences in a string to their actual characters
- */
-export function convertEscapeSequences(content: string): string {
-  if (!content || typeof content !== 'string') {
-    return content
-  }
-
-  let result = content
-
-  // First convert HTML entities
-  result = convertHtmlEntities(result)
-
-  // Protect escaped backslashes
-  const bsPlaceholder = '\x00BS\x00'
-  result = result.replace(/\\\\/g, bsPlaceholder)
-
-  // Convert \n \t \r (literal two-char sequences) to real chars
-  result = result.replace(/\\n/g, '\n')
-  result = result.replace(/\\t/g, '\t')
-  result = result.replace(/\\r/g, '\r')
-
-  // Restore escaped backslashes
-  result = result.replace(new RegExp(bsPlaceholder, 'g'), '\\')
-
-  return result
-}
 
 /**
  * Normalize a path argument for the host OS.
@@ -108,26 +48,26 @@ export function normalizePathArgument(p: string, isWindows: boolean): string {
  */
 export function convertToolCallArguments(argsString: string, isWindows: boolean = IS_WINDOWS): string {
   try {
-    const args = JSON.parse(argsString)
-
-    // String fields that may contain AI-escaped newlines/tabs/CRs/HTML
-    const fieldsToConvert = ['content', 'old_str', 'new_str', 'command', 'query', 'explanation']
-    for (const field of fieldsToConvert) {
-      if (args[field] && typeof args[field] === 'string') {
-        args[field] = convertEscapeSequences(args[field])
-      }
+    // Some gateways double-encode the arguments (a JSON string that contains the
+    // JSON). Decode the extra layer — but NEVER touch the content the model sent:
+    // the first `JSON.parse` already produced the exact characters.
+    let args = JSON.parse(argsString) as unknown
+    for (let i = 0; i < 2 && typeof args === 'string'; i += 1) {
+      args = JSON.parse(args) as unknown
     }
+    if (!args || typeof args !== 'object' || Array.isArray(args)) return argsString
+    const record = args as Record<string, unknown>
 
-    // Path normalization
+    // Path normalization (content fields are left verbatim)
     for (const field of ['path', 'file_path', 'source', 'destination', 'old_path', 'new_path', 'target_directory']) {
-      if (args[field] && typeof args[field] === 'string') {
-        args[field] = normalizePathArgument(args[field], isWindows)
+      if (record[field] && typeof record[field] === 'string') {
+        record[field] = normalizePathArgument(record[field] as string, isWindows)
       }
     }
 
     // For multiple_tools, recurse into each sub-tool's arguments
-    if (Array.isArray(args.tools)) {
-      args.tools = args.tools.map((sub: unknown) => {
+    if (Array.isArray(record.tools)) {
+      record.tools = record.tools.map((sub: unknown) => {
         if (sub && typeof sub === 'object' && 'arguments' in (sub as object)) {
           const subTool = sub as { tool_name?: string; arguments?: unknown }
           if (
@@ -145,7 +85,7 @@ export function convertToolCallArguments(argsString: string, isWindows: boolean 
       })
     }
 
-    return JSON.stringify(args)
+    return JSON.stringify(record)
   } catch (e) {
     console.error('[Converter] Failed to parse arguments:', e)
     return argsString
