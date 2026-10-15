@@ -5,8 +5,15 @@
 /**
  * Resolver de releases (GitHub / GitLab) para la tienda.
  *
- * Dada la URL del repo, busca la ÚLTIMA release y el asset `.sef` (o el
- * `assetName` exacto). Solo se aceptan hosts github.com / gitlab.com (anti-SSRF).
+ * Dada la URL del repo, busca la release y el asset `.sef` (o el `assetName`
+ * exacto). Solo se aceptan hosts github.com / gitlab.com (anti-SSRF).
+ *
+ * Un repo puede alojar VARIAS extensiones (es el caso del catálogo oficial):
+ * ahí la "última release" del repo puede ser la de otra extensión, así que
+ * cuando la fila fija un `assetName` se busca la release más nueva que traiga
+ * ESE asset. Y el tag se etiqueta por extensión (`<id>@<version>`), así que la
+ * versión se saca del sufijo del tag.
+ *
  * Tokens opcionales por entorno para evitar el rate limit:
  *   SCRAKK_GITHUB_TOKEN, SCRAKK_GITLAB_TOKEN
  */
@@ -26,6 +33,40 @@ const TIMEOUT_MS = 15_000
 
 function stripV(tag: string | null | undefined): string {
   return (tag ?? '').trim().replace(/^v/i, '')
+}
+
+/**
+ * Versión de una release a partir del tag (y del nombre, como respaldo).
+ *
+ * Los repos de una sola extensión etiquetan `v1.2.0`; el catálogo oficial
+ * etiqueta por extensión: `halloween-themes@1.3.0` (o, si alguien usa guiones,
+ * `canvas-v1.0.0`). La tienda muestra y compara VERSIONES, no tags.
+ */
+export function releaseVersion(
+  tag: string | null | undefined,
+  fallbackName?: string | null
+): string {
+  const raw = (tag ?? '').trim() || (fallbackName ?? '').trim()
+  if (!raw) return '0.0.0'
+  const at = raw.lastIndexOf('@')
+  if (at > 0) return stripV(raw.slice(at + 1)) || '0.0.0'
+  const dashed = raw.lastIndexOf('-v')
+  if (dashed > 0) return raw.slice(dashed + 2)
+  return stripV(raw) || '0.0.0'
+}
+
+/**
+ * La release MÁS NUEVA (las APIs la devuelven de nueva a vieja) que cumple el
+ * predicado — en la práctica: la que trae el asset de esa extensión.
+ *
+ * Es lo que permite un repo con varias extensiones: cada fila de la tienda fija
+ * su `assetName` y se queda con su release, sin importar cuál se publicó última.
+ */
+export function findReleaseWithAsset<T>(
+  releases: T[],
+  hasAsset: (release: T) => boolean
+): T | null {
+  return releases.find((release) => hasAsset(release)) ?? null
 }
 
 /** `owner/repo` de una URL de GitHub/GitLab (tolera `.git`, `/releases`, etc.). */
@@ -73,6 +114,15 @@ function pickAsset<T extends { name: string; url: string }>(
   return assets.find((a) => a.name.toLowerCase().endsWith('.sef')) ?? null
 }
 
+interface GitHubRelease {
+  tag_name?: string
+  name?: string
+  body?: string
+  html_url?: string
+  published_at?: string
+  assets?: Array<{ name?: string; browser_download_url?: string }>
+}
+
 async function resolveGitHub(path: string, assetName?: string | null): Promise<ResolvedRelease | null> {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
@@ -80,21 +130,31 @@ async function resolveGitHub(path: string, assetName?: string | null): Promise<R
   }
   const token = process.env.SCRAKK_GITHUB_TOKEN?.trim()
   if (token) headers.Authorization = `Bearer ${token}`
-  const data = (await getJson(`https://api.github.com/repos/${path}/releases/latest`, headers)) as {
-    tag_name?: string
-    name?: string
-    body?: string
-    html_url?: string
-    published_at?: string
-    assets?: Array<{ name?: string; browser_download_url?: string }>
-  } | null
+
+  let data: GitHubRelease | null = null
+  if (assetName) {
+    // Repo con varias extensiones: la release de ESTA es la más nueva que trae
+    // su asset (la "latest" del repo puede ser la de otra).
+    const list = (await getJson(
+      `https://api.github.com/repos/${path}/releases?per_page=30`,
+      headers
+    )) as GitHubRelease[] | null
+    data = Array.isArray(list)
+      ? findReleaseWithAsset(list, (release) =>
+          (release.assets ?? []).some((asset) => asset.name === assetName)
+        )
+      : null
+  }
+  data ??= (await getJson(`https://api.github.com/repos/${path}/releases/latest`, headers)) as
+    | GitHubRelease
+    | null
   if (!data) return null
   const assets = (data.assets ?? [])
     .filter((a) => typeof a.name === 'string' && typeof a.browser_download_url === 'string')
     .map((a) => ({ name: a.name as string, url: a.browser_download_url as string }))
   const asset = pickAsset(assets, assetName)
   return {
-    version: stripV(data.tag_name) || stripV(data.name) || '0.0.0',
+    version: releaseVersion(data.tag_name, data.name),
     assetName: asset?.name ?? null,
     assetUrl: asset?.url ?? null,
     htmlUrl: data.html_url ?? null,
@@ -108,25 +168,33 @@ async function resolveGitLab(path: string, assetName?: string | null): Promise<R
   const token = process.env.SCRAKK_GITLAB_TOKEN?.trim()
   if (token) headers['PRIVATE-TOKEN'] = token
   const project = encodeURIComponent(path)
-  const data = (await getJson(
-    `https://gitlab.com/api/v4/projects/${project}/releases?per_page=1`,
-    headers
-  )) as Array<{
+  type GitLabRelease = {
     tag_name?: string
     name?: string
     description?: string
     released_at?: string
     _links?: { self?: string }
     assets?: { links?: Array<{ name?: string; url?: string; direct_asset_url?: string }> }
-  }> | null
-  const release = Array.isArray(data) ? data[0] : null
+  }
+  // Varias extensiones en un mismo proyecto: se busca la release con el asset.
+  const query = assetName ? 'releases?per_page=30' : 'releases?per_page=1'
+  const data = (await getJson(
+    `https://gitlab.com/api/v4/projects/${project}/${query}`,
+    headers
+  )) as GitLabRelease[] | null
+  const list = Array.isArray(data) ? data : []
+  const release = assetName
+    ? findReleaseWithAsset(list, (entry) =>
+        (entry.assets?.links ?? []).some((link) => link.name === assetName)
+      )
+    : (list[0] ?? null)
   if (!release) return null
   const assets = (release.assets?.links ?? [])
     .filter((l) => typeof l.name === 'string')
     .map((l) => ({ name: l.name as string, url: (l.direct_asset_url ?? l.url ?? '') as string }))
   const asset = pickAsset(assets, assetName)
   return {
-    version: stripV(release.tag_name) || stripV(release.name) || '0.0.0',
+    version: releaseVersion(release.tag_name, release.name),
     assetName: asset?.name ?? null,
     assetUrl: asset?.url ?? null,
     htmlUrl: release._links?.self ?? null,
