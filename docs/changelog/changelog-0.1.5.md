@@ -39,6 +39,23 @@ published are not edited. The file goes per version:
   Separately, the node-canvas zoom was pushed into every session and never reset,
   so a plain terminal tab kept the canvas zoom (up to 2×) after leaving the node
   view; it resets to 1 now.
+- **Clicks, hover and the wheel now work inside TUIs on Windows.** They did
+  nothing in a full-screen app (Claude Code, htop, vim…) while the very same app
+  worked on Linux. The engine and the host were correct — the **transport** was
+  not: node-pty used the **OS ConPTY**, and that ConPTY does not carry xterm mouse
+  reporting (neither the app's `?1000/?1002/?1003/?1006` request nor the mouse
+  input), so libvterm never entered mouse mode and every event was gated off. The
+  spawn now asks node-pty for the **ConPTY it already ships** (Windows Terminal's
+  `conpty.dll`) on Windows, which does carry it. Nothing in the cell/grid math
+  changed.
+
+### Terminal (tabs)
+- **The terminal tab shows the title the shell reports** (OSC 0/2 — what the
+  `bash`/`zsh` prompts and TUIs like `vim`/`lazygit` set), instead of a fixed
+  "Terminal". The host already receives the raw PTY bytes, so an incremental
+  parser reads the sequence in the terminal session (a sequence split across
+  chunks is handled) and the tab publishes it as its label. It falls back to
+  "Terminal" while nothing has reported one.
 
 ### Syntax highlighting (Windows)
 - **Hardening of the highlight path.** For the preinstalled languages the only
