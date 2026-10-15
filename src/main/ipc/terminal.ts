@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Licencia completa en LICENSE (Apache License 2.0).
 
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, BrowserWindow, screen } from 'electron'
 import * as pty from 'node-pty'
 import * as fs from 'fs'
 import * as os from 'os'
@@ -189,9 +189,19 @@ export function registerTerminalIpc(): void {
 
   // Fuente Y TAMAÑO de la terminal del sistema: sin el tamaño correcto, las
   // métricas de celda no coinciden y los TUIs no cuadran.
-  ipcMain.handle(TERMINAL_IPC.getSystemFont, async () => {
+  ipcMain.handle(TERMINAL_IPC.getSystemFont, async (event) => {
     try {
-      return resolveSystemTerminalFont()
+      // El `FontSize` de conhost viene en px de DISPOSITIVO: se le pasa el scale
+      // del monitor para normalizarlo a px lógicos (ver `windowsConsoleEmPx`).
+      let scaleFactor = 1
+      try {
+        const win = BrowserWindow.fromWebContents(event.sender)
+        const bounds = win?.getBounds() ?? screen.getPrimaryDisplay().bounds
+        scaleFactor = screen.getDisplayMatching(bounds).scaleFactor || 1
+      } catch {
+        // Sin ventana/display: 1.
+      }
+      return resolveSystemTerminalFont(scaleFactor)
     } catch {
       return null
     }

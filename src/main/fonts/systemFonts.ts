@@ -122,11 +122,25 @@ function familyOfGtkName(name: string): string {
  * Linux: GNOME/GTK (`monospace-font-name`) o el perfil de GNOME Terminal si NO
  * usa la del sistema. Windows: la consola (registro `HKCU\Console`).
  */
-export function resolveSystemTerminalFont(): SystemTerminalFont | null {
+/**
+ * El `FontSize` de la consola (`HKCU\Console`) es el **alto de celda en píxeles**
+ * (~1.23× el em) y, encima, en px de DISPOSITIVO. El motor, en cambio, espera un
+ * **em en px LÓGICOS** (el canvas de la terminal va en px lógicos). Mandarlo crudo
+ * (16, o más en HiDPI) donde Linux manda ~13 era la "terminal gigante" en Windows.
+ * Se normaliza device→lógico (`/scaleFactor`) y celda→em (13/16), y se acota a un
+ * rango legible. NO toca la grilla: el motor re-deriva charWidth/lineHeight del em.
+ */
+export function windowsConsoleEmPx(cellHeight: number, scaleFactor: number): number {
+  const scale = scaleFactor > 0 ? scaleFactor : 1
+  const em = Math.round((cellHeight / scale) * (13 / 16))
+  return Math.min(22, Math.max(10, em))
+}
+
+export function resolveSystemTerminalFont(scaleFactor = 1): SystemTerminalFont | null {
   if (process.platform === 'win32') {
     try {
       let face = ''
-      let px = 16
+      let cellHeight = 16
       const out = execSync('reg query "HKCU\\\\Console" /v FaceName', {
         encoding: 'utf-8',
         timeout: 3000
@@ -141,11 +155,11 @@ export function resolveSystemTerminalFont(): SystemTerminalFont | null {
       const hex = /FontSize\s+REG_DWORD\s+0x([0-9a-fA-F]+)/.exec(sizeOut)
       if (hex) {
         const h = (parseInt(hex[1], 16) >> 16) & 0xffff
-        if (h >= 6 && h <= 72) px = h
+        if (h >= 6 && h <= 72) cellHeight = h
       }
-      return { family: face || 'Consolas', px }
+      return { family: face || 'Consolas', px: windowsConsoleEmPx(cellHeight, scaleFactor) }
     } catch {
-      return { family: 'Consolas', px: 16 } // default de conhost
+      return { family: 'Consolas', px: windowsConsoleEmPx(16, scaleFactor) } // default de conhost
     }
   }
 

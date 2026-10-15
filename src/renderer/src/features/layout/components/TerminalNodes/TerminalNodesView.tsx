@@ -677,6 +677,20 @@ export function TerminalNodesView({ onBack }: { onBack: () => void }): JSX.Eleme
     return () => window.clearTimeout(handle)
   }, [cam.k, tabs])
 
+  // Al SALIR de la vista de nodos las terminales vuelven a escala 1. Sin esto, la
+  // tab NORMAL de terminal queda dibujada con el zoom del lienzo (hasta 2×): es la
+  // "terminal gigante" que sólo aparece después de usar el modo nodos.
+  const tabsRef = useRef(tabs)
+  tabsRef.current = tabs
+  useEffect(
+    () => () => {
+      for (const tab of tabsRef.current) {
+        if (tab.sessionId) getTerminalSession(tab.sessionId).setRenderScale?.(1)
+      }
+    },
+    []
+  )
+
   const ordered = useMemo(() => {
     const arr = [...tabs]
     arr.sort((a, b) => {
