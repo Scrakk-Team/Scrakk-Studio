@@ -1,0 +1,28 @@
+{
+  "name": "TripTab Default",
+  "type": "dark",
+  "colors": {
+    "bg": "#090A0F",
+    "surface": "#11131C",
+    "surfaceRaised": "#171A27",
+    "border": "#2B3048",
+    "borderStrong": "#3A4060",
+    "panelBorder": "#1C2030",
+    "accent": "#9D5CFF",
+    "accentHover": "#B78AFE",
+    "accentActive": "#6B21A8",
+    "text": "#F3F4F8",
+    "textSecondary": "#9CA3AF",
+    "textMuted": "#4B5563",
+    "error": "#EF4444",
+    "errorHover": "#F87171",
+    "warning": "#F59E0B",
+    "success": "#10B981",
+    "info": "#3B82F6",
+    "onAccent": "#FFFFFF",
+    "onError": "#FFFFFF",
+    "editorBg": "#11131C",
+    "hover": "#1F2336",
+    "active": "#262B40"
+  }
+}

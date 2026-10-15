@@ -1,0 +1,13 @@
+{
+  "id": "triptab-light",
+  "name": "TripTab Light",
+  "version": "0.1.0",
+  "author": "TripTab",
+  "description": "Tema claro de TripTab (púrpura/azul sobre fondo claro).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      { "id": "triptab-light", "name": "TripTab Light", "type": "light", "path": "./theme.json" }
+    ]
+  }
+}

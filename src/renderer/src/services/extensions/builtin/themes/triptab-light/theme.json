@@ -1,0 +1,28 @@
+{
+  "name": "TripTab Light",
+  "type": "light",
+  "colors": {
+    "bg": "#FFFFFF",
+    "surface": "#F5F6FA",
+    "surfaceRaised": "#ECEEF6",
+    "border": "#D8DCE6",
+    "borderStrong": "#C3C9D6",
+    "panelBorder": "#E3E6EF",
+    "accent": "#7C3AED",
+    "accentHover": "#8B5CF6",
+    "accentActive": "#6D28D9",
+    "text": "#14161F",
+    "textSecondary": "#5A6072",
+    "textMuted": "#8A90A0",
+    "error": "#DC2626",
+    "errorHover": "#EF4444",
+    "warning": "#D97706",
+    "success": "#059669",
+    "info": "#2563EB",
+    "onAccent": "#FFFFFF",
+    "onError": "#FFFFFF",
+    "editorBg": "#F5F6FA",
+    "hover": "#E9ECF4",
+    "active": "#DFE3EE"
+  }
+}

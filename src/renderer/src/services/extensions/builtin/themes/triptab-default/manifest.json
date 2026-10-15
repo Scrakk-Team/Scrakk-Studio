@@ -1,0 +1,13 @@
+{
+  "id": "triptab-default",
+  "name": "TripTab Default",
+  "version": "0.1.0",
+  "author": "TripTab",
+  "description": "Tema por defecto de TripTab (oscuro púrpura/azul).",
+  "engine": ">=0.1.0",
+  "contributes": {
+    "themes": [
+      { "id": "triptab-default", "name": "TripTab Default", "type": "dark", "path": "./theme.json" }
+    ]
+  }
+}
