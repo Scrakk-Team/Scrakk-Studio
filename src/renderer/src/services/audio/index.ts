@@ -3,10 +3,11 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 /**
- * API pública del motor de audio sintetizado (sin archivos de sonido).
+ * API pública del motor de audio.
  *
- * - `zzfx`: port de ZzFX (generación de AudioBuffer y reproducción).
- * - `mixer`: one-shots, ambientes por etiqueta y ducking para el runtime.
+ * - `zzfx`: port de ZzFX (8 bits, sin archivos) + el AudioContext compartido.
+ * - `mixer`: one-shots, ambientes por etiqueta, ducking y carga de audio REAL
+ *   (un `data:`/`https:` decodificado, con `preloadSounds` para precalentarlo).
  */
 
 export * from './zzfx'

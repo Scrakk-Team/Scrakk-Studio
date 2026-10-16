@@ -21,14 +21,66 @@ import {
   zzfxG
 } from './zzfx'
 
-/** Definición de un sonido (array ZzFX + gain/loop). */
+/**
+ * Definición de un sonido. Dos formas, excluyentes:
+ *  - `zzfx`: parámetros posicionales del sintetizador ZzFX (8 bits, sin archivos).
+ *  - `src`: una URL ya resuelta (`data:` o `https:`). Es el camino para audio
+ *    REAL: el runtime del pack resuelve su archivo a un `data:` con el mime y
+ *    acá se decodifica. La primera vez es async; para que no llegue tarde, el
+ *    runtime llama a `preloadSounds()` al activar el evento.
+ */
 export interface SoundSpec {
-  /** Parámetros posicionales de ZzFX. */
-  zzfx: number[]
+  zzfx?: number[]
+  src?: string
   /** Ganancia local de la voz (0..N); default 1. */
   gain?: number
   /** Repetir indefinidamente; default false. */
   loop?: boolean
+}
+
+/**
+ * Buffers ya decodificados por `src`. Sin esto, un ambiente en loop volvería a
+ * descargar el archivo cada vez que se activa un evento.
+ */
+const bufferCache = new Map<string, AudioBuffer>()
+
+/** Decodifica (y cachea) un `src`. `null` si no hay audio o si falla. */
+async function loadBuffer(ctx: AudioContext, src: string): Promise<AudioBuffer | null> {
+  const cached = bufferCache.get(src)
+  if (cached) return cached
+  try {
+    const res = await fetch(src)
+    if (!res.ok) return null
+    const bytes = await res.arrayBuffer()
+    const decoded = await ctx.decodeAudioData(bytes)
+    bufferCache.set(src, decoded)
+    return decoded
+  } catch {
+    return null
+  }
+}
+
+/** Precalienta una lista de sonidos (los que tengan `src`). Best-effort. */
+export async function preloadSounds(specs: SoundSpec[]): Promise<void> {
+  const ctx = ensureAudioContext()
+  if (!ctx) return
+  const srcs = [...new Set(specs.map((s) => s.src).filter((s): s is string => !!s))]
+  await Promise.all(srcs.map((src) => loadBuffer(ctx, src)))
+}
+
+/**
+ * El buffer de un sonido: el cacheado (si es `src`) o el que genera ZzFX. Para
+ * un `src` todavía no decodificado devuelve null y deja la carga en marcha.
+ */
+function bufferFor(spec: SoundSpec, ctx: AudioContext): AudioBuffer | null {
+  if (spec.src) {
+    const cached = bufferCache.get(spec.src)
+    if (cached) return cached
+    void loadBuffer(ctx, spec.src)
+    return null
+  }
+  if (spec.zzfx && spec.zzfx.length > 0) return zzfxG(...spec.zzfx)
+  return null
 }
 
 /** Opciones de reproducción de un one-shot. */
@@ -81,9 +133,27 @@ export function playSound(spec: SoundSpec, opts: SoundOptions = {}): AudioBuffer
   if (isAudioMuted()) return null
   const ctx = ensureAudioContext()
   if (!ctx) return null
-  const buffer = zzfxG(...spec.zzfx)
-  if (!buffer) return null
+  const buffer = bufferFor(spec, ctx)
+  // Un `src` recién pedido se decodifica async: cuando esté, suena. (El runtime
+  // igual lo precalienta al activar, así que esto es la red de seguridad.)
+  if (!buffer) {
+    if (spec.src) {
+      void loadBuffer(ctx, spec.src).then((ready) => {
+        if (ready && !isAudioMuted()) startVoice(ctx, ready, spec, opts)
+      })
+    }
+    return null
+  }
+  return startVoice(ctx, buffer, spec, opts)
+}
 
+/** Arranca una voz ya decodificada. Devuelve la fuente o null. */
+function startVoice(
+  ctx: AudioContext,
+  buffer: AudioBuffer,
+  spec: SoundSpec,
+  opts: SoundOptions = {}
+): AudioBufferSourceNode | null {
   try {
     const source = ctx.createBufferSource()
     source.buffer = buffer
@@ -129,18 +199,25 @@ export function startAmbience(
   if (ambiences.has(label)) return
 
   const ctx = ensureAudioContext()
-  if (!ctx) {
-    ambiences.set(label, null)
-    return
-  }
-  if (isAudioMuted()) {
+  if (!ctx || isAudioMuted()) {
     ambiences.set(label, null)
     return
   }
 
-  const buffer = zzfxG(...spec.zzfx)
+  const buffer = bufferFor(spec, ctx)
+  // Un `src` sin decodificar todavía: se deja la etiqueta registrada (así no se
+  // apila) y, cuando el buffer esté, arranca si nadie la pisó.
   if (!buffer) {
     ambiences.set(label, null)
+    if (spec.src) {
+      void loadBuffer(ctx, spec.src).then((ready) => {
+        if (!ready || isAudioMuted()) return
+        // Sigue PENDIENTE (null) ⇒ nadie la paró ni la arrancó mientras cargaba.
+        if (ambiences.get(label) !== null) return
+        ambiences.delete(label)
+        startAmbience(label, spec, opts)
+      })
+    }
     return
   }
 

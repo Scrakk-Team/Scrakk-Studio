@@ -44,12 +44,13 @@ warning.
   "durationMs": 20000,
   "override": { "theme": "acme-dark" },
   "sounds": {
-    "whoosh": { "zzfx": [1.5, 0, 180, 0.02, 0.02, 0.4, 0, 1.2] },
-    "wind": { "zzfx": [0.6, 0, 80, 0.04, 0.3, 1.2, 2, 0.4], "gain": 0.5, "loop": true }
+    "wind": { "file": "assets/viento.ogg", "gain": 0.5, "loop": true },
+    "thunder": { "file": "assets/trueno.ogg" }
   },
   "strings": { "ready": "The sky is falling tonight." },
   "timeline": [
     { "op": "audio.ambience", "sound": "wind" },
+    { "op": "audio.play", "at": 1200, "sound": "thunder", "gain": 0.8 },
     { "op": "notify", "at": 300, "message": "@ready" }
   ],
   "onStop": [{ "op": "audio.stop", "fade": 600 }]
@@ -64,7 +65,7 @@ warning.
 | `intensity` | number 0..1 | `1` | Global scale applied to the ops. |
 | `durationMs` | number (ms) | until the window closes | How long the event lives. |
 | `override` | `{ theme? }` | — | Temporary theme applied while the event lives. |
-| `sounds` | `Record<string, EventSound>` | — | ZzFX parameter arrays (no audio files). |
+| `sounds` | `Record<string, EventSound>` | — | Named sounds: a real `file` (jailed to the package) or ZzFX parameters. |
 | `strings` | `Record<string, string>` | — | Pack-local strings, referenced as `@key`. |
 | `timeline` | `EventOp[]` | **required** | The choreography. Sorted by `at`. |
 | `onStop` | `EventOp[]` | — | Ops that run when the event is deactivated. |
@@ -177,8 +178,21 @@ whole shape is rigid: there is no flapping at all.
 
 ### Audio
 
-Audio is **synthesized**: `sounds` holds ZzFX parameter arrays, never audio
-files. An op picks a key from that map.
+`sounds` is a map of name → sound; an op picks a name from it. A sound is
+**either** a real **`file`** shipped in the package **or** a **`zzfx`** array for
+the built-in synthesizer — never both.
+
+For anything that has to sound like the real thing (a storm, thunder, a raven),
+use **`file`**: a path **relative to the package root**, e.g.
+`"assets/trueno.ogg"`. The runtime resolves it against the package folder —
+**jailed**: no absolute paths, no `..`, so a pack cannot read audio from outside
+its own folder — and reads it with its real mime type. Allowed extensions:
+`.ogg`, `.oga`, `.opus`, `.mp3`, `.wav`, `.m4a`, `.webm`. The packer ships the
+package's `assets/` folder, so that is the natural place to put the audio.
+
+**`zzfx`** is the opposite: numeric parameters for **ZzFX, an 8-bit chiptune
+synthesizer** — no files at all. It is the right call for a retro pack and the
+wrong one for ambience: a storm rendered with ZzFX sounds like a video game.
 
 | Op | What it does | Parameters (default) |
 |---|---|---|
@@ -189,17 +203,38 @@ files. An op picks a key from that map.
 ```json
 {
   "sounds": {
-    "whoosh": { "zzfx": [1.5, 0, 180, 0.02, 0.02, 0.4, 0, 1.2] },
-    "wind": { "zzfx": [0.6, 0, 80, 0.04, 0.3, 1.2, 2, 0.4], "gain": 0.5, "loop": true }
+    "storm": { "file": "assets/tormenta.ogg", "gain": 0.5, "loop": true },
+    "thunder": { "file": "assets/trueno.ogg" },
+    "coin": { "zzfx": [1.5, 0, 180, 0.02, 0.02, 0.4, 0, 1.2] }
   }
 }
 ```
 
-| `EventSound` | Type | Default |
-|---|---|---|
-| `zzfx` | number[] (1..40) | **required** |
-| `gain` | number 0..1 | `1` |
-| `loop` | boolean | `false` |
+`coin` above is the 8-bit option: ZzFX parameters, with no file involved.
+
+| `EventSound` | Type | Default | Note |
+|---|---|---|---|
+| `file` | string | — | Path relative to the package root. One of `file`/`zzfx`. |
+| `zzfx` | number[] (1..40) | — | ZzFX parameters (8-bit). One of `file`/`zzfx`. |
+| `gain` | number 0..1 | `1` | Applies to both forms. |
+| `loop` | boolean | `false` | Applies to both forms. |
+
+When the event activates, every `file` is resolved to a `data:` URL with its real
+mime and **preloaded** (decoded), so a sound scheduled at ~2 s is already ready
+when its op fires — a slow (or missing) file never stalls the timeline. It is
+read from the package folder, already jailed as above. `zzfx` needs no loading:
+it is generated on the spot.
+
+`sef validate` reports a sound that points at a file which is not in the package:
+
+```
+✗ sonido "thunder": el archivo no existe en el paquete
+```
+
+**Credit your audio.** If a sound comes from a source that requires attribution
+(for example CC BY), the pack **must** ship a `CREDITS.md` at its root: `sef pack`
+copies `CREDITS.md` and `LICENSE*` into the `.sef`. This is a legal requirement,
+not a nicety.
 
 ### UI
 
@@ -224,7 +259,8 @@ Raw CSS colors: `#hex` (3/4/6/8), `rgb()`/`rgba()`, `hsl()`/`hsla()` and
 ## Full example
 
 A bat swarm at dusk: a window in late October, a theme override, ambience, a
-status chip, a notification, a flapping `emit` and a fade-out. The `emit` is the
+thunder clap, a status chip, a notification, a flapping `emit` and a fade-out.
+The `emit` is the
 interesting part: a body-plus-wing shape with a `wingAnchor`, a group spread out
 with `every`, entering from above the viewport, arcing `through` a point while
 it `bob`s, fanning out with `spread` and banking into the turn.
@@ -238,8 +274,8 @@ it `bob`s, fanning out with `spread` and banking into the turn.
   "durationMs": 20000,
   "override": { "theme": "acme-dark" },
   "sounds": {
-    "whoosh": { "zzfx": [1.5, 0, 180, 0.02, 0.02, 0.4, 0, 1.2] },
-    "wind": { "zzfx": [0.6, 0, 80, 0.04, 0.3, 1.2, 2, 0.4], "gain": 0.5, "loop": true }
+    "wind": { "file": "assets/viento.ogg", "gain": 0.5, "loop": true },
+    "thunder": { "file": "assets/trueno.ogg" }
   },
   "strings": {
     "ready": "The night is alive.",
@@ -282,7 +318,7 @@ it `bob`s, fanning out with `spread` and banking into the turn.
       }
     },
     { "op": "stage.shake", "at": 2000, "intensity": 4, "duration": 500 },
-    { "op": "audio.play", "at": 2000, "sound": "whoosh", "gain": 0.8 }
+    { "op": "audio.play", "at": 2000, "sound": "thunder", "gain": 0.8 }
   ],
   "onStop": [
     { "op": "audio.stop", "fade": 600 },

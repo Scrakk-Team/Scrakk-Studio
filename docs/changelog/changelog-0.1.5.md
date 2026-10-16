@@ -411,6 +411,25 @@ published are not edited. The file goes per version:
   pointed ears, three scalloped notches per wing, and a shoulder that keeps the
   body still in every frame.
 
+- **Events can use REAL audio — the chiptune synth was the wrong default.** A
+  sound in a scene is now either a **`file`** (a path inside the package, like
+  `assets/tormenta.ogg`: the runtime resolves it with its real mime, keeps the
+  path jailed to the package, decodes it when the event activates and **preloads
+  every sound of the scene**, so a clap scheduled at 2.6 s is already decoded) or
+  `zzfx` — which is an **8-bit chiptune** synthesizer: fine for a retro pack,
+  plainly wrong for ambience, because a storm built out of it sounds like a
+  video game. The mixer caches decoded buffers, so a looping ambience decodes
+  once. `sounds` keeps `gain`/`loop` for both forms.
+- **Credit travels with the pack.** The Halloween pack's new soundtrack (a storm
+  bed, a thunderclap, a wolf howl and a raven call) comes from Wikimedia Commons
+  — one file under CC BY 4.0 and three public domain — so the pack ships a
+  `CREDITS.md`, and the packer now **copies `CREDITS.md` / `LICENSE*` into the
+  `.sef`**. Shipping a CC BY asset without the attribution next to it is a
+  licence violation, not a nicety.
+- **The CLI learned both things.** `sef pack` carries the pack's `assets/`
+  folder into the `.sef` (without it the event plays silence) and `sef validate`
+  reports a sound whose `file` does not exist.
+
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
   only marked `react`/`react-dom` as external, so `import { usePanelTitle } from

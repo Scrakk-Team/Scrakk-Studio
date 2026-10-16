@@ -127,8 +127,7 @@ describe('descarta lo roto SIN llevarse el resto', () => {
   })
 })
 
-describe('colores: token o CSS, nunca inyección', () => {
-  it('acepta tokens del tema y colores CSS', () => {
+describe('colores: token o CSS, nunca inyección', () => {  it('acepta tokens del tema y colores CSS', () => {
     for (const token of ['accent', 'text', 'textMuted', 'error', 'warning', 'success']) {
       expect(isEffectColor(token)).toBe(true)
     }
@@ -192,5 +191,46 @@ describe.skipIf(!existsSync(packScene))('el pack de Halloween', () => {
     // Ninguna op se perdió por inválida: la escena tiene las que declara.
     const rawTimeline = (raw as { timeline: unknown[] }).timeline
     expect(out!.timeline).toHaveLength(rawTimeline.length)
+  })
+})
+
+/**
+ * Sonidos: archivo real del pack o ZzFX (8 bits).
+ *
+ * El audio sintetizado servía para un juego de 8 bits, no para ambiente: un
+ * trueno tenía que ser un ARCHIVO. Lo que se rompe en silencio es una ruta fuera
+ * del paquete (o que no es audio) colándose como sonido válido.
+ */
+describe('sonidos: archivo del pack o ZzFX', () => {
+  const sceneWith = (sounds: unknown): ReturnType<typeof normalizeEventScene> =>
+    normalizeEventScene({ specVersion: 1, sounds, timeline: [{ op: 'stage.fog' }] })
+
+  it('acepta un archivo del paquete con su ganancia', () => {
+    const out = sceneWith({ trueno: { file: 'assets/trueno.ogg', gain: 0.5 } })
+    expect(out!.sounds!.trueno.file).toBe('assets/trueno.ogg')
+    expect(out!.sounds!.trueno.zzfx).toBeUndefined()
+    expect(out!.sounds!.trueno.gain).toBe(0.5)
+  })
+
+  it('sigue aceptando ZzFX (8 bits, sin archivos)', () => {
+    const out = sceneWith({ coin: { zzfx: [1, 0, 200], loop: true } })
+    expect(out!.sounds!.coin.zzfx).toEqual([1, 0, 200])
+    expect(out!.sounds!.coin.loop).toBe(true)
+  })
+
+  it('rechaza rutas fuera del paquete, que no son audio, o sin nada', () => {
+    const out = sceneWith({
+      absoluta: { file: '/etc/passwd' },
+      afuera: { file: '../../secreto.ogg' },
+      noAudio: { file: 'assets/notas.txt' },
+      vacio: { gain: 0.5 }
+    })
+    // Todos descartados: la escena queda sin `sounds`.
+    expect(out!.sounds).toBeUndefined()
+  })
+
+  it('un sonido roto no se lleva a los sanos', () => {
+    const out = sceneWith({ ok: { file: 'assets/a.ogg' }, malo: { gain: 1 } })
+    expect(Object.keys(out!.sounds!)).toEqual(['ok'])
   })
 })

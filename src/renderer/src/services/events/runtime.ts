@@ -32,7 +32,8 @@ import { getEvent, listEvents, subscribeToEvents } from '@services/extensions/ty
 // El motor se importa por MÓDULO (no por el barrel): el runtime no necesita el
 // componente React de la capa, sólo el engine — y así no arrastra React/CSS.
 import { engine } from '@services/effects/engine'
-import { playSound, startAmbience, stopAmbience, stopAll } from '@services/audio'
+import { playSound, preloadSounds, startAmbience, stopAmbience, stopAll, type SoundSpec } from '@services/audio'
+import { resolvePackagePath } from '@services/extensions/extensionDirs'
 import { notify } from '@services/notifications'
 import { extensionStatusBar } from '@services/extensions/statusBar'
 import { t } from '@core/i18n'
@@ -64,6 +65,8 @@ export function appVersion(): string | null {
 interface ActiveEvent {
   id: string
   name: string
+  /** Extensión dueña: su raíz es la que puede leer audio del pack. */
+  extensionId: string
   scene: EventScene
   intensity: number
   startedAt: number
@@ -73,6 +76,8 @@ interface ActiveEvent {
   /** Tema que había ANTES, para restaurarlo. */
   prevTheme: string | null
   statusId: string | null
+  /** Sonidos con `file` ya resueltos a su `data:` (por clave del pack). */
+  srcByKey: Map<string, string>
 }
 
 let active: ActiveEvent | null = null
@@ -132,6 +137,70 @@ function resolveText(scene: EventScene, value: string | undefined): string | und
   if (!value.startsWith('@')) return value
   const key = value.slice(1)
   return scene.strings?.[key] ?? key
+}
+
+/**
+ * Un sonido del pack es un ARCHIVO en disco: se lee con el `readBinary` de la
+ * app (que devuelve base64 + mime) y se arma un `data:`.
+ *
+ * El path queda CLAVADO a la raíz del paquete (`resolvePackagePath` rechaza
+ * `..`), así que un pack no puede leer audio de afuera de su propia carpeta.
+ */
+async function resolveSoundSrc(extensionId: string, file: string): Promise<string | null> {
+  const abs = resolvePackagePath(extensionId, file)
+  if (!abs) return null
+  // `readBinary` vive en el puente de la app (lectura binaria de los visores):
+  // no está en la API que se le presta a las extensiones, así que se accede por
+  // el puente con la forma mínima que hace falta.
+  const fsBridge = (
+    window as unknown as {
+      api?: { fs?: { readBinary?: (path: string) => Promise<{ success?: boolean; base64?: string; mime?: string }> } }
+    }
+  ).api?.fs
+  if (!fsBridge?.readBinary) return null
+  try {
+    const res = await fsBridge.readBinary(abs)
+    if (!res?.success || !res.base64) return null
+    return `data:${res.mime ?? 'audio/ogg'};base64,${res.base64}`
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Resuelve los sonidos con `file` del evento y los precalienta.
+ *
+ * No se espera desde `activateEvent` (que es sync): el timeline arranca igual y
+ * los sonidos reales entran en cuanto están decodificados. El trueno, que va a
+ * los ~2,6 s, llega con margen de sobra.
+ */
+async function resolveSceneSounds(active: ActiveEvent): Promise<void> {
+  const sounds = active.scene.sounds
+  if (!sounds) return
+  const specs: SoundSpec[] = []
+  for (const [key, sound] of Object.entries(sounds)) {
+    if (!sound.file) {
+      if (sound.zzfx) specs.push({ zzfx: sound.zzfx, gain: sound.gain })
+      continue
+    }
+    const src = await resolveSoundSrc(active.extensionId, sound.file)
+    if (src) {
+      active.srcByKey.set(key, src)
+      specs.push({ src, gain: sound.gain })
+    }
+  }
+  await preloadSounds(specs)
+}
+
+/** La spec de un sonido del pack, ya con su `src` resuelto si es un archivo. */
+function soundSpec(key: string, gainScale: number): SoundSpec | null {
+  const sound = active?.scene.sounds?.[key]
+  if (!sound) return null
+  const gain = (sound.gain ?? 1) * gainScale
+  const src = active?.srcByKey.get(key)
+  if (src) return { src, gain }
+  if (sound.zzfx) return { zzfx: sound.zzfx, gain }
+  return null
 }
 
 /** ms máximo de un `setTimeout` (32 bits con signo, ~24.8 días). */
@@ -195,20 +264,14 @@ function applyOp(op: EventOp, scene: EventScene, intensity: number): void {
       break
     }
     case 'audio.play': {
-      const sound = op.sound ? scene.sounds?.[op.sound] : undefined
-      if (!sound) break
-      playSound({ zzfx: sound.zzfx, gain: (sound.gain ?? 1) * (op.amount ?? 1) })
+      const spec = soundSpec(op.sound ?? '', op.amount ?? 1)
+      if (spec) playSound(spec)
       break
     }
     case 'audio.ambience': {
       if (!op.sound) break
-      const sound = scene.sounds?.[op.sound]
-      if (!sound) break
-      startAmbience(
-        op.sound,
-        { zzfx: sound.zzfx, gain: (sound.gain ?? 1) * (op.amount ?? 1) },
-        { fadeMs: op.fade ?? 800 }
-      )
+      const spec = soundSpec(op.sound, op.amount ?? 1)
+      if (spec) startAmbience(op.sound, spec, { fadeMs: op.fade ?? 800 })
       break
     }
     case 'audio.stop':
@@ -288,15 +351,22 @@ export function activateEvent(id: string, options: { force?: boolean } = {}): bo
   active = {
     id: entry.id,
     name: entry.name,
+    extensionId: entry.extensionId,
     scene: entry.scene,
     intensity,
     startedAt: now,
     endsAt,
     timers: [],
     prevTheme: getActiveThemeId(),
-    statusId: null
+    statusId: null,
+    srcByKey: new Map()
   }
   engine.setIntensity(intensity)
+
+  // Audio real del pack: resolver `file` → `data:` y decodificar, en paralelo
+  // (no bloquea la activación). Sin esto el primer sonido llegaría antes que el
+  // archivo.
+  void resolveSceneSounds(active)
 
   // Override de tema ANTES de la coreografía: si la escena además hace
   // `theme.set`, ese gana (corre después).

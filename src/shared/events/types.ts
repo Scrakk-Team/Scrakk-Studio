@@ -58,10 +58,21 @@ export interface EventOverride {
   theme?: string
 }
 
-/** Un sonido sintetizado con ZzFX (params numéricos, sin archivos). */
+/**
+ * Un sonido del pack. Dos formas, excluyentes:
+ *
+ *  - `file`: un archivo de audio DENTRO del paquete (`assets/…`), en loop o
+ *    one-shot. Es lo que querés para cualquier cosa que tenga que sonar de
+ *    verdad (una tormenta, un trueno, un cuervo). El motor lo lee con el mime
+ *    real y lo decodifica al activar el evento.
+ *  - `zzfx`: parámetros numéricos de ZzFX. **Es un sintetizador de chiptune**
+ *    (8 bits, sin archivos): sirve para un pack retro, no para ambiente.
+ */
 export interface EventSound {
-  /** Parámetros de ZzFX (ver `@services/audio/zzfx`). */
-  zzfx: number[]
+  /** Ruta relativa al paquete, ej. `assets/trueno.ogg`. */
+  file?: string
+  /** Parámetros de ZzFX (8 bits, sin archivos). */
+  zzfx?: number[]
   /** 0..1. Default 1. */
   gain?: number
   /** Loop (ambiente). Default false. */

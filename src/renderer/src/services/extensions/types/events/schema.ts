@@ -338,10 +338,27 @@ export function normalizeEventScene(raw: unknown): EventScene | null {
     for (const [key, value] of Object.entries(r.sounds as Record<string, unknown>)) {
       if (!value || typeof value !== 'object') continue
       const s = value as Record<string, unknown>
-      if (!Array.isArray(s.zzfx)) continue
-      const zzfx = s.zzfx.filter((n): n is number => typeof n === 'number' && Number.isFinite(n))
-      if (zzfx.length === 0 || zzfx.length > 40) continue
-      const sound: NonNullable<EventScene['sounds']>[string] = { zzfx }
+      const sound: NonNullable<EventScene['sounds']>[string] = {}
+
+      // Un sonido es un ARCHIVO del paquete o parámetros de ZzFX (8 bits).
+      const file = str(s.file)
+      if (file) {
+        // Relativo y dentro del paquete: ni absoluto ni con `..` (el runtime
+        // además lo resuelve contra la raíz REAL del paquete).
+        if (file.startsWith('/') || file.includes('..') || !/\.(ogg|oga|opus|mp3|wav|m4a|webm)$/i.test(file)) {
+          console.warn(`[extensions/events] sonido "${key}": archivo inválido (${file})`)
+          continue
+        }
+        sound.file = file
+      } else if (Array.isArray(s.zzfx)) {
+        const zzfx = s.zzfx.filter((n): n is number => typeof n === 'number' && Number.isFinite(n))
+        if (zzfx.length === 0 || zzfx.length > 40) continue
+        sound.zzfx = zzfx
+      } else {
+        console.warn(`[extensions/events] sonido "${key}" sin \`file\` ni \`zzfx\` — descartado`)
+        continue
+      }
+
       const gain = num(s.gain)
       if (gain !== undefined) sound.gain = clamp01(gain)
       if (s.loop === true) sound.loop = true
