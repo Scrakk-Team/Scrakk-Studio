@@ -14,6 +14,7 @@ export {
   prefersReducedMotion,
   resolveEffectColor,
   parsePoint,
+  flapFrame,
   resetEffectsForTests,
   MAX_PARTICLES
 } from './engine'

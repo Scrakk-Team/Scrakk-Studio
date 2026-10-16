@@ -140,7 +140,7 @@ viewBox, compiled to a `Path2D` on the canvas.
 | `jitter` | number 0..1 | `0` | Random offset of the start point. |
 | `size` | number (px) | `10` | **Drawn height** in px (1..600). |
 | `rotate` | number (°) | `0` | Initial rotation, randomized ± (-360..360). |
-| `flapHz` | number | `0` | Oscillation/flap per second (0..30). |
+| `flapHz` | number | `0` | Flaps per second (0..30): folds the wing horizontally, so the drawn width shrinks and grows while the body stays put. |
 | `life` | number (ms) | `6000` | Lifetime of each instance (200..120000). |
 | `every` | number (ms) | `0` | Stagger one instance every N ms (a "river"). |
 

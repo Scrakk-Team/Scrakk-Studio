@@ -388,6 +388,19 @@ published are not edited. The file goes per version:
   is a known kind and the packer now carries `events/` into the `.sef`), so
   `sef validate` / `sef pack` accept an event pack.
 
+- **The first real event exposed two engine bugs.** `flapHz` was a **±18°
+  rotation**, and a symmetric silhouette spinning on its own axis reads as a
+  butterfly, not as a bat: it now **folds the wing** (the drawn width shrinks
+  while the body stays put) with a couple of degrees of tilt. And a shape was
+  drawn from its **top-left corner** instead of centered on the particle, so the
+  position a scene asked for ignored the shape's own `viewBox` — it is centered
+  now. Both fixes ship with a unit test each, so neither can quietly come back.
+- **`tools/_look-path.mjs`: a shape has to be LOOKED at.** A new dev tool prints
+  an SVG path as filled ASCII (`--sx` previews a folded wing), the same idea as
+  `_look-png.mjs`. Judging a silhouette from coordinate numbers is exactly how
+  the first bat came out looking like a moth. The pack's bat was retuned with it:
+  pointed ears plus three scalloped notches per wing.
+
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
   only marked `react`/`react-dom` as external, so `import { usePanelTitle } from

@@ -16,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   MAX_PARTICLES,
   engine,
+  flapFrame,
   parsePoint,
   prefersReducedMotion,
   resetEffectsForTests,
@@ -162,5 +163,49 @@ describe('sin canvas / sin Path2D / sin rAF', () => {
     } as unknown as HTMLCanvasElement
     expect(() => engine.registerCanvas(fake)).not.toThrow()
     expect(() => engine.registerCanvas(null)).not.toThrow()
+  })
+})
+
+/**
+ * El aleteo pliega el ALAS, no gira la forma.
+ *
+ * Esto se arregló DESPUÉS de shippear el primer evento real: con la rotación, el
+ * murciélago del pack se leía como una mariposa revoloteando. El test fija la
+ * diferencia para que nadie vuelva a la rotación.
+ */
+describe('aleteo: pliegue, no rotación', () => {
+  it('sin flapHz no toca nada', () => {
+    expect(flapFrame(0, 1234)).toEqual({ sx: 1, sy: 1, rotation: 0 })
+  })
+
+  it('el ancho del ala oscila y el cuerpo queda arriba', () => {
+    // Un ciclo completo a 1 Hz = 1000 ms. En t=250 el seno llega a 1 (ala
+    // plegada) y en t=750 a -1 (ala extendida).
+    const extended = flapFrame(1, 750)
+    const folded = flapFrame(1, 250)
+    expect(extended.sx).toBeCloseTo(1)
+    expect(folded.sx).toBeCloseTo(0.6)
+    // Al plegar, el cuerpo "sube" (se estira un poco en vertical).
+    expect(folded.sy).toBeGreaterThan(extended.sy)
+    // Y la rotación es apenas una inclinación: NUNCA el ±18° de antes.
+    for (let t = 0; t <= 1000; t += 25) {
+      expect(Math.abs(flapFrame(1, t).rotation)).toBeLessThanOrEqual(3.5)
+    }
+  })
+
+  it('la inclinación inicial se conserva', () => {
+    expect(flapFrame(0, 0, -12).rotation).toBe(-12)
+    expect(flapFrame(2, 100, 8).rotation).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('nunca deja el ancho en cero (la forma desaparecería)', () => {
+    for (let hz = 0; hz <= 30; hz++) {
+      for (let t = 0; t <= 2000; t += 37) {
+        const { sx, sy } = flapFrame(hz, t)
+        expect(sx).toBeGreaterThan(0.5)
+        expect(sx).toBeLessThanOrEqual(1)
+        expect(sy).toBeGreaterThanOrEqual(1)
+      }
+    }
   })
 })

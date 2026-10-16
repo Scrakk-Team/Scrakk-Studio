@@ -361,6 +361,33 @@ function hasLiveParticles(): boolean {
   return false
 }
 
+/**
+ * Fotograma del aleteo de una partícula.
+ *
+ * Devuelve cuánto se PLIEGA el ala (`sx`, el ancho dibujado), cuánto se estira
+ * el cuerpo (`sy`) y la inclinación en grados. Sin `flapHz` no hay aleteo.
+ *
+ * El aleteo es un PLIEGUE, no un giro: una rotación de la forma entera hace que
+ * un silueto simétrico (un murciélago visto de frente) gire sobre su eje, y eso
+ * se lee como una mariposa revoloteando. Plegando el ala, el cuerpo se queda
+ * quieto y lo que cambia es la envergadura — que es lo que hace un bicho al
+ * volar.
+ */
+export function flapFrame(
+  flapHz: number,
+  tMs: number,
+  rotate0 = 0
+): { sx: number; sy: number; rotation: number } {
+  if (flapHz <= 0) return { sx: 1, sy: 1, rotation: rotate0 }
+  const phase = Math.sin((tMs / 1000) * Math.PI * 2 * flapHz)
+  const wing = 0.5 + 0.5 * phase // 0..1: 0 = alas extendidas, 1 = plegadas
+  return {
+    sx: 1 - 0.4 * wing,
+    sy: 1 + 0.12 * wing,
+    rotation: rotate0 + phase * 3
+  }
+}
+
 function draw(): void {
   if (!ctx) return
   ctx.clearRect(0, 0, viewport.w, viewport.h)
@@ -372,17 +399,22 @@ function draw(): void {
     const y = p.y0 + (p.y1 - p.y0) * eased + p.jitterY + (p.driftY * p.t) / 1000
     const alpha = Math.min(1, Math.sin(k * Math.PI) * 1.6)
     if (alpha <= 0) continue
-    const rotation =
-      p.rotate0 + (p.flapHz > 0 ? Math.sin((p.t / 1000) * Math.PI * 2 * p.flapHz) * 18 : 0)
+    // Aleteo: el ala se PLIEGA en horizontal (el ancho baja) y el cuerpo sube un
+    // poco. Antes esto era una rotación de ±18°, y una forma simétrica girando
+    // se lee como una mariposa, no como un murciélago batiendo las alas.
+    const flap = flapFrame(p.flapHz, p.t, p.rotate0)
     ctx.save()
     ctx.translate(x, y)
-    if (rotation) ctx.rotate((rotation * Math.PI) / 180)
+    if (flap.rotation) ctx.rotate((flap.rotation * Math.PI) / 180)
     ctx.globalAlpha = alpha
     if (p.shape) {
       // `scale` deja la ALTURA dibujada en `size` px (viewBox normaliza).
       const vbH = p.shape.viewBox[1] || 1
       const s = p.scale / vbH
-      ctx.scale(s, s)
+      ctx.scale(s * flap.sx, s * flap.sy)
+      // La forma se dibuja CENTRADA en el punto de la partícula: el viewBox es
+      // un sistema de coordenadas propio, no un offset en pantalla.
+      ctx.translate(-p.shape.viewBox[0] / 2, -vbH / 2)
       ctx.fillStyle = p.fill
       ctx.fill(p.shape.path)
       if (p.stroke) {

@@ -142,7 +142,7 @@ export interface EventOp {
   size?: number
   /** Rotación inicial en grados (aleatoria ±). Default 0. */
   rotate?: number
-  /** Aleteo/rotación oscilante por segundo. Default 0 (sin oscilar). */
+  /** Aleteo por segundo: pliega y despliega el ala (0 = sin aleteo). */
   flapHz?: number
   /** ms de vida de cada instancia. Default 6000. */
   life?: number
