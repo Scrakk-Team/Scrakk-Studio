@@ -36,6 +36,9 @@ tools/admin/
 .jokitignore
 .stfolder/
 .perf/
+# Planes internos (decisiones sin shippear y spoilers de easter eggs): el repo
+# es público, esto NO se versiona.
+plans/
 
 # Secretos locales (R2, keys de dev) — NUNCA commitear
 .env

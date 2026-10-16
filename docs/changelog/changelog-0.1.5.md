@@ -527,6 +527,9 @@ published are not edited. The file goes per version:
   spawns everything else directly.
 
 ### Development
+- **Internal planning docs live in `plans/` (gitignored).** Design notes for
+  features that are not shipped yet — including the mechanics of upcoming easter
+  eggs — are kept out of the public tree on purpose.
 - **A Windows test build lands on Gofile without cutting a release.** A workflow
   compiles the NSIS `.exe` and uploads it to Gofile, printing the download link in
   the run summary — no tag, no GitHub Release and no Supabase row, so it never
