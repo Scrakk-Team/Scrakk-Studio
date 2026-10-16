@@ -384,9 +384,9 @@ published are not edited. The file goes per version:
   `pointer-events: none` and adds zero layout. The editor/terminal grid is never
   touched.
 - Docs: a new [events guide](../extensions/guides/events.md) and the contributes
-  table updated to 15 kinds. Known gap: the `sef` CLI's known-kinds list (its own
-  repo) does not include `events` yet, so `sef validate` may warn until it is
-  synced.
+  table updated to 15 kinds. The `sef` CLI was updated in the same pass (`events`
+  is a known kind and the packer now carries `events/` into the `.sef`), so
+  `sef validate` / `sef pack` accept an event pack.
 
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`

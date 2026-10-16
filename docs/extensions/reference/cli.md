@@ -79,8 +79,8 @@ sef pack ./my-extension
 
 - **Validates first**; if there are errors, it does not pack.
 - Zips the manifest + `dist/` + the data folders (`themes/`, `icons/`,
-  `productIcons/`, `lsp/`) into `<packageRoot>.sef` (the `.sef` lands **next to**
-  the package folder).
+  `productIcons/`, `lsp/`, `events/`) into `<packageRoot>.sef` (the `.sef` lands
+  **next to** the package folder).
 
 ## `validate`
 
@@ -100,7 +100,9 @@ Rules it checks (mirroring the core's):
 - `contributes` exists and **every key is a known kind**.
 - Every referenced **code** path exists in the source package.
 - Themes/icons without `path` have their conventional file (`themes/<id>.json`,
-  `icons/<id>.json`, `productIcons/<id>.json`).
+  `icons/<id>.json`, `productIcons/<id>.json`). Events instead need a `path` or
+  an inline `scene`, and the scene they point at must carry a `specVersion` and a
+  `timeline`.
 
 ## v2 package layout
 
@@ -111,6 +113,7 @@ my-extension/
 ├── themes/<id>.json         # data by convention
 ├── icons/<id>.json
 ├── productIcons/<id>.json
+├── events/<id>.json         # event scenes (contributes.events → path)
 ├── lsp/                     # language server data (optional)
 └── dist/
     └── modules.js           # compiled bundle (the entry)
@@ -125,7 +128,9 @@ The source code (`.tsx`) **does not** travel: it travels compiled inside
 | Message | Cause |
 |---|---|
 | `code file not found` | The manifest `component`/`icon` does not exist on disk (or the relative path is wrong) |
-| `unknown type (…)` | A key in `contributes` is not one of the 14 kinds |
+| `unknown type (…)` | A key in `contributes` is not one of the 15 kinds |
+| `escena del evento no encontrada` | An `events[]` entry points at a `path` that does not exist |
+| `la escena necesita "timeline"` | The event scene is missing its `timeline` (or its `specVersion`) |
 | `semver version required` | `version` is not `x.y.z` |
 | `permissions must be an array of: …` | A permission outside the catalogue |
 | `manifest.json not found` | You ran the command in the wrong folder |
