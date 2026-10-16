@@ -68,10 +68,18 @@ export interface EventSound {
   loop?: boolean
 }
 
-/** Geometría a dibujar: un path SVG que el pack aporta (se compila a Path2D). */
+/**
+ * Geometría a dibujar: el `path` es el CUERPO y, si hay `wing`, un ala que se
+ * dibuja DOS veces (derecha y su espejo) y es la ÚNICA parte que se mueve al
+ * aletear. Sin `wing`, la forma entera es rígida.
+ */
 export interface EventShape {
-  /** `d` de un `<path>` SVG. */
+  /** `d` de un `<path>` SVG — el cuerpo. */
   path: string
+  /** `d` de UN ala (la derecha). El motor dibuja su espejo para la izquierda. */
+  wing?: string
+  /** [x, y] del hombro: el ala rota acá. Default [w/2, h/2]. */
+  wingAnchor?: [number, number]
   /** [ancho, alto] del sistema de coordenadas. Default [1, 1]. */
   viewBox?: [number, number]
   /** Color del tema (`accent`, `text`, `textMuted`…) o un color CSS. */
@@ -88,8 +96,17 @@ export interface EventShape {
 export interface EventMotion {
   from?: [number | string, number | string]
   to?: [number | string, number | string]
+  /**
+   * Punto por el que PASA el camino (curva cuadrática). Es lo que convierte una
+   * recta en un vuelo: sin esto todos los bichos viajan en línea y se ve falso.
+   */
+  through?: [number | string, number | string]
   /** Deriva continua por segundo, en px. */
   drift?: [number, number]
+  /** Amplitud del vaivén vertical en px (el "vuelo" del bicho). Default 0. */
+  bob?: number
+  /** Hz del vaivén. Default 1.5. */
+  bobHz?: number
   easing?: 'linear' | 'ease' | 'ease-in' | 'ease-out'
 }
 
@@ -138,6 +155,15 @@ export interface EventOp {
   motion?: EventMotion
   /** 0..1: desvío aleatorio del punto de salida. Default 0. */
   jitter?: number
+  /**
+   * 0..1: dispersión del punto de LLEGADA. Con un grupo, cada bicho termina en
+   * un lugar distinto (se abren) en vez de pisarse en el mismo punto.
+   */
+  spread?: number
+  /**
+   * Grados de inclinación hacia donde viaja (banqueo). Default 0.
+   */
+  bank?: number
   /** Escala del dibujo. Default 1. */
   size?: number
   /** Rotación inicial en grados (aleatoria ±). Default 0. */

@@ -388,18 +388,28 @@ published are not edited. The file goes per version:
   is a known kind and the packer now carries `events/` into the `.sef`), so
   `sef validate` / `sef pack` accept an event pack.
 
-- **The first real event exposed two engine bugs.** `flapHz` was a **±18°
-  rotation**, and a symmetric silhouette spinning on its own axis reads as a
-  butterfly, not as a bat: it now **folds the wing** (the drawn width shrinks
-  while the body stays put) with a couple of degrees of tilt. And a shape was
-  drawn from its **top-left corner** instead of centered on the particle, so the
-  position a scene asked for ignored the shape's own `viewBox` — it is centered
-  now. Both fixes ship with a unit test each, so neither can quietly come back.
+- **A flying shape is BODY + WING, and only the wing moves.** `draw.path` is the
+  body and `draw.wing` is **one** wing: the engine mirrors it for the other side
+  and rotates the pair around `draw.wingAnchor` (the shoulder), between ±22°.
+  The body is drawn untouched, so a silhouette flaps instead of wobbling whole —
+  the first attempt reused a single rigid path and animated the *entire* shape,
+  which read as a butterfly and, worse, moved the body too. (A shape is also
+  centered on its particle now instead of being drawn from its top-left corner,
+  so the `viewBox` is a coordinate system and not an offset.)
+- **Flight stopped being a straight line.** `motion.through` bows the path (and
+  with no `through` the engine auto-bows every particle a little, at random: a
+  perfect line reads as mechanical), `motion.bob`/`bobHz` add the vertical wander
+  of flight, `spread` fans a group's **arrival** points out so it opens instead
+  of stacking, and `bank` tilts each one toward where it is going. `jitter` still
+  scatters where each one *appears*, and `every` is what decides flock (small)
+  versus river (big).
 - **`tools/_look-path.mjs`: a shape has to be LOOKED at.** A new dev tool prints
-  an SVG path as filled ASCII (`--sx` previews a folded wing), the same idea as
-  `_look-png.mjs`. Judging a silhouette from coordinate numbers is exactly how
-  the first bat came out looking like a moth. The pack's bat was retuned with it:
-  pointed ears plus three scalloped notches per wing.
+  an SVG path as filled ASCII, and with `--wing` / `--wing-angle` / `--pivot` it
+  renders the body with the mirrored wing at a given flap angle — the same idea
+  as `_look-png.mjs`. Judging a silhouette from coordinate numbers is exactly how
+  the first bat shipped looking like a moth. The pack's bat was tuned with it:
+  pointed ears, three scalloped notches per wing, and a shoulder that keeps the
+  body still in every frame.
 
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
@@ -421,6 +431,14 @@ published are not edited. The file goes per version:
   no registry needed. The CLI keeps its own release channel, so Scrakk Studio's
   releases and auto-update are untouched. In exchange the repo no longer ships
   the `npm run sef:*` scripts.
+
+### Themes (Appearance)
+- **Zed One Dark now sets its own corner radii.** Like OpenCode AI, the theme
+  declares the `radius` variable the theme engine reads (`'rect'` for fully
+  square, `'round'` for the system values, or a per-slot map). Zed One Dark uses
+  a map: nearly square but with a little rounding — `panel`/`md` **4px**,
+  `input`/`sm` **3px**, `xs` **2px** (the `capsule` shape stays, since it is a
+  shape — avatars, dots — not a corner).
 
 ### Settings (UI)
 - **The tools list is now horizontal and grouped by collapsible category.**

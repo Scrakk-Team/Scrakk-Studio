@@ -90,13 +90,25 @@ function normalizePoint(v: unknown): [number | string, number | string] | undefi
   return out
 }
 
+/** Un `d` de path es datos para Path2D: sólo comandos y números. */
+function safePath(value: unknown): string | null {
+  const path = str(value)
+  if (!path || path.length > 4000 || /[<>]/.test(path)) return null
+  return path
+}
+
 function normalizeShape(raw: unknown): EventShape | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
-  const path = str(r.path)
-  // Un path SVG sólo lleva comandos y números. Se acota para no meter basura.
-  if (!path || path.length > 4000 || /[<>]/.test(path)) return null
+  const path = safePath(r.path)
+  if (!path) return null
   const shape: EventShape = { path }
+  const wing = safePath(r.wing)
+  if (wing) shape.wing = wing
+  const anchor = normalizePoint(r.wingAnchor)
+  if (anchor && typeof anchor[0] === 'number' && typeof anchor[1] === 'number') {
+    shape.wingAnchor = [anchor[0], anchor[1]]
+  }
   const vb = r.viewBox
   if (Array.isArray(vb) && vb.length === 2) {
     const w = num(vb[0])
@@ -164,6 +176,10 @@ function normalizeOp(raw: unknown): EventOp | null {
       out.count = count === undefined ? 1 : Math.max(1, Math.min(200, Math.floor(count)))
       const jitter = num(r.jitter)
       if (jitter !== undefined) out.jitter = clamp01(jitter)
+      const spread = num(r.spread)
+      if (spread !== undefined) out.spread = clamp01(spread)
+      const bank = num(r.bank)
+      if (bank !== undefined) out.bank = Math.max(0, Math.min(60, bank))
       const size = num(r.size)
       out.size = size === undefined ? 10 : Math.max(1, Math.min(600, size))
       const rotate = num(r.rotate)
@@ -180,12 +196,18 @@ function normalizeOp(raw: unknown): EventOp | null {
         const m = motion as Record<string, unknown>
         const from = normalizePoint(m.from)
         const to = normalizePoint(m.to)
+        const through = normalizePoint(m.through)
         const drift = normalizePoint(m.drift)
-        if (from || to || drift) {
+        if (from || to || through || drift) {
           out.motion = {}
           if (from) out.motion.from = from
           if (to) out.motion.to = to
+          if (through) out.motion.through = through
           if (drift) out.motion.drift = drift as [number, number]
+          const bob = num(m.bob)
+          if (bob !== undefined) out.motion.bob = Math.max(0, Math.min(200, bob))
+          const bobHz = num(m.bobHz)
+          if (bobHz !== undefined) out.motion.bobHz = Math.max(0.05, Math.min(10, bobHz))
           if (m.easing === 'linear' || m.easing === 'ease' || m.easing === 'ease-in' || m.easing === 'ease-out') {
             out.motion.easing = m.easing
           }

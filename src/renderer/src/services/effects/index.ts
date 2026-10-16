@@ -15,6 +15,7 @@ export {
   resolveEffectColor,
   parsePoint,
   flapFrame,
+  WING_SWING_DEG,
   resetEffectsForTests,
   MAX_PARTICLES
 } from './engine'

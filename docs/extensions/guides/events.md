@@ -136,29 +136,43 @@ viewBox, compiled to a `Path2D` on the canvas.
 |---|---|---|---|
 | `draw` | object | **required** | The geometry to draw (see below). |
 | `count` | number | `1` | Instances per batch (1..200). |
-| `motion` | object | — | `from`/`to`/`drift`/`easing` (see below). |
-| `jitter` | number 0..1 | `0` | Random offset of the start point. |
+| `motion` | object | — | `from`/`to`/`through`/`drift`/`bob`/`easing` (see below). |
+| `jitter` | number 0..1 | `0` | Random offset of the **start** point. |
+| `spread` | number 0..1 | `0` | Random dispersion of the **arrival** point, so a group fans out instead of stacking on one spot. |
+| `bank` | number (°) | `0` | How much the shape tilts toward its direction of travel (0..60): `0` is rigid, `60` fully follows the slope. |
 | `size` | number (px) | `10` | **Drawn height** in px (1..600). |
 | `rotate` | number (°) | `0` | Initial rotation, randomized ± (-360..360). |
-| `flapHz` | number | `0` | Flaps per second (0..30): folds the wing horizontally, so the drawn width shrinks and grows while the body stays put. |
+| `flapHz` | number | `0` | Flaps per second (0..30): rotates **only the wings** around the shoulder, between ±22°. The body does not move. Without a `wing` it does nothing. |
 | `life` | number (ms) | `6000` | Lifetime of each instance (200..120000). |
-| `every` | number (ms) | `0` | Stagger one instance every N ms (a "river"). |
+| `every` | number (ms) | `0` | Stagger one instance every N ms. A small value (100–150) spawns a flock; a large one is a river. |
+
+`jitter` and `spread` are not the same thing: `jitter` is **where each one
+appears**, `spread` is **where each one ends**.
 
 `draw` (an `EventShape`):
 
 | Field | Type | Default |
 |---|---|---|
 | `path` | SVG `<path>` `d` string (≤ 4000 chars, no `<`/`>`) | **required** |
+| `wing` | SVG `<path>` `d` string — **one** wing (the right one); the engine draws its mirror for the left | — |
+| `wingAnchor` | `[x, y]` shoulder the wing rotates around, in viewBox units | viewBox centre |
 | `viewBox` | `[width, height]` | `[1, 1]` |
 | `fill` / `stroke` | color | fill `accent` |
 | `width` | stroke width | `1` (≤ 32) |
+
+`path` is the **body**. With `wing`, the wing is drawn twice — right and mirrored
+left — and that pair is the **only** thing `flapHz` moves. With no `wing` the
+whole shape is rigid: there is no flapping at all.
 
 `motion`:
 
 | Field | Type | Note |
 |---|---|---|
 | `from` / `to` | `[x, y]` | A number is **px**; a string accepts `vw`/`vh`/`%`/`px`. |
+| `through` | `[x, y]` | A point the path **passes through** (a quadratic arc). Without it the engine auto-bows every instance a little, at random, so nothing travels in a perfectly straight line — a straight line reads as mechanical. |
 | `drift` | `[x, y]` | Continuous drift per second, in **px/s**. |
+| `bob` | number (px) | Amplitude of the vertical wander of the flight (the "flying" of the critter). Default `0`. |
+| `bobHz` | number | Hz of the wander. Default `1.5`. |
 | `easing` | `linear` \| `ease` \| `ease-in` \| `ease-out` | default `linear` |
 
 ### Audio
@@ -209,8 +223,11 @@ Raw CSS colors: `#hex` (3/4/6/8), `rgb()`/`rgba()`, `hsl()`/`hsla()` and
 
 ## Full example
 
-A falling-meteor scene: a window in late October, a theme override, ambience, a
-status chip, a notification, a driven `emit`, and a fade-out.
+A bat swarm at dusk: a window in late October, a theme override, ambience, a
+status chip, a notification, a flapping `emit` and a fade-out. The `emit` is the
+interesting part: a body-plus-wing shape with a `wingAnchor`, a group spread out
+with `every`, entering from above the viewport, arcing `through` a point while
+it `bob`s, fanning out with `spread` and banking into the turn.
 
 ```json
 {
@@ -225,8 +242,8 @@ status chip, a notification, a driven `emit`, and a fade-out.
     "wind": { "zzfx": [0.6, 0, 80, 0.04, 0.3, 1.2, 2, 0.4], "gain": 0.5, "loop": true }
   },
   "strings": {
-    "ready": "The sky is falling tonight.",
-    "badge": "Meteor shower"
+    "ready": "The night is alive.",
+    "badge": "Bat swarm"
   },
   "timeline": [
     { "op": "stage.vignette", "amount": 0.6, "fade": 1500 },
@@ -238,23 +255,29 @@ status chip, a notification, a driven `emit`, and a fade-out.
       "op": "emit",
       "at": 1500,
       "draw": {
-        "path": "M0 0 L2 0.5 L0 1 L0.5 0.5 Z",
-        "viewBox": [2, 1],
+        "path": "M32 14 C36 14 38 20 36 26 C34 30 30 30 28 26 C26 20 28 14 32 14 Z",
+        "wing": "M32 14 C40 9 52 11 60 22 C50 24 40 25 32 22 Z",
+        "wingAnchor": [32, 14],
+        "viewBox": [64, 40],
         "fill": "accent",
         "stroke": "text",
         "width": 1
       },
-      "count": 40,
-      "size": 12,
+      "count": 24,
+      "size": 26,
       "every": 120,
-      "life": 4000,
-      "jitter": 0.3,
-      "rotate": 25,
-      "flapHz": 0.5,
+      "life": 5000,
+      "jitter": 0.15,
+      "spread": 0.5,
+      "bank": 45,
+      "rotate": 8,
+      "flapHz": 8,
       "motion": {
-        "from": ["10%", "-5%"],
-        "to": ["110%", "80%"],
-        "drift": [20, 120],
+        "from": ["45%", "-10%"],
+        "to": ["55%", "105%"],
+        "through": ["25%", "45%"],
+        "bob": 14,
+        "bobHz": 1.5,
         "easing": "linear"
       }
     },

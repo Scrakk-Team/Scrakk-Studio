@@ -56,6 +56,10 @@ export interface EffectEmitSpec {
   count?: number
   motion?: EventMotion
   jitter?: number
+  /** 0..1: dispersión del punto de llegada (un grupo se abre). */
+  spread?: number
+  /** Grados de inclinación hacia donde viaja (0 = rígido). */
+  bank?: number
   size?: number
   rotate?: number
   flapHz?: number
@@ -175,6 +179,10 @@ function resolveEasing(name: EventMotion['easing']): EasingFn {
 // ── Formas compiladas (Path2D) ──────────────────────────────────────────
 interface CompiledShape {
   path: Path2D
+  /** El ala (una sola: la derecha). El motor dibuja su espejo. */
+  wing: Path2D | null
+  /** Hombro del ala, en unidades del viewBox. */
+  anchor: [number, number]
   viewBox: [number, number]
   width: number
 }
@@ -187,12 +195,16 @@ function compileShape(shape: EventShape): CompiledShape | null {
   // Sin Path2D (tests jsdom) no dibujamos, pero el resto del motor sigue vivo.
   if (typeof Path2D === 'undefined') return null
   const viewBox: [number, number] = shape.viewBox ?? [1, 1]
-  const key = `${viewBox[0]}x${viewBox[1]}|${shape.path}`
+  const key = `${viewBox[0]}x${viewBox[1]}|${shape.wing ?? ''}|${shape.path}`
   const cached = shapeCache.get(key)
   if (cached) return cached
   try {
     const compiled: CompiledShape = {
       path: new Path2D(shape.path),
+      wing: shape.wing ? new Path2D(shape.wing) : null,
+      // Sin hombro explícito, el centro de la forma: es donde se "agarra" el ala
+      // cuando el pack no lo precisa.
+      anchor: shape.wingAnchor ?? [viewBox[0] / 2, viewBox[1] / 2],
       viewBox,
       width: shape.width ?? 1
     }
@@ -213,10 +225,19 @@ interface Particle {
   y0: number
   x1: number
   y1: number
+  /** Punto de control del arco (NaN = va derecho). */
+  cx: number
+  cy: number
+  hasArc: boolean
   driftX: number
   driftY: number
   jitterX: number
   jitterY: number
+  /** Vaivén vertical del vuelo. */
+  bobAmp: number
+  bobHz: number
+  phase: number
+  bank: number
   scale: number
   rotate0: number
   flapHz: number
@@ -237,10 +258,17 @@ function makeParticle(): Particle {
     y0: 0,
     x1: 0,
     y1: 0,
+    cx: 0,
+    cy: 0,
+    hasArc: false,
     driftX: 0,
     driftY: 0,
     jitterX: 0,
     jitterY: 0,
+    bobAmp: 0,
+    bobHz: 1.5,
+    phase: 0,
+    bank: 0,
     scale: 1,
     rotate0: 0,
     flapHz: 0,
@@ -361,31 +389,29 @@ function hasLiveParticles(): boolean {
   return false
 }
 
+/** Cuánto gira el ala en cada extremo del aleteo, en grados. */
+export const WING_SWING_DEG = 22
+
 /**
  * Fotograma del aleteo de una partícula.
  *
- * Devuelve cuánto se PLIEGA el ala (`sx`, el ancho dibujado), cuánto se estira
- * el cuerpo (`sy`) y la inclinación en grados. Sin `flapHz` no hay aleteo.
+ * Devuelve la inclinación del CUERPO (`rotation`, que es la que pidió la
+ * escena) y el ángulo del **ALA**. El cuerpo NO se mueve al aletear: sólo gira
+ * el ala, alrededor del hombro.
  *
- * El aleteo es un PLIEGUE, no un giro: una rotación de la forma entera hace que
- * un silueto simétrico (un murciélago visto de frente) gire sobre su eje, y eso
- * se lee como una mariposa revoloteando. Plegando el ala, el cuerpo se queda
- * quieto y lo que cambia es la envergadura — que es lo que hace un bicho al
- * volar.
+ * Eso no es un detalle estético. Mover la forma entera hace que un silueto
+ * simétrico (un bicho visto de frente) se lea como una mariposa revoloteando, y
+ * además se nota de inmediato: "se mueve incluso su parte de cuerpo, cuando sólo
+ * deberían moverse las alas".
  */
 export function flapFrame(
   flapHz: number,
   tMs: number,
   rotate0 = 0
-): { sx: number; sy: number; rotation: number } {
-  if (flapHz <= 0) return { sx: 1, sy: 1, rotation: rotate0 }
+): { rotation: number; wingAngle: number } {
+  if (flapHz <= 0) return { rotation: rotate0, wingAngle: 0 }
   const phase = Math.sin((tMs / 1000) * Math.PI * 2 * flapHz)
-  const wing = 0.5 + 0.5 * phase // 0..1: 0 = alas extendidas, 1 = plegadas
-  return {
-    sx: 1 - 0.4 * wing,
-    sy: 1 + 0.12 * wing,
-    rotation: rotate0 + phase * 3
-  }
+  return { rotation: rotate0, wingAngle: phase * WING_SWING_DEG }
 }
 
 function draw(): void {
@@ -395,32 +421,85 @@ function draw(): void {
     if (!p.active || p.t < 0) continue
     const k = clamp01(p.t / p.life)
     const eased = p.easing(k)
-    const x = p.x0 + (p.x1 - p.x0) * eased + p.jitterX + (p.driftX * p.t) / 1000
-    const y = p.y0 + (p.y1 - p.y0) * eased + p.jitterY + (p.driftY * p.t) / 1000
+
+    // Posición: arco (cuadrática) si el pack dio un `through`, si no recta.
+    let x: number
+    let y: number
+    let dx: number
+    let dy: number
+    if (p.hasArc) {
+      const u = 1 - eased
+      x = u * u * p.x0 + 2 * u * eased * p.cx + eased * eased * p.x1
+      y = u * u * p.y0 + 2 * u * eased * p.cy + eased * eased * p.y1
+      dx = 2 * u * (p.cx - p.x0) + 2 * eased * (p.x1 - p.cx)
+      dy = 2 * u * (p.cy - p.y0) + 2 * eased * (p.y1 - p.cy)
+    } else {
+      x = p.x0 + (p.x1 - p.x0) * eased
+      y = p.y0 + (p.y1 - p.y0) * eased
+      dx = p.x1 - p.x0
+      dy = p.y1 - p.y0
+    }
+    x += p.jitterX + (p.driftX * p.t) / 1000
+    y += p.jitterY + (p.driftY * p.t) / 1000
+    // Vaivén del vuelo: lo que hace que un bicho no viaje como un tronco.
+    if (p.bobAmp > 0) {
+      y += Math.sin((p.t / 1000) * Math.PI * 2 * p.bobHz + p.phase) * p.bobAmp
+    }
+
     const alpha = Math.min(1, Math.sin(k * Math.PI) * 1.6)
     if (alpha <= 0) continue
-    // Aleteo: el ala se PLIEGA en horizontal (el ancho baja) y el cuerpo sube un
-    // poco. Antes esto era una rotación de ±18°, y una forma simétrica girando
-    // se lee como una mariposa, no como un murciélago batiendo las alas.
+
     const flap = flapFrame(p.flapHz, p.t, p.rotate0)
+    // Banqueo: se inclina hacia donde viaja (0 = nunca).
+    const pitch = p.bank > 0 ? (Math.atan2(dy, Math.abs(dx)) * 180) / Math.PI : 0
+    const rotation = flap.rotation + pitch * (p.bank / 60)
+
     ctx.save()
     ctx.translate(x, y)
-    if (flap.rotation) ctx.rotate((flap.rotation * Math.PI) / 180)
+    if (rotation) ctx.rotate((rotation * Math.PI) / 180)
     ctx.globalAlpha = alpha
     if (p.shape) {
       // `scale` deja la ALTURA dibujada en `size` px (viewBox normaliza).
+      const vbW = p.shape.viewBox[0]
       const vbH = p.shape.viewBox[1] || 1
       const s = p.scale / vbH
-      ctx.scale(s * flap.sx, s * flap.sy)
+      ctx.scale(s, s)
       // La forma se dibuja CENTRADA en el punto de la partícula: el viewBox es
-      // un sistema de coordenadas propio, no un offset en pantalla.
-      ctx.translate(-p.shape.viewBox[0] / 2, -vbH / 2)
+      // un sistema de coordenadas propio, no un offset en pantalla. Después de
+      // esto, las coordenadas del viewBox valen tal cual.
+      ctx.translate(-vbW / 2, -vbH / 2)
       ctx.fillStyle = p.fill
       ctx.fill(p.shape.path)
+      if (p.shape.wing) {
+        // El ala: derecha y su espejo, girando alrededor del hombro. Es la
+        // ÚNICA parte que se mueve con `flapHz`.
+        const [ax, ay] = p.shape.anchor
+        for (const side of [1, -1] as const) {
+          ctx.save()
+          ctx.translate(ax, ay)
+          ctx.scale(side, 1)
+          ctx.rotate((flap.wingAngle * side * Math.PI) / 180)
+          ctx.translate(-ax, -ay)
+          ctx.fill(p.shape.wing)
+          ctx.restore()
+        }
+      }
       if (p.stroke) {
         ctx.strokeStyle = p.stroke
         ctx.lineWidth = (p.shape.width || 1) / s
         ctx.stroke(p.shape.path)
+        if (p.shape.wing) {
+          const [ax, ay] = p.shape.anchor
+          for (const side of [1, -1] as const) {
+            ctx.save()
+            ctx.translate(ax, ay)
+            ctx.scale(side, 1)
+            ctx.rotate((flap.wingAngle * side * Math.PI) / 180)
+            ctx.translate(-ax, -ay)
+            ctx.stroke(p.shape.wing)
+            ctx.restore()
+          }
+        }
       }
     } else {
       // Fallback sin forma: un círculo del tamaño pedido (y tests sin Path2D).
@@ -492,11 +571,16 @@ function spawn(spec: EffectEmitSpec, emittedAt: number): void {
   const life = spec.life ?? 6000
   const every = spec.every ?? 0
   const jitter = clamp01(spec.jitter ?? 0)
+  const spread = clamp01(spec.spread ?? 0)
+  const bank = spec.bank ?? 0
   const flapHz = spec.flapHz ?? 0
   const rotate = spec.rotate ?? 0
   const easing = resolveEasing(spec.motion?.easing)
   const from = spec.motion?.from
   const to = spec.motion?.to
+  const through = spec.motion?.through
+  const bobAmp = spec.motion?.bob ?? 0
+  const bobHz = spec.motion?.bobHz ?? 1.5
   const drift = spec.motion?.drift ?? [0, 0]
   const vbH = spec.shape.viewBox?.[1] ?? 1
   const drawHeight = vbH * drawSize
@@ -508,8 +592,28 @@ function spawn(spec: EffectEmitSpec, emittedAt: number): void {
     const defaultFromY = vp.h + drawHeight
     const fromX = from ? parsePoint(from[0], 'x', vp) : defaultFromX
     const fromY = from ? parsePoint(from[1], 'y', vp) : defaultFromY
-    const toX = to ? parsePoint(to[0], 'x', vp) : fromX
-    const toY = to ? parsePoint(to[1], 'y', vp) : -drawHeight
+    const toXBase = to ? parsePoint(to[0], 'x', vp) : fromX
+    const toYBase = to ? parsePoint(to[1], 'y', vp) : -drawHeight
+    // Dispersión: cada uno termina en un lugar distinto (si no, se pisan todos
+    // en el mismo punto y el grupo parece una fila de hormigas).
+    const toX = toXBase + (Math.random() * 2 - 1) * spread * vp.w * 0.22
+    const toY = toYBase + (Math.random() * 2 - 1) * spread * vp.h * 0.12
+
+    // El camino: si el pack dio un `through`, ese manda. Si no, se ABOMBA solo
+    // un poco (aleatorio, hacia un lado u otro). Una recta perfecta se lee como
+    // algo mecánico: ningún bicho vuela en línea.
+    const mx = (fromX + toX) / 2
+    const my = (fromY + toY) / 2
+    let cx = through ? parsePoint(through[0], 'x', vp) : mx
+    let cy = through ? parsePoint(through[1], 'y', vp) : my
+    if (!through) {
+      const nx = -(toY - fromY)
+      const ny = toX - fromX
+      const len = Math.hypot(nx, ny) || 1
+      const bow = (Math.random() * 2 - 1) * 0.25 * len
+      cx = mx + (nx / len) * bow
+      cy = my + (ny / len) * bow
+    }
 
     p.active = true
     p.shape = shape
@@ -519,10 +623,17 @@ function spawn(spec: EffectEmitSpec, emittedAt: number): void {
     p.y0 = fromY
     p.x1 = toX
     p.y1 = toY
+    p.cx = cx
+    p.cy = cy
+    p.hasArc = true
     p.driftX = drift[0]
     p.driftY = drift[1]
     p.jitterX = (Math.random() * 2 - 1) * jitter * vp.w
     p.jitterY = (Math.random() * 2 - 1) * jitter * vp.h
+    p.bobAmp = bobAmp
+    p.bobHz = bobHz
+    p.phase = Math.random() * Math.PI * 2
+    p.bank = bank
     p.scale = drawSize
     p.rotate0 = (Math.random() * 2 - 1) * rotate
     p.flapHz = flapHz

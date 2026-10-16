@@ -15,6 +15,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   MAX_PARTICLES,
+  WING_SWING_DEG,
   engine,
   flapFrame,
   parsePoint,
@@ -173,38 +174,35 @@ describe('sin canvas / sin Path2D / sin rAF', () => {
  * murciélago del pack se leía como una mariposa revoloteando. El test fija la
  * diferencia para que nadie vuelva a la rotación.
  */
-describe('aleteo: pliegue, no rotación', () => {
-  it('sin flapHz no toca nada', () => {
-    expect(flapFrame(0, 1234)).toEqual({ sx: 1, sy: 1, rotation: 0 })
+describe('aleteo: sólo el ala, el cuerpo quieto', () => {
+  it('sin flapHz no hay ángulo de ala', () => {
+    expect(flapFrame(0, 1234)).toEqual({ rotation: 0, wingAngle: 0 })
+    expect(flapFrame(0, 1234, -8)).toEqual({ rotation: -8, wingAngle: 0 })
   })
 
-  it('el ancho del ala oscila y el cuerpo queda arriba', () => {
-    // Un ciclo completo a 1 Hz = 1000 ms. En t=250 el seno llega a 1 (ala
-    // plegada) y en t=750 a -1 (ala extendida).
-    const extended = flapFrame(1, 750)
-    const folded = flapFrame(1, 250)
-    expect(extended.sx).toBeCloseTo(1)
-    expect(folded.sx).toBeCloseTo(0.6)
-    // Al plegar, el cuerpo "sube" (se estira un poco en vertical).
-    expect(folded.sy).toBeGreaterThan(extended.sy)
-    // Y la rotación es apenas una inclinación: NUNCA el ±18° de antes.
-    for (let t = 0; t <= 1000; t += 25) {
-      expect(Math.abs(flapFrame(1, t).rotation)).toBeLessThanOrEqual(3.5)
+  it('el ala oscila entre los dos extremos del batido', () => {
+    // A 1 Hz, t=250 es un extremo y t=750 el otro.
+    const a = flapFrame(1, 250).wingAngle
+    const b = flapFrame(1, 750).wingAngle
+    expect(Math.abs(a)).toBeCloseTo(WING_SWING_DEG)
+    expect(Math.abs(b)).toBeCloseTo(WING_SWING_DEG)
+    expect(Math.sign(a)).toBe(-Math.sign(b))
+  })
+
+  it('el cuerpo NO se mueve al aletear (la regresión de la mariposa)', () => {
+    for (const hz of [0, 1, 7, 30]) {
+      for (let t = 0; t <= 1000; t += 20) {
+        // La rotación del cuerpo es EXACTAMENTE la que pidió la escena: el
+        // aleteo no la toca (antes le sumaba ±18° y giraba todo el bicho).
+        expect(flapFrame(hz, t, 12).rotation).toBe(12)
+      }
     }
   })
 
-  it('la inclinación inicial se conserva', () => {
-    expect(flapFrame(0, 0, -12).rotation).toBe(-12)
-    expect(flapFrame(2, 100, 8).rotation).toBeGreaterThanOrEqual(4.5)
-  })
-
-  it('nunca deja el ancho en cero (la forma desaparecería)', () => {
+  it('nunca deja el ala más allá de ±WING_SWING_DEG', () => {
     for (let hz = 0; hz <= 30; hz++) {
       for (let t = 0; t <= 2000; t += 37) {
-        const { sx, sy } = flapFrame(hz, t)
-        expect(sx).toBeGreaterThan(0.5)
-        expect(sx).toBeLessThanOrEqual(1)
-        expect(sy).toBeGreaterThanOrEqual(1)
+        expect(Math.abs(flapFrame(hz, t).wingAngle)).toBeLessThanOrEqual(WING_SWING_DEG + 0.001)
       }
     }
   })

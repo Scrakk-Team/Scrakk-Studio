@@ -153,9 +153,46 @@ function filled(subpaths, px, py) {
   return crossings % 2 === 1
 }
 
-function render(label, d, viewBox, cols) {
-  const subpaths = parsePath(d)
-  if (subpaths.length === 0) {
+/**
+ * Capas a dibujar: el cuerpo (path principal) y, si hay `--wing`, el ala dos
+ * veces (derecha y su ESPEJO) girando alrededor del hombro.
+ *
+ * El muestreo va de la pantalla a la forma, así que cada capa devuelve la
+ * transformación INVERSA: para el ala, rotar el punto de muestreo al revés.
+ */
+function buildLayers(opts) {
+  const layers = [{ subpaths: parsePath(opts.path), toLocal: (p) => p }]
+  if (!opts.wing) return layers
+
+  const [px, py] = opts.pivot
+  const rad = (opts.wingAngle * Math.PI) / 180
+  const rotate = (p, a) => {
+    const c = Math.cos(a)
+    const s = Math.sin(a)
+    const dx = p.x - px
+    const dy = p.y - py
+    return { x: px + dx * c - dy * s, y: py + dx * s + dy * c }
+  }
+  layers.push({
+    subpaths: parsePath(opts.wing),
+    // Ala derecha: pantalla → forma = rotar -θ.
+    toLocal: (p) => rotate(p, -rad)
+  })
+  layers.push({
+    subpaths: parsePath(opts.wing),
+    // Ala izquierda: es el ESPEJO del ala, y gira para el otro lado.
+    toLocal: (p) => {
+      const rotated = rotate(p, rad)
+      return { x: 2 * px - rotated.x, y: rotated.y }
+    }
+  })
+  return layers
+}
+
+function render(label, opts, viewBox, cols) {
+  const layers = buildLayers(opts)
+  const all = layers.flatMap((l) => l.subpaths.flat())
+  if (all.length === 0) {
     console.log(`# ${label}: sin subpaths`)
     return
   }
@@ -163,26 +200,35 @@ function render(label, d, viewBox, cols) {
   // Las celdas de la terminal son ~2:1 (alto:ancho): se compensa para que la
   // forma no salga estirada.
   const rows = Math.max(1, Math.round(cols * (vh / vw) / 2.1))
-  const cx = vx + vw / 2
   const lines = []
   for (let r = 0; r < rows; r++) {
     let line = ''
     for (let c = 0; c < cols; c++) {
-      // `--sx` simula un fotograma del aleteo: el motor pliega el ala bajando el
-      // ancho ALREDEDOR del centro, igual que acá.
-      const x = cx + (vx + ((c + 0.5) / cols) * vw - cx) / sx
+      // `--sx` simula un fotograma del aleteo viejo (pliegue del ancho total).
+      const x = vx + vw / 2 + (vx + ((c + 0.5) / cols) * vw - (vx + vw / 2)) / (opts.sx ?? 1)
       const y = vy + ((r + 0.5) / rows) * vh
-      line += filled(subpaths, x, y) ? '#' : '·'
+      const inside = layers.some((layer) => {
+        const p = layer.toLocal({ x, y })
+        return filled(layer.subpaths, p.x, p.y)
+      })
+      line += inside ? '#' : '·'
     }
     lines.push(line)
   }
-  // Recorte a lo dibujado: evita el aire del viewBox y centra la lectura.
-  const minX = Math.min(...subpaths.flat().map((p) => p.x))
-  const maxX = Math.max(...subpaths.flat().map((p) => p.x))
-  const minY = Math.min(...subpaths.flat().map((p) => p.y))
-  const maxY = Math.max(...subpaths.flat().map((p) => p.y))
-  console.log(`# ${label} — bbox x:${minX.toFixed(1)}..${maxX.toFixed(1)} y:${minY.toFixed(1)}..${maxY.toFixed(1)}`)
+  const xs = all.map((p) => p.x)
+  const ys = all.map((p) => p.y)
+  console.log(
+    `# ${label} — bbox x:${Math.min(...xs).toFixed(1)}..${Math.max(...xs).toFixed(1)} y:${Math.min(...ys).toFixed(1)}..${Math.max(...ys).toFixed(1)}`
+  )
   console.log(lines.join('\n'))
+}
+
+/** Lee `--flag valor` o `--flag=valor`. */
+function flag(name, fallback) {
+  const withEq = process.argv.find((a) => a.startsWith(`--${name}=`))
+  if (withEq) return withEq.slice(name.length + 3)
+  const idx = process.argv.indexOf(`--${name}`)
+  return idx !== -1 ? process.argv[idx + 1] : fallback
 }
 
 const paths = []
@@ -190,18 +236,21 @@ for (let i = 2; i < process.argv.length; i++) {
   if (process.argv[i] === '--path') paths.push(process.argv[++i])
   else if (process.argv[i].startsWith('--path=')) paths.push(process.argv[i].slice(7))
 }
-const vbArg = process.argv.find((a) => a.startsWith('--viewbox=')) ?? process.argv[process.argv.indexOf('--viewbox') + 1]
 // Acepta `w,h` (como el `viewBox` de una shape: origen 0,0) o `x,y,w,h`.
-const vbParts = (vbArg ?? '32,16').split(',').map(Number)
+const vbParts = (flag('viewbox', '32,16') ?? '').split(',').map(Number)
 const viewBox = vbParts.length === 4 ? vbParts : [0, 0, vbParts[0], vbParts[1]]
-const colsArg = process.argv.find((a) => a.startsWith('--cols=')) ?? process.argv[process.argv.indexOf('--cols') + 1]
-const cols = Number((colsArg ?? '72').toString().replace('--cols=', '')) || 72
-// Simula un fotograma del aleteo: el motor pliega el ala bajando el ANCHO.
-const sxArg = process.argv.find((a) => a.startsWith('--sx=')) ?? (process.argv.includes('--sx') ? process.argv[process.argv.indexOf('--sx') + 1] : undefined)
-const sx = Number((sxArg ?? '1').toString().replace('--sx=', '')) || 1
+const cols = Number(flag('cols', '72')) || 72
+const sx = Number(flag('sx', '1')) || 1
+const wing = flag('wing', null)
+const wingAngle = Number(flag('wing-angle', '0')) || 0
+const pivot = (flag('pivot', '16,5') ?? '').split(',').map(Number)
 
 if (paths.length === 0) {
-  console.log('uso: node tools/_look-path.mjs --viewbox 32,16 --path "M0 0 …" [--path "…"] [--cols 72]')
+  console.log(
+    'uso: node tools/_look-path.mjs --viewbox 32,16 --path "M0 0 …" [--wing "…" --wing-angle -18 --pivot 17,4.6] [--cols 72] [--sx 1]'
+  )
   process.exit(1)
 }
-paths.forEach((p, i) => render(`path ${i + 1}`, p, viewBox, cols))
+paths.forEach((p, i) =>
+  render(`path ${i + 1}`, { path: p, wing, wingAngle, pivot, sx }, viewBox, cols)
+)
