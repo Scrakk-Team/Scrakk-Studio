@@ -24,10 +24,11 @@ import {
 /**
  * Definición de un sonido. Dos formas, excluyentes:
  *  - `zzfx`: parámetros posicionales del sintetizador ZzFX (8 bits, sin archivos).
- *  - `src`: una URL ya resuelta (`data:` o `https:`). Es el camino para audio
- *    REAL: el runtime del pack resuelve su archivo a un `data:` con el mime y
- *    acá se decodifica. La primera vez es async; para que no llegue tarde, el
- *    runtime llama a `preloadSounds()` al activar el evento.
+ *  - `src`: un `data:` YA armado (el runtime del pack resuelve su archivo a un
+ *    `data:` con el mime real y acá se decodifica en memoria). No se admiten
+ *    URLs remotas: el CSP del renderer no permite `fetch()` fuera de `self`.
+ *    La primera decodificación es async; para que no llegue tarde, el runtime
+ *    llama a `preloadSounds()` al activar el evento.
  */
 export interface SoundSpec {
   zzfx?: number[]
@@ -44,15 +45,38 @@ export interface SoundSpec {
  */
 const bufferCache = new Map<string, AudioBuffer>()
 
+/**
+ * `data:` → bytes, EN MEMORIA.
+ *
+ * A propósito no se baja el audio con `fetch()`: el CSP del renderer no lo
+ * permite (`connect-src` cae en `default-src 'self'`, y `data:` sólo está
+ * habilitado para imágenes y fuentes) y no hace falta — el archivo ya viaja
+ * dentro del paquete. Sin esto, un sonido `file` no sonaba NUNCA y el fallo era
+ * mudo.
+ */
+export function dataUriToBytes(uri: string): Uint8Array | null {
+  const comma = uri.indexOf(',')
+  if (comma < 0) return null
+  if (!uri.slice(0, comma).includes(';base64')) return null
+  try {
+    const binary = atob(uri.slice(comma + 1))
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i)
+    return bytes
+  } catch {
+    return null
+  }
+}
+
 /** Decodifica (y cachea) un `src`. `null` si no hay audio o si falla. */
 async function loadBuffer(ctx: AudioContext, src: string): Promise<AudioBuffer | null> {
   const cached = bufferCache.get(src)
   if (cached) return cached
+  if (!src.startsWith('data:')) return null
+  const bytes = dataUriToBytes(src)
+  if (!bytes) return null
   try {
-    const res = await fetch(src)
-    if (!res.ok) return null
-    const bytes = await res.arrayBuffer()
-    const decoded = await ctx.decodeAudioData(bytes)
+    const decoded = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer)
     bufferCache.set(src, decoded)
     return decoded
   } catch {

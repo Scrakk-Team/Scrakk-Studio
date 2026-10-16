@@ -12,6 +12,7 @@
   "services.event.detener": "Stop the active event",
   "services.event.lista": "View events",
   "services.event.nada": "No events installed.",
+  "services.event.recargar": "Reload events from the pack",
   "services.event.testing.activar": "Event testing mode: enable",
   "services.event.testing.desactivar": "Event testing mode: disable",
   "services.event.testing.reiniciar": "Event testing: reset state",

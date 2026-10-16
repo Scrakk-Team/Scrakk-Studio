@@ -12,6 +12,7 @@
   "services.event.detener": "Detener el evento activo",
   "services.event.lista": "Ver eventos",
   "services.event.nada": "No hay eventos instalados.",
+  "services.event.recargar": "Recargar eventos desde el pack",
   "services.event.testing.activar": "Modo testing de eventos: activar",
   "services.event.testing.desactivar": "Modo testing de eventos: desactivar",
   "services.event.testing.reiniciar": "Modo testing: reiniciar el estado",

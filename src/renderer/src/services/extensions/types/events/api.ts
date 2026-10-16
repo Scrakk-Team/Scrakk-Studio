@@ -58,6 +58,7 @@ export const eventsHandler: AnyExtensionTypeHandler = {
       name: contribution.name,
       extensionId: ctx.extensionId,
       isBuiltin: ctx.isBuiltin,
+      scenePath: contribution.path,
       scene
     })
 

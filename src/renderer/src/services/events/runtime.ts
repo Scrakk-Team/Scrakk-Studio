@@ -28,7 +28,8 @@ import {
   getActiveThemeId,
   getTheme
 } from '@services/extensions/types/themes/logic'
-import { getEvent, listEvents, subscribeToEvents } from '@services/extensions/types/events/logic'
+import { getEvent, listEvents, registerEvent, subscribeToEvents } from '@services/extensions/types/events/logic'
+import { normalizeEventScene } from '@services/extensions/types/events/schema'
 // El motor se importa por MÓDULO (no por el barrel): el runtime no necesita el
 // componente React de la capa, sólo el engine — y así no arrastra React/CSS.
 import { engine } from '@services/effects/engine'
@@ -148,23 +149,58 @@ function resolveText(scene: EventScene, value: string | undefined): string | und
  */
 async function resolveSoundSrc(extensionId: string, file: string): Promise<string | null> {
   const abs = resolvePackagePath(extensionId, file)
-  if (!abs) return null
-  // `readBinary` vive en el puente de la app (lectura binaria de los visores):
-  // no está en la API que se le presta a las extensiones, así que se accede por
-  // el puente con la forma mínima que hace falta.
-  const fsBridge = (
-    window as unknown as {
-      api?: { fs?: { readBinary?: (path: string) => Promise<{ success?: boolean; base64?: string; mime?: string }> } }
-    }
-  ).api?.fs
-  if (!fsBridge?.readBinary) return null
+  const bridge = appFsBridge()
+  if (!abs || !bridge?.readBinary) return null
   try {
-    const res = await fsBridge.readBinary(abs)
+    const res = await bridge.readBinary(abs)
     if (!res?.success || !res.base64) return null
     return `data:${res.mime ?? 'audio/ogg'};base64,${res.base64}`
   } catch {
     return null
   }
+}
+
+/**
+ * El puente `fs` de la APP (el que usan los visores para leer binarios). No es
+ * la API que se le presta a las extensiones: por eso se accede con la forma
+ * mínima que hace falta.
+ */
+interface AppFsBridge {
+  readFile?: (path: string) => Promise<{ success?: boolean; content?: string }>
+  readBinary?: (path: string) => Promise<{ success?: boolean; base64?: string; mime?: string }>
+}
+
+function appFsBridge(): AppFsBridge | undefined {
+  return (window as unknown as { api?: { fs?: AppFsBridge } }).api?.fs
+}
+
+/**
+ * Re-lee las escenas con `path` desde el paquete, SIN reiniciar la app.
+ *
+ * El registro guarda la escena ya normalizada en el boot, así que editar el JSON
+ * de un pack no se veía hasta reiniciar — y eso se siente como "el cambio no se
+ * aplicó" (pasó con los sonidos). Devuelve cuántas releyó.
+ */
+export async function reloadEvents(): Promise<number> {
+  const bridge = appFsBridge()
+  let reloaded = 0
+  for (const entry of listEvents()) {
+    if (!entry.scenePath || !bridge?.readFile) continue
+    const abs = resolvePackagePath(entry.extensionId, entry.scenePath)
+    if (!abs) continue
+    try {
+      const res = await bridge.readFile(abs)
+      if (!res?.success || typeof res.content !== 'string') continue
+      const scene = normalizeEventScene(JSON.parse(res.content))
+      // JSON roto: se deja la escena anterior (mejor que quedarse sin evento).
+      if (!scene) continue
+      registerEvent({ ...entry, scene })
+      reloaded += 1
+    } catch {
+      // Ídem: no se pisa una escena válida con una rota.
+    }
+  }
+  return reloaded
 }
 
 /**

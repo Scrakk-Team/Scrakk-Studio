@@ -20,6 +20,8 @@ export interface RegisteredEvent {
   name: string
   extensionId: string
   isBuiltin: boolean
+  /** Ruta de la escena dentro del paquete (para poder RELEERLA sin reiniciar). */
+  scenePath?: string
   scene: EventScene
 }
 

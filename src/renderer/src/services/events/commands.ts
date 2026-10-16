@@ -22,6 +22,7 @@ import {
   activateEvent,
   getActiveEventId,
   getEventWindow,
+  reloadEvents,
   stopActiveEvent
 } from './runtime'
 import {
@@ -147,6 +148,22 @@ export function registerEventCommands(): void {
       title: t('services.event.lista'),
       category: CATEGORY,
       run: () => showEventList()
+    }),
+    commandRegistry.register({
+      id: 'events.reload',
+      title: t('services.event.recargar'),
+      category: CATEGORY,
+      // La escena se registra al BOOT: sin esto, editar el JSON del pack no se ve
+      // hasta reiniciar la app (y parece que el cambio no se aplicó).
+      run: () => {
+        void reloadEvents().then((count) => {
+          notify({
+            title: 'Scrakk Studio',
+            message: `${t('services.event.recargar')} · ${count}`,
+            severity: count > 0 ? 'success' : 'warn'
+          })
+        })
+      }
     }),
     commandRegistry.register({
       id: 'events.testing.clock.day',

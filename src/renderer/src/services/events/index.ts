@@ -15,6 +15,7 @@ export {
   stopActiveEvent,
   evaluateEvents,
   bootEvents,
+  reloadEvents,
   appVersion,
   getActiveEvent,
   getActiveEventId,

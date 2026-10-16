@@ -42,6 +42,7 @@ import {
   zzfxSamples
 } from '@services/audio/zzfx'
 import {
+  dataUriToBytes,
   duckFor,
   getActiveSoundCountForTests,
   getAmbienceCountForTests,
@@ -157,5 +158,29 @@ describe('mixer sin AudioContext', () => {
     expect(getAmbienceCountForTests()).toBe(0)
     expect(() => stopAmbience()).not.toThrow()
     expect(() => duckFor(200)).not.toThrow()
+  })
+})
+
+/**
+ * `data:` → bytes, en memoria.
+ *
+ * Es el camino REAL del audio de un evento: el pack trae el `.ogg`, el runtime
+ * lo lee y arma un `data:` con el mime. Se decodifica a mano porque el CSP del
+ * renderer bloquea `fetch()` de `data:`: cuando esto se hacía con `fetch`, el
+ * sonido no salía NUNCA y el fallo era mudo.
+ */
+describe('dataUriToBytes', () => {
+  it('decodifica base64 con su mime', () => {
+    // "OggS" en base64 = T2dnUw==
+    const bytes = dataUriToBytes('data:audio/ogg;base64,T2dnUw==')
+    expect(bytes).not.toBeNull()
+    expect([...bytes!]).toEqual([0x4f, 0x67, 0x67, 0x53])
+  })
+
+  it('rechaza lo que no es base64 o no es un data:', () => {
+    expect(dataUriToBytes('data:audio/ogg,sin-base64')).toBeNull()
+    expect(dataUriToBytes('https://ejemplo.com/a.ogg')).toBeNull()
+    expect(dataUriToBytes('data:audio/ogg;base64,no-es-base64!!')).toBeNull()
+    expect(dataUriToBytes('')).toBeNull()
   })
 })

@@ -17,12 +17,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { normalizeEventScene } from '../src/renderer/src/services/extensions/types/events/schema'
-import { registerEvent, unregisterEvent } from '../src/renderer/src/services/extensions/types/events/logic'
+import { getEvent, registerEvent, unregisterEvent } from '../src/renderer/src/services/extensions/types/events/logic'
 import {
   activateEvent,
   deactivateEvent,
   evaluateEvents,
   getActiveEventId,
+  reloadEvents,
   resetEventsRuntimeForTests,
   subscribeToActiveEvent
 } from '../src/renderer/src/services/events/runtime'
@@ -34,6 +35,7 @@ import {
 } from '../src/renderer/src/services/events/testing'
 import { clearEventState, getEventState } from '../src/renderer/src/services/events/state'
 import { extensionStatusBar } from '../src/renderer/src/services/extensions/statusBar'
+import { resetExtensionDirs, setExtensionDir } from '../src/renderer/src/services/extensions/extensionDirs'
 import { resetEffectsForTests } from '../src/renderer/src/services/effects/engine'
 import { resetMixerForTests } from '../src/renderer/src/services/audio'
 
@@ -88,6 +90,7 @@ afterEach(() => {
   resetEffectsForTests()
   resetMixerForTests()
   extensionStatusBar.dropExtension('scrakk.events')
+  resetExtensionDirs()
   clearFakeNow()
   vi.unstubAllGlobals()
 })
@@ -211,5 +214,64 @@ describe('el chip de la status bar', () => {
 
     deactivateEvent()
     expect(extensionStatusBar.list('right')).toHaveLength(0)
+  })
+})
+
+/**
+ * Recargar las escenas sin reiniciar.
+ *
+ * El registro guarda la escena YA normalizada al boot: editar el JSON del pack
+ * no se veía hasta reiniciar la app, y eso se siente como "el cambio no se
+ * aplicó" (nos pasó con los sonidos).
+ */
+describe('recargar escenas desde el pack', () => {
+  const PACK = 'demo.pack'
+  const DIR = '/pack/demo'
+
+  function stubWindowWithFs(readFile: (path: string) => Promise<{ success: boolean; content?: string }>): void {
+    const storage = {
+      getItem: (k: string) => (mem.has(k) ? (mem.get(k) as string) : null),
+      setItem: (k: string, v: string) => void mem.set(k, String(v)),
+      removeItem: (k: string) => void mem.delete(k),
+      clear: () => mem.clear(),
+      key: (i: number) => [...mem.keys()][i] ?? null,
+      get length() {
+        return mem.size
+      }
+    }
+    vi.stubGlobal('localStorage', storage)
+    vi.stubGlobal('window', { localStorage: storage, api: { fs: { readFile } }, dispatchEvent: () => {}, addEventListener: () => {} })
+  }
+
+  it('relee el JSON y actualiza la escena registrada', async () => {
+    setExtensionDir(PACK, DIR)
+    const before = normalizeEventScene({
+      specVersion: 1,
+      timeline: [{ op: 'stage.fog', amount: 0.1 }]
+    })!
+    registerEvent({ id: ID, name: 'Night', extensionId: PACK, isBuiltin: false, scenePath: 'events/night.json', scene: before })
+
+    const fresh = JSON.stringify({ specVersion: 1, timeline: [{ op: 'stage.fog', amount: 0.9 }] })
+    stubWindowWithFs(async () => ({ success: true, content: fresh }))
+
+    expect(await reloadEvents()).toBe(1)
+    expect(getEvent(ID)!.scene.timeline[0].amount).toBe(0.9)
+  })
+
+  it('un JSON roto NO pisa la escena buena', async () => {
+    setExtensionDir(PACK, DIR)
+    const good = normalizeEventScene({ specVersion: 1, timeline: [{ op: 'stage.fog', amount: 0.4 }] })!
+    registerEvent({ id: ID, name: 'Night', extensionId: PACK, isBuiltin: false, scenePath: 'events/night.json', scene: good })
+
+    stubWindowWithFs(async () => ({ success: true, content: '{ no soy json' }))
+    expect(await reloadEvents()).toBe(0)
+    expect(getEvent(ID)!.scene.timeline[0].amount).toBe(0.4)
+  })
+
+  it('no relee los eventos sin `path` (escena inline)', async () => {
+    const inline = normalizeEventScene({ specVersion: 1, timeline: [{ op: 'stage.fog' }] })!
+    registerEvent({ id: ID, name: 'Night', extensionId: PACK, isBuiltin: false, scene: inline })
+    stubWindowWithFs(async () => ({ success: true, content: '{}' }))
+    expect(await reloadEvents()).toBe(0)
   })
 })

@@ -429,6 +429,18 @@ published are not edited. The file goes per version:
 - **The CLI learned both things.** `sef pack` carries the pack's `assets/`
   folder into the `.sef` (without it the event plays silence) and `sef validate`
   reports a sound whose `file` does not exist.
+- **`data:` audio was silently blocked by the CSP.** A `file` sound was loaded by
+  `fetch()`-ing its `data:` URL, and the renderer's CSP (`connect-src` falls back
+  to `default-src 'self'`; `data:` is allowed for images and fonts, not for
+  network calls) rejected it — so a `file` sound played **nothing**, with no
+  error at all. It now decodes the base64 **in memory** (`atob` →
+  `decodeAudioData`), which is also cheaper than a round trip. `dataUriToBytes()`
+  has its own unit test.
+- **Scenes reload without restarting the app.** The registry keeps the scene it
+  normalized at **boot**, so editing a pack's JSON changed nothing until an app
+  restart — which reads exactly like "my change was not applied". A new palette
+  command, **"Recargar eventos desde el pack"**, re-reads every event scene from
+  disk; a broken JSON leaves the previous scene in place instead of wiping it.
 
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
