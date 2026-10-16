@@ -8480,6 +8480,110 @@
       "at": "2026-09-25T17:59:25.869Z",
       "approvedAt": "2026-09-25T17:59:30.392Z"
     },
+    "services.event.activar": {
+      "src": "8e38c2571d87f6ee",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.activo": {
+      "src": "d1ffd14ca9f43897",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.aviso": {
+      "src": "2acddb424a9b85a7",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.aviso.mensaje": {
+      "src": "28121c3df345822b",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.detener": {
+      "src": "208a20914dac8590",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.lista": {
+      "src": "9bd33e3d6f9e7b9f",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.nada": {
+      "src": "868b80b9b8b88890",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.activar": {
+      "src": "fd6b2e90529f2802",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.desactivar": {
+      "src": "ca4962a0207d77ee",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.reiniciar": {
+      "src": "ebb3cc00619c9f97",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.reloj.avanzar.dia": {
+      "src": "5f19ae98f2b66101",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.reloj.avanzar.semana": {
+      "src": "36e2317337242882",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
+    "services.event.testing.reloj.real": {
+      "src": "a225e2cfdf7ab59b",
+      "area": "services",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-15T00:00:00.000Z",
+      "approvedAt": "2026-10-15T00:00:00.000Z"
+    },
     "services.extension": {
       "src": "b19cc0c0282a5136",
       "area": "services",

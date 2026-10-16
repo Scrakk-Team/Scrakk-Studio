@@ -1,0 +1,197 @@
+// Copyright 2026 Scrakk Studio
+// SPDX-License-Identifier: Apache-2.0
+// Licencia completa en LICENSE (Apache License 2.0).
+
+/**
+ * Eventos SEF — el CONTRATO de datos.
+ *
+ * Un EVENTO es una experiencia TEMPORAL que un paquete `.sef` declara: cuándo
+ * puede estar activo, qué recursos usa y una coreografía (timeline) de ops.
+ *
+ * Este archivo es SÓLO tipos (sin lógica) para que lo compartan el renderer y
+ * los tests. La resolución de la ventana vive en `schedule.ts`.
+ *
+ * NADA de acá conoce a un evento concreto: el motor no sabe qué es un
+ * murciélago, sabe "emitir una forma por un camino". La forma viaja en el pack.
+ */
+
+/**
+ * Ventana de activación. El evento vive SÓLO dentro de `[from, until]`.
+ *
+ * Es una VENTANA, no un día: `{ from: '2026-10-20', until: '2026-10-31' }` está
+ * activo del 20 a las 00:00 hasta el 31 a las 23:59 (inclusive) y después se
+ * apaga solo. Sin ventana no hay activación automática: queda sólo el comando.
+ */
+export interface EventSchedule {
+  /** Desde. `YYYY-MM-DD` (día local, 00:00) o ISO completo. Inclusive. */
+  from?: string
+  /** Hasta. `YYYY-MM-DD` (fin del día local) o ISO completo. Inclusive. */
+  until?: string
+  /** Versión mínima del IDE (ej. `>=0.1.6`). Opcional. */
+  minEngine?: string
+}
+
+/** Cómo se ofrece el evento al usuario. */
+export type EventActivationMode = 'auto' | 'notify' | 'manual'
+
+export interface EventActivation {
+  /**
+   * `auto`   — se activa solo al entrar en la ventana.
+   * `notify` — entra en la ventana y AVISA, con acción para activarlo.
+   * `manual` — nunca solo: sólo por el comando de paleta.
+   * Default: `notify`.
+   */
+  mode?: EventActivationMode
+  /** Una sola vez en la vida (persistido). Default: `true`. */
+  once?: boolean
+  /** Si dos eventos coinciden en la ventana, gana el mayor. Default: 0. */
+  priority?: number
+}
+
+/**
+ * Overrides TEMPORALES mientras el evento vive. Se toman en un snapshot y se
+ * restauran EXACTOS al desactivar. Nunca se persisten: si la app se cierra a
+ * mitad de evento, el próximo arranque está limpio.
+ */
+export interface EventOverride {
+  /** Id de un tema YA registrado (builtin o de la misma extensión). */
+  theme?: string
+}
+
+/** Un sonido sintetizado con ZzFX (params numéricos, sin archivos). */
+export interface EventSound {
+  /** Parámetros de ZzFX (ver `@services/audio/zzfx`). */
+  zzfx: number[]
+  /** 0..1. Default 1. */
+  gain?: number
+  /** Loop (ambiente). Default false. */
+  loop?: boolean
+}
+
+/** Geometría a dibujar: un path SVG que el pack aporta (se compila a Path2D). */
+export interface EventShape {
+  /** `d` de un `<path>` SVG. */
+  path: string
+  /** [ancho, alto] del sistema de coordenadas. Default [1, 1]. */
+  viewBox?: [number, number]
+  /** Color del tema (`accent`, `text`, `textMuted`…) o un color CSS. */
+  fill?: string
+  stroke?: string
+  /** Grosor del trazo. Default 1. */
+  width?: number
+}
+
+/**
+ * Camino de una partícula. `from`/`to` son puntos en **viewport units**: un
+ * número absoluto es px, un string admite `vw`/`vh`/`%`.
+ */
+export interface EventMotion {
+  from?: [number | string, number | string]
+  to?: [number | string, number | string]
+  /** Deriva continua por segundo, en px. */
+  drift?: [number, number]
+  easing?: 'linear' | 'ease' | 'ease-in' | 'ease-out'
+}
+
+/** Nombres de op que el motor sabe ejecutar. */
+export type EventOpName =
+  | 'stage.fog'
+  | 'stage.tint'
+  | 'stage.vignette'
+  | 'stage.shake'
+  | 'emit'
+  | 'audio.play'
+  | 'audio.ambience'
+  | 'audio.stop'
+  | 'notify'
+  | 'status.add'
+  | 'theme.set'
+
+/**
+ * Un paso de la coreografía. Los parámetros se validan POR OP en el schema (el
+ * formato es tolerante: lo inválido se descarta con warning, el resto sigue),
+ * así que acá viven todos los campos opcionales con su op dueña anotada.
+ */
+export interface EventOp {
+  op: EventOpName
+  /** ms desde la activación. Default 0. */
+  at?: number
+
+  // ── stage.* ──
+  /** `stage.fog` / `stage.vignette` / `stage.tint`: 0..1. */
+  amount?: number
+  /** `stage.fog` / `stage.tint`: token del tema o color CSS. */
+  tint?: string
+  /** `stage.*`: ms de fade (in y out). Default 1200. */
+  fade?: number
+
+  // ── stage.shake ──
+  /** `stage.shake`: px de amplitud. Default 3. */
+  intensity?: number
+  /** `stage.shake`: ms. Default 400. */
+  duration?: number
+
+  // ── emit ──
+  draw?: EventShape
+  /** Cuántas instancias. Default 1. */
+  count?: number
+  motion?: EventMotion
+  /** 0..1: desvío aleatorio del punto de salida. Default 0. */
+  jitter?: number
+  /** Escala del dibujo. Default 1. */
+  size?: number
+  /** Rotación inicial en grados (aleatoria ±). Default 0. */
+  rotate?: number
+  /** Aleteo/rotación oscilante por segundo. Default 0 (sin oscilar). */
+  flapHz?: number
+  /** ms de vida de cada instancia. Default 6000. */
+  life?: number
+  /** ms entre instancias (para hacer un río). Default 0. */
+  every?: number
+
+  // ── audio.* ──
+  /** Clave en `sounds`. */
+  sound?: string
+
+  // ── notify ──
+  title?: string
+  message?: string
+  severity?: 'info' | 'success' | 'warn' | 'error'
+
+  // ── status.add ──
+  text?: string
+  icon?: string
+  /** `status.add`: ms hasta desaparecer (0 = hasta desactivar). Default 0. */
+  ttl?: number
+
+  // ── theme.set ──
+  theme?: string
+}
+
+/** La escena: todo lo que un evento aporta (sin id/name, que van en el manifest). */
+export interface EventScene {
+  /** Versión del formato. Hoy: 1. */
+  specVersion: number
+  schedule?: EventSchedule
+  activation?: EventActivation
+  /** Escala global 0..1 (los packs la usan para un ajuste fino). Default 1. */
+  intensity?: number
+  /** Cuánto dura el evento (ms). Default: hasta que cierre la ventana. */
+  durationMs?: number
+  override?: EventOverride
+  sounds?: Record<string, EventSound>
+  /** Strings del pack. En las ops se referencian como `@clave`. */
+  strings?: Record<string, string>
+  timeline: EventOp[]
+  /** Ops que corren al desactivar (fade out, etc.). */
+  onStop?: EventOp[]
+}
+
+/** Un evento registrado: la contribution + la escena ya normalizada. */
+export interface EventDefinition extends EventScene {
+  id: string
+  name: string
+}
+
+/** Reglas de la ventana mínima del formato que el IDE entiende. */
+export const EVENT_SPEC_VERSION = 1

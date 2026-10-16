@@ -28,7 +28,7 @@ And **two kinds** depending on whether it runs code:
 | | **Declarative SEF** | **SEF with code** |
 |---|---|---|
 | Where the UI comes from | the package bundle (React) | the **Extension Host**: the extension runs in its own process and serves content over IPC |
-| Contribution kinds | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `languages`, `lspServers`, `encodings`, `fileHandlers`, `notifications`, `tools`, `skills` | `views` (+ `runtime` in the manifest) |
+| Contribution kinds | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `languages`, `lspServers`, `encodings`, `fileHandlers`, `notifications`, `events`, `tools`, `skills` | `views` (+ `runtime` in the manifest) |
 | Needs Node? | no | yes |
 
 The declarative kind **does not run your code**. The kind with code **does**, so
@@ -69,6 +69,7 @@ contributes:
   views (+ runtime)                   → UI served by the Extension Host (code)
   themes / fileIcons / productIcons   → themes (data JSON)
   languages / lspServers              → language support and language servers
+  events                              → timed visual/audio experiences
   tools / skills                      → AI (tools and workflows)
   fileHandlers / encodings            → file formats and text encodings
         │
@@ -98,6 +99,7 @@ contributes:
 | [Languages](guides/languages.md) | Language kit: association, tree-sitter/TextMate grammars, snippets. |
 | [Language servers](guides/lsp-servers.md) | Declaring an `lspServers` entry and making it run. |
 | [AI tools](guides/tools.md) | Contributing a tool: schema, command and visual. |
+| [Events](guides/events.md) | A timed experience: scene JSON, schedule window and ops. |
 | [Skills](guides/skills.md) | Packaging workflows (Agent Skills standard). |
 | [Formats and encodings](guides/file-handlers.md) | `fileHandlers` (your viewer) and `encodings` (your codec). |
 | [Permissions](guides/permissions.md) | The deny-by-default model and the path jail. |
@@ -108,7 +110,7 @@ contributes:
 | Document | What it covers |
 |---|---|
 | [Manifest](reference/manifest.md) | Every field of `manifest.json`. |
-| [Contributes](reference/contributes.md) | The **14** contribution kinds with their real fields. |
+| [Contributes](reference/contributes.md) | The **15** contribution kinds with their real fields. |
 | [SEF CLI](reference/cli.md) | `sef create/build/pack/validate` and the v2 layout. |
 | [Scrakk API](reference/api.md) | What a handler receives: `fs`, `lsp`, `tooltips`, `notifications`, `radius`. |
 | [Extension API (vscode)](reference/vscode-api.md) | The emulated `vscode.*` surface and its real status. |

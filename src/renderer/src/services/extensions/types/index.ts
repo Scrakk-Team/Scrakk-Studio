@@ -16,6 +16,7 @@ import { viewsHandler } from './views/api'
 import { activityBarHandler } from './activitybar/api'
 import { centerTabsHandler } from './centertabs/api'
 import { themesHandler } from './themes/api'
+import { eventsHandler } from './events/api'
 import { languagesHandler } from './languages/api'
 import { lspHandler } from './lsp/api'
 import { notificationsHandler } from './notifications/api'
@@ -37,6 +38,7 @@ export function ensureTypesRegistered(): void {
   ExtensionTypeRegistry.registerType(activityBarHandler)
   ExtensionTypeRegistry.registerType(centerTabsHandler)
   ExtensionTypeRegistry.registerType(themesHandler)
+  ExtensionTypeRegistry.registerType(eventsHandler)
   ExtensionTypeRegistry.registerType(languagesHandler)
   ExtensionTypeRegistry.registerType(lspHandler)
   ExtensionTypeRegistry.registerType(notificationsHandler)
@@ -60,6 +62,14 @@ export type { ViewContribution } from './views/schema'
 export type { ActivityBarContribution } from './activitybar/schema'
 export type { CenterTabContribution } from './centertabs/schema'
 export type { ThemeContribution, ThemeDefinition } from './themes/schema'
+export type { EventContribution } from './events/schema'
+export {
+  normalizeEventScene,
+  isEffectColor,
+  EFFECT_COLOR_TOKENS
+} from './events/schema'
+export type { RegisteredEvent } from './events/logic'
+export { listEvents, getEvent, subscribeToEvents } from './events/logic'
 export type {
   LanguageContribution,
   GrammarContribution,

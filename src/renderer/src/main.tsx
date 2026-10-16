@@ -19,6 +19,8 @@ import {
 import { bootExtensions } from '@services/extensions/boot'
 import { initDiagnosticsDecorations, initLspFileSync, initLspWorkspaceSync } from '@services/lsp'
 import { initDiffViews } from '@services/diff'
+import { installAudioUnlock } from '@services/audio'
+import { bootEvents, registerEventCommands } from '@services/events'
 import { initZoomGuard } from './core/zoomGuard'
 
 // Módulos de estilo global (tokens) — se importan aquí, una sola vez.
@@ -66,6 +68,12 @@ initDiffViews()
 // El zoom de PÁGINA de Chromium se dispara en cualquier panel que no sea el
 // editor/terminal/visor (ver `zoomGuard`) y queda guardado en el perfil.
 initZoomGuard()
+// Eventos SEF: comandos de paleta + revisión de ventanas (los activa el usuario
+// o los dispara la ventana). El audio queda pendiente del primer gesto: en
+// Chromium no suena nada antes de que el usuario toque algo.
+installAudioUnlock()
+registerEventCommands()
+bootEvents()
 
 /**
  * Corre `fn` DESPUÉS del primer paint (primer idle), no antes.

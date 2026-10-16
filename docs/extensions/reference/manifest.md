@@ -54,7 +54,7 @@ Code ones) uses `runtime`.
 
 Each key of `contributes` is a contribution kind. The loader is generic: it
 iterates the keys and asks the `ExtensionTypeRegistry` for each one's handler —
-it **knows no types**. The 14 kinds and their exact fields are in
+it **knows no types**. The 15 kinds and their exact fields are in
 [Contributes](contributes.md).
 
 ## Paths: code vs. data
@@ -78,6 +78,6 @@ it **knows no types**. The 14 kinds and their exact fields are in
 
 ## Next steps
 
-- [Contributes](contributes.md) — the 14 kinds with their fields.
+- [Contributes](contributes.md) — the 15 kinds with their fields.
 - [SEF CLI](cli.md) — validation and package layout.
 - [Permissions](../guides/permissions.md) — the catalogue and the jail.

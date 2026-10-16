@@ -9,6 +9,7 @@ import { NotificationHost } from '@features/notifications/NotificationHost'
 import { ModalHost } from '@features/modals/ModalHost'
 import { SubagentOpenBridge } from '@features/chat/agents'
 import { ProfileFloatingHost } from '@features/social/components/ProfileFloating/ProfileFloating'
+import { EffectsOverlay } from '@services/effects'
 import { installDefaultContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { ThemeBackground } from './ThemeBackground'
 import styles from './AppShell.module.css'
@@ -30,6 +31,9 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
     <div className={styles.shell}>
       <ThemeBackground />
       {children}
+      {/* Capa de efectos de los eventos SEF (canvas + niebla). `pointer-events:
+          none`, debajo de los modales: no intercepta nada ni suma layout. */}
+      <EffectsOverlay />
       <TooltipHost />
       <CompletionHost />
       <NotificationHost />

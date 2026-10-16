@@ -2,7 +2,7 @@
 title: "Contributes"
 group: extensions
 order: 210
-summary: "The 14 contribution kinds of a SEF extension, with their real fields and where each one is mounted."
+summary: "The 15 contribution kinds of a SEF extension, with their real fields and where each one is mounted."
 ---
 # Contributes
 
@@ -12,7 +12,7 @@ the `ExtensionTypeRegistry` for each one's handler (`loader/resolve.ts`). An
 unknown key is logged and skipped — the app never crashes because of a broken
 extension.
 
-The **14 kinds** that exist today:
+The **15 kinds** that exist today:
 
 | Key | Adds | Mounted in | Code? |
 |---|---|---|---|
@@ -30,6 +30,7 @@ The **14 kinds** that exist today:
 | `fileHandlers` | Viewer for a format | Editor tabs | optional (component) |
 | `encodings` | Text codec | Opening/saving files | yes (JS module) |
 | `notifications` | Extension notification | Notification center | no |
+| `events` | Timed experience (visual + audio scene) | Whole app (effects overlay) | no (data) |
 
 > "Code?" refers to the **extension's** code: the React bundle the renderer
 > mounts, or the module the Extension Host runs.
@@ -307,6 +308,25 @@ extension declares entries, their shape is validated.
 ```json
 { "notifications": [{ "id": "welcome", "title": "Hi", "corner": "tr" }] }
 ```
+
+## events
+
+A **temporary experience**: a scene of visual/audio ops the IDE plays inside a
+date window and then turns off. `path` points to the scene JSON; `scene` inlines
+it (builtins/tests).
+
+```json
+{ "events": [{ "id": "acme-meteor", "name": "Meteor shower", "path": "events/meteor.json" }] }
+```
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | global string | yes |
+| `name` | string | yes |
+| `path` | path to a JSON scene in the package | one of `path`/`scene` |
+| `scene` | inline scene object (no file) | one of `path`/`scene` |
+
+Guide: [Events](../guides/events.md).
 
 ---
 

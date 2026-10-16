@@ -24,6 +24,7 @@ import type { ProductIconContribution } from './types/productIcons/schema'
 import type { FileHandlerContribution } from './types/fileHandlers/schema'
 import type { ToolContribution } from './types/tools/schema'
 import type { SkillContribution } from './types/skills/schema'
+import type { EventContribution } from './types/events/schema'
 import type {
   PanelContribution,
   ActivityBarContribution,
@@ -84,6 +85,12 @@ export interface ExtensionContributions {
   fileHandlers?: FileHandlerContribution[]
   /** Temas de color (SEF themes). */
   themes?: ThemeContribution[]
+  /**
+   * Eventos (SEF events): experiencias TEMPORALES con su propia ventana de
+   * activación y una coreografía de ops. Se activan por el comando de paleta
+   * o solas dentro de la ventana (ver `src/shared/events`).
+   */
+  events?: EventContribution[]
   /** Language servers (SEF lspServers): se registran en el runtime main. */
   lspServers?: LspContribution[]
   /**

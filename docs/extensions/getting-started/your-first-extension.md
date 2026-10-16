@@ -209,6 +209,6 @@ is not an extra, it is part of the flow.
 ## Next steps
 
 - [Manifest](../reference/manifest.md) and [Contributes](../reference/contributes.md)
-  — every field and the 14 kinds.
+  — every field and the 15 kinds.
 - [SEF CLI](../reference/cli.md) — the create/build/pack/validate details.
 - [Packaging](../guides/packaging.md) — the v2 layout and installation.

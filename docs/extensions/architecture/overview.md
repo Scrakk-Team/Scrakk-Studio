@@ -9,7 +9,7 @@ summary: "Boot, the generic loader, the type registry and where every piece live
 The system lives across three processes:
 
 - **renderer** (`src/renderer/src/services/extensions/**`): registry, loaders,
-  boot and the **14** contribution kinds.
+  boot and the **15** contribution kinds.
 - **main** (`src/main/extensions/**` and `src/main/ipc/extensions.ts`):
   installing/uninstalling `.sef`, converting `.vsix`, and the **Extension Host**
   (the process that runs the extensions' code).

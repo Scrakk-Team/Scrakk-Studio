@@ -342,6 +342,52 @@ published are not edited. The file goes per version:
   marked with `--color-border-strong` (the input convention used elsewhere)
   instead of the accent.
 
+### Events (SEF)
+- **Extensions can now ship *events*: temporary experiences with their own
+  activation window.** A new `events` contribution kind (the 15th) lets a `.sef`
+  declare `contributes.events: [{ id, name, path }]` and point at a **scene**: a
+  window, an activation mode, optional resources and a timeline of operations.
+  The engine knows **operations, not creatures** — an effect is an SVG path the
+  pack ships (drawn as a `Path2D`), sounds are ZzFX parameter arrays (no audio
+  files), and strings come from the pack. There is a test for that: if the pack
+  is deleted, the IDE does not mention it anywhere.
+- **The window is a *range*, not a date.** `{ "from": "2026-10-20", "until":
+  "2026-10-31" }` is active from Oct 20 to Oct 31 **inclusive** and then turns
+  itself off — even if the app stays open. A bare `YYYY-MM-DD` is parsed as a
+  **local** day on purpose (`new Date('2026-10-20')` is UTC and would shift the
+  window a day depending on the timezone) and `until` covers the whole day. No
+  window means no automatic activation: only the palette command.
+- **Activation has three ways and one rule.** `auto` starts it, `notify` offers
+  it (with an "Activate" action), `manual` never starts it on its own; `once`
+  (default true) stops a lived event from coming back and `priority` breaks ties.
+  Only **one event runs at a time**, and the palette command **ignores the
+  window** — it is how you try a Halloween event in July.
+- **Nothing gets stuck.** Overrides (today: force a theme) are **in memory** and
+  restored on exit, so a crash or a quit mid-event cannot leave a sticky theme;
+  the palette command `events.stop` cuts it early. A long window cannot fire the
+  auto-stop early either: a timeout past the ~24.8-day `setTimeout` limit is
+  chunked instead of being clamped to 1 ms.
+- **A testing mode that does not burn the real event.** The `testing-events`
+  flag plus a **fake clock** (`advance 1 day`, `advance 7 days`, `use the real
+  one`) let you walk into the window without touching the OS clock — and with the
+  clock set, the *automatic* path behaves exactly like production. Testing writes
+  to a **separate state namespace**, so a test run never consumes the real `once`.
+- **A Halloween pack can now have its own night.** With the pack's manifest
+  updated, "Halloween Night" (window Oct 20 → Oct 31) is authored entirely as
+  data: bats flying in from both sides, fog tinted with the theme's accent, a
+  thunder clap, a vignette and a status chip — plus the pack's own theme forced
+  while it lasts.
+- **Performance and accessibility are part of the contract.** Effects render on a
+  single canvas with a hard particle cap and one animation frame loop, they honour
+  the IDE's low-end mode and `prefers-reduced-motion` (particles and shake are
+  skipped; static fog/tint/vignette still apply), and the overlay is
+  `pointer-events: none` and adds zero layout. The editor/terminal grid is never
+  touched.
+- Docs: a new [events guide](../extensions/guides/events.md) and the contributes
+  table updated to 15 kinds. Known gap: the `sef` CLI's known-kinds list (its own
+  repo) does not include `events` yet, so `sef validate` may warn until it is
+  synced.
+
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
   only marked `react`/`react-dom` as external, so `import { usePanelTitle } from

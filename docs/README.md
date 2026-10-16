@@ -67,7 +67,7 @@ is and in what order to read it.
 | [SEF extensions](extensions/README.md) | The two kinds (declarative / with code) and the area index. |
 | [Your first extension](extensions/getting-started/your-first-extension.md) | Full tutorial: from zero to an installed `.sef`. |
 | [Manifest](extensions/reference/manifest.md) | `manifest.json`: every field. |
-| [Contributes](extensions/reference/contributes.md) | The 14 contribution kinds, with examples. |
+| [Contributes](extensions/reference/contributes.md) | The 15 contribution kinds, with examples. |
 | [SEF CLI](extensions/reference/cli.md) | `sef create/build/pack/validate` and the package layout. |
 | [Extension API](extensions/reference/vscode-api.md) | The emulated `vscode.*` surface and its status. |
 | [Builtin](extensions/reference/builtin.md) | Extensions compiled inside the bundle. |
