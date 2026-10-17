@@ -13,8 +13,60 @@
  */
 
 import type { WebFetchResponse } from '@shared/web'
-import { assertPublicHost } from './ssrf'
+import { Agent } from 'undici'
+import { lookup as dnsLookup } from 'node:dns'
+import type { ConnectionOptions } from 'node:tls'
+import { assertPublicHost, isBlockedIp } from './ssrf'
 import { htmlToMarkdown } from './html'
+
+/** Una dirección resuelta es aceptable si no está bloqueada. */
+export function assertLookupAddresses(
+  hostname: string,
+  addresses: ReadonlyArray<{ address: string }>
+): void {
+  if (addresses.length === 0) throw new Error(`No se pudo resolver el host: ${hostname}`)
+  const blocked = addresses.find((entry) => isBlockedIp(entry.address))
+  if (blocked) throw new Error(`Host bloqueado (SSRF): ${hostname} → ${blocked.address}`)
+}
+
+/**
+ * Dispatcher con DNS PINNEADO.
+ *
+ * `assertPublicHost` resolvía el nombre y después `fetch` volvía a resolver:
+ * un dominio con TTL 0 podía responder una IP pública al chequeo y
+ * `127.0.0.1`/`169.254.169.254` a la conexión real (DNS rebinding). Aquí el
+ * `lookup` del socket es el que valida, así que la IP conectada es exactamente
+ * la que pasó el filtro.
+ */
+let pinnedAgent: Agent | null = null
+
+function safeDispatcher(): Agent {
+  if (pinnedAgent) return pinnedAgent
+  const lookup = ((
+    hostname: string,
+    options: { all?: boolean; family?: number; hints?: number },
+    callback: (err: NodeJS.ErrnoException | null, address?: unknown, family?: number) => void
+  ): void => {
+    dnsLookup(hostname, { all: true, family: options.family, hints: options.hints }, (err, resolved) => {
+      if (err) {
+        callback(err)
+        return
+      }
+      const addresses = Array.isArray(resolved) ? resolved : []
+      try {
+        assertLookupAddresses(hostname, addresses)
+      } catch (error) {
+        callback(error instanceof Error ? error : new Error(String(error)))
+        return
+      }
+      if (options.all) callback(null, addresses, 0)
+      else callback(null, addresses[0]?.address, addresses[0]?.family)
+    })
+  }) as unknown as ConnectionOptions['lookup']
+
+  pinnedAgent = new Agent({ connect: { lookup } })
+  return pinnedAgent
+}
 
 /**
  * Lee como máximo `max` bytes del body.
@@ -84,8 +136,10 @@ export async function fetchUrl(rawUrl: string): Promise<WebFetchResponse> {
           Accept: 'text/markdown, text/html;q=0.9, text/plain;q=0.8, */*;q=0.5'
         },
         redirect: 'manual',
-        signal: AbortSignal.timeout(25_000)
-      })
+        signal: AbortSignal.timeout(25_000),
+        // El lookup del socket valida la IP (anti DNS-rebinding).
+        dispatcher: safeDispatcher()
+      } as RequestInit & { dispatcher: Agent })
 
       if (REDIRECT_STATUS.has(response.status)) {
         const location = response.headers.get('location')

@@ -51,6 +51,7 @@
     "rehype-sanitize": "^6.0.0",
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",
+    "undici": "^7.30.1",
     "vscode-jsonrpc": "^9.0.1",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver-types": "^3.18.0",

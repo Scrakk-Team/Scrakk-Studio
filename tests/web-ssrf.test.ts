@@ -11,6 +11,7 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { isBlockedIp } from '../src/main/web/ssrf'
 import { htmlToMarkdown } from '../src/main/web/html'
+import { assertLookupAddresses } from '../src/main/web/fetch'
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -61,6 +62,14 @@ describe('isBlockedIp', () => {
   it('falla cerrado con entradas inválidas', () => {
     expect(isBlockedIp('not-an-ip')).toBe(true)
     expect(isBlockedIp('')).toBe(true)
+  })
+})
+
+describe('assertLookupAddresses — DNS pinning', () => {
+  it('acepta solo direcciones públicas y rechaza metadata aunque el primer lookup fuera público', () => {
+    expect(() => assertLookupAddresses('ok.test', [{ address: '8.8.8.8' }])).not.toThrow()
+    expect(() => assertLookupAddresses('rebind.test', [{ address: '8.8.8.8' }, { address: '169.254.169.254' }])).toThrow(/SSRF/)
+    expect(() => assertLookupAddresses('empty.test', [])).toThrow(/resolver/)
   })
 })
 

@@ -952,3 +952,10 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   exist in the main's models.dev catalog, the endpoint now comes from that
   catalog (`resolveProviderBaseUrl`); only custom/unknown ids use the requested
   URL, still validated. Covered by `tests/models-resolve.test.ts`.
+- **`web_fetch` pins DNS, closing the rebinding hole.** `assertPublicHost`
+  resolved the hostname and `fetch` resolved it again, so a TTL-0 domain could
+  answer a public IP during the check and `127.0.0.1`/`169.254.169.254` when
+  connecting. The request now goes through an `undici` Agent whose `lookup`
+  validates **every** resolved address before the socket connects; the address
+  used for the connection is the one that passed the check. Covered by
+  `tests/web-ssrf.test.ts` (`assertLookupAddresses`).
