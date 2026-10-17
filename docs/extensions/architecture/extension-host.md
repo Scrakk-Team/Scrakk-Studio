@@ -25,10 +25,13 @@ the extension wants from the world it asks for over RPC, and the **main** decide
 ## A process per extension
 
 `ExtensionHostManager` (`main/extensions/hostManager.ts`) spawns **one Electron
-`utilityProcess` per extension** that needs it (`ensureHost`). It is isolated
-from the renderer and has no access to the UI. `spawnHost` is the seam: if the
-execution runtime changes, you replace **that** function and keep everything
-else.
+`utilityProcess` per extension** that needs it (`ensureHost`). It is separated
+from the renderer and has no access to the UI, but it is **not an OS sandbox**:
+the process is Node and can `require('child_process')`, `fs` or `net`. Treat an
+installed extension as code with your user's privileges; the install consent and
+the publisher signature are the trust boundary (the fs jail and `permissions`
+still apply to the mediated APIs). `spawnHost` is the seam: if the execution
+runtime changes, you replace **that** function and keep everything else.
 
 ## Lifecycle
 

@@ -53,12 +53,17 @@ It can set `status` to `published`, `pending` or `suspended`, and toggle
 
 `install(slug)` resolves the repo's **latest release**, finds the `.sef` asset
 (by name, or the first `.sef` when no name is given), downloads it and installs
-it through the same path as a local `.sef`. "Not on our servers" also means the
+it through the same path as a local `.sef`, verifying the package signature and
+the catalog slug -> package id binding. "Not on our servers" also means the
 release has to exist and be reachable.
 
 **Auto-update:** an installed store extension gets a `.market.json` sidecar with
-the slug, version and repo. On the next boot the app re-resolves the release and
-reinstalls only if the version changed.
+the slug, version and repo. It is **opt-in**
+(`SCRAKK_AUTO_UPDATE_EXTENSIONS=1`, off by default) and the downloaded package
+**must have a valid Ed25519 signature**; unsigned packages are never updated
+automatically. Manual installs verify the signature when present and pin the
+publisher key per extension id (an update signed with a different key is
+rejected). Unsigned local packages still install through the consent dialog.
 
 ## Verified
 

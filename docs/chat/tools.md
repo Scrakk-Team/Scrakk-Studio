@@ -78,7 +78,9 @@ Each tool also declares its own rules in `permissions.ts`. Today:
 - every other tool declares `[]`.
 
 The user's `allow`/`ask`/`deny` rules apply through those access kinds, and the
-mode's `mutationBehavior`/`shellBehavior` decide the rest. Enable/disable and the
+mode's `mutationBehavior`/`shellBehavior` decide the rest. Shell is
+**fail-closed**: a command that does not match any risk pattern still returns
+`ask`; only `bypassPermissions` auto-approves it. Enable/disable and the
 approval mode are stored by `toolSettingsService` (`scrakk-studio:tool-settings`).
 
 ## Tool cards

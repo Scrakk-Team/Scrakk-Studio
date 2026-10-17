@@ -45,13 +45,17 @@ npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/downlo
 sef create "My Extension" ./my-extension               # 1. scaffold (sample panel)
 cd my-extension
 sef build .                                            # 2. bundle → dist/modules.js
-sef pack .                                             # 3. validates and writes ../my-extension.sef
+sef pack . --key ./keys/sef-signing.key                # 3. validates, signs and writes ../my-extension.sef
 sef validate .                                         # 4. (optional) validate without packing
 ```
 
 5. Install the `.sef` from the **Extensions** panel (**Install .sef**), or
    [publish it to the store](guides/store.md) so anyone can install it.
 
+> Signing is optional for local testing but the store/auto-update require it:
+> `sef keygen ./keys` once, then keep `sef-signing.key` in a secret manager and
+> publish with `--key`. See [Signing](guides/packaging.md#signing).
+>
 > The `id` comes from the name: use **ASCII** (`"Mi Extensión"` becomes
 > `mi-extensi-n` and the accent is lost; `"My Extension"` becomes
 > `my-extension`). The package is created under `<dir>/<id>/` and the `.sef`

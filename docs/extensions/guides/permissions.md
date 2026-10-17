@@ -84,7 +84,13 @@ semantics by hand; keep the two in sync if either changes.
 
 - `permissions` is a **declaration** for the user and the jail; there is no
   per-permission prompt yet (the UI shows what was declared).
-- The absence of `permissions` means **no** disk access (deny).
+- This is **not a sandbox**: extension code runs in a Node process with the
+  user's privileges, and UI bundles run in the renderer. The jail and the
+  permission checks cover the mediated `workspace.fs`/`lsp` APIs, not a direct
+  `require('child_process')`. Only install extensions you trust (signed packages
+  pin the publisher key, but a malicious publisher can still sign malware).
+- The absence of `permissions` means **no** disk access through the mediated API
+  (deny).
 - `lsp.use` is gated at the point of **using** `ctx.api.lsp`: without the
   permission, it throws `PermissionError` on the first call.
 

@@ -54,18 +54,21 @@ The UI is `ProvidersPanel`, embedded in **Settings → Chat → Providers**
 (`chatProviders`) and reused by `ProvidersModal`. It lists the detected
 providers with a search box. Selecting one lets you:
 
-1. **Add an API key** (password input). `setApiKey` trims it, persists it and
-   makes that provider active; `removeApiKey` deletes it and deactivates the
-   provider if it was active.
+1. **Add an API key** (password input). `setApiKey` trims it, sends it to the
+   main process (encrypted with `safeStorage`; memory-only without a real
+   keyring) and makes that provider active; `removeApiKey` deletes it and
+   deactivates the provider if it was active.
 2. **Type the exact model id**. The field is prefilled with `defaultModel` and
    backed by a `datalist` of the catalogue's `models`, but any id can be typed.
 3. **Choose the thinking mode** with a menu built from `thinkingOptionsFor()`.
 
-Selections and keys are persisted in **localStorage** under
-`scrakk-studio:providers` (`StoredProviderSettings` in
-`features/providers/settings.ts`: `activeProviderId`, `apiKeys`, `models`,
-`thinkingModes`, `variants`). Non-React code reads them through
-`readProviderSettings()` and `activeProviderSelection()`. There is no separate
+The selection (`activeProviderId`, `models`, `thinkingModes`, `variants`) is
+persisted in **localStorage** under `scrakk-studio:providers`
+(`StoredProviderSettings` in `features/providers/settings.ts`). The API keys do
+**not** go there: they live in `userData/secrets/api-keys.json` in the main
+process, encrypted when a real keychain is available. Non-React code reads the
+selection through `readProviderSettings()` and `activeProviderSelection()`;
+the chat stream resolves the key in the main by `providerId`. There is no separate
 "local provider" entry: all provider state is local, and any models.dev provider
 with an OpenAI-compatible `api` base works without extra configuration.
 
@@ -95,12 +98,14 @@ process merges that body into the stream request (`src/main/ipc/llm.ts`).
   id that the provider rejects).
 - **Thinking mode** — `'auto'` when unset or invalid.
 - **Variant** — `''` (automatic) when unset.
-- **API key** — empty until the user saves one; the chat refuses to send without
-  a provider and a key.
+- **API key** — the renderer only knows whether one exists; the main resolves it
+  for the stream and returns a localized error if it is missing.
 
 ## Limits
 
-- Keys are stored in **plaintext localStorage**, not in an OS keychain.
+- Keys are encrypted with `safeStorage` when the OS offers a real keychain
+  (GNOME Keyring/KWallet/DPAPI/Keychain). With `basic_text`/no keyring they are
+  **not persisted** (memory-only) — there is no plaintext fallback.
 - The catalogue's base URL cannot be edited from the UI: a self-hosted endpoint
   must be exposed by models.dev or be one of `BASE_URL_OVERRIDES`.
 - There is no built-in local-server provider (Ollama, LM Studio, …); the

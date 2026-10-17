@@ -1013,3 +1013,11 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `http-cache-semantics`); 8 moderate remain inside the `electron-builder`
   toolchain, which is not shipped in the app. `npm audit fix --force` would
   require a breaking electron-builder downgrade, so it was not applied.
+- **Documentation matches the new behavior.** Updated the provider docs (keys
+  live in the main/keychain; no plaintext `localStorage`), the extension
+  trust-model pages (the host is a separate process, **not a sandbox**; the
+  permissions jail covers mediated APIs only), the shell policy (fail-closed
+  even for low-risk commands), `web_fetch` (loopback blocked, DNS pinned), the
+  store/auto-update (opt-in + signature required) and the SEF CLI/packaging
+  guides (keygen/pack --key/verify). `npm run docs` regenerated the bundle and
+  `docs:check` passes.

@@ -36,10 +36,12 @@ and pick the active provider/model. The catalog comes from **models.dev**
 
 - Scrakk ships the default **DeepSeek V4 Flash**, so the chat works out of the
   box; the Providers panel is where you switch provider/model and add keys.
-- Selection and keys are persisted under the localStorage key
-  `scrakk-studio:providers` (`StoredProviderSettings` in
-  `features/providers/settings.ts`). Non-React code reads them through
-  `readProviderSettings()` / `activeProviderSelection()`.
+- The selection (provider/model/thinking mode/variant) is persisted under the
+  localStorage key `scrakk-studio:providers`. **API keys are not**: they live in
+  the main process, encrypted with the OS keychain (`safeStorage`); the renderer
+  only receives `providerId → hasKey`. Without a real keyring the key stays in
+  memory for the session and is not written to disk. Non-React code reads the
+  selection through `readProviderSettings()` / `activeProviderSelection()`.
 - Related sections live under the same **Chat** group: Tools, Skills, Agents and
   Permissions.
 
@@ -84,8 +86,8 @@ search bar, notifications and the settings gear.
   chip.
 - The **History** panel has no button either: it is embedded inside the Chat
   panel (the registry entry exists only so it stays mountable/testable).
-- Provider keys are stored in **localStorage** for the renderer session state,
-  not in an OS keychain.
+- Provider keys are **not** in localStorage: the main stores them with
+  `safeStorage` (memory-only when no real keyring is available).
 
 ## Next steps
 

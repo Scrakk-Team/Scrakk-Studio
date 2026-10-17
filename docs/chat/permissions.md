@@ -18,10 +18,10 @@ A mode defines how edits, the shell and confirmations are handled.
 
 | Id | What it does |
 |---|---|
-| `default` | Asks for edits and shell. |
+| `default` | Asks for edits and **every** shell command (fail-closed). |
 | `plan` | Read-only: blocks mutations and the shell. |
-| `acceptEdits` | Auto-approves edits; the shell still asks. |
-| `auto` | Heuristic: approves safe/routine things, asks about doubtful ones. |
+| `acceptEdits` | Auto-approves edits; the shell still asks (fail-closed). |
+| `auto` | Heuristic: approves routine commands, asks about everything else. |
 | `dontAsk` | Never asks: whatever would need confirmation is denied. |
 | `bypassPermissions` | Approves everything (careful). |
 

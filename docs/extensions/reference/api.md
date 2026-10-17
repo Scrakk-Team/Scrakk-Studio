@@ -10,6 +10,11 @@ Extensions do not import IDE internals. They talk to a small **API** that the ap
 builds per extension, with permissions checked on the app's side (deny by
 default: nothing works unless the manifest declares it).
 
+> **Trust model:** this API is not a sandbox. Extension code also runs in a Node
+> host (and UI bundles in the renderer), so a determined extension can use
+> `require('fs')`/`child_process` directly. Only install extensions you trust;
+> signed packages pin the publisher key but do not sandbox the code.
+
 ## What a handler receives
 
 Every contribution kind is handled by an app-side handler that receives an `api`

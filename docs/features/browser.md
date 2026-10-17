@@ -40,8 +40,8 @@ process, so no CORS):
 
 - **`web_search`** — searches the web and returns title / URL / snippet.
 - **`web_fetch`** — fetches a URL and returns it as **markdown**, with SSRF
-  protection (blocks private, link-local and metadata ranges) and long-page
-  truncation.
+  protection (blocks private, link-local, metadata and loopback by default; DNS
+  is pinned to the validated IP) and long-page truncation.
 
 See [AI tools](../chat/tools.md).
 
