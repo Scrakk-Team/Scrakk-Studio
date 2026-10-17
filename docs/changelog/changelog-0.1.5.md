@@ -917,3 +917,10 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `onlyLoadAppFromAsar: true`, and the update feed points at the canonical
   `Scrakk-Team/Scrakk-Studio` instead of relying on a GitHub redirect.
   Covered by `tests/encodings.test.ts`.
+- **Installing an extension that runs code now asks for explicit consent.**
+  The manifest `permissions` are not a real boundary (the host is Node without
+  a sandbox and UI bundles run in the renderer), but a `.sef`/`.vsix`/market
+  install was a single click. A native dialog now lists the declared
+  permissions and warns that the extension can read files and run commands as
+  the user. Declarative packages (themes, icons, languages) are unaffected.
+  Covered by `tests/sef-install.test.ts`.

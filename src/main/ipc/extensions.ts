@@ -38,6 +38,7 @@ import { treeSitterManager } from '../extensions/treeSitter/manager'
 import { resolveLangsDir } from '../langs'
 
 import { t } from '@shared/i18n'
+import { confirmExtensionInstall } from '../extensions/consent'
 
 async function extensionsRoot(): Promise<string> {
   const dir = path.join(app.getPath('userData'), 'extensions')
@@ -153,7 +154,11 @@ async function readSourceSidecar(dir: string): Promise<{ source?: ExtensionSourc
  */
 export async function installSefFromBuffer(
   buffer: Uint8Array,
-  options: { expectedId?: string } = {}
+  options: {
+    expectedId?: string
+    /** Consentimiento del usuario (diálogo); los tests lo omiten. */
+    confirm?: (manifest: Record<string, unknown>) => Promise<boolean>
+  } = {}
 ): Promise<InstallSefResponse> {
   try {
     const parsed = parseSef(buffer)
@@ -162,6 +167,9 @@ export async function installSefFromBuffer(
         success: false,
         error: `El paquete declara id "${parsed.id}" y el catálogo esperaba "${options.expectedId}".`
       }
+    }
+    if (options.confirm && !(await options.confirm(parsed.manifest))) {
+      return { success: false, error: t('main.ext.cancelada') }
     }
 
     const root = await extensionsRoot()
@@ -189,7 +197,9 @@ export function registerExtensionsIpc(): void {
     async (_event, request: InstallSefRequest): Promise<InstallSefResponse> => {
       try {
         const buffer = await fs.readFile(request.path)
-        return await installSefFromBuffer(new Uint8Array(buffer))
+        return await installSefFromBuffer(new Uint8Array(buffer), {
+          confirm: (manifest) => confirmExtensionInstall(manifest, 'sef')
+        })
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) }
       }
@@ -202,6 +212,10 @@ export function registerExtensionsIpc(): void {
       try {
         const buffer = await fs.readFile(request.path)
         const converted = convertVsix(new Uint8Array(buffer))
+        const manifest = converted.manifest as Record<string, unknown>
+        if (!(await confirmExtensionInstall(manifest, 'vsix'))) {
+          return { success: false, error: t('main.ext.cancelada') }
+        }
 
         const root = await extensionsRoot()
         const targetDir = path.join(root, converted.id)
@@ -226,7 +240,6 @@ export function registerExtensionsIpc(): void {
           })
         )
 
-        const manifest = converted.manifest as Record<string, unknown>
         const contributes = manifest.contributes as Record<string, unknown> | undefined
         const countOf = (key: string): number =>
           Array.isArray(contributes?.[key]) ? (contributes?.[key] as unknown[]).length : 0

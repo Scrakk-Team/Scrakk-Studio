@@ -17,6 +17,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '../account/config'
 import { getClientFor } from '../supabaseClient'
 import { installSefFromBuffer } from '../ipc/extensions'
+import { confirmExtensionInstall } from '../extensions/consent'
 import { sniffMime, uploadToR2 } from '../images/r2'
 import { resolveLatestRelease } from './releases'
 import {
@@ -357,7 +358,10 @@ export async function install(
 
   // El id del paquete debe ser el slug del catálogo: si no, podría reemplazar
   // otra extensión instalada (y su sidecar de auto-update).
-  const installed = await installSefFromBuffer(bytes, { expectedId: slug })
+  const installed = await installSefFromBuffer(bytes, {
+    expectedId: slug,
+    confirm: (manifest) => confirmExtensionInstall(manifest, 'market')
+  })
   if (!installed.success) return fail(installed.error)
 
   // Sidecar para auto-update (slug ↔ extensión instalada).

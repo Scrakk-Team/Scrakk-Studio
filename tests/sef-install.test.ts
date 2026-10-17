@@ -77,6 +77,23 @@ describe('installSefFromBuffer', () => {
     expect(result.success).toBe(false)
   })
 
+  it('no instala si el usuario rechaza el consentimiento', async () => {
+    const result = await installSefFromBuffer(
+      sef({
+        'manifest.json': JSON.stringify({
+          id: 'demo',
+          name: 'Demo',
+          version: '1',
+          panels: [{ id: 'p' }]
+        }),
+        'dist/index.js': 'export default {}'
+      }),
+      { confirm: async () => false }
+    )
+    expect(result.success).toBe(false)
+    await expect(fs.access(path.join(userData, 'extensions', 'demo'))).rejects.toThrow()
+  })
+
   it('rechaza un id con traversal', async () => {
     const result = await installSefFromBuffer(
       sef({ 'manifest.json': JSON.stringify({ id: '../evil', name: 'Evil', version: '1' }) })
