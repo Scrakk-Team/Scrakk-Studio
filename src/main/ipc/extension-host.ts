@@ -510,6 +510,20 @@ export function registerExtensionHostIpc(): void {
     const extensionId = url.hostname
     const relative = decodeURIComponent(url.pathname).replace(/^\/+/, '')
 
+    // Cada extensión es su propio origen. Con `corsEnabled: true`, el webview
+    // de A podía `fetch('scrakk-ext://B/package.json')` y leer el código/assets
+    // privados de B. Se bloquea el cruce entre extensiones.
+    const origin = request.headers.get('origin')
+    if (origin && origin.startsWith(`${EXTENSION_SCHEME}://`)) {
+      try {
+        if (new URL(origin).hostname !== extensionId) {
+          return new Response('origen no permitido', { status: 403 })
+        }
+      } catch {
+        return new Response('origen inválido', { status: 403 })
+      }
+    }
+
     // 1) Documento de una vista → HTML que publicó la extensión.
     if (relative === VIEW_SEGMENT || relative.startsWith(`${VIEW_SEGMENT}/`)) {
       const viewId = relative.slice(VIEW_SEGMENT.length).replace(/^\/+/, '')

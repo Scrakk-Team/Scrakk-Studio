@@ -23,6 +23,7 @@ import { checkInstalledUpdates } from './market/service'
 import { registerScrakkIpc } from './scrakk'
 import { registerModelsDevIpc } from './models-dev'
 import { registerWebIpc } from './web'
+import { registerUninstallIpc } from './uninstall'
 import {
   registerExtensionHostIpc,
   registerExtensionScheme,
@@ -101,6 +102,7 @@ if (!gotTheLock) {
     registerModelsDevIpc()
     registerWebIpc()
     registerExtensionHostIpc()
+    registerUninstallIpc()
 
     // Links externos (target=_blank) se abren en el navegador del sistema,
     // nunca en una ventana nueva de Electron.
@@ -119,8 +121,11 @@ if (!gotTheLock) {
       // la URL local termina abierta en el navegador del sistema.
       contents.on('will-navigate', (event, url) => {
         if (isAppLocalUrl(url)) return
+        // Cualquier otra navegación se cancela. Antes solo se bloqueaba
+        // http(s): un link `file:///…` navegaba la ventana (y una página local
+        // cargada en el origen de la app hereda el preload con `window.api`).
+        event.preventDefault()
         if (url.startsWith('http://') || url.startsWith('https://')) {
-          event.preventDefault()
           void shell.openExternal(url)
         }
       })

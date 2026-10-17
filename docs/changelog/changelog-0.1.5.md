@@ -866,3 +866,12 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `peerId` must be a UUID, and internal errors return a generic message.
   Migration `docs/backend/0031_security_hardening.sql` applied to
   `ufcwwigmzgmyyfauymim`; `social-file` deployed (v4).
+- **CSP and navigation hardening.** The renderer policy now adds
+  `object-src 'none'`, `base-uri 'none'`, `form-action 'none'` and
+  `frame-ancestors 'none'` (an XSS could otherwise inject `<base>` and
+  redirect relative loads). `will-navigate` now cancels **every** non-app
+  navigation; before it only blocked http(s), so a `file:///…` link could
+  navigate the window and load a local page in the app origin, inheriting the
+  preload (`window.api`). The `scrakk-ext://` handler also rejects requests
+  whose `Origin` is a different extension (cross-extension asset reads).
+  Covered by `tests/csp.test.ts`.
