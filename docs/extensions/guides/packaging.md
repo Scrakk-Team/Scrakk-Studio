@@ -13,8 +13,8 @@ folder— and the files the extension needs. It is built with the
 ## How a `.sef` is built
 
 The builder is the **SEF CLI**, in its own repo
-([`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder), npm
-`@scrakk-official/cli`, binary `sef`):
+([`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder), binary
+`sef`):
 
 1. **`sef build`** reads `manifest.json`, collects every **code** path
    (`panels[].component`, `activityBar[].icon`, `centerTabs[].component`/`.icon`)
@@ -26,13 +26,12 @@ The builder is the **SEF CLI**, in its own repo
    the data folders into `<name>.sef`.
 
 ```sh
-npm install -g @scrakk-official/cli
+npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz
 sef build . && sef pack .
 ```
 
-Without the registry:
-`npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz`.
-And since a `.sef` is just a ZIP, you can also assemble it by hand (see **By
+The npm package is not published yet; the GitHub Release tarball above is the
+supported install. And since a `.sef` is just a ZIP, you can also assemble it by hand (see **By
 hand** below).
 
 ## Two package shapes

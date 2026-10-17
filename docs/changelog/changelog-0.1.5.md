@@ -875,3 +875,21 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   preload (`window.api`). The `scrakk-ext://` handler also rejects requests
   whose `Origin` is a different extension (cross-extension asset reads).
   Covered by `tests/csp.test.ts`.
+### Security (supply chain & docs)
+- **The documented `sef` install no longer points at an unclaimed npm name.**
+  `npm view @scrakk-official/cli` returns 404, yet four guides told users to
+  `npm install -g @scrakk-official/cli`; anyone could register that scope and
+  serve a malicious CLI (the tool that builds and packages their extensions).
+  The docs now use the GitHub Release tarball
+  (`Scrakk-Team/sef-builder/releases/latest/download/cli.tgz`) and explicitly
+  say the npm package is not published yet.
+- **GitHub Actions are pinned to commit SHAs** (`checkout`, `setup-node`,
+  `upload-artifact`, `download-artifact`, `softprops/action-gh-release`) and
+  every workflow declares `permissions: contents: read` (the release job keeps
+  `contents: write`). A moved tag or a compromised third-party action could
+  otherwise publish a malicious release that feeds the updater.
+- **`updates-seed.yml` no longer interpolates `github.event.inputs.tag` into a
+  shell.** A tag like `v1; curl … | sh` ran in the runner; it now goes through
+  an `env:` and is validated against `^v?X.Y[.Z]$`. `build-gofile.yml` installs
+  with `npm ci --ignore-scripts` plus the explicit Electron install and checks
+  that the lockfile did not change.

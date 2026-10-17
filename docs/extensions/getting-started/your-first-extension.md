@@ -15,9 +15,11 @@ components; Scrakk mounts them where the manifest says.
 
 ## 0. Requirements
 
-- **Node 20+** and the `sef` CLI: `npm install -g @scrakk-official/cli` (or use
-  `npx @scrakk-official/cli …` per command). The CLI ships its own `esbuild`, so
-  you do **not** need the Scrakk Studio repo checked out to author.
+- **Node 20+** and the `sef` CLI. It is not published to npm yet: install the
+  tarball from its GitHub Release with
+  `npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz`.
+  The CLI ships its own `esbuild`, so you do **not** need the Scrakk Studio repo
+  checked out to author.
 - No runtime Node needed: a **declarative** extension does not run its own code.
 
 ## 1. Create the scaffold

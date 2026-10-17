@@ -41,7 +41,7 @@ later, from the host.
 ## Quick start in 5 steps
 
 ```sh
-npm install -g @scrakk-official/cli                    # 0. install the CLI (once)
+npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz  # 0. install the CLI (once)
 sef create "My Extension" ./my-extension               # 1. scaffold (sample panel)
 cd my-extension
 sef build .                                            # 2. bundle → dist/modules.js

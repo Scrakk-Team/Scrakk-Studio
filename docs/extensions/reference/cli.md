@@ -7,19 +7,17 @@ summary: "The authoring CLI (sef create/build/pack/validate), the v2 package lay
 # SEF CLI
 
 Authoring lives in its **own repo**,
-[`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder), and is
-published to npm as
-[`@scrakk-official/cli`](https://www.npmjs.com/package/@scrakk-official/cli). It
+[`Scrakk-Team/sef-builder`](https://github.com/Scrakk-Team/sef-builder). It
 installs the **`sef`** binary:
 
 ```sh
-# from the GitHub Release — works without the npm registry:
+# GitHub Release tarball — the supported install (the npm package is not
+# published yet, so do not follow any `@scrakk-official/cli` instruction):
 npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz
-
-# from npm:
-npm install -g @scrakk-official/cli
-npx @scrakk-official/cli <command> …      # per invocation, without installing
 ```
+
+The npm package is reserved for a future release; until it exists, prefer the
+tarball or the standalone binary attached to each release.
 
 Standalone Linux/macOS/Windows binaries (no Node required) are attached to every
 release as well.
@@ -143,13 +141,12 @@ and the app's auto-update is untouched. `sef build` mirrors the app's runtime
 rules; when the core's validation changes, update `src/schema.ts` there and ship
 a release.
 
-Its CI runs typecheck + tests + build, and publishing is done on `v*` tags via
-**npm Trusted Publishing** (OIDC — no token stored), attaching `cli.tgz` +
-`install.sh` to that repo's GitHub Release as a registry-free fallback.
+Its CI runs typecheck + tests + build, and attaches `cli.tgz` + `install.sh` to
+each `v*` tag's GitHub Release (the registry-free path users should follow).
 
 To ship a version: bump `package.json` in `sef-builder`, tag `vX.Y.Z` and push.
-One-time setup on npm — **`@scrakk-official/cli` → Settings → Trusted Publisher →
-GitHub Actions**, repository `Scrakk-Team/sef-builder`, workflow `publish.yml`.
+**Do not document an npm install until `@scrakk-official/cli` is actually
+published** — the name is unclaimed today and anyone could register it.
 
 ## Next steps
 
