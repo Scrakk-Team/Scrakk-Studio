@@ -47,19 +47,24 @@ export async function confirmExtensionInstall(
   const permissionList =
     permissions.length > 0 ? permissions.map((p) => `• ${p}`).join('\n') : t('main.ext.sin.permisos')
 
-  const response = await dialog.showMessageBox({
-    type: 'warning',
-    title: t('main.ext.consentimiento.titulo'),
-    message: t('main.ext.consentimiento.titulo'),
-    detail: t('main.ext.consentimiento.mensaje', {
-      name,
-      source,
-      permissions: permissionList
-    }),
-    buttons: [t('main.ext.consentimiento.instalar'), t('main.ext.consentimiento.cancelar')],
-    defaultId: 1,
-    cancelId: 1,
-    noLink: true
-  })
-  return response.response === 0
+  try {
+    const response = await dialog.showMessageBox({
+      type: 'warning',
+      title: t('main.ext.consentimiento.titulo'),
+      message: t('main.ext.consentimiento.titulo'),
+      detail: t('main.ext.consentimiento.mensaje', {
+        name,
+        source,
+        permissions: permissionList
+      }),
+      buttons: [t('main.ext.consentimiento.instalar'), t('main.ext.consentimiento.cancelar')],
+      defaultId: 1,
+      cancelId: 1,
+      noLink: true
+    })
+    return response.response === 0
+  } catch {
+    // Sin diálogo no hay consentimiento informado: fail-closed.
+    return false
+  }
 }

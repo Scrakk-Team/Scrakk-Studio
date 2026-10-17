@@ -942,3 +942,6 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `/rest/v1/rpc`. Migration `docs/backend/0032_function_search_path.sql`
   (applied) pins the path and revokes those grants; trigger invocation is
   unaffected.
+- **Trust and install dialogs fail closed.** If Electron cannot show the native
+  dialog (headless/early boot), Workspace Trust returns "not trusted" and the
+  extension install is cancelled instead of assuming consent.

@@ -81,16 +81,22 @@ export async function ensureWorkspaceTrusted(root: string, command: string): Pro
   if (store.trusted.includes(key)) return true
   if (store.denied.includes(key)) return false
 
-  const response = await dialog.showMessageBox({
-    type: 'warning',
-    title: t('main.trust.titulo'),
-    message: t('main.trust.titulo'),
-    detail: t('main.trust.mensaje', { root: key, command }),
-    buttons: [t('main.trust.confiar'), t('main.trust.cancelar')],
-    defaultId: 1,
-    cancelId: 1,
-    noLink: true
-  })
+  let response: { response: number }
+  try {
+    response = await dialog.showMessageBox({
+      type: 'warning',
+      title: t('main.trust.titulo'),
+      message: t('main.trust.titulo'),
+      detail: t('main.trust.mensaje', { root: key, command }),
+      buttons: [t('main.trust.confiar'), t('main.trust.cancelar')],
+      defaultId: 1,
+      cancelId: 1,
+      noLink: true
+    })
+  } catch {
+    // Sin diálogo disponible no se puede pedir consentimiento: fail-closed.
+    return false
+  }
 
   if (response.response !== 0) {
     store.denied.push(key)
