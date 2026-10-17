@@ -39,6 +39,7 @@ import {
   parseGhPr,
   parseGhPrList
 } from '@shared/git-parse'
+import { isSafeDiffRef, isSafeRefName, isSafeRemoteName, isSafeRevision } from '@shared/git-ref'
 
 import { t } from '@shared/i18n'
 const DEFAULT_TIMEOUT = 30_000
@@ -179,18 +180,6 @@ function resolveInRepo(cwd: string, rel: string): string | null {
   const relative = path.relative(cwd, abs)
   if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return null
   return relative
-}
-
-/** Nombres git seguros (sin `-` inicial, controles ni sintaxis de revisión). */
-function isSafeRefName(name: string): boolean {
-  if (typeof name !== 'string' || !name || name.length > 200) return false
-  if (name.startsWith('-') || name.startsWith('.')) return false
-  if (/[\x00-\x20~^:?*\[\\@{]|\.\.|\/$/.test(name)) return false
-  return true
-}
-
-function isSafeRemoteName(name: string): boolean {
-  return typeof name === 'string' && /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}$/.test(name)
 }
 
 function isSafeUrl(url: string): boolean {
@@ -349,7 +338,12 @@ export function registerGitIpc(): void {
       '--pretty=format:%H%x1f%h%x1f%an%x1f%ae%x1f%cI%x1f%D%x1f%s%x1f%b%x1e',
       '--no-color'
     ]
-    if (req.ref) args.push(req.ref)
+    if (req.ref) {
+      if (!isSafeRevision(req.ref)) return fail('invalid', t('main.ref.invalida'))
+      // `--end-of-options` (git ≥ 2.24) evita que un nombre de rama se
+      // interprete como opción aunque la validación de arriba fallara.
+      args.push('--end-of-options', req.ref)
+    }
     const ready = await needRepo<import('@shared/git').GitCommit[]>(req.cwd)
     if (typeof ready !== 'string') return ready
     const res = await run('git', ['-c', 'color.ui=false', ...args], ready, {})
@@ -396,7 +390,10 @@ export function registerGitIpc(): void {
   guarded(GIT_IPC.diffNumstat, async (req) => {
     const args = ['diff', '--numstat', '--no-color', '--no-ext-diff']
     if (req.staged) args.push('--cached')
-    else if (req.ref) args.push(req.ref)
+    else if (req.ref) {
+      if (!isSafeDiffRef(req.ref)) return fail('invalid', t('main.ref.invalida'))
+      args.push('--end-of-options', req.ref)
+    }
     return git(req.cwd, args, {
       context: 'git diff',
       map: (out) => ({ ok: true, data: parseNumstat(out) })
@@ -471,19 +468,19 @@ export function registerGitIpc(): void {
   })
 
   guarded(GIT_IPC.checkout, async (req) => {
-    const args = req.create ? ['checkout', '-b'] : ['checkout']
-    if (req.create) {
-      if (!isSafeRefName(req.ref)) return fail('invalid', t('main.nombre.de.rama.invalido'))
-      args.push(req.ref)
-    } else {
-      args.push(req.ref)
-    }
+    // `checkout` no acepta `--end-of-options` en todas las versiones, así que
+    // la barrera es la validación: sin `-` inicial no hay opción inyectable.
+    if (!isSafeRevision(req.ref)) return fail('invalid', t('main.ref.invalida'))
+    const args = req.create ? ['checkout', '-b', req.ref] : ['checkout', req.ref]
     return git(req.cwd, args, { context: 'git checkout' })
   })
 
   guarded(GIT_IPC.branchCreate, async (req) => {
     if (!isSafeRefName(req.name)) return fail('invalid', t('main.nombre.de.rama.invalido'))
-    const args = ['branch', req.name]
+    if (req.startPoint && !isSafeRevision(req.startPoint)) {
+      return fail('invalid', t('main.ref.invalida'))
+    }
+    const args = ['branch', '--end-of-options', req.name]
     if (req.startPoint) args.push(req.startPoint)
     return git(req.cwd, args, { context: 'git branch' })
   })
@@ -579,20 +576,30 @@ export function registerGitIpc(): void {
     })
   })
 
-  guarded(GIT_IPC.stashPop, async (req) =>
-    git<string>(req.cwd, req.index !== undefined ? ['stash', 'pop', `stash@{${req.index}}`] : ['stash', 'pop'], {
-      context: 'git stash pop',
-      map: (out, err) => ({ ok: true, data: (out + err).trim() })
-    })
-  )
+  guarded(GIT_IPC.stashPop, async (req) => {
+    if (req.index !== undefined && (!Number.isInteger(req.index) || req.index < 0)) {
+      return fail('invalid', t('main.indice.invalido'))
+    }
+    return git<string>(
+      req.cwd,
+      req.index !== undefined ? ['stash', 'pop', `stash@{${req.index}}`] : ['stash', 'pop'],
+      {
+        context: 'git stash pop',
+        map: (out, err) => ({ ok: true, data: (out + err).trim() })
+      }
+    )
+  })
 
-  guarded(GIT_IPC.stashApply, async (req) =>
-    git<string>(
+  guarded(GIT_IPC.stashApply, async (req) => {
+    if (req.index !== undefined && (!Number.isInteger(req.index) || req.index < 0)) {
+      return fail('invalid', t('main.indice.invalido'))
+    }
+    return git<string>(
       req.cwd,
       req.index !== undefined ? ['stash', 'apply', `stash@{${req.index}}`] : ['stash', 'apply'],
       { context: 'git stash apply', map: (out, err) => ({ ok: true, data: (out + err).trim() }) }
     )
-  )
+  })
 
   guarded(GIT_IPC.stashDrop, async (req) => {
     if (!Number.isInteger(req.index) || req.index < 0) return fail('invalid', t('main.indice.invalido'))

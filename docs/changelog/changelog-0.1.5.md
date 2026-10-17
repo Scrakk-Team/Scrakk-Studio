@@ -700,3 +700,14 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   carry `.env` files. `.env` was also `0664`; it is now `0600`. **Out-of-repo
   action still required:** rotate the Supabase `service_role` JWT, the R2 access
   key/secret and the DeepL key — they lived in that archive and in `.env`.
+- **Git refs can no longer smuggle command-line options.** `git:log`,
+  `git:diff-numstat`, `git:checkout` and `git:branch-create` passed the `ref`
+  (and `startPoint`) straight to git without validating it, unlike the rest of
+  the handlers. A repository can commit a branch literally named
+  `--output=/home/<user>/.bashrc`; the Git panel uses the current branch as the
+  default `ref`, so mounting it ran `git log --output=…` and **overwrote an
+  arbitrary file** — the log body is attacker-controlled, so the next shell
+  executed it. Refs are now validated by `shared/git-ref.ts` (SHA, `HEAD` or a
+  safe ref; never a leading `-`), `log`/`diff` also pass `--end-of-options`,
+  branch start points are validated and stash indices must be non-negative
+  integers. Covered by `tests/git-ref.test.ts`.
