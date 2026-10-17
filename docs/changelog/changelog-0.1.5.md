@@ -945,3 +945,10 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
 - **Trust and install dialogs fail closed.** If Electron cannot show the native
   dialog (headless/early boot), Workspace Trust returns "not trusted" and the
   extension install is cancelled instead of assuming consent.
+- **The renderer can no longer choose the endpoint of a known provider.** Even
+  with HTTPS-only validation, an XSS could call the stream with
+  `providerId: "openai"` and `baseUrl: "https://attacker.tld"`; the main would
+  send the stored OpenAI key in the `Authorization` header. For providers that
+  exist in the main's models.dev catalog, the endpoint now comes from that
+  catalog (`resolveProviderBaseUrl`); only custom/unknown ids use the requested
+  URL, still validated. Covered by `tests/models-resolve.test.ts`.

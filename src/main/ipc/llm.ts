@@ -7,6 +7,8 @@ import { lookup } from 'node:dns/promises'
 import { isIP } from 'node:net'
 import { LLM_IPC, type LlmStreamRequest, type LlmToolCall } from '@shared/llm'
 import { isBlockedIp } from '../web/ssrf'
+import { getCatalog } from '../models-dev/catalog'
+import { resolveProviderBaseUrl } from '../models-dev/resolve'
 import { buildThinkingBody, type ThinkingMode } from '@shared/thinking'
 import { accumulateToolCallDeltas, finalizedToolCalls } from '../llm/streamToolCalls'
 import {
@@ -148,8 +150,14 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
   let connectTimedOut = false
 
   try {
-    await assertSafeProviderUrl(baseUrl)
-    const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
+    // El renderer no decide el endpoint de un proveedor conocido: la key se
+    // enviaría a `https://atacante.tld` con un `baseUrl` arbitrario. Se usa el
+    // del catálogo del main; para ids desconocidos (proveedor custom) se
+    // valida el que llega.
+    const catalog = await getCatalog()
+    const effectiveBaseUrl = resolveProviderBaseUrl(catalog?.providers, providerId, baseUrl)
+    await assertSafeProviderUrl(effectiveBaseUrl)
+    const url = `${effectiveBaseUrl.replace(/\/+$/, '')}/chat/completions`
     const extraBody = buildThinkingBody(model, (thinkingMode as ThinkingMode) ?? 'auto', variant)
 
     // Corte si el proveedor ni siquiera devuelve cabeceras (conexión colgada).
