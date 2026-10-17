@@ -1023,3 +1023,5 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `docs:check` passes.
 - Follow-up docs pass: subagents/chat no longer claim the renderer holds the
   provider key (the main resolves it from `providerId`).
+- Extension-host page metadata now says "separate process (not an OS sandbox)"
+  instead of implying isolation.

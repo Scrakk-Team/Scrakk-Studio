@@ -2,7 +2,7 @@
 title: "Extension Host"
 group: extensions
 order: 310
-summary: "The isolated process that runs an extension's code, how it talks to the IDE over RPC and what the main authorizes."
+summary: "The separate Node process that runs an extension's code (not an OS sandbox), how it talks to the IDE over RPC and what the main authorizes."
 ---
 # Extension Host
 
