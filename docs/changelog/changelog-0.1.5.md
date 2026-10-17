@@ -441,6 +441,15 @@ published are not edited. The file goes per version:
   restart — which reads exactly like "my change was not applied". A new palette
   command, **"Recargar eventos desde el pack"**, re-reads every event scene from
   disk; a broken JSON leaves the previous scene in place instead of wiping it.
+- **The lightning is synced to the audio, not to a guess.** New dev tool
+  `tools/_look-audio.mjs`: it prints an audio file's envelope as ASCII and
+  detects its **onsets** (level jumps measured against the *local* median, not
+  the global peak), plus the spectral brightness (zero-crossing rate) to tell
+  rain from a low-frequency thunder. With it, `trueno.ogg` was recut so the crack
+  lands at a **known 200 ms** — a ×17.6 jump, the loudest attack in the 25 s
+  original — and the scene now fires the strobe, the bolt and the shake exactly
+  there (a second, quieter flash on the second thunder). A visual "somewhere
+  around 3 s" never lines up; a measured one does.
 
 ### Extension authoring (SEF CLI)
 - **A panel that imports the documented hooks could not be built.** `sef build`
