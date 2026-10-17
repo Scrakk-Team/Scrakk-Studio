@@ -40,6 +40,7 @@ import {
   parseGhPrList
 } from '@shared/git-parse'
 import { isSafeDiffRef, isSafeRefName, isSafeRemoteName, isSafeRevision } from '@shared/git-ref'
+import { childEnv } from '../env'
 
 import { t } from '@shared/i18n'
 const DEFAULT_TIMEOUT = 30_000
@@ -84,7 +85,8 @@ function run(
         timeout: opts.timeoutMs ?? DEFAULT_TIMEOUT,
         maxBuffer: MAX_BUFFER,
         env: {
-          ...process.env,
+          // Sin secretos del main (R2/Supabase) en el entorno de git.
+          ...childEnv(),
           GIT_TERMINAL_PROMPT: '0',
           GIT_OPTIONAL_LOCKS: '0',
           ...opts.env
@@ -312,7 +314,14 @@ export function registerGitIpc(): void {
   ): Promise<GitResult<T>> => {
     const ready = await needRepo<T>(cwd)
     if (typeof ready !== 'string') return ready
-    const res = await run('git', ['-c', 'color.ui=false', ...args], ready, opts)
+    // Los hooks de un repo descomprimido (`.git/hooks` viaja en un ZIP) se
+    // ejecutan en commit/checkout/pull. Se desactivan salvo opt-in explícito:
+    // un repo clonado normal no trae hooks, uno manipulado sí.
+    const hooks =
+      process.env.SCRAKK_ALLOW_GIT_HOOKS === '1'
+        ? []
+        : ['-c', 'core.hooksPath=.git/scrakk-disabled-hooks']
+    const res = await run('git', ['-c', 'color.ui=false', ...hooks, ...args], ready, opts)
     if (res.ok) {
       if (opts.map) {
         try {

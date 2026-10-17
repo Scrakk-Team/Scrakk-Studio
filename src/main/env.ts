@@ -43,7 +43,11 @@ export function loadLocalEnv(): number {
   } catch {
     /* app no listo: se llama igual en whenReady */
   }
-  candidates.push(join(process.cwd(), '.env'))
+  // En un build ENTREGADO no se lee el `.env` del directorio de trabajo: un
+  // archivo colocado junto al AppImage/`scrakk` podía inyectar
+  // `SCRAKK_API_BASE`, `SCRAKK_SUPABASE_URL`, `LD_PRELOAD`, etc. En dev sí
+  // (es la forma de configurar el repo).
+  if (!app.isPackaged) candidates.push(join(process.cwd(), '.env'))
   for (const file of candidates) {
     let text: string
     try {
@@ -60,4 +64,25 @@ export function loadLocalEnv(): number {
     }
   }
   return loaded
+}
+
+/**
+ * Entorno para procesos hijos (terminal, LSP, extensiones, instaladores).
+ *
+ * El main carga secretos en `process.env` (R2, tokens de GitHub/GitLab,
+ * Supabase). Heredarlos a un PTY o a una extensión de terceros es exfiltración
+ * directa. Se filtran las variables sensibles y los hooks de ejecución
+ * (`LD_PRELOAD`, `NODE_OPTIONS`, `GIT_SSH_COMMAND`).
+ */
+const SENSITIVE_CHILD_ENV =
+  /(^SCRAKK_R2_(ACCESS_KEY|SECRET_KEY)$|^SCRAKK_.*_(TOKEN|SECRET|KEY|PASSWORD)$|SERVICE_ROLE_KEY|^LD_PRELOAD$|^NODE_OPTIONS$|^GIT_SSH_COMMAND$)/i
+
+export function childEnv(source: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [key, value] of Object.entries(source)) {
+    if (value === undefined) continue
+    if (SENSITIVE_CHILD_ENV.test(key)) continue
+    out[key] = value
+  }
+  return out
 }

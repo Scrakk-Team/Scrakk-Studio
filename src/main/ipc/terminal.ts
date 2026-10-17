@@ -10,6 +10,7 @@ import * as path from 'path'
 import { execSync } from 'child_process'
 import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
 import { changeDirCommand } from '@shared/shell-cd'
+import { childEnv } from '../env'
 import {
   listMonoFamilies,
   readFontStack,
@@ -62,7 +63,9 @@ export function registerTerminalIpc(): void {
     const initialCols = positiveInt(cols, 80)
     const initialRows = positiveInt(rows, 24)
     // PTY real con node-pty: convierte \n -> \r\n automáticamente, señales, resize.
-    const { npm_config_prefix: _omit, ...cleanEnv } = process.env as Record<string, string | undefined>
+    // Sin secretos del main: un `env` en la terminal no debe ver R2/tokens.
+    const cleanEnv = childEnv()
+    delete cleanEnv.npm_config_prefix
     const proc = pty.spawn(sh, [], {
       name: 'xterm-256color',
       cwd: work,

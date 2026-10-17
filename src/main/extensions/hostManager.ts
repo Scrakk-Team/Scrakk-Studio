@@ -59,6 +59,7 @@ import {
 } from '@shared/extensionHost/protocol'
 import { canReadDocument, checkPathAccess } from '@shared/permissions'
 import { isRealPathInsideAny } from './realpathJail'
+import { childEnv } from '../env'
 import { RpcPeer } from './host/rpc'
 
 /**
@@ -285,6 +286,8 @@ export function hostEntryPath(): string {
 function defaultSpawn(entryPath: string): HostProcessLike {
   const child = utilityProcess.fork(entryPath, [], {
     serviceName: 'scrakk-extension-host',
+    // Una extensión no hereda R2/GitHub/Supabase del main.
+    env: childEnv(),
     // `pipe` (no `inherit`) y se reenvía a mano: el CANAL es `parentPort`, no
     // stdio, así que una extensión puede escribir libremente sin corromper el
     // protocolo — y su salida se ve. Sin esto, un host que muere al arrancar

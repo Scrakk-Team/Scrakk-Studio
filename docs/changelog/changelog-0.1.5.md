@@ -893,3 +893,15 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   an `env:` and is validated against `^v?X.Y[.Z]$`. `build-gofile.yml` installs
   with `npm ci --ignore-scripts` plus the explicit Electron install and checks
   that the lockfile did not change.
+- **Secrets no longer reach child processes, and a packaged build ignores the
+  working-directory `.env`.** The main loads R2/GitHub/GitLab/Supabase secrets
+  into `process.env`, and the PTY, LSP servers, the extension host, `git` and
+  the LSP installers inherited **all** of it — an extension or a malicious
+  language server could just read `process.env.SCRAKK_R2_SECRET_KEY`. Child
+  environments are now filtered (`childEnv`: no `SCRAKK_*_TOKEN/SECRET/KEY`,
+  no `SERVICE_ROLE_KEY`, no `LD_PRELOAD`/`NODE_OPTIONS`/`GIT_SSH_COMMAND`).
+  `loadLocalEnv()` only reads `cwd/.env` in development; in a delivered build a
+  `.env` next to the executable could redirect the login API or inject
+  `LD_PRELOAD`. Git hooks from a repository are disabled by default
+  (`SCRAKK_ALLOW_GIT_HOOKS=1` to opt in): a `.git/hooks` shipped inside a ZIP
+  executes on commit/checkout/pull. Covered by `tests/env-filter.test.ts`.

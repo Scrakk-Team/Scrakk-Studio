@@ -23,6 +23,7 @@ import { unzipSync } from 'fflate'
 import type { LspInstallProgressPayload, LspServerConfig } from '@shared/lsp'
 import { scrakkHome } from '../scrakkFolder'
 import { resolveExecutable, spawnInvocation } from '../binaries'
+import { childEnv } from '../env'
 import { t } from '@shared/i18n'
 
 /**
@@ -349,7 +350,7 @@ function run(
       // stdout TAMBIÉN se lee: npm/go reportan el avance ahí. No se usa para
       // calcular un % (no lo dan), pero sí como texto de fase para la UI.
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: env ? { ...process.env, ...env } : process.env,
+      env: env ? { ...childEnv(), ...env } : childEnv(),
       shell: invocation.shell
     })
     let stdout = ''

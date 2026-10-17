@@ -20,6 +20,7 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import { pathToFileURL, fileURLToPath } from 'url'
 import { spawnInvocation } from '../binaries'
+import { childEnv } from '../env'
 import {
   createMessageConnection,
   StreamMessageReader,
@@ -398,7 +399,8 @@ export class LspClient {
     const invocation = spawnInvocation(this.config.command, this.config.args ?? [])
     const child = spawn(invocation.file, invocation.args, {
       cwd: this.workspaceRoot,
-      env: { ...process.env, ...(this.config.env ?? {}) },
+      // Los secretos del main no viajan al language server.
+        env: { ...childEnv(), ...(this.config.env ?? {}) },
       stdio: ['pipe', 'pipe', 'pipe'],
       shell: invocation.shell
     })
