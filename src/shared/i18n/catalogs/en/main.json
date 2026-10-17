@@ -47,6 +47,7 @@
   "main.ese.usuario.ya.esta.tomado": "That username is already taken.",
   "main.estado.demasiado.largo": "Too long",
   "main.este.encoding.pertenece.a.una": "This encoding belongs to an extension and is converted by the renderer. It uses `writeEncodedDelegated`.",
+  "main.falta.la.api.key": "The provider API key is missing.",
   "main.falta.la.consulta": "Query missing",
   "main.falta.la.url": "URL missing",
   "main.falta.path": "Path missing",

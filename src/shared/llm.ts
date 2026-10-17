@@ -21,7 +21,15 @@ export const LLM_IPC = {
   /** Renderer → main: corta el stream del requestId (botón "Detener"). */
   chatStreamStop: 'llm:chat-stream-stop',
   /** Main → renderer: el stream fue cortado por el usuario (no es error). */
-  chatStreamStopped: 'llm:chat-stream-stopped'
+  chatStreamStopped: 'llm:chat-stream-stopped',
+  /** Renderer → main: guarda la API key en el almacén cifrado del main. */
+  setApiKey: 'llm:set-api-key',
+  /** Renderer → main: elimina la API key guardada. */
+  deleteApiKey: 'llm:delete-api-key',
+  /** Renderer → main: qué proveedores tienen key (nunca devuelve el valor). */
+  apiKeyStatus: 'llm:api-key-status',
+  /** Renderer → main: mueve el mapa viejo de localStorage al almacén cifrado. */
+  migrateApiKeys: 'llm:migrate-api-keys'
 } as const
 
 export type LlmMessageRole = 'user' | 'assistant' | 'system' | 'tool'
@@ -56,7 +64,11 @@ export interface LlmStreamRequest {
   providerId: string
   baseUrl: string
   model: string
-  apiKey: string
+  /**
+   * API key. Opcional: si falta, el main usa la key guardada para
+   * `providerId` (el renderer ya no persiste ni necesita el valor).
+   */
+  apiKey?: string
   /** Headers extra opcionales del proveedor (ej. HTTP-Referer de OpenRouter). */
   headers?: Record<string, string>
   messages: LlmChatMessage[]
@@ -126,4 +138,12 @@ export interface LlmApi {
   chatStream: (request: LlmStreamRequest, handlers: LlmStreamHandlers) => () => void
   /** Corta el fetch del stream en el proceso main (botón "Detener"). */
   stopStream: (requestId: string) => void
+  /** Guarda la API key en el almacén cifrado del main (nunca en localStorage). */
+  setApiKey: (providerId: string, apiKey: string) => Promise<boolean>
+  /** Elimina la API key guardada del proveedor. */
+  deleteApiKey: (providerId: string) => Promise<boolean>
+  /** Provider ids que tienen key (nunca se devuelve el valor). */
+  apiKeyStatus: () => Promise<Record<string, boolean>>
+  /** Migra el mapa viejo de localStorage al almacén del main. */
+  migrateApiKeys: (keys: Record<string, string>) => Promise<number>
 }

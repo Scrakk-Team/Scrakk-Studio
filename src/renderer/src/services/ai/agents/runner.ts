@@ -58,7 +58,6 @@ export interface RunAgentResult {
 
 interface ResolvedProvider {
   provider: ProviderConfig
-  apiKey: string
   model: string
   thinkingMode: string
   variant: string
@@ -73,14 +72,12 @@ function resolveProvider(agent: AgentProfile): ResolvedProvider | { error: strin
   const provider = getProvider(providerId)
   if (!provider) return { error: `El proveedor "${providerId}" no está en el catálogo.` }
   const state = readProviderSettings()
-  const apiKey = state.apiKeys[providerId] ?? ''
   const chosen =
     agent.model && agent.model !== AGENT_MODEL_INHERIT
       ? agent.model
       : model || provider.defaultModel
   return {
     provider,
-    apiKey,
     model: chosen,
     thinkingMode: state.thinkingModes[providerId] ?? 'auto',
     variant: state.variants[providerId] ?? ''
@@ -142,7 +139,7 @@ function streamOnce(input: {
         providerId: resolved.provider.id,
         baseUrl: resolved.provider.baseUrl,
         model: resolved.model,
-        apiKey: resolved.apiKey.trim(),
+        apiKey: undefined,
         headers: resolved.provider.headers,
         messages,
         thinkingMode: resolved.thinkingMode,
@@ -187,10 +184,6 @@ function streamOnce(input: {
 export async function runHeadlessAgent(input: RunAgentInput): Promise<RunAgentResult> {
   const resolved = resolveProvider(input.agent)
   if ('error' in resolved) return { ok: false, content: '', error: resolved.error }
-  if (!resolved.apiKey.trim()) {
-    return { ok: false, content: '', error: `Falta la API key de ${resolved.provider.name}.` }
-  }
-
   const tools = (await agentToolDefinitions(input.agent)) as unknown[]
   const messages: LlmChatMessage[] = []
   const system = input.agent.prompt.trim()

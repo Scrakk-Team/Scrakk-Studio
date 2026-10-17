@@ -59,7 +59,7 @@ export function ChatPanel(): JSX.Element {
     updateMessage,
     removeMessagesAfter
   } = useChats()
-  const { activeProvider, getApiKey, getModel, getThinkingMode, getVariant } = useProviders()
+  const { activeProvider, getModel, getThinkingMode, getVariant } = useProviders()
   const activeVariant = activeProvider ? getVariant(activeProvider.id) : ''
   // Esfuerzo en el paso máximo: el input enciende el wash + las chispas.
   const effortSteps = getAvailableVariants().options
@@ -303,7 +303,8 @@ export function ChatPanel(): JSX.Element {
       try {
         await service.sendMessage({
           provider: activeProvider,
-          apiKey: activeProvider ? getApiKey(activeProvider.id) : '',
+          // La key la resuelve el main por `provider.id`; el renderer no la ve.
+          apiKey: '',
           model: activeProvider ? getModel(activeProvider.id) : '',
           thinkingMode: activeProvider ? getThinkingMode(activeProvider.id) : 'auto',
           variant: activeProvider ? getVariant(activeProvider.id) : '',
@@ -368,7 +369,7 @@ export function ChatPanel(): JSX.Element {
         endRun(targetId, controller)
       }
     },
-    [service, activeProvider, getApiKey, getModel, getThinkingMode, appendMessage, updateMessage]
+    [service, activeProvider, getModel, getThinkingMode, appendMessage, updateMessage]
   )
 
   // Detener la generación en curso: aborta el stream y las tools pendientes.

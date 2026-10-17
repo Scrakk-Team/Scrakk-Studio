@@ -44,6 +44,7 @@ import {
   type WorkspaceRootRequest
 } from '@shared/lsp'
 import { WINDOW_CONTROLS_IPC, I18N_IPC, type WindowApi } from '@shared/window-controls'
+import { APP_IPC, type UninstallResult } from '@shared/app'
 import { SCREENSHOT_IPC } from '@shared/screenshot'
 import { ACCOUNT_IPC } from '@shared/account'
 import { MARKET_IPC, type MarketApi } from '@shared/market'
@@ -184,7 +185,15 @@ const api: WindowApi = {
     },
     stopStream: (requestId: string): void => {
       ipcRenderer.send(LLM_IPC.chatStreamStop, { requestId })
-    }
+    },
+    setApiKey: (providerId: string, apiKey: string) =>
+      ipcRenderer.invoke(LLM_IPC.setApiKey, providerId, apiKey) as Promise<boolean>,
+    deleteApiKey: (providerId: string) =>
+      ipcRenderer.invoke(LLM_IPC.deleteApiKey, providerId) as Promise<boolean>,
+    apiKeyStatus: () =>
+      ipcRenderer.invoke(LLM_IPC.apiKeyStatus) as Promise<Record<string, boolean>>,
+    migrateApiKeys: (keys: Record<string, string>) =>
+      ipcRenderer.invoke(LLM_IPC.migrateApiKeys, keys) as Promise<number>
   },
   fs: {
     readFile: (path: string) => ipcRenderer.invoke(FS_IPC.readFile, { path }),
@@ -653,6 +662,9 @@ const api: WindowApi = {
   web: {
     search: (request: WebSearchRequest) => ipcRenderer.invoke(WEB_IPC.search, request),
     fetch: (request: WebFetchRequest) => ipcRenderer.invoke(WEB_IPC.fetch, request)
+  },
+  app: {
+    uninstall: () => ipcRenderer.invoke(APP_IPC.uninstall) as Promise<UninstallResult>
   }
 }
 

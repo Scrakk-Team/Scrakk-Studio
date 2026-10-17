@@ -3,9 +3,19 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 import { ipcMain, type WebContents } from 'electron'
+import { lookup } from 'node:dns/promises'
+import { isIP } from 'node:net'
 import { LLM_IPC, type LlmStreamRequest, type LlmToolCall } from '@shared/llm'
+import { isBlockedIp } from '../web/ssrf'
 import { buildThinkingBody, type ThinkingMode } from '@shared/thinking'
 import { accumulateToolCallDeltas, finalizedToolCalls } from '../llm/streamToolCalls'
+import {
+  apiKeyStatus,
+  deleteApiKey,
+  getApiKey,
+  migrateApiKeys,
+  setApiKey
+} from '../llm/apiKeys'
 
 import { t } from '@shared/i18n'
 interface OpenAiStreamToolCallDelta {
@@ -38,7 +48,7 @@ function isValidRequest(request: unknown): request is LlmStreamRequest {
     typeof r.baseUrl === 'string' &&
     r.baseUrl.length > 0 &&
     typeof r.model === 'string' &&
-    typeof r.apiKey === 'string' &&
+    (r.apiKey === undefined || typeof r.apiKey === 'string') &&
     (r.thinkingMode === undefined || typeof r.thinkingMode === 'string') &&
     (r.variant === undefined || typeof r.variant === 'string') &&
     (r.tools === undefined || Array.isArray(r.tools)) &&
@@ -62,6 +72,43 @@ function isValidRequest(request: unknown): request is LlmStreamRequest {
   )
 }
 
+function isLoopbackHost(host: string): boolean {
+  return host === 'localhost' || host === '::1' || /^127\./.test(host)
+}
+
+/**
+ * Contrato del `baseUrl` que manda el renderer (sale del catálogo models.dev).
+ *
+ * - HTTPS obligatorio salvo loopback (Ollama y servers locales).
+ * - Nunca se manda `Authorization` a una IP privada/link-local/metadata.
+ * - `redirect: 'error'` más abajo: un 302 a otro host no filtra la key.
+ */
+async function assertSafeProviderUrl(raw: string): Promise<void> {
+  let url: URL
+  try {
+    url = new URL(raw)
+  } catch {
+    throw new Error('baseUrl inválida')
+  }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error('baseUrl debe ser http(s)')
+  }
+  const host = url.hostname.replace(/^\[|\]$/g, '')
+  if (url.protocol === 'http:' && !isLoopbackHost(host)) {
+    throw new Error('baseUrl debe usar HTTPS')
+  }
+  if (isIP(host)) {
+    if (isBlockedIp(host) && !isLoopbackHost(host)) {
+      throw new Error('baseUrl apunta a una dirección privada')
+    }
+    return
+  }
+  const addrs = await lookup(host, { all: true, verbatim: true }).catch(() => [])
+  if (addrs.length === 0) throw new Error('baseUrl no resuelve')
+  const blocked = addrs.find((entry) => isBlockedIp(entry.address) && !isLoopbackHost(entry.address))
+  if (blocked) throw new Error('baseUrl apunta a una dirección privada')
+}
+
 /** Envía un evento al renderer si el sender sigue vivo. */
 function sendEvent(sender: WebContents, channel: string, payload: unknown): void {
   if (!sender.isDestroyed()) sender.send(channel, payload)
@@ -76,6 +123,8 @@ const activeStreams = new Map<string, AbortController>()
  * que piensa mucho) puede durar lo que necesite mientras siga enviando datos.
  */
 const IDLE_TIMEOUT_MS = 120_000
+/** Tope de texto acumulado por stream (un proveedor malicioso no llena la RAM). */
+const MAX_STREAM_CHARS = 8 * 1024 * 1024
 
 /**
  * Corre el fetch en stream (SSE) y emite los deltas por IPC.
@@ -83,13 +132,23 @@ const IDLE_TIMEOUT_MS = 120_000
  * razonamiento (DeepSeek usa el primero, OpenRouter el segundo).
  */
 async function runStream(sender: WebContents, request: LlmStreamRequest): Promise<void> {
-  const { requestId, baseUrl, model, apiKey, headers, messages, thinkingMode, tools, variant } = request
+  const { requestId, providerId, baseUrl, model, headers, messages, thinkingMode, tools, variant } = request
+  // La key la resuelve el main; el renderer ya no la persiste ni la conoce.
+  const apiKey = request.apiKey?.trim() || (await getApiKey(providerId))
+  if (!apiKey) {
+    sendEvent(sender, LLM_IPC.chatStreamError, {
+      requestId,
+      error: t('main.falta.la.api.key')
+    })
+    return
+  }
   const controller = new AbortController()
   activeStreams.set(requestId, controller)
   let idleTimedOut = false
   let connectTimedOut = false
 
   try {
+    await assertSafeProviderUrl(baseUrl)
     const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`
     const extraBody = buildThinkingBody(model, (thinkingMode as ThinkingMode) ?? 'auto', variant)
 
@@ -118,6 +177,8 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
           ...(tools && tools.length > 0 ? { tools, tool_choice: 'auto' } : {}),
           ...extraBody
         }),
+        // Un redirect podría llevar la `Authorization` a otro host.
+        redirect: 'error',
         // Solo el controller propio (botón "Detener"); el corte por silencio se
         // maneja por lectura, no con un timeout total.
         signal: controller.signal
@@ -208,6 +269,14 @@ async function runStream(sender: WebContents, request: LlmStreamRequest): Promis
         }
         const delta = chunk.choices?.[0]?.delta
         if (!delta) continue
+        if (fullContent.length + fullReasoning.length > MAX_STREAM_CHARS) {
+          await reader.cancel().catch(() => undefined)
+          sendEvent(sender, LLM_IPC.chatStreamError, {
+            requestId,
+            error: 'La respuesta del proveedor supera el límite permitido.'
+          })
+          return
+        }
         const reasoningDelta = delta.reasoning_content ?? delta.reasoning
         if (typeof reasoningDelta === 'string' && reasoningDelta) {
           fullReasoning += reasoningDelta
@@ -293,4 +362,16 @@ export function registerLlmIpc(): void {
     if (typeof requestId !== 'string') return
     activeStreams.get(requestId)?.abort()
   })
+
+  // API keys: el renderer solo manda el valor al guardarlo y recibe booleanos.
+  ipcMain.handle(LLM_IPC.setApiKey, (_event, providerId: unknown, apiKey: unknown) =>
+    typeof providerId === 'string' && typeof apiKey === 'string'
+      ? setApiKey(providerId, apiKey)
+      : false
+  )
+  ipcMain.handle(LLM_IPC.deleteApiKey, (_event, providerId: unknown) =>
+    typeof providerId === 'string' ? deleteApiKey(providerId) : false
+  )
+  ipcMain.handle(LLM_IPC.apiKeyStatus, () => apiKeyStatus())
+  ipcMain.handle(LLM_IPC.migrateApiKeys, (_event, keys: unknown) => migrateApiKeys(keys))
 }

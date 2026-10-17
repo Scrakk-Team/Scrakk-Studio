@@ -15,7 +15,6 @@ export const PROVIDERS_STORAGE_KEY = 'scrakk-studio:providers'
 
 export interface StoredProviderSettings {
   activeProviderId: string | null
-  apiKeys: Record<string, string>
   models: Record<string, string>
   thinkingModes: Record<string, string>
   /** Variante de razonamiento elegida por proveedor (`/variants`). */
@@ -24,7 +23,6 @@ export interface StoredProviderSettings {
 
 const EMPTY: StoredProviderSettings = {
   activeProviderId: null,
-  apiKeys: {},
   models: {},
   thinkingModes: {},
   variants: {}
@@ -38,7 +36,7 @@ export function readProviderSettings(): StoredProviderSettings {
     const parsed = JSON.parse(raw) as Partial<StoredProviderSettings>
     return {
       activeProviderId: typeof parsed.activeProviderId === 'string' ? parsed.activeProviderId : null,
-      apiKeys: parsed.apiKeys ?? {},
+      // `apiKeys` ya no se lee de acá: vive cifrado en el main (`llm/apiKeys`).
       models: parsed.models ?? {},
       thinkingModes: parsed.thinkingModes ?? {},
       variants: parsed.variants ?? {}

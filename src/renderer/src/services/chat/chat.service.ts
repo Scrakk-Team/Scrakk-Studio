@@ -78,10 +78,8 @@ export function createLlmChatService(): ChatService {
           reject(new Error(t('services.no.hay.proveedor.activo.abre')))
           return
         }
-        if (!apiKey.trim()) {
-          reject(new Error(`Falta la API key de ${provider.name}. La agregas en el menú de Proveedores.`))
-          return
-        }
+        // La key la resuelve el main (`providerId`), así que acá no hace falta
+        // tenerla. Si falta, el stream responde con el error localizado.
 
         // El array de mensajes crece con cada ronda de tools: system +
         // historial + user + assistant(tool_calls) + tool results + …
@@ -121,7 +119,7 @@ export function createLlmChatService(): ChatService {
                 baseUrl: provider.baseUrl,
                 // El id exacto del modelo tal como lo espera el proveedor.
                 model: model || provider.defaultModel,
-                apiKey: apiKey.trim(),
+                apiKey: apiKey.trim() || undefined,
                 headers: provider.headers,
                 messages,
                 thinkingMode,

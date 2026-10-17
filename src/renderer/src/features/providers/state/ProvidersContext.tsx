@@ -66,8 +66,11 @@ interface ProvidersContextValue {
   activeProviderId: string | null
   /** Proveedor activo resuelto (null si no hay ninguno seleccionado). */
   activeProvider: ProviderConfig | null
-  /** API key guardada de un proveedor ('' si no tiene). */
-  getApiKey: (providerId: string) => string
+  /**
+   * ¿El proveedor tiene una API key guardada? La key vive en el main
+   * (`safeStorage`), el renderer nunca recibe el valor.
+   */
+  hasApiKey: (providerId: string) => boolean
   /** Modelo elegido de un proveedor (fallback: defaultModel del config). */
   getModel: (providerId: string) => string
   /** Modo de pensamiento elegido de un proveedor (fallback: 'auto'). */
@@ -78,9 +81,9 @@ interface ProvidersContextValue {
   setVariant: (providerId: string, variant: string | null) => void
   /** Selecciona el proveedor activo (debe tener key para poder chatear). */
   selectProvider: (providerId: string) => void
-  /** Guarda la key del proveedor (persistida en localStorage). */
+  /** Guarda la key en el almacén cifrado del main. */
   setApiKey: (providerId: string, apiKey: string) => void
-  /** Elimina la key guardada. */
+  /** Elimina la key guardada en el main. */
   removeApiKey: (providerId: string) => void
   /** Guarda el modelo elegido del proveedor (persistido en localStorage). */
   setModel: (providerId: string, modelId: string) => void
@@ -106,7 +109,7 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     // Si el proveedor guardado ya no existe en el registro, arranca sin activo.
     stored.activeProviderId && getProvider(stored.activeProviderId) ? stored.activeProviderId : null
   )
-  const [apiKeys, setApiKeys] = useState<Record<string, string>>(stored.apiKeys)
+  const [keyStatus, setKeyStatus] = useState<Record<string, boolean>>({})
   const [models, setModels] = useState<Record<string, string>>(stored.models)
   const [thinkingModes, setThinkingModes] = useState<Record<string, string>>(stored.thinkingModes)
   const [variants, setVariants] = useState<Record<string, string>>(stored.variants)
@@ -141,22 +144,58 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     }
   }, [providers, activeProviderId, stored.activeProviderId])
 
-  // Persistencia: cada cambio se guarda solo.
+  // Migración: las keys viejas vivían en localStorage. Se mueven al almacén
+  // del main y se borran del perfil de Chromium. El `stored` es el snapshot
+  // de la primera lectura, así que el persist de abajo no las pisa antes.
   useEffect(() => {
-    const stored: StoredProvidersState = { activeProviderId, apiKeys, models, thinkingModes, variants }
+    let alive = true
+    void (async () => {
+      const legacy = stored.apiKeys
+      if (legacy && Object.keys(legacy).length > 0) {
+        try {
+          await window.api.llm.migrateApiKeys(legacy)
+        } catch {
+          // Si falla, el persist de abajo igual las quita: el usuario tendrá
+          // que volver a pegar la key (no se deja una copia en claro).
+        }
+      }
+      try {
+        const status = await window.api.llm.apiKeyStatus()
+        if (alive) setKeyStatus(status)
+      } catch {
+        // Sin main (tests/SSR) no hay estado de keys.
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [stored.apiKeys])
+
+  // Persistencia: cada cambio se guarda solo. `apiKeys` NO se persiste más:
+  // el valor vive cifrado en el main y el renderer solo guarda booleanos.
+  useEffect(() => {
+    const storedState: Omit<StoredProvidersState, 'apiKeys'> = {
+      activeProviderId,
+      models,
+      thinkingModes,
+      variants
+    }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(storedState))
     } catch {
       // Almacenamiento no disponible: se sigue en memoria nomás.
     }
-  }, [activeProviderId, apiKeys, models, thinkingModes, variants])
+  }, [activeProviderId, models, thinkingModes, variants])
 
   const activeProvider = useMemo(
     () => (activeProviderId ? getProvider(activeProviderId) : null),
     [activeProviderId, providers]
   )
 
-  const getApiKey = useCallback((providerId: string): string => apiKeys[providerId] ?? '', [apiKeys])
+  const hasApiKey = useCallback(
+    (providerId: string): boolean => keyStatus[providerId] === true,
+    [keyStatus]
+  )
 
   const getModel = useCallback(
     (providerId: string): string => {
@@ -189,16 +228,15 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
 
   const setApiKey = useCallback((providerId: string, apiKey: string) => {
     const key = apiKey.trim()
-    setApiKeys((prev) => ({ ...prev, [providerId]: key }))
+    // Optimista para la UI; el valor real lo guarda el main.
+    setKeyStatus((prev) => ({ ...prev, [providerId]: key.length > 0 }))
+    void window.api.llm.setApiKey(providerId, key).catch(() => undefined)
     if (key) setActiveProviderId(providerId)
   }, [])
 
   const removeApiKey = useCallback((providerId: string) => {
-    setApiKeys((prev) => {
-      const next = { ...prev }
-      delete next[providerId]
-      return next
-    })
+    setKeyStatus((prev) => ({ ...prev, [providerId]: false }))
+    void window.api.llm.deleteApiKey(providerId).catch(() => undefined)
     // Si era el proveedor activo, sin key no puede chatear → se desactiva.
     setActiveProviderId((prev) => (prev === providerId ? null : prev))
   }, [])
@@ -237,7 +275,7 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       providers,
       activeProviderId,
       activeProvider,
-      getApiKey,
+      hasApiKey,
       getModel,
       getThinkingMode,
       getVariant,
@@ -255,7 +293,7 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       providers,
       activeProviderId,
       activeProvider,
-      getApiKey,
+      hasApiKey,
       getModel,
       getThinkingMode,
       getVariant,

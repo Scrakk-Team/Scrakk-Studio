@@ -23,14 +23,14 @@ export function useModelMenuItems(): ContextMenuItem[] {
   const {
     providers,
     activeProviderId,
-    getApiKey,
+    hasApiKey,
     getModel,
     selectProvider,
     openProvidersModal
   } = useProviders()
 
   const modelOptions: ModelOption[] = providers
-    .filter((provider) => getApiKey(provider.id) && getModel(provider.id).trim().length > 0)
+    .filter((provider) => hasApiKey(provider.id) && getModel(provider.id).trim().length > 0)
     .map((provider) => ({
       providerId: provider.id,
       providerName: provider.name,

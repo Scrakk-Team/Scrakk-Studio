@@ -774,3 +774,18 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   name is reduced to a basename and normalized (`sanitizeScreenshotName`), so
   `name: "../../.config/autostart/x"` can no longer write (and `mkdir -p`)
   outside the chosen directory. Covered by `tests/shell-cd.test.ts`.
+- **Provider API keys are no longer stored in the renderer.** They lived in
+  `localStorage['scrakk-studio:providers']`, i.e. in the Chromium profile in
+  plain text (and readable by any XSS or extension bundle in the renderer). The
+  keys now live in the **main process** (`userData/secrets/api-keys.json`,
+  `safeStorage`-encrypted when the OS keychain is available, `0600` otherwise);
+  the renderer only receives booleans (`llm:api-key-status`) and the existing
+  keys are migrated on first launch and removed from `localStorage`. The stream
+  request no longer needs `apiKey`: the main resolves it from `providerId`.
+- **The LLM endpoint is validated and the response is bounded.** `baseUrl`
+  came straight from the remote models.dev catalog (and from the renderer):
+  a compromised catalog/cache could point a provider at an attacker host and
+  receive the stored `Authorization: Bearer`. The main now requires `https:`
+  (plain HTTP only for loopback/local models), rejects private/link-local/
+  metadata addresses, refuses redirects (`redirect: 'error'`) and aborts a
+  stream above 8 MB of accumulated text. Covered by `tests/llm-api-keys.test.ts`.
