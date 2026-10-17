@@ -59,10 +59,13 @@ export function EffectsOverlay(): JSX.Element {
 
   return (
     <div className={styles.layer} style={{ transform: shakeTransform }} aria-hidden="true">
-      <canvas ref={canvasRef} className={styles.canvas} />
+      {/* Orden de pintado: la ATMÓSFERA abajo y las PARTÍCULAS arriba. Al revés
+          (como estaba) la niebla teñía a los bichos y el flash blanco tapaba
+          justo al rayo, que también es blanco: el efecto "no se veía". */}
       <div className={styles.fog} style={fogStyle} />
       <div className={styles.tint} style={tintStyle} />
       <div className={styles.vignette} style={vignetteStyle} />
+      <canvas ref={canvasRef} className={styles.canvas} />
     </div>
   )
 }

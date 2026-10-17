@@ -60,6 +60,11 @@ export interface EffectEmitSpec {
   spread?: number
   /** Grados de inclinación hacia donde viaja (0 = rígido). */
   bank?: number
+  /**
+   * Curva de opacidad: `fade` (default) entra y sale; `flash` aparece de golpe y
+   * se apaga — es lo que quiere un rayo o una chispa, no un bicho.
+   */
+  alpha?: 'fade' | 'flash'
   size?: number
   rotate?: number
   flapHz?: number
@@ -238,6 +243,8 @@ interface Particle {
   bobHz: number
   phase: number
   bank: number
+  /** `true` = opacidad "flash" (de golpe y se apaga), no fade in/out. */
+  alphaFlash: boolean
   scale: number
   rotate0: number
   flapHz: number
@@ -269,6 +276,7 @@ function makeParticle(): Particle {
     bobHz: 1.5,
     phase: 0,
     bank: 0,
+    alphaFlash: false,
     scale: 1,
     rotate0: 0,
     flapHz: 0,
@@ -446,7 +454,13 @@ function draw(): void {
       y += Math.sin((p.t / 1000) * Math.PI * 2 * p.bobHz + p.phase) * p.bobAmp
     }
 
-    const alpha = Math.min(1, Math.sin(k * Math.PI) * 1.6)
+    const alpha = p.alphaFlash
+      ? // Rayo/chispa: opaco mientras dura y se apaga al final. Entrar con fade
+        // lo hace ver blando (un relámpago no "aparece de a poco").
+        k < 0.6
+        ? 1
+        : Math.max(0, 1 - (k - 0.6) / 0.4)
+      : Math.min(1, Math.sin(k * Math.PI) * 1.6)
     if (alpha <= 0) continue
 
     const flap = flapFrame(p.flapHz, p.t, p.rotate0)
@@ -560,7 +574,10 @@ function spawn(spec: EffectEmitSpec, emittedAt: number): void {
   if (prefersReducedMotion()) return
   const scale = clamp01(emittedAt) * clamp01(intensity)
   const baseCount = Math.max(0, Math.floor(spec.count ?? 1))
-  const count = Math.round(baseCount * scale)
+  // Una partícula suelta no puede desaparecer por redondeo: con `count: 1` y
+  // intensidad 0.5, `Math.round(0.5)` daba 0 y el rayo NUNCA se dibujaba.
+  const raw = baseCount * scale
+  const count = raw > 0 ? Math.max(1, Math.round(raw)) : 0
   if (count <= 0) return
 
   const vp = canvas ? measureViewport() : viewport
@@ -634,6 +651,7 @@ function spawn(spec: EffectEmitSpec, emittedAt: number): void {
     p.bobHz = bobHz
     p.phase = Math.random() * Math.PI * 2
     p.bank = bank
+    p.alphaFlash = (spec.alpha ?? 'fade') === 'flash'
     p.scale = drawSize
     p.rotate0 = (Math.random() * 2 - 1) * rotate
     p.flapHz = flapHz

@@ -185,6 +185,11 @@ export interface EventOp {
   life?: number
   /** ms entre instancias (para hacer un río). Default 0. */
   every?: number
+  /**
+   * `emit`: curva de opacidad. `fade` (default) entra y sale; `flash` aparece de
+   * golpe y se apaga (rayos, chispas).
+   */
+  alpha?: 'fade' | 'flash'
 
   // ── audio.* ──
   /** Clave en `sounds`. */

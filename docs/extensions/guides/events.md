@@ -146,6 +146,7 @@ viewBox, compiled to a `Path2D` on the canvas.
 | `flapHz` | number | `0` | Flaps per second (0..30): rotates **only the wings** around the shoulder, between ±22°. The body does not move. Without a `wing` it does nothing. |
 | `life` | number (ms) | `6000` | Lifetime of each instance (200..120000). |
 | `every` | number (ms) | `0` | Stagger one instance every N ms. A small value (100–150) spawns a flock; a large one is a river. |
+| `alpha` | `'fade' \| 'flash'` | `'fade'` | Opacity curve. `fade` enters and leaves; `flash` is **opaque at once and then decays** — what a bolt or a spark wants (a lightning bolt does not fade in). |
 
 `jitter` and `spread` are not the same thing: `jitter` is **where each one
 appears**, `spread` is **where each one ends**.

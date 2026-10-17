@@ -283,6 +283,7 @@ function applyOp(op: EventOp, scene: EventScene, intensity: number): void {
         jitter: op.jitter,
         spread: op.spread,
         bank: op.bank,
+        alpha: op.alpha,
         size: op.size,
         rotate: op.rotate,
         flapHz: op.flapHz,

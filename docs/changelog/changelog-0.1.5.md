@@ -441,8 +441,20 @@ published are not edited. The file goes per version:
   restart — which reads exactly like "my change was not applied". A new palette
   command, **"Recargar eventos desde el pack"**, re-reads every event scene from
   disk; a broken JSON leaves the previous scene in place instead of wiping it.
-- **The lightning is synced to the audio, not to a guess.** New dev tool
-  `tools/_look-audio.mjs`: it prints an audio file's envelope as ASCII and
+- **The particles were painted UNDER the atmosphere.** The overlay's DOM order
+  was canvas → fog → tint → vignette (no `z-index`, so document order wins), so
+  the fog tinted every creature and — worse — the **white flash covered the white
+  lightning bolt**: the bolt was there, drawn every time, and nobody could see
+  it. The canvas now paints last, above fog/tint/vignette, which also makes the
+  black bats crisp instead of fog-washed.
+- **A one-particle effect could round down to nothing.** `count * intensity` was
+  rounded, so a bolt with `count: 1` at a low scene intensity produced **0**
+  particles: no bolt, no error. It now floors at 1 whenever one was asked for.
+- **`alpha: 'flash'` for bolts and sparks**: opaque immediately, then decays,
+  instead of fading in over half of its (short) life. The bolt also gets a thin
+  accent outline so it reads *against* the white flash, and the flash is a
+  four-step strobe (~400 ms) instead of a 30 ms blink.
+- **The lightning is synced to the audio, not to a guess.** New dev tool  `tools/_look-audio.mjs`: it prints an audio file's envelope as ASCII and
   detects its **onsets** (level jumps measured against the *local* median, not
   the global peak), plus the spectral brightness (zero-crossing rate) to tell
   rain from a low-frequency thunder. With it, `trueno.ogg` was recut so the crack

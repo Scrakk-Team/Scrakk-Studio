@@ -207,3 +207,20 @@ describe('aleteo: sólo el ala, el cuerpo quieto', () => {
     }
   })
 })
+
+describe('emisión: una partícula suelta nunca desaparece por redondeo', () => {
+  it('count 1 con intensidad baja sigue emitiendo 1', () => {
+    engine.clear(0)
+    engine.setIntensity(0.4)
+    engine.emit({ shape: SHAPE, count: 1 }, 0.4)
+    // Antes: Math.round(1 * 0.4 * 0.4) = 0 → el rayo NUNCA se dibujaba.
+    expect(engine.getParticleCount()).toBe(1)
+  })
+
+  it('intensidad 0 no emite nada', () => {
+    engine.clear(0)
+    engine.setIntensity(1)
+    engine.emit({ shape: SHAPE, count: 1 }, 0)
+    expect(engine.getParticleCount()).toBe(0)
+  })
+})

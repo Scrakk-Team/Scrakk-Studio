@@ -190,6 +190,7 @@ function normalizeOp(raw: unknown): EventOp | null {
       out.life = life === undefined ? 6000 : Math.max(200, Math.min(120_000, life))
       const every = num(r.every)
       if (every !== undefined) out.every = Math.max(0, Math.min(10_000, every))
+      if (r.alpha === 'flash') out.alpha = 'flash'
 
       const motion = r.motion
       if (motion && typeof motion === 'object') {
