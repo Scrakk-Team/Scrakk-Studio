@@ -1007,3 +1007,9 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
 - **Residual-risk list updated.** DNS rebinding is now closed (pinned-IP
   dispatcher), provider API keys fail closed without a keyring, and the OTP
   limits are documented as client-side (the auth API must enforce its own).
+- **CI checks runtime dependencies and the dev advisories were reduced.**
+  `npm audit --omit=dev` is now a blocking step in CI (0 vulnerabilities).
+  `npm audit fix` removed the two high dev-only advisories (`source-map-js`,
+  `http-cache-semantics`); 8 moderate remain inside the `electron-builder`
+  toolchain, which is not shipped in the app. `npm audit fix --force` would
+  require a breaking electron-builder downgrade, so it was not applied.

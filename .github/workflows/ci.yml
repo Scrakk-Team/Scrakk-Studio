@@ -40,6 +40,11 @@ jobs:
       - name: El lockfile no cambió
         run: git diff --exit-code -- package-lock.json
 
+      # Las dependencias que SÍ se empaquetan (no las de build) no pueden
+      # tener advisories conocidos.
+      - name: Runtime sin vulnerabilidades conocidas
+        run: npm audit --omit=dev
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -79,6 +84,11 @@ jobs:
 
       - name: El lockfile no cambió
         run: git diff --exit-code -- package-lock.json
+
+      # Las dependencias que SÍ se empaquetan (no las de build) no pueden
+      # tener advisories conocidos.
+      - name: Runtime sin vulnerabilidades conocidas
+        run: npm audit --omit=dev
 
       - name: Typecheck
         run: npm run typecheck
