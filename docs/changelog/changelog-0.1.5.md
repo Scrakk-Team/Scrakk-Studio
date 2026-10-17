@@ -711,3 +711,12 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   safe ref; never a leading `-`), `log`/`diff` also pass `--end-of-options`,
   branch start points are validated and stash indices must be non-negative
   integers. Covered by `tests/git-ref.test.ts`.
+- **Opening the IDE from a hostile folder can no longer execute native code.**
+  The search addon (`.node`, loaded with `require`) and the `kolargrep` sidecar
+  (`spawn`) both had `process.cwd()/native/...` in their candidate lists. A repo
+  that ships `native/search/index.linux-x64-gnu.node` or
+  `native/kolargrep/target/release/kolargrep` was therefore executed with the
+  privileges of the main process just because the app was started from that
+  directory (`cd repo && scrakk .`). Candidates now come only from the app's own
+  install/checkout (`shared`-free helper `search/nativePaths.ts`), and
+  `tests/native-paths.test.ts` pins that `cwd` never leaks in.

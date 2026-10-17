@@ -9,6 +9,7 @@
  */
 import * as path from 'path';
 import * as fs from 'fs';
+import { nativeSearchDirs } from './nativePaths';
 
 export interface NativeSearch {
   ensureIndex(root: string): string;
@@ -33,16 +34,10 @@ const watchedRoots = new Set<string>();
  * (`npm run build` corre `native:copy`).
  */
 function candidatePaths(): string[] {
-  const here = __dirname;
-  const unpacked = here.replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`);
   const names = ['scrakk-search.linux-x64-gnu.node', 'index.linux-x64-gnu.node'];
-  const dirs = [
-    here,
-    ...(unpacked === here ? [] : [unpacked]),
-    path.join(here, '../../native/search'),
-    path.join(process.cwd(), 'native/search')
-  ];
-  return dirs.flatMap((dir) => names.map((name) => path.join(dir, name)));
+  // Sin `process.cwd()`: ver nativePaths.ts (un repo abierto desde la
+  // terminal no puede inyectar un `.node` en el proceso main).
+  return nativeSearchDirs(__dirname).flatMap((dir) => names.map((name) => path.join(dir, name)));
 }
 
 export function getNativeSearch(): NativeSearch | null {

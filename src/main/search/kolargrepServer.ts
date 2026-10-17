@@ -24,6 +24,7 @@ import * as fs from 'fs'
 import * as net from 'net'
 import * as os from 'os'
 import * as path from 'path'
+import { kolargrepDirs } from './nativePaths'
 
 const BIN = 'kolargrep'
 /** Servidores vivos por root. Se matan al salir la app. */
@@ -103,15 +104,9 @@ function binaryName(): string {
  */
 function binaryCandidates(): string[] {
   const exe = binaryName()
-  const here = __dirname
-  const unpacked = here.replace(`app.asar${path.sep}`, `app.asar.unpacked${path.sep}`)
-  return [
-    path.join(process.resourcesPath ?? '', exe),
-    path.join(unpacked, exe),
-    path.join(here, exe),
-    path.join(here, '../../native/kolargrep/target/release', exe),
-    path.join(process.cwd(), 'native/kolargrep/target/release', exe)
-  ]
+  // Sin `process.cwd()`: si el IDE se arranca desde un repo, un binario
+  // plantado ahí se ejecutaría como proceso hijo. Ver nativePaths.ts.
+  return kolargrepDirs(__dirname, process.resourcesPath).map((dir) => path.join(dir, exe))
 }
 
 let cachedBinary: string | null | undefined
