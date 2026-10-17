@@ -121,6 +121,9 @@ function scrub(text: string): string {
     .replace(/gh[pousr]_[A-Za-z0-9_]+/g, '***')
     .replace(/github_pat_[A-Za-z0-9_]+/g, '***')
     .replace(/x-access-token:[^@\s]+/g, 'x-access-token:***')
+    // `https://user:glpat-…@host` (GitLab/Gitea) también es un secreto y no
+    // matchea ningún patrón de GitHub.
+    .replace(/(\b[a-z][a-z0-9+.-]*:\/\/)[^/@\s]+@/gi, '$1***@')
 }
 
 function fail<T>(code: GitError['code'], message: string): GitResult<T> {

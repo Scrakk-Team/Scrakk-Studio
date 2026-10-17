@@ -9,7 +9,7 @@
  * lista) → antes se perdía la sesión al reiniciar; ahora persiste igual.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 const h = vi.hoisted(() => {
   const fs = require('node:fs') as typeof import('node:fs')
@@ -50,8 +50,13 @@ function profile(id: string, email: string) {
 
 describe('store multi-cuenta', () => {
   beforeEach(() => {
-    clearAll()
     h.state.available = true
+    vi.stubEnv('SCRAKK_ALLOW_PLAINTEXT_SESSION', '')
+    clearAll()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('guarda varias cuentas y la última queda default', () => {
@@ -88,8 +93,18 @@ describe('store multi-cuenta', () => {
     expect(getActiveId()).toBe('u1')
   })
 
-  it('persiste aunque safeStorage NO esté disponible (Linux/keyring)', () => {
+  it('sin keyring NO persiste tokens en claro por defecto (fail-closed)', () => {
     h.state.available = false
+    upsertAccount(profile('u1', 'a@x.com'), { accessToken: 'a1', refreshToken: 'r1' })
+
+    // La sesión vive en memoria, pero al releer del disco no hay nada.
+    expect(getActiveId()).toBeNull()
+    expect(getAccount('u1')).toBeNull()
+  })
+
+  it('permite el fallback en claro solo con el opt-in explícito', () => {
+    h.state.available = false
+    vi.stubEnv('SCRAKK_ALLOW_PLAINTEXT_SESSION', '1')
     upsertAccount(profile('u1', 'a@x.com'), { accessToken: 'a1', refreshToken: 'r1' })
 
     // Se lee de nuevo (simula reinicio) sin cifrado disponible.

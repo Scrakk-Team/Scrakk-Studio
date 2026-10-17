@@ -820,3 +820,20 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `expectedId` and verifies it **before** deleting anything. Automatic
   extension updates are now opt-in (`SCRAKK_AUTO_UPDATE_EXTENSIONS=1`) until
   packages are signed. Covered by `tests/sef-install.test.ts`.
+- **Account sessions fail closed without a real keyring, and removal revokes
+  the refresh token.** On Linux without keyring, `safeStorage` reports
+  `basic_text` (a fixed "peanuts" key) and the account store wrote
+  `access_token`/`refresh_token` as JSON anyway. It now treats `basic_text` as
+  "no encryption" and refuses to persist unless
+  `SCRAKK_ALLOW_PLAINTEXT_SESSION=1`; it also `chmod 0600`s an existing file
+  (the `mode` option only applies on creation). Removing an account uses
+  `signOut({ scope: 'global' })`, so a copied refresh token no longer survives
+  the logout. Covered by `tests/account-store.test.ts`.
+- **models.dev is treated as untrusted input.** A remote/cached catalog could
+  contain a provider or model called `__proto__` and mutate the projection map,
+  and the disk cache was returned without validating its shape. Dangerous keys
+  are skipped, the reasoning map has a null prototype, the cache is validated
+  (`id`, `baseUrl`, `models`) and the remote payload is capped at 20 MB.
+  Covered by `tests/models-catalog.test.ts`. Git errors now also redact
+  `scheme://user:password@host` credentials (GitLab/Gitea PATs), not just
+  GitHub's.

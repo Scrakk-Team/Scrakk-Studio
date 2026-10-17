@@ -81,17 +81,43 @@ function read(): Store {
   }
 }
 
+/**
+ * `basic_text` es el backend de Chromium cuando no hay keyring: usa una clave
+ * fija ("peanuts"), así que no protege nada. Se trata como "sin cifrado".
+ */
+function secureEncryption(): boolean {
+  if (!canEncrypt()) return false
+  try {
+    const backend = safeStorage.getSelectedStorageBackend?.()
+    if (backend === 'basic_text') return false
+  } catch {
+    // Versiones sin getSelectedStorageBackend: se confía en canEncrypt().
+  }
+  return true
+}
+
 function write(store: Store): void {
   const json = JSON.stringify(store)
+  const encrypt = secureEncryption()
+  // Sin keyring real: por defecto NO se persisten refresh tokens en claro
+  // (la sesión vive en memoria hasta cerrar). El opt-in es explícito.
+  if (!encrypt && process.env.SCRAKK_ALLOW_PLAINTEXT_SESSION !== '1') {
+    console.warn(
+      '[account] sin keyring seguro: la sesión no se persiste (SCRAKK_ALLOW_PLAINTEXT_SESSION=1 para forzarlo)'
+    )
+    return
+  }
   let buf: Buffer
   try {
-    buf = canEncrypt() ? safeStorage.encryptString(json) : Buffer.from(json, 'utf-8')
+    buf = encrypt ? safeStorage.encryptString(json) : Buffer.from(json, 'utf-8')
   } catch {
     buf = Buffer.from(json, 'utf-8')
   }
   try {
     fs.mkdirSync(path.dirname(filePath()), { recursive: true, mode: 0o700 })
     fs.writeFileSync(filePath(), buf, { mode: 0o600 })
+    // `mode` solo aplica al crear: un archivo previo conserva sus permisos.
+    fs.chmodSync(filePath(), 0o600)
   } catch {
     // Un fallo de disco no debe romper la sesión en memoria.
   }

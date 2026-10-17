@@ -97,8 +97,11 @@ function projectReasoning(
   models: Record<string, RawModel>,
   ids: string[]
 ): Record<string, { toggle?: boolean; effort?: string[] }> | undefined {
-  const out: Record<string, { toggle?: boolean; effort?: string[] }> = {}
+  // `Object.create(null)`: un modelo llamado `__proto__` no puede tocar el
+  // prototipo del mapa (el JSON remoto es input no confiable).
+  const out: Record<string, { toggle?: boolean; effort?: string[] }> = Object.create(null)
   for (const id of ids) {
+    if (!isSafeKey(id)) continue
     const model = models[id]
     if (!model?.reasoning) continue
     const options = Array.isArray(model.reasoning_options) ? model.reasoning_options : []
@@ -112,16 +115,21 @@ function projectReasoning(
   return Object.keys(out).length > 0 ? out : undefined
 }
 
+/** Claves que no pueden venir de un JSON remoto (prototype pollution). */
+function isSafeKey(id: string): boolean {
+  return id !== '__proto__' && id !== 'constructor' && id !== 'prototype'
+}
+
 /** Proyecta el JSON crudo de models.dev a la lista que consume la app. */
 export function projectCatalog(raw: Record<string, RawProvider>): CatalogProviderConfig[] {
   const out: CatalogProviderConfig[] = []
   for (const [id, provider] of Object.entries(raw)) {
-    if (!provider || typeof provider !== 'object') continue
+    if (!isSafeKey(id) || !provider || typeof provider !== 'object') continue
     const baseUrl = (provider.api ?? BASE_URL_OVERRIDES[id] ?? '').trim()
     if (!baseUrl) continue
     const rawModels = provider.models ?? {}
     const ids = Object.keys(rawModels)
-      .filter((modelId) => isTextModel(rawModels[modelId]))
+      .filter((modelId) => isSafeKey(modelId) && isTextModel(rawModels[modelId]))
       .sort()
     out.push({
       id,
@@ -139,12 +147,31 @@ export function projectCatalog(raw: Record<string, RawProvider>): CatalogProvide
   return out.sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/** El cache de disco también es input no confiable (cualquiera escribe ahí). */
+function sanitizeCatalog(value: unknown): ModelsDevCatalog | null {
+  if (!value || typeof value !== 'object') return null
+  const parsed = value as Partial<ModelsDevCatalog>
+  if (!Array.isArray(parsed.providers)) return null
+  const providers = parsed.providers.filter(
+    (provider): provider is CatalogProviderConfig =>
+      Boolean(provider) &&
+      typeof provider.id === 'string' &&
+      isSafeKey(provider.id) &&
+      typeof provider.baseUrl === 'string' &&
+      /^https?:\/\//i.test(provider.baseUrl) &&
+      Array.isArray(provider.models)
+  )
+  if (providers.length === 0) return null
+  return {
+    fetchedAt: typeof parsed.fetchedAt === 'number' ? parsed.fetchedAt : 0,
+    providers
+  }
+}
+
 async function readDisk(): Promise<ModelsDevCatalog | null> {
   try {
     const raw = await fs.readFile(cachePath(), 'utf-8')
-    const parsed = JSON.parse(raw) as ModelsDevCatalog
-    if (!parsed || !Array.isArray(parsed.providers)) return null
-    return parsed
+    return sanitizeCatalog(JSON.parse(raw))
   } catch {
     return null
   }
@@ -164,7 +191,11 @@ async function fetchRemote(): Promise<ModelsDevCatalog | null> {
   try {
     const response = await fetch(CATALOG_URL, { signal: controller.signal })
     if (!response.ok) return null
-    const raw = (await response.json()) as Record<string, RawProvider>
+    // Tope de tamaño: `response.json()` no limita y el catálogo remoto es
+    // input no confiable.
+    const text = await response.text()
+    if (text.length > 20 * 1024 * 1024) return null
+    const raw = JSON.parse(text) as Record<string, RawProvider>
     const catalog: ModelsDevCatalog = { fetchedAt: Date.now(), providers: projectCatalog(raw) }
     if (catalog.providers.length === 0) return null
     current = catalog

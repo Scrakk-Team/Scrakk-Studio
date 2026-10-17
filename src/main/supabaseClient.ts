@@ -121,8 +121,10 @@ export function dropClient(accountId: string): void {
   const pending = clients.get(accountId)
   clients.delete(accountId)
   if (!pending) return
+  // `global` revoca el refresh token en el servidor: con `local` una copia
+  // previa del token seguía siendo válida después de quitar la cuenta.
   void pending
-    .then((client) => client.auth.signOut({ scope: 'local' }))
+    .then((client) => client.auth.signOut({ scope: 'global' }))
     .catch(() => {
       /* noop */
     })
