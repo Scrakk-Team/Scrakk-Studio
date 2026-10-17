@@ -16,7 +16,7 @@ Requirements: **Node.js 22+** (the tooling imports `.ts` files directly via type
 stripping). The workflows in `.github/workflows/` pin Node **24**.
 
 ```bash
-git clone https://github.com/Scrakk/Scrakk-Studio.git
+git clone https://github.com/Scrakk-Team/Scrakk-Studio.git
 cd Scrakk-Studio
 npm install       # postinstall downloads the Electron binary
 npm run dev       # electron-vite dev with renderer hot reload

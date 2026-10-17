@@ -94,6 +94,15 @@ function isSensitive(path: string): boolean {
 }
 
 /**
+ * Ruta de credencial conocida (`.ssh`, `.aws`, `.gnupg`, `.pem`…). La usan
+ * otros canales que no pasan por el jail de extensiones (p. ej. encodings)
+ * para no exponer claves privadas a un renderer comprometido.
+ */
+export function isSensitiveCredentialPath(filePath: string): boolean {
+  return isSensitive(normalizeFsPath(filePath))
+}
+
+/**
  * Normalización LEXICAL de una ruta: resuelve `.` y `..` como haría el sistema
  * de archivos al abrir la ruta, colapsa separadores duplicados y quita la barra
  * final. Sin `node:path` a propósito — este módulo es puro y lo importa el

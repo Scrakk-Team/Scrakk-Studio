@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterAll } from 'vitest'
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, writeFile, readFile, rm, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -197,5 +197,35 @@ describe('service I/O con tmpdir', () => {
     const r = await readFileEncoded(p)
     expect(r.detected?.encoding).toBe('utf16le-bom')
     expect(r.text).toBe('unicode ✓ 日本')
+  })
+})
+
+describe('readFileEncoded/writeFileEncoded — rutas sensibles', () => {
+  it('no lee claves privadas ni credenciales', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'scrakk-enc-sensitive-'))
+    try {
+      const dir = join(root, '.ssh')
+      await mkdir(dir, { recursive: true })
+      const p = join(dir, 'id_rsa')
+      await writeFile(p, 'PRIVATE KEY', 'utf-8')
+      const r = await readFileEncoded(p)
+      expect(r.success).toBe(false)
+      expect(r.error).toMatch(/sensible/i)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it('no escribe a través de encodings en una ruta sensible', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'scrakk-enc-sensitive-'))
+    try {
+      const w = await writeFileEncoded(join(root, '.aws', 'credentials'), 'evil', {
+        encoding: 'utf8'
+      })
+      expect(w.success).toBe(false)
+      expect(w.error).toMatch(/sensible/i)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 })

@@ -138,6 +138,7 @@
   "main.request.invalido": "Invalid request",
   "main.ruta.fuera.de.scrakk": "Path outside of .scrakk",
   "main.ruta.fuera.del.repo": "Path outside the repo",
+  "main.ruta.sensible.protegida": "Protected sensitive path",
   "main.ruta.invalida": "Invalid path",
   "main.scrakk.extension.sef": "Scrakk Extension (SEF)",
   "main.scrakk.studio": "Scrakk Studio",

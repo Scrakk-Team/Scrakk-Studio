@@ -11,7 +11,7 @@
  *
  * Guardas: en desarrollo (`app.isPackaged === false`) y en Linux sin AppImage
  * no hay auto-update; se reporta `unsupported` y el renderer ofrece el enlace
- * a la release. El provider (GitHub Scrakk/Scrakk-Studio) sale del
+ * a la release. El provider (GitHub Scrakk-Team/Scrakk-Studio) sale del
  * `app-update.yml` que escribe electron-builder por la config `publish`.
  */
 

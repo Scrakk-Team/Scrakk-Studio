@@ -27,7 +27,10 @@ copyright: Copyright © Scrakk
 # `files: release/*`. No publica solo: el workflow usa `--publish never`.
 publish:
   provider: github
-  owner: Scrakk
+  # El repo canónico es Scrakk-Team/Scrakk-Studio. Con `Scrakk` dependíamos de
+  # un redirect de GitHub: si esa cuenta se libera, el updater podría recibir
+  # un `latest.yml` ajeno.
+  owner: Scrakk-Team
   repo: Scrakk-Studio
 
 directories:
@@ -35,6 +38,16 @@ directories:
   buildResources: build-resources
 
 asar: true
+
+# Fuses de Electron (se aplican al empaquetar). Sin esto, cualquiera puede
+# reabrir la app empaquetada como Node (`ELECTRON_RUN_AS_NODE`) o inyectar
+# `NODE_OPTIONS`/`--inspect` para ejecutar código en el proceso main.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableCookieEncryption: true
+  onlyLoadAppFromAsar: true
 # Fuera del asar: todo lo que el sistema operativo tiene que abrir como ARCHIVO
 # REAL, no como ruta virtual del archivo.
 #  - los .node (nativos) no pueden ejecutarse desde adentro del asar;

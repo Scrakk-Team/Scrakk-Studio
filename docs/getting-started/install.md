@@ -13,7 +13,7 @@ source route is what contributors use.
 
 ## From GitHub Releases
 
-Open <https://github.com/Scrakk/Scrakk-Studio/releases/latest> and pick the
+Open <https://github.com/Scrakk-Team/Scrakk-Studio/releases/latest> and pick the
 artifact for your OS. The targets are defined in `electron-builder.yml` and
 produced by `.github/workflows/release.yml`.
 
@@ -42,7 +42,7 @@ Requirements: **Node.js 22+** (the tooling imports `.ts` files directly via type
 stripping) and npm. The CI and release workflows pin Node **24**.
 
 ```bash
-git clone https://github.com/Scrakk/Scrakk-Studio.git
+git clone https://github.com/Scrakk-Team/Scrakk-Studio.git
 cd Scrakk-Studio
 npm install          # runs postinstall → node node_modules/electron/install.js
 npm run dev          # electron-vite dev (hot reload on the renderer)

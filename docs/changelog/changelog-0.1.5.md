@@ -905,3 +905,15 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `LD_PRELOAD`. Git hooks from a repository are disabled by default
   (`SCRAKK_ALLOW_GIT_HOOKS=1` to opt in): a `.git/hooks` shipped inside a ZIP
   executes on commit/checkout/pull. Covered by `tests/env-filter.test.ts`.
+- **Encoding tools no longer read/write credential files, and packaging uses
+  Electron fuses.** `encodings:read`/`encodings:write` accepted any absolute
+  path (and `write` created parent directories), so a compromised renderer
+  could read `~/.ssh/id_rsa` or plant `~/.aws/credentials` without the extension
+  jail. Sensitive paths (`.ssh`, `.aws`, `.gcloud`, `.kube`, `.gnupg`, `*.pem`,
+  `*.key`, `id_rsa`, `.netrc`) are rejected and reads are capped at 256 MB.
+  `electron-builder.yml` now sets `runAsNode: false`,
+  `enableNodeOptionsEnvironmentVariable: false`,
+  `enableNodeCliInspectArguments: false`, `enableCookieEncryption: true` and
+  `onlyLoadAppFromAsar: true`, and the update feed points at the canonical
+  `Scrakk-Team/Scrakk-Studio` instead of relying on a GitHub redirect.
+  Covered by `tests/encodings.test.ts`.

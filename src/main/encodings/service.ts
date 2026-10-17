@@ -23,6 +23,10 @@ import { detectEncoding } from './detect'
 import { getCodec, isRendererDelegated } from './registry'
 
 import { t } from '@shared/i18n'
+import { isSensitiveCredentialPath } from '@shared/permissions'
+
+/** Tope de lectura: el editor no abre archivos de cientos de MB. */
+const MAX_ENCODED_BYTES = 256 * 1024 * 1024
 export interface ReadEncodedOptions {
   /** Encoding a forzar (ignora detección). Para "Reabrir con…". */
   overrideEncoding?: EncodingId
@@ -36,6 +40,15 @@ export async function readFileEncoded(
   filePath: string,
   options: ReadEncodedOptions = {}
 ): Promise<ReadEncodedResult> {
+  // Este canal no pasa por el jail de workspace: al menos nunca devuelve
+  // claves privadas/credenciales a un renderer comprometido.
+  if (isSensitiveCredentialPath(filePath)) {
+    return { success: false, error: t('main.ruta.sensible.protegida') }
+  }
+  const stat = await fs.stat(filePath).catch(() => null)
+  if (stat && stat.size > MAX_ENCODED_BYTES) {
+    return { success: false, error: t('main.el.archivo.es.demasiado.grande') }
+  }
   const bytes = await fs.readFile(filePath)
   const view = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
 
@@ -96,6 +109,9 @@ export async function writeFileEncoded(
   text: string,
   options: WriteEncodedOptions
 ): Promise<WriteEncodedResult> {
+  if (isSensitiveCredentialPath(filePath)) {
+    return { success: false, error: t('main.ruta.sensible.protegida') }
+  }
   const codec = getCodec(options.encoding)
   if (!codec) {
     return { success: false, error: `Encoding desconocido: ${options.encoding}` }

@@ -37,7 +37,7 @@ export const UPDATES_IPC = {
 } as const
 
 /** Repo del proyecto (overrideable con `SCRAKK_UPDATES_REPO`). */
-export const DEFAULT_UPDATES_REPO = 'Scrakk/Scrakk-Studio'
+export const DEFAULT_UPDATES_REPO = 'Scrakk-Team/Scrakk-Studio'
 
 /** Una release publicada. */
 export interface ReleaseInfo {
