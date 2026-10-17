@@ -752,3 +752,16 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   existing ancestor for files that do not exist yet
   (`extensions/realpathJail.ts`). Covered by `tests/symlink-jail.test.ts` and
   `tests/extension-symlink-jail.test.ts`.
+- **`web_fetch` no longer reaches loopback services or metadata endpoints, and
+  no longer buffers unbounded responses.** Loopback (`127/8`, `::1`) was
+  explicitly allowed "for dev", so a public URL that redirected to
+  `https://127.0.0.1:<port>` could talk to Docker/kube/panel APIs and the error
+  message even returned 300 bytes of the body. `::ffff:7f00:1` (mapped IPv4 in
+  hex) also slipped past the block list. Loopback is now denied unless
+  `SCRAKK_ALLOW_LOOPBACK_FETCH=1` is set, IPv6 is expanded before checking
+  (hex-mapped v4, link-local, unique-local), and the body is read through a
+  2 MB stream limit instead of `arrayBuffer()` — a gzip bomb could exhaust the
+  main process during the 25 s timeout. Invalid HTML entities such as
+  `&#99999999;` no longer throw `RangeError` and abort the fetch. Covered by
+  `tests/web-ssrf.test.ts`. Residual risk: DNS rebinding (the resolver and
+  `fetch` are separate lookups) is not eliminated.

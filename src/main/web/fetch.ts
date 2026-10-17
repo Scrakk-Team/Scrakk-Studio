@@ -16,6 +16,39 @@ import type { WebFetchResponse } from '@shared/web'
 import { assertPublicHost } from './ssrf'
 import { htmlToMarkdown } from './html'
 
+/**
+ * Lee como máximo `max` bytes del body.
+ *
+ * `arrayBuffer()` materializaba la respuesta COMPLETA antes de recortarla, así
+ * que una página (o un gzip-bomb que `fetch` descomprime) de cientos de MB
+ * agotaba la memoria del main durante los 25 s del timeout.
+ */
+async function readLimited(response: Response, max: number): Promise<Uint8Array> {
+  const reader = response.body?.getReader()
+  if (!reader) return new Uint8Array()
+  const chunks: Buffer[] = []
+  let received = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    if (!value) continue
+    const room = max - received
+    if (room <= 0) {
+      await reader.cancel().catch(() => undefined)
+      break
+    }
+    if (value.byteLength > room) {
+      chunks.push(Buffer.from(value.subarray(0, room)))
+      received += room
+      await reader.cancel().catch(() => undefined)
+      break
+    }
+    chunks.push(Buffer.from(value))
+    received += value.byteLength
+  }
+  return Buffer.concat(chunks)
+}
+
 import { t } from '@shared/i18n'
 const UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36'
@@ -64,7 +97,7 @@ export async function fetchUrl(rawUrl: string): Promise<WebFetchResponse> {
       if (!response.ok) throw new Error(`El sitio respondió ${response.status}`)
 
       const contentType = response.headers.get('content-type') ?? ''
-      const bytes = Buffer.from(await response.arrayBuffer()).subarray(0, MAX_BYTES)
+      const bytes = await readLimited(response, MAX_BYTES)
       const text = new TextDecoder('utf-8').decode(bytes)
 
       let title = ''

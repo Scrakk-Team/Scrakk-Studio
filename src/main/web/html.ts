@@ -12,6 +12,17 @@
 
 const DROP_BLOCKS = /<(script|style|noscript|template|svg|head|nav|footer|form|iframe)[\s\S]*?<\/\1>/gi
 
+/**
+ * `String.fromCodePoint` lanza `RangeError` con `&#99999999;` y con
+ * surrogates, y ese throw abortaba el fetch entero. Una entidad inválida se
+ * descarta en vez de tumbar la conversión.
+ */
+function safeCodePoint(value: number): string {
+  if (!Number.isFinite(value) || value <= 0 || value > 0x10ffff) return ''
+  if (value >= 0xd800 && value <= 0xdfff) return ''
+  return String.fromCodePoint(value)
+}
+
 function decodeEntities(text: string): string {
   return text
     .replace(/&nbsp;/gi, ' ')
@@ -20,8 +31,8 @@ function decodeEntities(text: string): string {
     .replace(/&gt;/gi, '>')
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&#(\d+);/g, (_m, code: string) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_m, code: string) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#(\d+);/g, (_m, code: string) => safeCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_m, code: string) => safeCodePoint(parseInt(code, 16)))
 }
 
 function stripTags(html: string): string {
