@@ -765,3 +765,12 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `&#99999999;` no longer throw `RangeError` and abort the fetch. Covered by
   `tests/web-ssrf.test.ts`. Residual risk: DNS rebinding (the resolver and
   `fetch` are separate lookups) is not eliminated.
+- **`terminal:cd` and `screenshot:capture` sanitize the renderer-provided
+  path/name.** On Windows, `changeDirCommand` escaped `"` as `""`, which does
+  not escape anything in `cmd.exe` — it closes and reopens the quote, and `&`
+  outside quotes separates commands, so a workspace folder named
+  `x" & calc.exe & rem "` executed code when the terminal relocated. Windows
+  paths containing `" & | < > ^ %`, NUL/CR/LF are now rejected. The screenshot
+  name is reduced to a basename and normalized (`sanitizeScreenshotName`), so
+  `name: "../../.config/autostart/x"` can no longer write (and `mkdir -p`)
+  outside the chosen directory. Covered by `tests/shell-cd.test.ts`.

@@ -9,6 +9,7 @@ import * as os from 'os'
 import * as path from 'path'
 import { execSync } from 'child_process'
 import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
+import { changeDirCommand } from '@shared/shell-cd'
 import {
   listMonoFamilies,
   readFontStack,
@@ -47,20 +48,6 @@ function getShell(shell?: string): string {
   if (shell === 'zsh') return '/bin/zsh'
   if (shell === 'bash' || !shell) return process.env.SHELL || '/bin/bash'
   return shell
-}
-
-/**
- * Comando `cd` para reubicar el shell, según la plataforma.
- *
- * En Windows el shell es cmd.exe (`/d` cambia de unidad si hace falta); en
- * POSIX se usa comilla simple (segura con espacios y `$`) y `--` para rutas
- * que empiezan con guion.
- */
-function changeDirCommand(dir: string): string {
-  if (process.platform === 'win32') {
-    return `cd /d "${dir.replace(/"/g, '""')}"\r`
-  }
-  return `cd -- '${dir.replace(/'/g, `'\\''`)}'\r`
 }
 
 export function registerTerminalIpc(): void {
@@ -119,7 +106,9 @@ export function registerTerminalIpc(): void {
 
   ipcMain.handle(TERMINAL_IPC.cd, async (_event, req: TerminalCdRequest) => {
     const proc = terms.get(req.id)
-    if (proc && req.path) proc.write(changeDirCommand(req.path))
+    if (!proc || !req.path) return
+    const command = changeDirCommand(req.path, process.platform)
+    if (command) proc.write(command)
   })
 
   ipcMain.handle(TERMINAL_IPC.resize, async (_event, req: TerminalResizeRequest) => {

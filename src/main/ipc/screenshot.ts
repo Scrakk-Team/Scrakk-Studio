@@ -23,6 +23,7 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import {
   SCREENSHOT_IPC,
+  sanitizeScreenshotName,
   type ScreenshotRequest,
   type ScreenshotResponse
 } from '@shared/screenshot'
@@ -72,9 +73,12 @@ export function registerScreenshotIpc(): void {
           image = image.crop(bounded)
         }
 
-        const dir = request.dir ?? app.getPath('downloads')
+        // `name` llega del renderer: sin `basename` un `../../.config/algo`
+        // escribía el PNG fuera del directorio (y creaba las carpetas).
+        const dir = path.resolve(request.dir ?? app.getPath('downloads'))
+        const safeName = sanitizeScreenshotName(request.name, defaultName())
         await fs.mkdir(dir, { recursive: true })
-        const filePath = path.join(dir, `${request.name ?? defaultName()}.png`)
+        const filePath = path.join(dir, `${safeName}.png`)
         const png = image.toPNG()
         if (png.length === 0) return { success: false, error: t('main.no.se.pudo.codificar.el') }
         await fs.writeFile(filePath, png)

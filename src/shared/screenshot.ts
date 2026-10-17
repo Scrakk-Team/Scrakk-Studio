@@ -58,6 +58,19 @@ export interface ScreenshotResponse {
   error?: string
 }
 
+/**
+ * Nombre de archivo seguro para el PNG.
+ *
+ * `name` viene del renderer: sin esto, `../../.config/autostart/x` escribía
+ * fuera del directorio elegido (y `mkdir -p` creaba las carpetas). Se queda
+ * con el basename, quita la extensión y normaliza a `[A-Za-z0-9_.-]`.
+ */
+export function sanitizeScreenshotName(name: string | undefined, fallback: string): string {
+  const raw = (name ?? '').split(/[/\\]/).pop() ?? ''
+  const base = raw.replace(/\.png$/i, '').replace(/[^\w.-]+/g, '_').replace(/^\.+/, '')
+  return base || fallback
+}
+
 /** API expuesta por el preload. */
 export interface ScreenshotApi {
   capture: (request?: ScreenshotRequest) => Promise<ScreenshotResponse>
