@@ -464,6 +464,12 @@ published are not edited. The file goes per version:
   the `npm run sef:*` scripts.
 
 ### Themes (Appearance)
+- **The corner radius now animates when you switch themes.** The radii are
+  registered custom properties (`@property --radius-*` with
+  `syntax: '<length>'`), which makes them animatable, and `:root` transitions
+  them — so changing theme interpolates the corners live across the whole chrome
+  instead of snapping. The transition is armed only **after the first paint**, so
+  the theme you open with does not morph on startup; only later switches animate.
 - **Zed One Dark now sets its own corner radii.** Like OpenCode AI, the theme
   declares the `radius` variable the theme engine reads (`'rect'` for fully
   square, `'round'` for the system values, or a per-slot map). Zed One Dark uses
@@ -679,3 +685,18 @@ it fixes, and who reported it.
   `new URL(...).pathname` built a broken path on Windows (now `fileURLToPath`),
   and a `#!/usr/bin/env node` shebang in an ESM module broke the collection of
   two suites under Vite's SSR transform.
+
+### Security (audit)
+Hardening from a full security pass over the desktop app, the extension system
+and the backend. Each item names the exposed surface and what changed; anything
+that needs an out-of-repo action (key rotation) is called out explicitly.
+
+- **The local admin bundle can no longer reach the public repo.**
+  `tools/admin.zip` (an archive of the `service_role`-using admin tool) was not
+  matched by `.gitignore` — only the `tools/admin/` directory was — so a plain
+  `git add -A` would have published a production `service_role` key. The ignore
+  rule is now `tools/admin*` (directory **and** archives), and `*.zip`, `*.7z`,
+  `*.tar.gz`, `*.bak` and `*.orig` are ignored as well because local backups can
+  carry `.env` files. `.env` was also `0664`; it is now `0600`. **Out-of-repo
+  action still required:** rotate the Supabase `service_role` JWT, the R2 access
+  key/secret and the DeepL key — they lived in that archive and in `.env`.

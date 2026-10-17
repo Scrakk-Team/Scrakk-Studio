@@ -28,7 +28,17 @@ build-resources/
 # `src/renderer/src/services/extensions/` (código real del IDE).
 /extensions/
 # Herramienta admin local (usa service_role, solo para mí): no versionar.
-tools/admin/
+# El patrón cubre también backups/archivos sueltos (`tools/admin.zip`): un
+# `git add -A` los publicaría en el repo público con la service_role dentro.
+tools/admin
+tools/admin.zip
+
+# Backups y artefactos comprimidos locales: pueden contener .env o claves.
+*.zip
+*.7z
+*.tar.gz
+*.bak
+*.orig
 .codebase-memory/
 .freebuff/
 .jokit/
