@@ -924,3 +924,8 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   permissions and warns that the extension can read files and run commands as
   the user. Declarative packages (themes, icons, languages) are unaffected.
   Covered by `tests/sef-install.test.ts`.
+- **`SECURITY.md` documents the trust model.** It states that extensions are
+  trusted code, that a workspace is not, that the renderer is not a security
+  boundary, and lists the residual risks (broad preload bridge, unsandboxed
+  extension host, unsigned builds, DNS rebinding) plus the rotation checklist
+  for the credentials that existed before this release.
