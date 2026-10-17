@@ -763,8 +763,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   2 MB stream limit instead of `arrayBuffer()` — a gzip bomb could exhaust the
   main process during the 25 s timeout. Invalid HTML entities such as
   `&#99999999;` no longer throw `RangeError` and abort the fetch. Covered by
-  `tests/web-ssrf.test.ts`. Residual risk: DNS rebinding (the resolver and
-  `fetch` are separate lookups) is not eliminated.
+  `tests/web-ssrf.test.ts`.
 - **`terminal:cd` and `screenshot:capture` sanitize the renderer-provided
   path/name.** On Windows, `changeDirCommand` escaped `"` as `""`, which does
   not escape anything in `cmd.exe` — it closes and reopens the quote, and `&`
@@ -778,7 +777,9 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `localStorage['scrakk-studio:providers']`, i.e. in the Chromium profile in
   plain text (and readable by any XSS or extension bundle in the renderer). The
   keys now live in the **main process** (`userData/secrets/api-keys.json`,
-  `safeStorage`-encrypted when the OS keychain is available, `0600` otherwise);
+  `safeStorage`-encrypted when a real OS keychain is available; without one
+  they are kept in memory only and **not** persisted — see the fail-closed
+  entry below);
   the renderer only receives booleans (`llm:api-key-status`) and the existing
   keys are migrated on first launch and removed from `localStorage`. The stream
   request no longer needs `apiKey`: the main resolves it from `providerId`.
@@ -837,6 +838,23 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   Covered by `tests/models-catalog.test.ts`. Git errors now also redact
   `scheme://user:password@host` credentials (GitLab/Gitea PATs), not just
   GitHub's.
+- **Shell commands are fail-closed.** `checkShellSafetyWithMode` returned
+  `null` for a `low`-risk command, and the engine fell through to its final
+  `ALLOW`: anything not matching the blacklist (`python -c`, `node -e`, `nc`,
+  `cat ~/.ssh/… | …`, uploads) ran **without confirmation** in the default
+  mode. That made indirect prompt injection a silent RCE. Unknown/low-risk
+  commands now return `ASK_USER`; `critical` is denied, `high`/`medium` ask,
+  and only `bypassPermissions` auto-approves. The blacklist also grew to cover
+  inline interpreters, raw network tools, upload/exfiltration patterns,
+  credential paths and persistence mechanisms, and `rm -rf /` is now
+  `critical` (the old regex missed `-rf`). Covered by
+  `tests/shell-policy.test.ts`.
+- **The extension webview CSP no longer depends on i18n.** `webviewCsp` built
+  `default-src`, `frame-src`, `base-uri` and `form-action` from translated
+  strings (`t('main.default.src.none')`), so a bad translation or a tampered
+  catalog could invalidate the policy. It now lives in
+  `extensions/webviewCsp.ts` with literal directives, covered by
+  `tests/webview-csp.test.ts`.
 ### Security (backend)
 - **The extension market can no longer self-publish, self-verify or swap its
   repo after approval.** `extensions_admin_guard` was `BEFORE UPDATE` only, so
@@ -927,7 +945,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
 - **`SECURITY.md` documents the trust model.** It states that extensions are
   trusted code, that a workspace is not, that the renderer is not a security
   boundary, and lists the residual risks (broad preload bridge, unsandboxed
-  extension host, unsigned builds, DNS rebinding) plus the rotation checklist
+  extension host, unsigned builds) plus the rotation checklist
   for the credentials that existed before this release.
 - **The LSP root walk no longer escapes the workspace through a sibling
   prefix.** `nearestRoot` used `dir.startsWith(stopAbs)`, so `/proj-evil`

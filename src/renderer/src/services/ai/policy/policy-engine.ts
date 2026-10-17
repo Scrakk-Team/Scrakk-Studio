@@ -391,7 +391,18 @@ export class PolicyEngine {
       }
     }
 
-    return null
+    // FAIL-CLOSED: un comando que no matchea ningún patrón NO es "seguro".
+    // Antes se devolvía null y el engine caía al `ALLOW` final, así que en el
+    // modo por defecto `python -c ...`, `nc ...`, `cat ~/.ssh/id_rsa | …`
+    // corrían sin preguntar (prompt injection → RCE silenciosa). La lista
+    // negra es solo para clasificar el riesgo; la decisión por defecto es
+    // preguntar. Los modos `auto` (fast-path de comandos rutinarios) y
+    // `bypassPermissions` siguen teniendo su propio camino explícito.
+    return {
+      decision: PolicyDecision.ASK_USER,
+      reason: `[${mode?.id}] shell command needs approval (fail-closed)`,
+      shellSafety: result,
+    }
   }
 }
 

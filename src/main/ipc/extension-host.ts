@@ -46,6 +46,7 @@ import { flattenConfigurationDefaults } from '../extensions/host/vscodeApi'
 import { setExtensionProvidersQueryFn } from '../extensions/providerBridge'
 
 import { t } from '@shared/i18n'
+import { webviewCsp } from '../extensions/webviewCsp'
 export const EXTENSION_SCHEME = 'scrakk-ext'
 
 /** Segmento reservado de URL para el documento de una vista. */
@@ -164,21 +165,6 @@ const WEBVIEW_SHIM = `<script>
  * la política es la de un panel típico tipo chat: assets locales, https para
  * API, nada de frames anidados.
  */
-function webviewCsp(extensionId: string): string {
-  const source = `${EXTENSION_SCHEME}://${extensionId}`
-  return [
-    t('main.default.src.none'),
-    `img-src ${source} https: data:`,
-    `media-src ${source} https: data:`,
-    `script-src ${source} 'unsafe-inline' https:`,
-    `style-src ${source} 'unsafe-inline' https:`,
-    `font-src ${source} https: data:`,
-    `connect-src ${source} https: wss:`,
-    t('main.frame.src.none'),
-    t('main.base.uri.none'),
-    t('main.form.action.none')
-  ].join('; ')
-}
 
 const CONTENT_TYPES: Record<string, string> = {
   '.js': 'text/javascript',
