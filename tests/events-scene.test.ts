@@ -234,3 +234,23 @@ describe('sonidos: archivo del pack o ZzFX', () => {
     expect(Object.keys(out!.sounds!)).toEqual(['ok'])
   })
 })
+
+describe('overlay.emit (efectos que aporta el pack)', () => {
+  it('exige `event` y acepta un ancla', () => {
+    const out = normalizeEventScene({
+      specVersion: 1,
+      overlay: 'pack.bolt',
+      background: 'pack.sky',
+      timeline: [
+        { op: 'overlay.emit', event: 'strike', anchor: 'lowest' },
+        { op: 'overlay.emit', event: 'boom' },
+        { op: 'overlay.emit' }
+      ]
+    })
+    // El que no dice a qué evento avisar se descarta; los otros dos quedan.
+    expect(out!.timeline).toHaveLength(2)
+    expect(out!.timeline[0].anchor).toBe('lowest')
+    expect(out!.overlay).toBe('pack.bolt')
+    expect(out!.background).toBe('pack.sky')
+  })
+})

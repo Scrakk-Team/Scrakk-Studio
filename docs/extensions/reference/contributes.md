@@ -12,7 +12,7 @@ the `ExtensionTypeRegistry` for each one's handler (`loader/resolve.ts`). An
 unknown key is logged and skipped — the app never crashes because of a broken
 extension.
 
-The **15 kinds** that exist today:
+The **16 kinds** that exist today:
 
 | Key | Adds | Mounted in | Code? |
 |---|---|---|---|
@@ -30,6 +30,7 @@ The **15 kinds** that exist today:
 | `fileHandlers` | Viewer for a format | Editor tabs | optional (component) |
 | `encodings` | Text codec | Opening/saving files | yes (JS module) |
 | `notifications` | Extension notification | Notification center | no |
+| `overlays` | React component in the effects/background layer | Overlay | yes (bundle) |
 | `events` | Timed experience (visual + audio scene) | Whole app (effects overlay) | no (data) |
 
 > "Code?" refers to the **extension's** code: the React bundle the renderer

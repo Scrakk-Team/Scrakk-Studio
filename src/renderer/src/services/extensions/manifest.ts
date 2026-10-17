@@ -25,6 +25,7 @@ import type { FileHandlerContribution } from './types/fileHandlers/schema'
 import type { ToolContribution } from './types/tools/schema'
 import type { SkillContribution } from './types/skills/schema'
 import type { EventContribution } from './types/events/schema'
+import type { OverlayContribution } from './types/overlays/schema'
 import type {
   PanelContribution,
   ActivityBarContribution,
@@ -91,6 +92,11 @@ export interface ExtensionContributions {
    * o solas dentro de la ventana (ver `src/shared/events`).
    */
   events?: EventContribution[]
+  /**
+   * Overlays: componentes del paquete que el IDE monta en una capa (`effects`
+   * encima de todo, `background` detrás de la app). Un evento los elige por id.
+   */
+  overlays?: OverlayContribution[]
   /** Language servers (SEF lspServers): se registran en el runtime main. */
   lspServers?: LspContribution[]
   /**

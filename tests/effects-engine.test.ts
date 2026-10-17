@@ -141,6 +141,7 @@ describe('clear', () => {
     })
     expect(engine.getFogTint()).toBeNull()
   })
+
 })
 
 describe('sin canvas / sin Path2D / sin rAF', () => {

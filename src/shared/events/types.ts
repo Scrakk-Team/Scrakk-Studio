@@ -127,6 +127,7 @@ export type EventOpName =
   | 'stage.tint'
   | 'stage.vignette'
   | 'stage.shake'
+  | 'overlay.emit'
   | 'emit'
   | 'audio.play'
   | 'audio.ambience'
@@ -146,12 +147,29 @@ export interface EventOp {
   at?: number
 
   // ── stage.* ──
-  /** `stage.fog` / `stage.vignette` / `stage.tint`: 0..1. */
+  /**
+   * `stage.fog` / `stage.vignette` / `stage.tint`: 0..1. En `stage.lightning`
+   * es la opacidad del rayo (0 = apagado); un golpe elige solo el componente
+   * donde cae (el más bajo de la pantalla), así que no hay que decirle dónde.
+   */
   amount?: number
   /** `stage.fog` / `stage.tint`: token del tema o color CSS. */
   tint?: string
   /** `stage.*`: ms de fade (in y out). Default 1200. */
   fade?: number
+
+  // ── overlay.emit ──
+  /**
+   * `overlay.emit`: NOMBRE del evento que se le manda al overlay que aporta la
+   * extensión (ej. `strike`). El core no sabe qué hace con él.
+   */
+  event?: string
+  /**
+   * `overlay.emit`: si viene, el payload lleva un `anchor` en pantalla sobre un
+   * elemento REAL de la parte baja (el más bajo y centrado). `lowest` = el más
+   * bajo; `center-bottom` = abajo al centro.
+   */
+  anchor?: 'lowest' | 'center-bottom'
 
   // ── stage.shake ──
   /** `stage.shake`: px de amplitud. Default 3. */
@@ -220,6 +238,13 @@ export interface EventScene {
   intensity?: number
   /** Cuánto dura el evento (ms). Default: hasta que cierre la ventana. */
   durationMs?: number
+  /**
+   * Id de un overlay del pack (`contributes.overlays`) que se monta ENCIMA de
+   * todo mientras el evento vive: ahí van los efectos (un rayo, una explosión).
+   */
+  overlay?: string
+  /** Id de un overlay que se monta DETRÁS de la app (cielo, niebla). */
+  background?: string
   override?: EventOverride
   sounds?: Record<string, EventSound>
   /** Strings del pack. En las ops se referencian como `@clave`. */

@@ -35,6 +35,8 @@ import { normalizeEventScene } from '@services/extensions/types/events/schema'
 import { engine } from '@services/effects/engine'
 import { playSound, preloadSounds, startAmbience, stopAmbience, stopAll, type SoundSpec } from '@services/audio'
 import { resolvePackagePath } from '@services/extensions/extensionDirs'
+import { emitOverlayEvent, resetOverlayBus } from './overlayBus'
+import { collectAnchorRects, pickAnchor } from './anchor'
 import { notify } from '@services/notifications'
 import { extensionStatusBar } from '@services/extensions/statusBar'
 import { t } from '@core/i18n'
@@ -74,6 +76,9 @@ interface ActiveEvent {
   /** Cuándo se apaga solo (null = hasta que lo detengan). */
   endsAt: number | null
   timers: ReturnType<typeof setTimeout>[]
+  /** Overlay de efectos / background que aporta el pack (ids). */
+  overlay?: string
+  background?: string
   /** Tema que había ANTES, para restaurarlo. */
   prevTheme: string | null
   statusId: string | null
@@ -274,6 +279,15 @@ function applyOp(op: EventOp, scene: EventScene, intensity: number): void {
     case 'stage.shake':
       engine.shake((op.intensity ?? 3) * intensity, op.duration ?? 400)
       break
+    case 'overlay.emit': {
+      if (!op.event) break
+      // El ANCLA se resuelve acá (el core sí conoce el DOM de la app) y viaja en
+      // el payload: el overlay del pack decide qué hacer con ella. Un rayo cae;
+      // otro efecto podría hacer estallar algo.
+      const anchor = op.anchor ? anchorPoint(op.anchor) : null
+      emitOverlayEvent(op.event, anchor ? { anchor } : undefined)
+      break
+    }
     case 'emit': {
       if (!op.draw) break
       const spec = {
@@ -390,6 +404,8 @@ export function activateEvent(id: string, options: { force?: boolean } = {}): bo
     name: entry.name,
     extensionId: entry.extensionId,
     scene: entry.scene,
+    overlay: entry.scene.overlay,
+    background: entry.scene.background,
     intensity,
     startedAt: now,
     endsAt,
@@ -439,7 +455,10 @@ export function deactivateEvent(reason: 'manual' | 'window' | 'replace' = 'manua
   current.timers = []
   stopAll(600)
 
-  // 3) Escenario y chip.
+  // 3) Overlays del pack: que no queden escuchando un evento que terminó.
+  resetOverlayBus()
+
+  // 4) Escenario y chip.
   engine.clear(600)
   if (current.statusId) extensionStatusBar.apply({ id: current.statusId, removed: true })
 
@@ -516,6 +535,31 @@ export function evaluateEvents(): void {
     })
     return
   }
+}
+
+/**
+ * Punto de ancla para un efecto que "cae": un elemento real de la parte baja de
+ * la pantalla, o abajo al centro si no hay ninguno.
+ */
+function anchorPoint(kind: 'lowest' | 'center-bottom'): { x: number; y: number } | null {
+  if (typeof window === 'undefined') return null
+  const viewport = { w: window.innerWidth, h: window.innerHeight }
+  if (kind === 'center-bottom' || typeof document === 'undefined') {
+    return { x: viewport.w / 2, y: viewport.h * 0.82 }
+  }
+  return pickAnchor(collectAnchorRects(), viewport)
+}
+
+/**
+ * Qué overlay tiene que montar una capa ahora mismo (lo lee el host). Devuelve
+ * el id y de qué evento es, para que el componente sepa quién lo montó.
+ */
+export function getActiveOverlayLayer(
+  layer: 'effects' | 'background'
+): { id: string; eventId: string; eventName: string } | null {
+  if (!active) return null
+  const id = layer === 'background' ? active.background : active.overlay
+  return id ? { id, eventId: active.id, eventName: active.name } : null
 }
 
 /** Arranca el runtime: revisión periódica + reacción a cambios. */

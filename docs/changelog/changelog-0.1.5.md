@@ -454,6 +454,22 @@ published are not edited. The file goes per version:
   instead of fading in over half of its (short) life. The bolt also gets a thin
   accent outline so it reads *against* the white flash, and the flash is a
   four-step strobe (~400 ms) instead of a 30 ms blink.
+- **Effects and backgrounds come from the extension, not from the core.** A new
+  `overlays` contribution kind (the 16th) lets a pack ship **React components**
+  for two layers: `effects` (above the whole UI) and `background` (behind the
+  app). An event picks them by id (`overlay` / `background` in the scene) and the
+  timeline talks to them with the `overlay.emit` op — a named event plus an
+  optional `anchor` that resolves to a **real, low element** on screen (the
+  lowest and most centred button/input/`select`/`[data-overlay-anchor]`), so an
+  effect lands on something instead of in the void. The core mounts and
+  forwards; it has no idea what the component draws.
+- **The Halloween pack now ships the lightning.** The bolt is the real WebGL
+  `Lightning` from React Bits (ported to TSX) living in the pack's `overlay/`
+  folder, together with a `NightSky` background (stars + drifting fog). The
+  crack at 2.8 s sends `overlay.emit { event: "strike", anchor: "lowest" }` and
+  the component drops the bolt on whatever real control is lowest. A hand-drawn
+  20x40 path was never going to read as real lightning — and it had no business
+  living in the core.
 - **The lightning is synced to the audio, not to a guess.** New dev tool  `tools/_look-audio.mjs`: it prints an audio file's envelope as ASCII and
   detects its **onsets** (level jumps measured against the *local* median, not
   the global peak), plus the spectral brightness (zero-crossing rate) to tell

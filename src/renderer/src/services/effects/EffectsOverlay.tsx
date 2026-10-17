@@ -13,6 +13,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type JSX } from 'react'
 import { engine } from './engine'
+import { OverlayHost } from '@services/events/OverlayHost'
 import styles from './EffectsOverlay.module.css'
 
 export function EffectsOverlay(): JSX.Element {
@@ -28,6 +29,8 @@ export function EffectsOverlay(): JSX.Element {
   }, [])
 
   const stage = engine.getStage()
+
+
   const fade = engine.getStageFade()
 
   // Desvío del shake: se recalcula en cada render (el motor avisa por frame
@@ -66,6 +69,9 @@ export function EffectsOverlay(): JSX.Element {
       <div className={styles.tint} style={tintStyle} />
       <div className={styles.vignette} style={vignetteStyle} />
       <canvas ref={canvasRef} className={styles.canvas} />
+      {/* Lo que aporta el PACK (efectos): encima de todo. El core no sabe qué
+          dibuja; sólo le pasa los eventos del timeline. */}
+      <OverlayHost layer="effects" />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import { ModalHost } from '@features/modals/ModalHost'
 import { SubagentOpenBridge } from '@features/chat/agents'
 import { ProfileFloatingHost } from '@features/social/components/ProfileFloating/ProfileFloating'
 import { EffectsOverlay } from '@services/effects'
+import { OverlayHost } from '@services/events/OverlayHost'
 import { installDefaultContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { ThemeBackground } from './ThemeBackground'
 import styles from './AppShell.module.css'
@@ -30,6 +31,8 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
   return (
     <div className={styles.shell}>
       <ThemeBackground />
+      {/* Fondo que aporta el pack (cielo, niebla): detrás del contenido. */}
+      <OverlayHost layer="background" />
       {children}
       {/* Capa de efectos de los eventos SEF (canvas + niebla). `pointer-events:
           none`, debajo de los modales: no intercepta nada ni suma layout. */}

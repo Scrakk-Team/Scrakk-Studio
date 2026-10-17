@@ -32,6 +32,7 @@ const OPS = new Set([
   'stage.tint',
   'stage.vignette',
   'stage.shake',
+  'overlay.emit',
   'emit',
   'audio.play',
   'audio.ambience',
@@ -163,6 +164,16 @@ function normalizeOp(raw: unknown): EventOp | null {
       out.intensity = intensity === undefined ? 3 : Math.max(0, Math.min(24, intensity))
       const duration = num(r.duration)
       out.duration = duration === undefined ? 400 : Math.max(50, Math.min(5000, duration))
+      return out
+    }
+    case 'overlay.emit': {
+      const event = str(r.event)
+      if (!event) {
+        console.warn('[extensions/events] overlay.emit sin `event` — descartada')
+        return null
+      }
+      out.event = event
+      if (r.anchor === 'lowest' || r.anchor === 'center-bottom') out.anchor = r.anchor
       return out
     }
     case 'emit': {
@@ -328,6 +339,9 @@ export function normalizeEventScene(raw: unknown): EventScene | null {
   if (intensity !== undefined) scene.intensity = clamp01(intensity)
   const durationMs = num(r.durationMs)
   if (durationMs !== undefined && durationMs > 0) scene.durationMs = durationMs
+
+  if (str(r.overlay)) scene.overlay = r.overlay as string
+  if (str(r.background)) scene.background = r.background as string
 
   if (r.override && typeof r.override === 'object') {
     const o = r.override as Record<string, unknown>

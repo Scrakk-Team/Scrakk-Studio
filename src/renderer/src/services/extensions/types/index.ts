@@ -17,6 +17,7 @@ import { activityBarHandler } from './activitybar/api'
 import { centerTabsHandler } from './centertabs/api'
 import { themesHandler } from './themes/api'
 import { eventsHandler } from './events/api'
+import { overlaysHandler } from './overlays/api'
 import { languagesHandler } from './languages/api'
 import { lspHandler } from './lsp/api'
 import { notificationsHandler } from './notifications/api'
@@ -39,6 +40,7 @@ export function ensureTypesRegistered(): void {
   ExtensionTypeRegistry.registerType(centerTabsHandler)
   ExtensionTypeRegistry.registerType(themesHandler)
   ExtensionTypeRegistry.registerType(eventsHandler)
+  ExtensionTypeRegistry.registerType(overlaysHandler)
   ExtensionTypeRegistry.registerType(languagesHandler)
   ExtensionTypeRegistry.registerType(lspHandler)
   ExtensionTypeRegistry.registerType(notificationsHandler)
@@ -63,6 +65,8 @@ export type { ActivityBarContribution } from './activitybar/schema'
 export type { CenterTabContribution } from './centertabs/schema'
 export type { ThemeContribution, ThemeDefinition } from './themes/schema'
 export type { EventContribution } from './events/schema'
+export type { OverlayContribution, OverlayLayer } from './overlays/schema'
+export type { OverlayComponentProps, RegisteredOverlay } from './overlays/logic'
 export {
   normalizeEventScene,
   isEffectColor,

@@ -127,6 +127,7 @@ timeline is sorted by `at`, so you do not have to order the JSON by hand.
 | `stage.tint` | A flat color wash. | `tint` **required**, `amount` 0..1 (`0.25`), `fade` ms (`1200`) |
 | `stage.vignette` | Darkens the edges. | `amount` 0..1 (`0.5`), `fade` ms (`1200`) |
 | `stage.shake` | Shakes the viewport. | `intensity` px (`3`, 0..24), `duration` ms (`400`, 50..5000) |
+| `overlay.emit` | Sends a named event to the **overlay component the extension ships** (`scene.overlay`). The core does not know what the component does with it. With an `anchor`, the payload carries `{ anchor: { x, y } }` on a **real, low element** of the screen (the lowest and most centred button/input/`select`/`[data-overlay-anchor]`), so an effect can "land" on something instead of in the void. | `event` **required**, `anchor` `'lowest' \| 'center-bottom'` (none) |
 
 ### Particles
 
