@@ -223,3 +223,24 @@ export function hasPermission(
 ): boolean {
   return declared?.includes(permission) ?? false
 }
+
+/**
+ * ¿La extensión puede recibir el TEXTO de este documento?
+ *
+ * El manager difundía cada `doc/open`/`doc/change` a todas las sesiones, con
+ * ruta y contenido completo, aunque la extensión no tuviera `fs.read` o el
+ * archivo estuviera fuera de su workspace (p. ej. `~/.aws/credentials` abierto
+ * a mano). Solo se entrega lo que podría leer por `fs`.
+ */
+export function canReadDocument(
+  declared: readonly string[] | null,
+  workspaceRoots: readonly string[],
+  filePath: string
+): boolean {
+  if (!hasPermission(declared, PERMISSIONS.FS_READ)) return false
+  const target = normalizeFsPath(filePath)
+  return workspaceRoots.some((root) => {
+    const base = normalizeFsPath(root)
+    return target === base || target.startsWith(base.endsWith('/') ? base : base + '/')
+  })
+}

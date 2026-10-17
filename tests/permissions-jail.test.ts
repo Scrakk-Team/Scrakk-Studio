@@ -9,6 +9,7 @@
 
 import { describe, it, expect } from 'vitest'
 import {
+  canReadDocument,
   checkPathAccess,
   hasPermission,
   normalizeFsPath,
@@ -304,5 +305,21 @@ describe('normalizeFsPath', () => {
       '/etc/hosts'
     )
     expect(result.allowed).toBe(true)
+  })
+})
+
+describe('canReadDocument — texto de documentos por sesión', () => {
+  const roots = ['/home/dev/proyectos/mi-app']
+
+  it('entrega documentos del workspace solo con fs.read', () => {
+    expect(canReadDocument([PERMISSIONS.FS_READ], roots, roots[0] + '/src/a.ts')).toBe(true)
+    expect(canReadDocument([], roots, roots[0] + '/src/a.ts')).toBe(false)
+    expect(canReadDocument(null, roots, roots[0] + '/src/a.ts')).toBe(false)
+  })
+
+  it('no entrega archivos fuera del workspace', () => {
+    expect(canReadDocument([PERMISSIONS.FS_READ], roots, '/home/dev/.aws/credentials')).toBe(false)
+    expect(canReadDocument([PERMISSIONS.FS_READ], roots, roots[0] + '-evil/a.ts')).toBe(false)
+    expect(canReadDocument([PERMISSIONS.FS_READ], roots, roots[0] + '/../.ssh/id_rsa')).toBe(false)
   })
 })

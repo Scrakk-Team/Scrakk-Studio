@@ -57,9 +57,22 @@ import {
   type ViewTitlePayload,
   type TreeNodeModel
 } from '@shared/extensionHost/protocol'
-import { checkPathAccess } from '@shared/permissions'
+import { canReadDocument, checkPathAccess } from '@shared/permissions'
 import { isRealPathInsideAny } from './realpathJail'
 import { RpcPeer } from './host/rpc'
+
+/**
+ * Comandos del IDE que una extensión NO puede disparar por `executeCommand`:
+ * abren un workspace (y con él amplían el jail) o un archivo fuera de él.
+ * La lista es del lado del MAIN para que un host comprometido no la saltee.
+ */
+const EXTENSION_DENIED_COMMANDS = new Set([
+  'vscode.openFolder',
+  'workbench.action.files.openFolder',
+  'workbench.action.files.openFileFolder',
+  'workbench.action.files.openFile',
+  'vscode.openWith'
+])
 
 // ── Costuras inyectables (para tests) ─────────────────────────────────────
 
@@ -460,17 +473,37 @@ export class ExtensionHostManager {
       // El host recibe el nombre del evento tal cual (`doc/open`, `doc/change`…).
       for (const session of this.sessions.values()) {
         if (session.disposed) continue
+        // El TEXTO completo de cada documento abierto se difundía a TODAS las
+        // extensiones, incluidas las que no declaran `fs.read` y las que no
+        // tienen el archivo dentro de su workspace (p. ej. `~/.aws/credentials`
+        // abierto a mano). Se filtra por sesión.
+        if (event.kind === 'open' || event.kind === 'change') {
+          if (!this.canSeeDocument(session, event.document.path)) continue
+        } else if (event.kind === 'active') {
+          if (event.path && !this.canSeeDocument(session, event.path)) continue
+        }
         session.peer.emit(`doc/${event.kind}` as MainEvent, event)
       }
     }
   }
 
-  /** Estado inicial del editor (lo que va en `init.documents`). */
-  documentSeed(): DocumentEvent[] {
-    const events: DocumentEvent[] = [...this.documents.values()].map((document) => ({
-      kind: 'open',
-      document
-    }))
+  /** ¿La sesión puede ver el texto de este documento? (`fs.read` + root). */
+  private canSeeDocument(session: HostSession, filePath: string): boolean {
+    return canReadDocument(
+      session.request.permissions.length > 0 ? session.request.permissions : null,
+      session.request.workspaceRoots,
+      filePath
+    )
+  }
+
+  /** Estado inicial del editor (lo que va en `init.documents`, por sesión). */
+  documentSeed(session: HostSession): DocumentEvent[] {
+    const events: DocumentEvent[] = [...this.documents.values()]
+      .filter((document) => this.canSeeDocument(session, document.path))
+      .map((document) => ({
+        kind: 'open',
+        document
+      }))
     events.push({
       kind: 'active',
       path: this.activeDocument,
@@ -555,7 +588,7 @@ export class ExtensionHostManager {
         configurationDefaults: request.configurationDefaults ?? {},
         // Estado del editor al momento de arrancar: la extensión ve los
         // documentos abiertos desde `activate()`, no en el primer cambio.
-        documents: this.documentSeed(),
+        documents: this.documentSeed(session),
         // Storage + estado + paquete: `context` del ExtensionContext listo.
         storage: extras.storage,
         globalState: extras.globalState,
@@ -1096,6 +1129,13 @@ export class ExtensionHostManager {
     peer.handle('command/execute', async (raw) => {
       const { id, args } = raw as { id: string; args: unknown[] }
 
+      // Abrir/crear un workspace o un archivo arbitrario con un comando del IDE
+      // no es algo que una extensión deba poder hacer sin que el usuario lo
+      // pida: `openFolder` ampliaba el jail del host a `/`.
+      if (EXTENSION_DENIED_COMMANDS.has(id)) {
+        return { ok: false, error: `[permisos] comando no permitido para extensiones: ${id}` }
+      }
+
       // 1) Built-in del IDE que se resuelve SIN depender de la UI. `setContext`
       //    cae aquí: es la primera llamada que espera una extensión al activar y
       //    no puede quedar colgada por un round-trip.
@@ -1116,8 +1156,19 @@ export class ExtensionHostManager {
     peer.handle('host/open-external', async (raw) => {
       const { target } = raw as { target?: string }
       if (!target) return { success: false, error: 'openExternal sin target' }
+      // `file:`, `smb:`, `ms-msdt:`… pueden ejecutar código o instalar software
+      // al abrirlos con el handler del sistema. Solo navegación web/correo.
+      let url: URL
+      try {
+        url = new URL(target)
+      } catch {
+        return { success: false, error: 'openExternal con URL inválida' }
+      }
+      if (!['https:', 'http:', 'mailto:'].includes(url.protocol)) {
+        return { success: false, error: `esquema no permitido: ${url.protocol}` }
+      }
       const { shell } = await import('electron')
-      await shell.openExternal(target)
+      await shell.openExternal(url.toString())
       return { success: true }
     })
   }

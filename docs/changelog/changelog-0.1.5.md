@@ -800,3 +800,23 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `href`/`src`, rejects external `url()`), applied both when parsing the
   contribution and at the three injection points. Covered by
   `tests/svg-icon.test.ts`.
+- **The extension host no longer receives every open document, cannot open a
+  folder, and cannot launch arbitrary schemes.** `applyDocumentEvents` sent the
+  full text of every `doc/open`/`doc/change` to **all** live hosts, including
+  extensions without `fs.read` and files outside their workspace
+  (`~/.aws/credentials` opened by hand), and `init.documents` seeded the same
+  set. Delivery is now filtered per session (`canReadDocument`: `fs.read` +
+  workspace root). `command/execute` refuses `vscode.openFolder` and the file
+  pickers (which could widen the host jail to `/`), and `env.openExternal`
+  only allows `https:`, `http:` and `mailto:` (no `file:`/`smb:`/`ms-*`).
+  Covered by `tests/permissions-jail.test.ts`.
+- **A `.sef` is bounded and tied to its catalog slug.** `parseSef` had no size
+  limits (a zip bomb took down the main process), accepted a manifest under
+  `../`, and the store installed whatever `id` the package declared — so a
+  published extension could declare another extension's id, delete its folder
+  and inherit its `.market.json` (and its future auto-updates). Downloads now
+  have a 100 MB cap and an allowlist of GitHub/GitLab asset hosts; extracted
+  content is limited (256 MB / 20k files); `installSefFromBuffer` accepts an
+  `expectedId` and verifies it **before** deleting anything. Automatic
+  extension updates are now opt-in (`SCRAKK_AUTO_UPDATE_EXTENSIONS=1`) until
+  packages are signed. Covered by `tests/sef-install.test.ts`.

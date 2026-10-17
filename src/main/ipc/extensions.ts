@@ -60,13 +60,32 @@ interface ParsedSef {
   files: Map<string, Uint8Array>
 }
 
+/** Límites anti zip-bomb de un `.sef` (un `.vsix` ya los tenía). */
+const MAX_SEF_DOWNLOAD_BYTES = 100 * 1024 * 1024
+const MAX_SEF_EXTRACTED_BYTES = 256 * 1024 * 1024
+const MAX_SEF_FILES = 20_000
+
 /** Lee el zip, ubica el manifest.json y aísla los archivos de la extensión. */
 function parseSef(buffer: Uint8Array): ParsedSef {
-  const entries = unzipSync(buffer)
-  const manifestPath = Object.keys(entries).find((key) => key.endsWith('manifest.json'))
+  if (buffer.byteLength > MAX_SEF_DOWNLOAD_BYTES) {
+    throw new Error(t('main.el.archivo.es.demasiado.grande'))
+  }
+  const entries = unzipSync(buffer, {
+    filter: (file) => file.originalSize <= MAX_SEF_EXTRACTED_BYTES
+  })
+  const keys = Object.keys(entries)
+  if (keys.length > MAX_SEF_FILES) throw new Error('El .sef tiene demasiados archivos')
+  const total = keys.reduce((sum, key) => sum + (entries[key]?.byteLength ?? 0), 0)
+  if (total > MAX_SEF_EXTRACTED_BYTES) throw new Error('El .sef descomprimido es demasiado grande')
+
+  const manifestPath = keys.find((key) => key.endsWith('manifest.json'))
   if (!manifestPath) throw new Error(t('main.el.sef.no.contiene.manifest'))
 
   const root = path.posix.dirname(manifestPath)
+  // `../manifest.json` haría que `relative` escape del paquete.
+  if (root === '..' || root.startsWith('../') || path.posix.isAbsolute(root)) {
+    throw new Error('El manifest del .sef está fuera del paquete')
+  }
   const strip = root === '.' ? '' : root + '/'
 
   const manifestText = new TextDecoder().decode(entries[manifestPath])
@@ -125,10 +144,25 @@ async function readSourceSidecar(dir: string): Promise<{ source?: ExtensionSourc
   return { source: 'sef' }
 }
 
-/** Instala un `.sef` ya en memoria (lo usan el IPC y la tienda). */
-export async function installSefFromBuffer(buffer: Uint8Array): Promise<InstallSefResponse> {
+/**
+ * Instala un `.sef` ya en memoria (lo usan el IPC y la tienda).
+ *
+ * `expectedId` vincula el paquete al slug del catálogo: sin esto, una
+ * extensión podía declarar el id de otra, borrarla y quedarse con su lugar (y
+ * con su `.market.json`, que el auto-update mantiene apuntando al atacante).
+ */
+export async function installSefFromBuffer(
+  buffer: Uint8Array,
+  options: { expectedId?: string } = {}
+): Promise<InstallSefResponse> {
   try {
     const parsed = parseSef(buffer)
+    if (options.expectedId && parsed.id.toLowerCase() !== options.expectedId.toLowerCase()) {
+      return {
+        success: false,
+        error: `El paquete declara id "${parsed.id}" y el catálogo esperaba "${options.expectedId}".`
+      }
+    }
 
     const root = await extensionsRoot()
     const targetDir = path.join(root, parsed.id)

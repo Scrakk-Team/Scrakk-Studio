@@ -292,6 +292,52 @@ export async function resolveRelease(input: {
   return ok(rel)
 }
 
+const MAX_EXTENSION_BYTES = 100 * 1024 * 1024
+
+/** Hosts desde los que aceptamos el asset de una release. */
+function isAllowedAssetHost(hostname: string): boolean {
+  const host = hostname.toLowerCase()
+  return (
+    host === 'github.com' ||
+    host.endsWith('.githubusercontent.com') ||
+    host === 'gitlab.com' ||
+    host.endsWith('.gitlab.com')
+  )
+}
+
+/**
+ * Descarga el `.sef` de una release con tope de tamaño y allowlist de hosts.
+ * `redirect: 'follow'` es necesario (GitHub manda a
+ * `objects.githubusercontent.com`) pero se valida el host FINAL: un asset de
+ * GitLab puede apuntar a cualquier lado y convertir el main en un cliente HTTP.
+ */
+async function downloadAsset(url: string): Promise<Uint8Array> {
+  const res = await fetch(url, { redirect: 'follow' })
+  if (!res.ok) throw new Error(`download ${res.status}`)
+  const finalUrl = new URL(res.url || url)
+  if (finalUrl.protocol !== 'https:' || !isAllowedAssetHost(finalUrl.hostname)) {
+    throw new Error(`download: host no permitido (${finalUrl.hostname})`)
+  }
+  const declared = Number(res.headers.get('content-length')) || 0
+  if (declared > MAX_EXTENSION_BYTES) throw new Error('download: archivo demasiado grande')
+  if (!res.body) throw new Error('download: sin cuerpo')
+  const reader = res.body.getReader()
+  const chunks: Uint8Array[] = []
+  let received = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    if (!value) continue
+    received += value.byteLength
+    if (received > MAX_EXTENSION_BYTES) {
+      await reader.cancel().catch(() => undefined)
+      throw new Error('download: archivo demasiado grande')
+    }
+    chunks.push(value)
+  }
+  return Buffer.concat(chunks)
+}
+
 /** Instala (o actualiza) una extensión bajando el asset de su última release. */
 export async function install(
   _accountId: string | null,
@@ -304,14 +350,14 @@ export async function install(
 
   let bytes: Uint8Array
   try {
-    const res = await fetch(rel.assetUrl, { redirect: 'follow' })
-    if (!res.ok) return fail(`download ${res.status}`)
-    bytes = new Uint8Array(await res.arrayBuffer())
+    bytes = await downloadAsset(rel.assetUrl)
   } catch (error) {
     return fail(error instanceof Error ? error.message : String(error))
   }
 
-  const installed = await installSefFromBuffer(bytes)
+  // El id del paquete debe ser el slug del catálogo: si no, podría reemplazar
+  // otra extensión instalada (y su sidecar de auto-update).
+  const installed = await installSefFromBuffer(bytes, { expectedId: slug })
   if (!installed.success) return fail(installed.error)
 
   // Sidecar para auto-update (slug ↔ extensión instalada).
@@ -342,6 +388,10 @@ export async function install(
  * reinstala. Devuelve cuántas actualizó.
  */
 export async function checkInstalledUpdates(): Promise<number> {
+  // Auto-actualizar extensiones es reinstalar código de terceros sin
+  // consentimiento. Se deja como opt-in explícito hasta que los paquetes
+  // estén firmados; los usuarios pueden actualizar desde la tienda.
+  if (process.env.SCRAKK_AUTO_UPDATE_EXTENSIONS !== '1') return 0
   const root = extensionsRoot()
   let dirs: string[]
   try {
@@ -371,10 +421,8 @@ export async function checkInstalledUpdates(): Promise<number> {
     )
     if (!rel?.assetUrl || rel.version === sidecar.version) continue
     try {
-      const res = await fetch(rel.assetUrl, { redirect: 'follow' })
-      if (!res.ok) continue
-      const bytes = new Uint8Array(await res.arrayBuffer())
-      const installed = await installSefFromBuffer(bytes)
+      const bytes = await downloadAsset(rel.assetUrl)
+      const installed = await installSefFromBuffer(bytes, { expectedId: sidecar.slug })
       if (!installed.success) continue
       await fs.writeFile(
         path.join(root, installed.extension.id, '.market.json'),
