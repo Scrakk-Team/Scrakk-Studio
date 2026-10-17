@@ -74,3 +74,19 @@ describe('CSP del renderer', () => {
     expect(directive(readCsp(), 'script-src')).toContain('blob:')
   })
 })
+
+describe('CSP del renderer — directivas de endurecimiento', () => {
+  it('bloquea plugins y base/form/frames externos', () => {
+    const csp = readCsp()
+    expect(directive(csp, 'object-src')).toEqual(["'none'"])
+    expect(directive(csp, 'base-uri')).toEqual(["'none'"])
+    expect(directive(csp, 'form-action')).toEqual(["'none'"])
+    expect(directive(csp, 'frame-ancestors')).toEqual(["'none'"])
+  })
+
+  it('script-src no permite eval ni inline', () => {
+    const sources = directive(readCsp(), 'script-src')
+    expect(sources).not.toContain("'unsafe-eval'")
+    expect(sources).not.toContain("'unsafe-inline'")
+  })
+})
