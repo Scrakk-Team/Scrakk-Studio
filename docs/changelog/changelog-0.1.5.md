@@ -837,3 +837,32 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   Covered by `tests/models-catalog.test.ts`. Git errors now also redact
   `scheme://user:password@host` credentials (GitLab/Gitea PATs), not just
   GitHub's.
+### Security (backend)
+- **The extension market can no longer self-publish, self-verify or swap its
+  repo after approval.** `extensions_admin_guard` was `BEFORE UPDATE` only, so
+  an authenticated user could `INSERT` a row with `status='published'`,
+  `verified=true` and inflated counters; and after approval the owner could
+  `PATCH repo_url` without triggering a new review (the installed package then
+  auto-updated from the attacker's repo). The guard now covers `INSERT` and
+  demotes to `pending`/unverified whenever `repo_url`, `repo_provider` or
+  `asset_name` changes.
+- **Storage listing is no longer anonymous.** The `public read` policies on the
+  `avatars` and `chat-images` buckets also allowed `POST /storage/v1/object/list`
+  with the publishable key, exposing user UUIDs and DM filenames. `SELECT` is
+  now restricted to the owner's folder (the buckets stay public, so existing
+  public URLs still download).
+- **`accept_legal` actually persists the consent.** It was `SECURITY INVOKER`
+  and `authenticated` has no `UPDATE` on the legal columns, so the acceptance
+  was silently lost. It is now `SECURITY DEFINER` with `search_path=''`,
+  `WHERE id = auth.uid()`, and execute is limited to `authenticated`.
+- **Release rows of pending/suspended extensions are no longer public**, and
+  `anon` lost `TRUNCATE` on the market tables and execute on
+  `increment_extension_download` (the download counter could be inflated by
+  anyone with the public key).
+- **`social-file` validates the object key and the peer id.** A message body
+  with an arbitrary `key` could get a signed URL or delete any object (only
+  `..` was rejected); `peerId` was interpolated into a PostgREST filter; and
+  insert errors were returned verbatim. Keys must match `code/<uuid>`,
+  `peerId` must be a UUID, and internal errors return a generic message.
+  Migration `docs/backend/0031_security_hardening.sql` applied to
+  `ufcwwigmzgmyyfauymim`; `social-file` deployed (v4).

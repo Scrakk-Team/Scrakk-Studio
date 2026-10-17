@@ -92,13 +92,21 @@ function countLines(text: string): number {
   return lines
 }
 
+/**
+ * Keys que genera `handleUpload`: `code/<uuid>`. Cualquier otra cosa (incluida
+ * una key de otro prefijo o con `..`) se rechaza antes de firmar/borrar.
+ * Antes solo se comprobaba `..`, así que un mensaje manipulado podía pedir una
+ * URL firmada — o el borrado — de cualquier objeto del bucket.
+ */
+const CODE_KEY_RE = /^code\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /** Extrae la key del sobre JSON que guarda el mensaje `codefile`. */
 function keyFromBody(body: string): string | null {
   try {
     const meta = JSON.parse(body) as { kind?: unknown; key?: unknown }
     if (meta.kind !== 'codefile') return null
-    if (typeof meta.key !== 'string' || meta.key.length === 0) return null
-    if (meta.key.includes('..')) return null
+    if (typeof meta.key !== 'string' || !CODE_KEY_RE.test(meta.key)) return null
     return meta.key
   } catch {
     return null
@@ -117,6 +125,9 @@ async function handleUpload(
   const replyTo =
     typeof payload.replyTo === 'string' && payload.replyTo.length > 0 ? payload.replyTo : null
   if (!peerId || !name) throw new BadRequest('Faltan datos del archivo.')
+  // `peerId` se interpola en un filtro PostgREST (`.or(...)`): un UUID válido
+  // evita inyectar condiciones en la consulta de amistad.
+  if (!UUID_RE.test(peerId)) throw new BadRequest('peerId inválido.')
   if (content.length === 0) throw new BadRequest('El archivo está vacío.')
   if (content.length > MAX_CHARS) throw new BadRequest('El archivo supera el tamaño máximo.')
   const lines = countLines(content)
@@ -195,7 +206,8 @@ async function handleUpload(
     if (error.message.includes('reply_not_in_dm')) {
       throw new BadRequest('El mensaje citado no es de esta conversación.')
     }
-    throw new BadRequest(`No se pudo guardar el archivo: ${error.message}`)
+    console.error('[social-file] insert falló:', error)
+    throw new BadRequest('No se pudo guardar el archivo.')
   }
   return { message: row }
 }
@@ -281,6 +293,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
     throw new BadRequest('Acción desconocida.')
   } catch (error) {
     const status = error instanceof BadRequest ? error.status : 500
+    // Los errores internos (R2, constraints, tablas) se quedan en el log: el
+    // cliente recibe un código genérico y no detalles de la infraestructura.
+    if (status >= 500) {
+      console.error('[social-file]', error)
+      return json({ error: 'Error interno.' }, status)
+    }
     const message = error instanceof Error ? error.message : String(error)
     return json({ error: message }, status)
   }
