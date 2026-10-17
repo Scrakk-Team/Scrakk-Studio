@@ -17,7 +17,7 @@
  * core).
  */
 
-import { useEffect, useState, type ComponentType, type JSX } from 'react'
+import { memo, useEffect, useMemo, useState, type ComponentType, type JSX } from 'react'
 import {
   getOverlay,
   type OverlayComponentProps
@@ -59,15 +59,18 @@ export function OverlayHost({ layer }: OverlayHostProps): JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId, activeEvent])
 
-  if (!active || !component) return null
-  const Overlay = component
-  const entry = getOverlay(active.id)
-
-  return (
-    <Overlay
-      on={onOverlayEvent}
-      event={{ id: active.eventId, name: active.eventName }}
-      props={entry?.props}
-    />
+  // Props ESTABLES: el overlay del pack no tiene que re-renderizarse porque el
+  // motor avisó de un cambio de niebla o de shake (eso además pisaba estados
+  // internos, como la opacidad del rayo).
+  const eventProp = useMemo(
+    () => (active ? { id: active.eventId, name: active.eventName } : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [active?.eventId, active?.eventName]
   )
+  const overlayProps = useMemo(() => (activeId ? getOverlay(activeId)?.props : undefined), [activeId])
+  const StableOverlay = useMemo(() => (component ? memo(component) : null), [component])
+
+  if (!active || !StableOverlay) return null
+
+  return <StableOverlay on={onOverlayEvent} event={eventProp} props={overlayProps} />
 }

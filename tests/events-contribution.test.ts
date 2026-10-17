@@ -153,3 +153,26 @@ describe('nada hardcoded', () => {
     expect(api).toContain('normalizeEventScene')
   })
 })
+
+/**
+ * Regresión: el loader tiene que importar el bundle si el pack aporta código.
+ *
+ * `needsBundle` estaba hardcodeado a panels/activityBar/centerTabs, así que un
+ * pack cuyos únicos aportes con código eran `overlays` (el rayo y el fondo del
+ * evento) quedaba con el resolver VACÍO: la contribución se descartaba en
+ * silencio y no se montaba nada.
+ */
+describe('loader: qué kinds fuerzan el bundle', () => {
+  it('overlays y fileHandlers cuentan como código', () => {
+    const src = readFileSync(
+      'src/renderer/src/services/extensions/loader/installed.ts',
+      'utf8'
+    )
+    const start = src.indexOf('const BUNDLE_KINDS')
+    expect(start).toBeGreaterThan(-1)
+    const block = src.slice(start, src.indexOf('const needsBundle'))
+    for (const kind of ['panels', 'activityBar', 'centerTabs', 'fileHandlers', 'overlays']) {
+      expect(block).toContain(`'${kind}'`)
+    }
+  })
+})

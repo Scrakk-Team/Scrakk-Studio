@@ -77,10 +77,25 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
   }
 
   const contributes = manifest.contributes ?? {}
-  const needsBundle =
-    Array.isArray(contributes.panels) ||
-    Array.isArray(contributes.activityBar) ||
-    Array.isArray(contributes.centerTabs)
+  /**
+   * Kinds que referencian un MÓDULO del paquete (un componente/ícono): sin
+   * bundle no hay de dónde sacarlo.
+   *
+   * Estaba hardcodeado a panels/activityBar/centerTabs, así que un pack cuyos
+   * únicos aportes con código fueran `fileHandlers` u `overlays` (el rayo y el
+   * fondo del evento) se registraba con el resolver VACÍO: `hasModule` daba
+   * false, la contribución se descartaba en silencio y no se montaba nada.
+   */
+  const BUNDLE_KINDS = [
+    'panels',
+    'activityBar',
+    'centerTabs',
+    'fileHandlers',
+    'overlays'
+  ] as const
+  const needsBundle = BUNDLE_KINDS.some(
+    (kind) => Array.isArray((contributes as Record<string, unknown>)[kind])
+  )
 
   let modules: Record<string, ComponentType> = {}
   if (needsBundle) {
