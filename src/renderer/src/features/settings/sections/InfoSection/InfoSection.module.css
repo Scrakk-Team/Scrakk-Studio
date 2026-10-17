@@ -91,3 +91,42 @@
   color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
+
+/* ── Desinstalar (acción destructiva) ──────────────────────────────────── */
+
+.danger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
+}
+
+.dangerBtn {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
+  border-radius: var(--radius-capsule);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.dangerBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger) 20%, transparent);
+}
+
+.dangerBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dangerError {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: var(--text-xs);
+}

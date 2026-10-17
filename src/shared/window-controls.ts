@@ -15,6 +15,7 @@ import type { LspApi } from './lsp'
 import type { UpdatesApi } from './updates'
 import type { AccountApi } from './account'
 import type { SocialApi } from './social'
+import type { AppApi } from './app'
 
 export const WINDOW_CONTROLS_IPC = {
   minimize: 'window-controls:minimize',
@@ -109,4 +110,6 @@ export interface WindowApi {
   modelsDev: import('./modelsDev').ModelsDevApi
   /** Búsqueda y fetch web (main, sin CORS, con protección SSRF). */
   web: import('./web').WebApi
+  /** Ciclo de vida de la app: desinstalar del sistema. */
+  app: AppApi
 }

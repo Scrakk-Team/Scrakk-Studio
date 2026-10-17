@@ -58,6 +58,8 @@
   "settings.descargar.v": "Download v",
   "settings.descripcion": "Description",
   "settings.desinstalar": "Uninstall",
+  "settings.desinstalar.confirmar.titulo": "Uninstall Scrakk Studio?",
+  "settings.desinstalar.confirmar.detalle": "The app will be removed from your system. Your settings and data are kept.",
   "settings.donde.se.guardan.las.reglas": "Where rules are stored",
   "settings.duplicar": "Duplicate",
   "settings.ediciones.de.archivos": "File editing",

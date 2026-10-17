@@ -18,6 +18,7 @@ import {
   refreshLatest,
   useUpdates
 } from '@services/updates'
+import { pickOption } from '@services/modals'
 import { SCRAKK_WEBSITE } from '@shared/links'
 import styles from './InfoSection.module.css'
 
@@ -26,6 +27,8 @@ export function InfoSection(): JSX.Element {
   const updates = useUpdates()
   const [checking, setChecking] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [uninstalling, setUninstalling] = useState(false)
+  const [uninstallError, setUninstallError] = useState<string | null>(null)
 
   const updater = updates.updater
   const downloading = updater.status === 'downloading'
@@ -57,6 +60,31 @@ export function InfoSection(): JSX.Element {
     } finally {
       setChecking(false)
     }
+  }
+
+  /**
+   * Desinstala la app del sistema. Pide confirmación (acción destructiva) y
+   * delega en el main, que detecta el formato (NSIS / AppImage / deb / tar.gz).
+   * En éxito la app se cierra sola; si vuelve `ok: false`, se muestra el motivo
+   * (p. ej. hace falta root y queda el comando a mano).
+   */
+  const handleUninstall = async (): Promise<void> => {
+    const choice = await pickOption(t('settings.desinstalar.confirmar.titulo'), [
+      { id: 'cancel', label: t('settings.cancelar') },
+      {
+        id: 'uninstall',
+        label: t('settings.desinstalar'),
+        description: t('settings.desinstalar.confirmar.detalle'),
+        danger: true
+      }
+    ])
+    if (choice !== 'uninstall') return
+
+    setUninstalling(true)
+    setUninstallError(null)
+    const result = await window.api.app.uninstall()
+    if (!result.ok) setUninstallError(result.error ?? t('settings.no.se.pudo.desinstalar'))
+    setUninstalling(false)
   }
 
   return (
@@ -142,6 +170,20 @@ export function InfoSection(): JSX.Element {
                     ? t('settings.nueva.version', { version: updates.latest?.version ?? '' })
                     : t('settings.al.dia'))}
         </p>
+      </div>
+
+      {/* Desinstalar: acción destructiva del sistema, fuera del bloque de
+          actualizaciones y con confirmación previa. */}
+      <div className={styles.danger}>
+        <button
+          type="button"
+          className={styles.dangerBtn}
+          onClick={() => void handleUninstall()}
+          disabled={uninstalling}
+        >
+          {t('settings.desinstalar')}
+        </button>
+        {uninstallError ? <p className={styles.dangerError}>{uninstallError}</p> : null}
       </div>
     </div>
   )
