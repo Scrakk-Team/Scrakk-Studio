@@ -46,6 +46,20 @@ function canEncrypt(): boolean {
   }
 }
 
+/**
+ * `basic_text` es el backend de Chromium sin keyring (clave fija "peanuts"): no
+ * protege nada. Se trata como "sin cifrado" y las keys NO se persisten.
+ */
+function secureEncryption(): boolean {
+  if (!canEncrypt()) return false
+  try {
+    if (safeStorage.getSelectedStorageBackend?.() === 'basic_text') return false
+  } catch {
+    // Versiones sin getSelectedStorageBackend: se confía en canEncrypt().
+  }
+  return true
+}
+
 let cache: KeyMap | null = null
 
 function parseMap(raw: string): KeyMap {
@@ -67,29 +81,36 @@ async function load(): Promise<KeyMap> {
     const raw = await fs.readFile(storePath(), 'utf-8')
     const file = JSON.parse(raw) as Partial<KeyFile>
     const bytes = Buffer.from(typeof file.data === 'string' ? file.data : '', 'base64')
-    const json = file.encrypted && canEncrypt() ? safeStorage.decryptString(bytes) : bytes.toString('utf-8')
+    const json =
+      file.encrypted && secureEncryption() ? safeStorage.decryptString(bytes) : bytes.toString('utf-8')
     cache = parseMap(json)
+    // Un archivo en claro de una versión anterior no se deja en disco.
+    if (!file.encrypted) await fs.rm(storePath(), { force: true }).catch(() => undefined)
   } catch {
     cache = {}
   }
   return cache
 }
 
-async function save(keys: KeyMap): Promise<void> {
-  const json = JSON.stringify(keys)
-  const encrypt = canEncrypt()
-  const bytes = encrypt ? safeStorage.encryptString(json) : Buffer.from(json, 'utf-8')
-  if (!encrypt) {
-    console.warn('[llm] safeStorage no disponible: las API keys se guardan con permisos 0600')
+/** Devuelve true si las keys quedaron persistidas (false = solo memoria). */
+async function save(keys: KeyMap): Promise<boolean> {
+  cache = keys
+  if (!secureEncryption()) {
+    console.warn(
+      '[llm] sin keyring seguro: las API keys viven en memoria y no se persisten en disco'
+    )
+    return false
   }
-  const file: KeyFile = { version: 1, encrypted: encrypt, data: bytes.toString('base64') }
+  const json = JSON.stringify(keys)
+  const bytes = safeStorage.encryptString(json)
+  const file: KeyFile = { version: 1, encrypted: true, data: bytes.toString('base64') }
   const target = storePath()
   const tmp = `${target}.tmp`
   await fs.mkdir(path.dirname(target), { recursive: true })
   await fs.writeFile(tmp, JSON.stringify(file), { encoding: 'utf-8', mode: 0o600 })
   await fs.rename(tmp, target)
   await fs.chmod(target, 0o600).catch(() => undefined)
-  cache = keys
+  return true
 }
 
 /** Key descifrada de un proveedor ('' si no hay). Uso interno del main. */
@@ -114,8 +135,7 @@ export async function setApiKey(providerId: string, apiKey: string): Promise<boo
   const keys = { ...(await load()) }
   if (key) keys[providerId] = key
   else delete keys[providerId]
-  await save(keys)
-  return true
+  return save(keys)
 }
 
 export async function deleteApiKey(providerId: string): Promise<boolean> {

@@ -13,12 +13,13 @@ import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 
-const state = vi.hoisted(() => ({ userData: '', available: false }))
+const state = vi.hoisted(() => ({ userData: '', available: false, backend: 'basic_text' }))
 
 vi.mock('electron', () => ({
   app: { getPath: () => state.userData },
   safeStorage: {
     isEncryptionAvailable: () => state.available,
+    getSelectedStorageBackend: () => state.backend,
     encryptString: (value: string) => Buffer.from(`enc:${value}`, 'utf-8'),
     decryptString: (value: Buffer) => value.toString('utf-8').replace(/^enc:/, '')
   }
@@ -33,7 +34,8 @@ let userData: string
 beforeEach(async () => {
   userData = await fs.mkdtemp(path.join(os.tmpdir(), 'scrakk-keys-'))
   state.userData = userData
-  state.available = false
+  state.available = true
+  state.backend = 'gnome_libsecret'
 })
 
 afterEach(async () => {
@@ -65,6 +67,7 @@ describe('llm/apiKeys', () => {
 
   it('escribe con permisos 0600 y sin key en claro cuando hay cifrado', async () => {
     state.available = true
+    state.backend = 'gnome_libsecret'
     await resetModuleCache()
     const mod = await import('../src/main/llm/apiKeys')
     await mod.setApiKey('openai', 'sk-secret-value')
@@ -77,15 +80,23 @@ describe('llm/apiKeys', () => {
     expect(stat.mode & 0o777).toBe(0o600)
   })
 
-  it('sin keyring guarda 0600 y sigue funcionando', async () => {
+  it('sin keyring NO persiste la key en disco (solo memoria)', async () => {
     state.available = false
     await resetModuleCache()
     const mod = await import('../src/main/llm/apiKeys')
-    await mod.setApiKey('openai', 'sk-plain')
+    expect(await mod.setApiKey('openai', 'sk-plain')).toBe(false)
     const file = path.join(userData, 'secrets', 'api-keys.json')
-    const stat = await fs.stat(file)
-    expect(stat.mode & 0o777).toBe(0o600)
+    await expect(fs.access(file)).rejects.toThrow()
     expect(await mod.getApiKey('openai')).toBe('sk-plain')
+  })
+
+  it('trata el backend basic_text como inseguro', async () => {
+    state.available = true
+    state.backend = 'basic_text'
+    await resetModuleCache()
+    const mod = await import('../src/main/llm/apiKeys')
+    expect(await mod.setApiKey('openai', 'sk-basic')).toBe(false)
+    await expect(fs.access(path.join(userData, 'secrets', 'api-keys.json'))).rejects.toThrow()
   })
 
   it('migra el mapa viejo y cuenta solo las keys nuevas', async () => {

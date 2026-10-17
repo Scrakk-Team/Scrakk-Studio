@@ -959,3 +959,11 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   validates **every** resolved address before the socket connects; the address
   used for the connection is the one that passed the check. Covered by
   `tests/web-ssrf.test.ts` (`assertLookupAddresses`).
+- **Provider API keys fail closed without a real keyring.** The previous
+  fallback wrote them to `userData/secrets/api-keys.json` with `0600` when
+  `safeStorage` was unavailable — still plaintext on disk. `basic_text` (the
+  fixed "peanuts" backend used on Linux without libsecret) is now treated as
+  insecure too: the key stays in memory for the session and is **not
+  persisted**; a plaintext file from an older version is removed on read. To
+  keep keys across restarts, install a real keyring (GNOME Keyring/KWallet).
+  Covered by `tests/llm-api-keys.test.ts`.
