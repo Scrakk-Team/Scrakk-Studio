@@ -142,6 +142,8 @@
   "main.release.sin.tag": "release sin tag",
   "main.remoto.invalido": "Remoto inválido",
   "main.request.invalido": "Request inválido",
+  "main.otp.demasiados.intentos": "Demasiados intentos. Probá de nuevo en {minutes} min.",
+  "main.otp.espera": "Esperá {seconds} s antes de pedir otro código.",
   "main.ruta.fuera.de.scrakk": "Ruta fuera de .scrakk",
   "main.ruta.fuera.del.repo": "Ruta fuera del repo",
   "main.ruta.sensible.protegida": "Ruta sensible protegida",

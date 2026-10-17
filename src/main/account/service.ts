@@ -38,6 +38,16 @@ import {
 } from './session'
 
 import { t } from '@shared/i18n'
+import { AttemptLimiter } from './rateLimit'
+// Barreras locales del OTP (la API externa debe tener las suyas).
+const OTP_COOLDOWN_MS = 60_000
+const OTP_HOURLY_LIMIT = 5
+const OTP_VERIFY_WINDOW_MS = 15 * 60_000
+const OTP_VERIFY_LIMIT = 5
+const requestCooldown = new AttemptLimiter()
+const requestQuota = new AttemptLimiter()
+const verifyLimiter = new AttemptLimiter()
+
 const PROFILE_COLUMNS =
   'id,email,handle,display_name,avatar_url,bio,verified,gender,custom_status,custom_status_emoji,custom_status_expires_at,created_at'
 
@@ -88,6 +98,22 @@ export async function requestCode(req: RequestCodeRequest): Promise<AccountResul
   const email = req.email.trim().toLowerCase()
   if (!ACCOUNT_RULES.email.test(email)) return fail('invalid_input', t('main.email.invalido'))
 
+  const key = `send:${email}`
+  const cooldown = requestCooldown.hit(key, 1, OTP_COOLDOWN_MS)
+  if (!cooldown.allowed) {
+    return fail(
+      'rate_limited',
+      t('main.otp.espera', { seconds: Math.ceil(cooldown.retryAfterMs / 1000) })
+    )
+  }
+  const quota = requestQuota.hit(key, OTP_HOURLY_LIMIT, 60 * 60_000)
+  if (!quota.allowed) {
+    return fail(
+      'rate_limited',
+      t('main.otp.demasiados.intentos', { minutes: Math.ceil(quota.retryAfterMs / 60_000) })
+    )
+  }
+
   try {
     const { status, data } = await callCliApi<{ ok?: boolean; error?: string; message?: string }>(
       '/auth/register',
@@ -134,6 +160,14 @@ export async function verifyCode(req: VerifyCodeRequest): Promise<AccountResult<
   if (!ACCOUNT_RULES.email.test(email)) return fail('invalid_input', t('main.email.invalido'))
   if (!ACCOUNT_RULES.code.test(code)) return fail('invalid_input', t('main.el.codigo.son.6.digitos'))
 
+  const attempt = verifyLimiter.hit(`verify:${email}`, OTP_VERIFY_LIMIT, OTP_VERIFY_WINDOW_MS)
+  if (!attempt.allowed) {
+    return fail(
+      'rate_limited',
+      t('main.otp.demasiados.intentos', { minutes: Math.ceil(attempt.retryAfterMs / 60_000) })
+    )
+  }
+
   let login: LoginResponse | null = null
   try {
     const { status, data } = await callCliApi<LoginResponse>('/auth/login', { email, code })
@@ -163,6 +197,7 @@ export async function verifyCode(req: VerifyCodeRequest): Promise<AccountResult<
 
   const profile = (await fetchProfile(userId)) ?? emptyProfile(userId, login.user?.email ?? email)
   updateProfileSnapshot(profile)
+  verifyLimiter.reset(`verify:${email}`)
   // Aceptación de términos capturada en el signup: se registra server-side.
   if (req.consent) await writeLegalConsent(client, req.consent)
   return { ok: true, data: profile }

@@ -142,6 +142,8 @@
   "main.release.sin.tag": "release without a tag",
   "main.remoto.invalido": "Invalid remote",
   "main.request.invalido": "Invalid request",
+  "main.otp.demasiados.intentos": "Too many attempts. Try again in {minutes} min.",
+  "main.otp.espera": "Wait {seconds}s before requesting another code.",
   "main.ruta.fuera.de.scrakk": "Path outside of .scrakk",
   "main.ruta.fuera.del.repo": "Path outside the repo",
   "main.ruta.sensible.protegida": "Protected sensitive path",

@@ -967,3 +967,10 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   persisted**; a plaintext file from an older version is removed on read. To
   keep keys across restarts, install a real keyring (GNOME Keyring/KWallet).
   Covered by `tests/llm-api-keys.test.ts`.
+- **The OTP flow has a local rate limit.** The client called the external auth
+  API with no backoff: a local process could request codes in a loop (email
+  bombing) or try the 6-digit code repeatedly. Requests now have a 60 s
+  cooldown and a 5/hour quota per email, and verification is capped at 5
+  attempts per 15 minutes (reset on success). This is a client-side barrier;
+  the API must enforce its own limits too. Covered by
+  `tests/otp-rate-limit.test.ts`.
