@@ -974,3 +974,6 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   attempts per 15 minutes (reset on success). This is a client-side barrier;
   the API must enforce its own limits too. Covered by
   `tests/otp-rate-limit.test.ts`.
+- **Residual-risk list updated.** DNS rebinding is now closed (pinned-IP
+  dispatcher), provider API keys fail closed without a keyring, and the OTP
+  limits are documented as client-side (the auth API must enforce its own).

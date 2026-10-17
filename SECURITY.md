@@ -34,9 +34,9 @@ ship a fix before disclosure.
 See `docs/changelog/changelog-0.1.5.md` → **Security (audit)**. In short:
 secrets are out of the renderer, child processes do not inherit them, the
 filesystem jails resolve symlinks, project LSP configs require consent, git
-refs cannot inject options, `web_fetch` cannot reach loopback/metadata, extension
-archives are bounded, and the backend market/Storage/consent policies were
-corrected (migration `0031`).
+refs cannot inject options, `web_fetch` pins DNS and cannot reach
+loopback/metadata, extension archives are bounded, and the backend
+market/Storage/consent policies were corrected (migrations `0031`/`0032`).
 
 ## Residual risks (known)
 
@@ -51,12 +51,13 @@ corrected (migration `0031`).
    updater relies on the GitHub feed. Electron fuses are enabled, but code
    signing is still required to make `EnableEmbeddedAsarIntegrityValidation`
    effective.
-4. **DNS rebinding** in `web_fetch`: the resolver and `fetch` perform separate
-   lookups, so a TTL-0 host can rebind to a private address. Loopback/metadata
-   are blocked, but a full fix needs a pinned-IP dispatcher.
-5. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
-   falls back to `basic_text`. Account tokens are not persisted in that case
-   (fail-closed); provider API keys are stored with `0600` and a warning.
+4. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
+   falls back to `basic_text`. Account tokens **and provider API keys** are not
+   persisted in that case (fail-closed): they live in memory for the session.
+   Install GNOME Keyring/KWallet if you need persistence.
+5. **OTP limits are local.** The client now has a cooldown/quota, but the auth
+   API (`api.scrakk.art`) must enforce its own per-email/IP rate limit; that
+   code is not in this repository.
 6. **Secrets rotation is an operational step.** The audit removed the archive
    and fixed the ignore rules, but the `service_role`, R2 and DeepL credentials
    that existed before 0.1.5 must be **rotated** in their dashboards; the old
