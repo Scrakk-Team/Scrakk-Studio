@@ -340,7 +340,7 @@ function run(
   args: string[],
   env?: Record<string, string>,
   onLine?: (line: string) => void
-): Promise<{ code: number; stderr: string }> {
+): Promise<{ code: number; stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     // En Windows los shims `.cmd`/`.bat` (npm, gem, …) no se pueden spawnear sin
     // shell: desde Node 18.20/20.12 tira EINVAL. `spawnInvocation` decide.
@@ -352,6 +352,7 @@ function run(
       env: env ? { ...process.env, ...env } : process.env,
       shell: invocation.shell
     })
+    let stdout = ''
     let stderr = ''
 
     const forward = (chunk: string): void => {
@@ -362,7 +363,10 @@ function run(
       }
     }
     child.stdout?.setEncoding('utf-8')
-    child.stdout?.on('data', (chunk: string) => forward(chunk))
+    child.stdout?.on('data', (chunk: string) => {
+      stdout += chunk
+      forward(chunk)
+    })
     child.stderr?.setEncoding('utf-8')
     child.stderr?.on('data', (chunk: string) => {
       stderr += chunk
@@ -370,7 +374,7 @@ function run(
     })
 
     child.on('error', reject)
-    child.on('exit', (code) => resolve({ code: code ?? -1, stderr }))
+    child.on('exit', (code) => resolve({ code: code ?? -1, stdout, stderr }))
   })
 }
 
@@ -442,6 +446,42 @@ async function fetchHashicorpAsset(
   return { url: build.url, version: latest, filename: build.filename }
 }
 
+/** Tope de descarga: un release de LSP legítimo no pasa de unos cientos de MB. */
+const MAX_DOWNLOAD_BYTES = 512 * 1024 * 1024
+/** Tope del árbol descomprimido (anti zip-bomb). */
+const MAX_EXTRACTED_BYTES = 1024 * 1024 * 1024
+const MAX_ARCHIVE_ENTRIES = 20_000
+
+/**
+ * Resuelve una entrada de archivo dentro de `destDir` o null si escapa.
+ * Sin esto, un ZIP con `../../.config/autostart/x.desktop` escribía fuera del
+ * directorio de instalación (zip-slip) con los privilegios del usuario.
+ */
+export function safeArchivePath(destDir: string, entry: string): string | null {
+  if (!entry || entry.includes('\0') || path.isAbsolute(entry)) return null
+  const normalized = entry.replace(/\\/g, '/')
+  // Unidades de Windows y UNC también son absolutas en un ZIP creado en win32,
+  // aunque este código corra en Linux.
+  if (/^[a-zA-Z]:\//.test(normalized) || normalized.startsWith('//')) return null
+  if (normalized.split('/').some((part) => part === '..')) return null
+  const base = path.resolve(destDir)
+  const out = path.resolve(base, normalized)
+  if (out !== base && !out.startsWith(base + path.sep)) return null
+  return out
+}
+
+/** Rechaza un tar con entradas absolutas o `..` ANTES de extraerlo. */
+async function assertSafeTar(archivePath: string): Promise<void> {
+  const { code, stdout } = await run(resolveExecutable('tar') ?? 'tar', ['-tf', archivePath])
+  if (code !== 0) throw new Error('tar: no se pudo listar el archivo')
+  for (const entry of stdout.split('\n')) {
+    if (!entry.trim()) continue
+    if (path.isAbsolute(entry) || entry.split('/').includes('..')) {
+      throw new Error(`tar: entrada insegura (${entry.slice(0, 120)})`)
+    }
+  }
+}
+
 /** Extrae un archivo COMPLETO (tar/tar.gz/zip) en `destDir`. */
 async function extractTree(
   archivePath: string,
@@ -450,15 +490,24 @@ async function extractTree(
 ): Promise<void> {
   onProgress?.({ stage: 'extracting', message: path.basename(archivePath) })
   if (archivePath.endsWith('.zip')) {
-    const files = unzipSync(await fs.readFile(archivePath))
-    for (const [name, data] of Object.entries(files)) {
+    const files = unzipSync(await fs.readFile(archivePath), {
+      filter: (file) => file.originalSize <= MAX_EXTRACTED_BYTES
+    })
+    const entries = Object.entries(files)
+    if (entries.length > MAX_ARCHIVE_ENTRIES) throw new Error('zip: demasiadas entradas')
+    let total = 0
+    for (const [name, data] of entries) {
       if (name.endsWith('/')) continue
-      const out = path.join(destDir, name)
+      total += data.byteLength
+      if (total > MAX_EXTRACTED_BYTES) throw new Error('zip: contenido descomprimido demasiado grande')
+      const out = safeArchivePath(destDir, name)
+      if (!out) throw new Error(`zip: entrada insegura (${name.slice(0, 120)})`)
       await fs.mkdir(path.dirname(out), { recursive: true })
       await fs.writeFile(out, Buffer.from(data))
     }
     return
   }
+  await assertSafeTar(archivePath)
   const { code, stderr } = await run(
     resolveExecutable('tar') ?? 'tar',
     ['-xf', archivePath, '-C', destDir],
@@ -482,38 +531,51 @@ export async function downloadTo(
 ): Promise<void> {
   const response = await fetch(url)
   if (!response.ok || !response.body) throw new Error(`download ${response.status}`)
+  // Un redirect a `http:` bajaría el binario sin TLS; solo aceptamos HTTPS.
+  // (`response.url` va vacío en los fetch simulados de los tests.)
+  if (response.url && !response.url.startsWith('https://')) {
+    throw new Error('download: se esperaba HTTPS')
+  }
 
   const total = Number(response.headers.get('content-length')) || 0
+  if (total > MAX_DOWNLOAD_BYTES) throw new Error('download: archivo demasiado grande')
   const reader = response.body.getReader()
-  const chunks: Uint8Array[] = []
+  const handle = await fs.open(destination, 'w')
   let received = 0
   let lastEmit = 0
 
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    if (!value) continue
-    chunks.push(value)
-    received += value.byteLength
-
-    const now = Date.now()
-    if (total > 0) {
-      if (now - lastEmit >= 100 || received >= total) {
-        lastEmit = now
-        onProgress?.({
-          stage: 'downloading',
-          percentage: Math.min(100, Math.round((received / total) * 100)),
-          transferred: received,
-          total
-        })
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      if (!value) continue
+      received += value.byteLength
+      if (received > MAX_DOWNLOAD_BYTES) {
+        await reader.cancel().catch(() => undefined)
+        await fs.rm(destination, { force: true }).catch(() => undefined)
+        throw new Error('download: archivo demasiado grande')
       }
-    } else if (now - lastEmit >= 500) {
-      lastEmit = now
-      onProgress?.({ stage: 'downloading', transferred: received })
-    }
-  }
+      await handle.write(value)
 
-  await fs.writeFile(destination, Buffer.concat(chunks))
+      const now = Date.now()
+      if (total > 0) {
+        if (now - lastEmit >= 100 || received >= total) {
+          lastEmit = now
+          onProgress?.({
+            stage: 'downloading',
+            percentage: Math.min(100, Math.round((received / total) * 100)),
+            transferred: received,
+            total
+          })
+        }
+      } else if (now - lastEmit >= 500) {
+        lastEmit = now
+        onProgress?.({ stage: 'downloading', transferred: received })
+      }
+    }
+  } finally {
+    await handle.close().catch(() => undefined)
+  }
   if (total > 0) {
     onProgress?.({ stage: 'downloading', percentage: 100, transferred: total, total })
   }
@@ -531,10 +593,13 @@ async function extractBinary(
   if (archivePath.endsWith('.gz') && !archivePath.endsWith('.tar.gz')) {
     // Binario SUELTO comprimido con gzip (ej. rust-analyzer-…-linux-gnu.gz).
     const compressed = await fs.readFile(archivePath)
-    await fs.writeFile(destination, gunzipSync(compressed))
+    const inflated = gunzipSync(compressed, { maxOutputLength: MAX_EXTRACTED_BYTES })
+    await fs.writeFile(destination, inflated)
   } else if (archivePath.endsWith('.zip')) {
     const content = await fs.readFile(archivePath)
-    const files = unzipSync(content)
+    const files = unzipSync(content, {
+      filter: (file) => file.originalSize <= MAX_EXTRACTED_BYTES
+    })
     const wanted = Object.keys(files).find((name) => name === binaryPathInArchive || name.endsWith(binaryPathInArchive))
     if (!wanted) throw new Error(`${binaryPathInArchive} no está en el zip`)
     await fs.writeFile(destination, Buffer.from(files[wanted]))

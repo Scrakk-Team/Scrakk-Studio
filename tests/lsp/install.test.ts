@@ -16,7 +16,8 @@ import {
   downloadsDisabled,
   resolveManagedCommand,
   managedBinDir,
-  managedNpmDir
+  managedNpmDir,
+  safeArchivePath
 } from '../../src/main/lsp/install'
 import { scanWorkspaceExtensions } from '../../src/main/lsp/manager'
 import { useScrakkHomeForTests, resetScrakkHome } from '../../src/main/scrakkFolder'
@@ -157,5 +158,27 @@ describe('scanWorkspaceExtensions (gate de instalación)', () => {
     // node_modules NO se escanea → .mockts ausente; .py presente.
     expect(found!.has('.py')).toBe(true)
     expect(found!.has('.mockts')).toBe(false)
+  })
+})
+
+describe('safeArchivePath (zip-slip)', () => {
+  const dest = '/home/dev/.scrakk/lsp/server'
+
+  it('acepta entradas relativas dentro del destino', () => {
+    expect(safeArchivePath(dest, 'bin/server')).toBe(path.join(dest, 'bin/server'))
+    expect(safeArchivePath(dest, 'LICENSE')).toBe(path.join(dest, 'LICENSE'))
+  })
+
+  it('rechaza `..`, rutas absolutas y unidades de Windows', () => {
+    expect(safeArchivePath(dest, '../../.config/autostart/x.desktop')).toBeNull()
+    expect(safeArchivePath(dest, 'bin/../../../.bashrc')).toBeNull()
+    expect(safeArchivePath(dest, '/etc/passwd')).toBeNull()
+    expect(safeArchivePath(dest, 'C:\\Windows\\evil.dll')).toBeNull()
+    expect(safeArchivePath(dest, '..\\..\\evil')).toBeNull()
+  })
+
+  it('rechaza NUL y entradas vacías', () => {
+    expect(safeArchivePath(dest, 'bin/\0evil')).toBeNull()
+    expect(safeArchivePath(dest, '')).toBeNull()
   })
 })

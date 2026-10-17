@@ -732,3 +732,13 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   also ignored for non-builtin servers. Covered by
   `tests/workspace-trust.test.ts`; CI mounts trusted workspaces through
   `SCRAKK_TRUST_PROJECT_LSP=1`.
+- **LSP auto-installation is no longer a zip-slip or a memory bomb.**
+  `extractTree`/`extractBinary` joined archive entry names straight onto the
+  destination (`path.join(dest, name)`), so a malicious release ZIP could write
+  `../../.config/autostart/x.desktop`; `tar` trees were extracted without
+  inspecting their entries, and `downloadTo` buffered the whole body in RAM with
+  no cap. Entries now go through `safeArchivePath()` (rejects `..`, absolute
+  paths, Windows drive letters/UNC and NUL), tar trees are listed before
+  extraction, downloads stream to disk with a 512 MB cap and require HTTPS, and
+  gzip/ZIP expansion is bounded (1 GB / 20k entries). Covered by
+  `tests/lsp/install.test.ts`.
