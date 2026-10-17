@@ -933,3 +933,12 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   prefix.** `nearestRoot` used `dir.startsWith(stopAbs)`, so `/proj-evil`
   counted as inside `/proj` and the marker search could walk outside the
   workspace. Containment now uses `path.relative`.
+- **Database functions got a fixed `search_path` and minimal `EXECUTE`
+  grants.** Supabase advisors flagged `extensions_touch`,
+  `extension_categories`, `is_codefile_body` and `search_extensions` with a
+  mutable `search_path`, and the trigger functions
+  `enforce_message_rate_limit`, `messages_guard`, `profiles_lock_email` and
+  `refresh_extension_rating` were `SECURITY DEFINER` and callable by `anon` via
+  `/rest/v1/rpc`. Migration `docs/backend/0032_function_search_path.sql`
+  (applied) pins the path and revokes those grants; trigger invocation is
+  unaffected.
