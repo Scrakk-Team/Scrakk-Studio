@@ -742,3 +742,13 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   extraction, downloads stream to disk with a 512 MB cap and require HTTPS, and
   gzip/ZIP expansion is bounded (1 GB / 20k entries). Covered by
   `tests/lsp/install.test.ts`.
+- **The `.scrakk` and extension filesystem jails now resolve symlinks.** Both
+  validated the path lexically (`path.resolve` + `startsWith`), which does not
+  see links. A repository can commit `.scrakk/data -> ~/.ssh` (git preserves
+  symlinks) and then `data/id_rsa` passes the old check, so `scrakk:read` leaked
+  the key and `scrakk:write` could add `authorized_keys`; the extension jail had
+  the same hole for `ext:fs-*` and `workspace.fs`. Paths are now checked against
+  the `realpath` of the target and of every allowed root, including the nearest
+  existing ancestor for files that do not exist yet
+  (`extensions/realpathJail.ts`). Covered by `tests/symlink-jail.test.ts` and
+  `tests/extension-symlink-jail.test.ts`.

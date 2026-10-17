@@ -25,6 +25,7 @@ import {
   type PathAccessContext,
   type PathAccessResult
 } from '@shared/permissions'
+import { isRealPathInsideAny } from './realpathJail'
 
 // ── Registro de roots del workspace ────────────────────────────────────────
 
@@ -102,7 +103,14 @@ export async function checkExtensionPathAccess(
 ): Promise<PathAccessResult> {
   const ctx = await accessContext(extensionId)
   if (!ctx) return { allowed: false, reason: 'extensión no registrada' }
-  return checkPathAccess(ctx, mode, targetPath)
+  const verdict = checkPathAccess(ctx, mode, targetPath)
+  if (!verdict.allowed) return verdict
+  // El check léxico no ve symlinks: `workspace/data -> ~/.ssh` pasaba.
+  const roots = [...ctx.workspaceRoots, ...(ctx.allowedRoots ?? [])]
+  if (!(await isRealPathInsideAny(roots, targetPath))) {
+    return { allowed: false, reason: 'ruta fuera del workspace (symlink)' }
+  }
+  return verdict
 }
 
 /** Gate para permisos no-relacionados-a-rutas (lsp.use, network.fetch…). */

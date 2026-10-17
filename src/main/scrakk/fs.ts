@@ -12,7 +12,7 @@
 
 import * as fs from 'fs/promises'
 import * as path from 'path'
-import { watch as fsWatch, type FSWatcher } from 'node:fs'
+import { realpathSync, watch as fsWatch, type FSWatcher } from 'node:fs'
 import type { WebContents } from 'electron'
 import { projectScrakkDir, scrakkHome } from '../scrakkFolder'
 import type {
@@ -67,6 +67,53 @@ function resolveInside(root: string, relative?: string): string | null {
   return abs
 }
 
+/**
+ * `realpath` tolerante a rutas que todavía no existen: resuelve el ancestro
+ * existente más cercano y le vuelve a colgar la parte que falta.
+ *
+ * El check léxico de `resolveInside` no alcanza: un repo puede commitear
+ * `.scrakk/data -> /home/<user>/.ssh` y `data/id_rsa` empieza por la raíz.
+ */
+async function realpathLoose(target: string): Promise<string> {
+  let current = path.resolve(target)
+  const tail: string[] = []
+  for (;;) {
+    try {
+      const real = await fs.realpath(current)
+      return path.join(real, ...tail.reverse())
+    } catch {
+      const parent = path.dirname(current)
+      if (parent === current) return path.resolve(target)
+      tail.push(path.basename(current))
+      current = parent
+    }
+  }
+}
+
+/** Resuelve la ruta Y comprueba contención sobre la ruta real (symlinks). */
+async function resolveInsideReal(root: string, relative?: string): Promise<string | null> {
+  const lexical = resolveInside(root, relative)
+  if (!lexical) return null
+  const realRoot = await realpathLoose(root)
+  const realTarget = await realpathLoose(lexical)
+  if (realTarget !== realRoot && !realTarget.startsWith(realRoot + path.sep)) return null
+  return lexical
+}
+
+/** Igual que `resolveInsideReal`, para los watchers (que necesitan ser sync). */
+function resolveInsideRealSync(root: string, relative?: string): string | null {
+  const lexical = resolveInside(root, relative)
+  if (!lexical) return null
+  try {
+    const realRoot = realpathSync(root)
+    const realTarget = realpathSync(lexical)
+    if (realTarget !== realRoot && !realTarget.startsWith(realRoot + path.sep)) return null
+    return lexical
+  } catch {
+    return null
+  }
+}
+
 function toEntry(root: string, abs: string, isDir: boolean, size: number, mtimeMs: number): ScrakkEntry {
   const rel = path.relative(root, abs).split(path.sep).join('/')
   return { name: path.basename(abs), path: rel, type: isDir ? 'dir' : 'file', size, mtimeMs }
@@ -77,7 +124,7 @@ function toEntry(root: string, abs: string, isDir: boolean, size: number, mtimeM
 export async function listEntries(op: ScrakkOp): Promise<ScrakkResult<ScrakkEntry[]>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs) return fail(t('main.ruta.fuera.de.scrakk'))
   try {
     const dirents = await fs.readdir(abs, { withFileTypes: true })
@@ -107,7 +154,7 @@ export async function listEntries(op: ScrakkOp): Promise<ScrakkResult<ScrakkEntr
 export async function readText(op: ScrakkOp): Promise<ScrakkResult<string | null>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs) return fail(t('main.ruta.fuera.de.scrakk'))
   try {
     return ok(await fs.readFile(abs, 'utf-8'))
@@ -121,7 +168,7 @@ export async function readText(op: ScrakkOp): Promise<ScrakkResult<string | null
 export async function writeText(op: ScrakkOp & { content: string }): Promise<ScrakkResult<string>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs || abs === path.resolve(root)) return fail(t('main.ruta.invalida'))
   try {
     await fs.mkdir(path.dirname(abs), { recursive: true })
@@ -152,7 +199,7 @@ export async function writeJson(op: ScrakkOp & { data: Record<string, unknown> }
 export async function removeEntry(op: ScrakkOp): Promise<ScrakkResult<null>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs || abs === path.resolve(root)) return fail(t('main.ruta.invalida'))
   try {
     await fs.rm(abs, { recursive: true, force: true })
@@ -165,7 +212,7 @@ export async function removeEntry(op: ScrakkOp): Promise<ScrakkResult<null>> {
 export async function makeDir(op: ScrakkOp): Promise<ScrakkResult<string>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs) return fail(t('main.ruta.fuera.de.scrakk'))
   try {
     await fs.mkdir(abs, { recursive: true })
@@ -178,7 +225,7 @@ export async function makeDir(op: ScrakkOp): Promise<ScrakkResult<string>> {
 export async function entryExists(op: ScrakkOp): Promise<boolean> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return false
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs) return false
   try {
     await fs.access(abs)
@@ -191,7 +238,7 @@ export async function entryExists(op: ScrakkOp): Promise<boolean> {
 export async function statEntry(op: ScrakkOp): Promise<ScrakkResult<ScrakkEntry | null>> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const abs = resolveInside(root, op.relative)
+  const abs = await resolveInsideReal(root, op.relative)
   if (!abs) return fail(t('main.ruta.fuera.de.scrakk'))
   try {
     const st = await fs.stat(abs)
@@ -228,7 +275,7 @@ export function watchDir(
 ): ScrakkResult<null> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return fail(t('main.no.hay.proyecto.abierto'))
-  const dir = resolveInside(root, op.relative)
+  const dir = resolveInsideRealSync(root, op.relative)
   if (!dir) return fail(t('main.ruta.fuera.de.scrakk'))
   const key = watchKey(sender.id, dir)
   if (watchers.has(key)) return ok(null)
@@ -259,7 +306,7 @@ export function watchDir(
 export function unwatchDir(sender: WebContents, op: ScrakkOp): ScrakkResult<null> {
   const root = rootFor(op.scope, op.projectRoot)
   if (!root) return ok(null)
-  const dir = resolveInside(root, op.relative)
+  const dir = resolveInsideRealSync(root, op.relative)
   if (!dir) return ok(null)
   const key = watchKey(sender.id, dir)
   const entry = watchers.get(key)

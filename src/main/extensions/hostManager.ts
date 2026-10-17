@@ -58,6 +58,7 @@ import {
   type TreeNodeModel
 } from '@shared/extensionHost/protocol'
 import { checkPathAccess } from '@shared/permissions'
+import { isRealPathInsideAny } from './realpathJail'
 import { RpcPeer } from './host/rpc'
 
 // ── Costuras inyectables (para tests) ─────────────────────────────────────
@@ -663,14 +664,14 @@ export class ExtensionHostManager {
   }
 
   /** Deniega un rename/copy si origen o destino no están autorizados. */
-  private denyMove(
+  private async denyMove(
     session: HostSession,
     from: string,
     to: string
-  ): { success: false; error: string } | null {
-    const source = this.authorize(session, 'read', from)
+  ): Promise<{ success: false; error: string } | null> {
+    const source = await this.authorizeAsync(session, 'read', from)
     if (!source.allowed) return { success: false, error: `origen: ${source.reason}` }
-    const target = this.authorize(session, 'write', to)
+    const target = await this.authorizeAsync(session, 'write', to)
     if (!target.allowed) return { success: false, error: `destino: ${target.reason}` }
     return null
   }
@@ -911,7 +912,7 @@ export class ExtensionHostManager {
     // ── Peticiones host → main (ids negativos) ───────────────────────────
     peer.handle('fs/read', async (raw) => {
       const { path } = raw as { path: string }
-      const verdict = this.authorize(session, 'read', path)
+      const verdict = await this.authorizeAsync(session, 'read', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason } satisfies FsResultLike
       try {
         const content = await fs.readFile(path, 'utf-8')
@@ -926,7 +927,7 @@ export class ExtensionHostManager {
 
     peer.handle('fs/write', async (raw) => {
       const { path, content } = raw as { path: string; content: string }
-      const verdict = this.authorize(session, 'write', path)
+      const verdict = await this.authorizeAsync(session, 'write', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason } satisfies FsResultLike
       try {
         await fs.writeFile(path, content, 'utf-8')
@@ -945,7 +946,7 @@ export class ExtensionHostManager {
     // de una extensión real (Cline llama `.stat()` en su primera vuelta).
     peer.handle('fs/stat', async (raw): Promise<FsStatResult> => {
       const { path } = raw as { path: string }
-      const verdict = this.authorize(session, 'read', path)
+      const verdict = await this.authorizeAsync(session, 'read', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason }
       try {
         const stats = await fs.stat(path)
@@ -957,7 +958,7 @@ export class ExtensionHostManager {
 
     peer.handle('fs/read-directory', async (raw): Promise<FsReadDirectoryResult> => {
       const { path } = raw as { path: string }
-      const verdict = this.authorize(session, 'read', path)
+      const verdict = await this.authorizeAsync(session, 'read', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason }
       try {
         const entries = await fs.readdir(path, { withFileTypes: true })
@@ -972,7 +973,7 @@ export class ExtensionHostManager {
 
     peer.handle('fs/create-directory', async (raw) => {
       const { path } = raw as { path: string }
-      const verdict = this.authorize(session, 'write', path)
+      const verdict = await this.authorizeAsync(session, 'write', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason } satisfies FsResultLike<void>
       try {
         await fs.mkdir(path, { recursive: true })
@@ -984,7 +985,7 @@ export class ExtensionHostManager {
 
     peer.handle('fs/delete', async (raw) => {
       const { path, recursive } = raw as { path: string; recursive?: boolean }
-      const verdict = this.authorize(session, 'write', path)
+      const verdict = await this.authorizeAsync(session, 'write', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason } satisfies FsResultLike<void>
       try {
         await fs.rm(path, { recursive: recursive ?? true, force: true })
@@ -998,7 +999,7 @@ export class ExtensionHostManager {
     // si no, se podría sacar un archivo del workspace con un rename.
     peer.handle('fs/rename', async (raw) => {
       const { from, to, overwrite } = raw as { from: string; to: string; overwrite?: boolean }
-      const denied = this.denyMove(session, from, to)
+      const denied = await this.denyMove(session, from, to)
       if (denied) return denied
       try {
         if (overwrite) await fs.rm(to, { recursive: true, force: true })
@@ -1011,7 +1012,7 @@ export class ExtensionHostManager {
 
     peer.handle('fs/copy', async (raw) => {
       const { from, to, overwrite } = raw as { from: string; to: string; overwrite?: boolean }
-      const denied = this.denyMove(session, from, to)
+      const denied = await this.denyMove(session, from, to)
       if (denied) return denied
       try {
         await fs.cp(from, to, { recursive: true, force: overwrite ?? true })
@@ -1074,7 +1075,7 @@ export class ExtensionHostManager {
     peer.handle('editor/open', async (raw) => {
       const { path } = raw as { path?: string }
       if (!path) return { success: false, error: 'editor/open sin path' }
-      const verdict = this.authorize(session, 'read', path)
+      const verdict = await this.authorizeAsync(session, 'read', path)
       if (!verdict.allowed) return { success: false, error: verdict.reason }
       const result = await this.trackCall(session, `abrir ${path} en el editor`, () =>
         this.renderer.invoke('editor/open', { path }, 15_000)
@@ -1156,13 +1157,13 @@ export class ExtensionHostManager {
           const full = join(dir, entry.name)
           if (entry.isDirectory()) {
             if (SKIPPED_DIRS.has(entry.name)) continue
-            if (this.authorize(session, 'read', full).allowed) stack.push(full)
+            if ((await this.authorizeAsync(session, 'read', full)).allowed) stack.push(full)
             continue
           }
           if (!entry.isFile()) continue
           const relativePath = relative(root, full).split(sep).join('/')
           if (!matchesGlob(pattern, relativePath)) continue
-          if (!this.authorize(session, 'read', full).allowed) continue
+          if (!(await this.authorizeAsync(session, 'read', full)).allowed) continue
           found.push(full)
           if (found.length >= limit) {
             truncated = true
@@ -1208,6 +1209,30 @@ export class ExtensionHostManager {
       mode,
       targetPath
     )
+  }
+
+  /**
+   * `authorize` + contención REAL (symlinks). El check léxico deja pasar
+   * `<workspace>/link/id_rsa` cuando `link -> ~/.ssh`; aquí se resuelve el
+   * `realpath` del destino y de los roots antes de tocar disco.
+   */
+  private async authorizeAsync(session: HostSession, mode: 'read' | 'write', targetPath: string) {
+    const verdict = this.authorize(session, mode, targetPath)
+    if (!verdict.allowed) return verdict
+    const roots = [
+      ...session.request.workspaceRoots,
+      ...(session.storagePaths
+        ? [
+            session.storagePaths.globalStorage,
+            session.storagePaths.workspaceStorage,
+            session.storagePaths.logs
+          ]
+        : [])
+    ]
+    if (!(await isRealPathInsideAny(roots, targetPath))) {
+      return { allowed: false, reason: 'ruta fuera del workspace (symlink)' }
+    }
+    return verdict
   }
 
   private log(level: LogPayload['level'], message: string): void {
