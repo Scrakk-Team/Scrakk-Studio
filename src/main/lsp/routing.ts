@@ -32,7 +32,10 @@ export async function nearestRoot(
 ): Promise<string | null> {
   let dir = path.dirname(path.resolve(file))
   const stopAbs = path.resolve(stop)
-  if (!dir.startsWith(stopAbs)) return null
+  // `startsWith` hacía que `/proj-evil` contara como dentro de `/proj` y el
+  // walk subiera buscando markers fuera del workspace.
+  const rel = path.relative(stopAbs, dir)
+  if (rel.startsWith('..') || path.isAbsolute(rel)) return null
 
   while (true) {
     for (const marker of markers) {

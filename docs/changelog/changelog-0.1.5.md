@@ -929,3 +929,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   boundary, and lists the residual risks (broad preload bridge, unsandboxed
   extension host, unsigned builds, DNS rebinding) plus the rotation checklist
   for the credentials that existed before this release.
+- **The LSP root walk no longer escapes the workspace through a sibling
+  prefix.** `nearestRoot` used `dir.startsWith(stopAbs)`, so `/proj-evil`
+  counted as inside `/proj` and the marker search could walk outside the
+  workspace. Containment now uses `path.relative`.

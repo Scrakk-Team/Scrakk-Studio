@@ -124,3 +124,17 @@ describe('resolveServers (multi-server)', () => {
     expect(await resolveServers({ a: serverWith('.ts', 'ts') }, projectDir!, unknown, () => undefined)).toEqual([])
   })
 })
+
+describe('nearestRoot — límite del workspace', () => {
+  it('no confunde un hermana con prefijo parecido (/proj-evil vs /proj)', async () => {
+    const sibling = `${projectDir!}-evil`
+    await fs.mkdir(sibling, { recursive: true })
+    await fs.writeFile(path.join(sibling, 'Cargo.toml'), '', 'utf-8')
+    try {
+      const root = await nearestRoot(path.join(sibling, 'main.rs'), projectDir!, ['Cargo.toml'])
+      expect(root).toBeNull()
+    } finally {
+      await fs.rm(sibling, { recursive: true, force: true })
+    }
+  })
+})
