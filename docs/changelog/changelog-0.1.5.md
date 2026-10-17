@@ -1021,3 +1021,5 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   store/auto-update (opt-in + signature required) and the SEF CLI/packaging
   guides (keygen/pack --key/verify). `npm run docs` regenerated the bundle and
   `docs:check` passes.
+- Follow-up docs pass: subagents/chat no longer claim the renderer holds the
+  provider key (the main resolves it from `providerId`).

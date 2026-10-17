@@ -149,8 +149,8 @@ appended; otherwise `result.message` (or the error) becomes an assistant message
 - Editing or regenerating drops the messages that followed — there is no undo.
 - Only one stream runs at a time (`isBusy`); the input stays writable but send is
   blocked until it ends.
-- A provider and API key are required before sending
-  (`services/chat/chat.service.ts` rejects otherwise).
+- A provider is required before sending; the main resolves the API key and the
+  stream returns a localized error if it is missing.
 
 ## Next steps
 

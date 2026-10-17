@@ -91,8 +91,9 @@ line of output live and is clickable; clicking dispatches `subagent:open`, which
 ## The runner
 
 `runHeadlessAgent` (`agents/runner.ts`) resolves the provider from
-`activeProviderSelection()` and the agent's API key, then uses the agent model
-unless it is `inherit`, in which case it uses the active model. Tool definitions
+`activeProviderSelection()` (the API key is resolved by the main process from
+`providerId`), then uses the agent model unless it is `inherit`, in which case
+it uses the active model. Tool definitions
 are the globally enabled ones filtered by the agent's `tools` and
 `hardPermissions`. It streams with `window.api.llm.chatStream` and executes tool
 calls with the real `executeTools` (so permissions still apply). The loop is
@@ -113,7 +114,8 @@ continues from there.
 - The headless loop stops after 24 rounds; a longer run is truncated.
 - The model is `inherit` unless the agent overrides it; there is no per-run model
   picker.
-- Subagents share the active provider/API key resolution of the renderer.
+- Subagents share the active provider selection; the main resolves the API key
+  by `providerId` (the renderer never sees it).
 
 ## Next steps
 
