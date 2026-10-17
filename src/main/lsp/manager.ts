@@ -44,6 +44,7 @@ import {
 } from './builtinServers'
 import { downloadsDisabled, install, installRequirement, resolveManagedCommand, managedNpmDir, type InstallRecipe } from './install'
 import { loadConfiguredServers } from './config'
+import { ensureWorkspaceTrusted } from '../trust'
 import { resolveServers } from './routing'
 
 import { t } from '@shared/i18n'
@@ -435,6 +436,21 @@ export class LspManager {
     const config = this.serversByRoot.get(root)?.[serverName]
     if (!config) return false
 
+    // Una config del PROYECTO puede ejecutar cualquier comando (`command`,
+    // `args`, `env`) al abrir un archivo: es RCE con solo clonar el repo. El
+    // consentimiento se pide una vez por carpeta y se guarda fuera del repo.
+    if (this.sourcesByRoot.get(root)?.[serverName] === 'project') {
+      const command =
+        config.transport === 'socket'
+          ? `socket ${config.command}`
+          : [config.command, ...(config.args ?? [])].join(' ')
+      if (!(await ensureWorkspaceTrusted(root, command))) {
+        this.lastErrorByKey.set(key, t('main.trust.denegado'))
+        this.emitEvent({ serverName, state: 'failed', error: t('main.trust.denegado') })
+        return false
+      }
+    }
+
     const resolved = await this.resolveOrInstall(serverName, config, root)
     if (!resolved) {
       const error =
@@ -503,6 +519,16 @@ export class LspManager {
       this.allDynamicDefs().find((candidate) => candidate.id === serverName)
     const recipe = def?.install
     if (!recipe || downloadsDisabled()) return null
+
+    // Una receta `custom` ejecuta argv arbitrario en el main. Solo se acepta
+    // para servers integrados (revisados en el repo); una extensión no puede
+    // aportar una receta que corra comandos sin pasar por el sandbox/consentimiento
+    // de la extensión.
+    const isBuiltin = BUILTIN_SERVERS.some((candidate) => candidate.id === serverName)
+    if (recipe.kind === 'custom' && !isBuiltin) {
+      console.warn(`[lsp] receta "custom" ignorada para el server no integrado "${serverName}"`)
+      return null
+    }
 
     if (!(await this.workspaceMatchesExtensions(root, config.extensions))) {
       return null

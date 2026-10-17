@@ -720,3 +720,15 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   directory (`cd repo && scrakk .`). Candidates now come only from the app's own
   install/checkout (`shared`-free helper `search/nativePaths.ts`), and
   `tests/native-paths.test.ts` pins that `cwd` never leaks in.
+- **A project's `.scrakk/lsp.json` now requires Workspace Trust before it can
+  run a command.** The config is layered `user → project`, and the project
+  layer accepted any `command`, `args` and `env` (`LD_PRELOAD` included) that
+  was spawned automatically when a matching file was opened — cloning a repo
+  and touching a `.ts` was remote code execution, with the IDE's environment
+  (`R2`, GitHub, Supabase secrets) inherited. The first project-defined server
+  now shows a native consent dialog with the exact command; the decision is
+  stored in `userData/workspace-trust.json` (never inside the repo) and a
+  denial is remembered so it does not nag. `kind: "custom"` install recipes are
+  also ignored for non-builtin servers. Covered by
+  `tests/workspace-trust.test.ts`; CI mounts trusted workspaces through
+  `SCRAKK_TRUST_PROJECT_LSP=1`.

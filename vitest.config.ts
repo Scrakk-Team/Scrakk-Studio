@@ -36,6 +36,12 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     testTimeout: 20_000,
-    hookTimeout: 20_000
+    hookTimeout: 20_000,
+    // Los tests montan `.scrakk/lsp.json` a propósito y esperan que arranque.
+    // El diálogo de Workspace Trust no existe fuera de Electron; el gate real
+    // se prueba en tests/workspace-trust.test.ts con un mock.
+    env: {
+      SCRAKK_TRUST_PROJECT_LSP: '1'
+    }
   }
 })
