@@ -18,6 +18,7 @@
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { preloadPanel, useLayout } from '@features/layout'
 import { ExtensionRegistry } from '@services/extensions'
+import { sanitizeSvgIcon } from '@services/extensions/svgIcon'
 import {
   getExtensionContextKey,
   setExtensionContextKey,
@@ -230,7 +231,7 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
             }}
           >
             {typeof button.icon === 'string' ? (
-              <span className={styles.svg} dangerouslySetInnerHTML={{ __html: button.icon }} />
+              <span className={styles.svg} dangerouslySetInnerHTML={{ __html: sanitizeSvgIcon(button.icon) ?? '' }} />
             ) : (
               <button.icon size={20} />
             )}
@@ -256,7 +257,7 @@ function DragGhost({ id, x, y }: { id: string; x: number; y: number }): JSX.Elem
     >
       {button ? (
         typeof button.icon === 'string' ? (
-          <span className={styles.svg} dangerouslySetInnerHTML={{ __html: button.icon }} />
+          <span className={styles.svg} dangerouslySetInnerHTML={{ __html: sanitizeSvgIcon(button.icon) ?? '' }} />
         ) : (
           <button.icon size={20} />
         )

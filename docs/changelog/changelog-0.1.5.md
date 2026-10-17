@@ -789,3 +789,14 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   (plain HTTP only for loopback/local models), rejects private/link-local/
   metadata addresses, refuses redirects (`redirect: 'error'`) and aborts a
   stream above 8 MB of accumulated text. Covered by `tests/llm-api-keys.test.ts`.
+- **Extension SVG icons are sanitized before they are injected as HTML.** The
+  `iconSvg` of a `views` contribution (copied verbatim from a VSIX by the
+  translator) and any SVG resolved for an `activityBar` button reached
+  `dangerouslySetInnerHTML` in the ActivityBar/ToolDock. An SVG is HTML, so
+  `<svg onload=…>`, `<script>`, `<foreignObject>` or `href="javascript:…"` ran
+  in the IDE origin — with `window.api` — **without needing a bundle**. Icons
+  now go through `sanitizeSvgIcon` (blocks script/style/foreignObject/iframe/
+  object/embed/link/meta/use/image/animate, strips `on*`, `style` and external
+  `href`/`src`, rejects external `url()`), applied both when parsing the
+  contribution and at the three injection points. Covered by
+  `tests/svg-icon.test.ts`.

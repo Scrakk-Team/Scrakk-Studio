@@ -32,6 +32,7 @@
  */
 
 import type { ParseContext } from '../handler'
+import { sanitizeSvgIcon } from '../../svgIcon'
 
 /** Una entrada de `viewsWelcome` (puede haber varias por vista, con `when`). */
 export interface ViewWelcome {
@@ -100,7 +101,8 @@ export function parseViewContributions(
       name: c.name,
       container: c.container,
       containerTitle: typeof c.containerTitle === 'string' ? c.containerTitle : undefined,
-      iconSvg: typeof c.iconSvg === 'string' ? c.iconSvg : undefined,
+      iconSvg:
+        typeof c.iconSvg === 'string' ? sanitizeSvgIcon(c.iconSvg) : undefined,
       order: typeof c.order === 'number' ? c.order : undefined,
       when: typeof c.when === 'string' && c.when.trim().length > 0 ? c.when : undefined,
       welcome: parseViewWelcome(c.welcome),

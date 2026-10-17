@@ -38,6 +38,7 @@ import {
 } from '../registry'
 import { useToolDockHost } from '../state/ToolDockHostContext'
 import type { DockEntry, ToolDockItem } from '../types'
+import { sanitizeSvgIcon } from '@services/extensions/svgIcon'
 import styles from './ToolDock.module.css'
 
 export function ToolDock(): JSX.Element | null {
@@ -351,7 +352,7 @@ function ButtonIcon({ entry }: { entry: DockEntry }): JSX.Element {
   }
   const icon = entry.button.icon
   return typeof icon === 'string' ? (
-    <span className={styles.buttonSvg} dangerouslySetInnerHTML={{ __html: icon }} />
+    <span className={styles.buttonSvg} dangerouslySetInnerHTML={{ __html: sanitizeSvgIcon(icon) ?? '' }} />
   ) : (
     (() => {
       const Icon = icon
