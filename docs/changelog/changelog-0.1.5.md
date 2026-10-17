@@ -855,6 +855,18 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   catalog could invalidate the policy. It now lives in
   `extensions/webviewCsp.ts` with literal directives, covered by
   `tests/webview-csp.test.ts`.
+- **`.sef` packages can be signed and the IDE verifies them.** The store used
+  to download and unpack whatever a GitHub/GitLab release contained. The SEF
+  CLI (`sef-builder` 0.2.0) now has `sef keygen`, `sef verify` and
+  `sef pack --key`, which adds `signature.json`: SHA-256 of the manifest and of
+  every file plus an Ed25519 signature over a canonical payload. The IDE
+  recomputes every hash and verifies the signature before extracting anything;
+  it pins the publisher key per extension id (TOFU) and **rejects an update
+  signed with a different key**. Automatic updates require a valid signature;
+  a local unsigned `.sef` still installs through the existing consent dialog.
+  Tampering with any file, adding/removing entries or swapping the key fails
+  with a clear error. Covered by `tests/sef-signature.test.ts` (IDE) and
+  `tests/sign.test.ts` (CLI).
 ### Security (backend)
 - **The extension market can no longer self-publish, self-verify or swap its
   repo after approval.** `extensions_admin_guard` was `BEFORE UPDATE` only, so

@@ -277,6 +277,10 @@ export interface InstalledExtensionInfo {
   source?: ExtensionSource
   /** Cobertura del traductor (solo convertidas). */
   coverage?: number
+  /** El `.sef` trae una firma Ed25519 válida. */
+  signed?: boolean
+  /** `sha256:<…>` de la clave del publisher (si está firmada). */
+  publisherKeyId?: string
 }
 
 // ── Install SEF ────────────────────────────────────────────────────────────

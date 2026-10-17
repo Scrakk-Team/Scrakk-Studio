@@ -39,6 +39,8 @@ import { resolveLangsDir } from '../langs'
 
 import { t } from '@shared/i18n'
 import { confirmExtensionInstall } from '../extensions/consent'
+import { verifySefFiles } from '../extensions/signature'
+import { publisherStatus, rememberPublisher, forgetPublisher } from '../extensions/publisherTrust'
 
 async function extensionsRoot(): Promise<string> {
   const dir = path.join(app.getPath('userData'), 'extensions')
@@ -111,7 +113,7 @@ function parseSef(buffer: Uint8Array): ParsedSef {
 function manifestInfo(
   dir: string,
   manifest: Record<string, unknown>,
-  extra?: { source?: ExtensionSource; coverage?: number }
+  extra?: { source?: ExtensionSource; coverage?: number; signed?: boolean; publisherKeyId?: string }
 ): InstalledExtensionInfo {
   return {
     id: String(manifest.id),
@@ -120,7 +122,9 @@ function manifestInfo(
     author: typeof manifest.author === 'string' ? manifest.author : undefined,
     dir,
     source: extra?.source ?? 'sef',
-    coverage: extra?.coverage
+    coverage: extra?.coverage,
+    signed: extra?.signed,
+    publisherKeyId: extra?.publisherKeyId
   }
 }
 
@@ -158,10 +162,39 @@ export async function installSefFromBuffer(
     expectedId?: string
     /** Consentimiento del usuario (diálogo); los tests lo omiten. */
     confirm?: (manifest: Record<string, unknown>) => Promise<boolean>
+    /** El market/auto-update exige firma; la instalación local la tolera. */
+    requireSignature?: boolean
   } = {}
 ): Promise<InstallSefResponse> {
   try {
     const parsed = parseSef(buffer)
+
+    // 1) Firma: si existe, TIENE que verificar. Si no existe y el origen la
+    //    exige (market/auto-update), no se instala.
+    const signature = verifySefFiles(Object.fromEntries(parsed.files))
+    if (signature.signed && !signature.ok) {
+      return { success: false, error: `Firma inválida: ${signature.reason ?? 'desconocida'}` }
+    }
+    if (!signature.signed && options.requireSignature) {
+      return {
+        success: false,
+        error: 'El paquete no está firmado. El market exige firma Ed25519 para instalar/actualizar.'
+      }
+    }
+    let publisherTrust: 'match' | 'new' | undefined
+    if (signature.signed && signature.ok && signature.keyId && signature.publicKey) {
+      const status = await publisherStatus(parsed.id, signature.keyId, signature.publicKey)
+      if (status === 'mismatch') {
+        return {
+          success: false,
+          error:
+            'La clave del publisher no coincide con la fijada para esta extensión. ' +
+            'Desinstalala y volvé a instalarla si el autor rotó la clave.'
+        }
+      }
+      publisherTrust = status
+    }
+
     if (options.expectedId && parsed.id.toLowerCase() !== options.expectedId.toLowerCase()) {
       return {
         success: false,
@@ -185,7 +218,18 @@ export async function installSefFromBuffer(
       await fs.writeFile(target, data)
     }
 
-    return { success: true, extension: manifestInfo(targetDir, parsed.manifest) }
+    // Solo se fija la clave después de escribir el paquete correctamente.
+    if (signature.signed && signature.ok && publisherTrust === 'new' && signature.keyId && signature.publicKey) {
+      await rememberPublisher(parsed.id, signature.keyId, signature.publicKey)
+    }
+
+    return {
+      success: true,
+      extension: manifestInfo(targetDir, parsed.manifest, {
+        signed: signature.signed && signature.ok,
+        publisherKeyId: signature.keyId
+      })
+    }
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
@@ -271,6 +315,7 @@ export function registerExtensionsIpc(): void {
       if (!id) return { success: false, error: `Id inválido: "${request.id}"` }
       try {
         await fs.rm(path.join(await extensionsRoot(), id), { recursive: true, force: true })
+        await forgetPublisher(id)
         return { success: true }
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) }

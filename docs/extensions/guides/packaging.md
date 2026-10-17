@@ -27,8 +27,25 @@ The builder is the **SEF CLI**, in its own repo
 
 ```sh
 npm install -g https://github.com/Scrakk-Team/sef-builder/releases/latest/download/cli.tgz
-sef build . && sef pack .
+sef build . && sef pack . --key ./keys/sef-signing.key
 ```
+
+### Signing
+
+The market verifies signed packages and pins the publisher key per extension
+id. Generate the key once and keep the private half out of the repo (CI secret
+or password manager):
+
+```sh
+sef keygen ./keys
+sef pack ./my-extension --key ./keys/sef-signing.key
+sef verify ./my-extension.sef --pubkey ./keys/sef-signing.pub
+```
+
+`pack` writes `signature.json` with the SHA-256 of the manifest and every file,
+plus an Ed25519 signature over that canonical payload. Without a key the package
+is still produced (warning) but it is treated as unsigned: local installs ask
+for consent, and **automatic updates refuse unsigned packages**.
 
 The npm package is not published yet; the GitHub Release tarball above is the
 supported install. And since a `.sef` is just a ZIP, you can also assemble it by hand (see **By

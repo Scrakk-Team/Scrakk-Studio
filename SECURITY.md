@@ -35,30 +35,36 @@ See `docs/changelog/changelog-0.1.5.md` → **Security (audit)**. In short:
 secrets are out of the renderer, child processes do not inherit them, the
 filesystem jails resolve symlinks, project LSP configs require consent, git
 refs cannot inject options, `web_fetch` pins DNS and cannot reach
-loopback/metadata, extension archives are bounded, and the backend
-market/Storage/consent policies were corrected (migrations `0031`/`0032`).
+loopback/metadata, extension archives are bounded, `.sef` packages can be
+signed with Ed25519 (and auto-updates require a valid signature), and the
+backend market/Storage/consent policies were corrected (migrations
+`0031`/`0032`).
 
 ## Residual risks (known)
 
-1. **Renderer ↔ main bridge.** `window.api` exposes filesystem reads/writes and
+1. **Signed packages still run trusted code.** The Ed25519 signature proves
+   the package came from the pinned publisher key and was not altered; it does
+   not sandbox the extension. A malicious publisher can sign malicious code.
+   Keep the install consent, and only install authors you trust.
+2. **Renderer ↔ main bridge.** `window.api` exposes filesystem reads/writes and
    `fs:exec-command`. This is required by the editor and the agent, but it means
    any future XSS or an extension bundle running in the renderer can execute
    commands. The real fix is moving extension UI bundles to an isolated origin
    and narrowing the bridge.
-2. **Extension host sandbox.** Extensions can `require('child_process')` and
+3. **Extension host sandbox.** Extensions can `require('child_process')` and
    `fs`. Node's permission model / a VM boundary is not enabled.
-3. **Unsigned builds.** Authenticode/notarization are not configured; the
+4. **Unsigned app builds.** Authenticode/notarization are not configured; the
    updater relies on the GitHub feed. Electron fuses are enabled, but code
    signing is still required to make `EnableEmbeddedAsarIntegrityValidation`
    effective.
-4. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
+5. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
    falls back to `basic_text`. Account tokens **and provider API keys** are not
    persisted in that case (fail-closed): they live in memory for the session.
    Install GNOME Keyring/KWallet if you need persistence.
-5. **OTP limits are local.** The client now has a cooldown/quota, but the auth
+6. **OTP limits are local.** The client now has a cooldown/quota, but the auth
    API (`api.scrakk.art`) must enforce its own per-email/IP rate limit; that
    code is not in this repository.
-6. **Secrets rotation is an operational step.** The audit removed the archive
+7. **Secrets rotation is an operational step.** The audit removed the archive
    and fixed the ignore rules, but the `service_role`, R2 and DeepL credentials
    that existed before 0.1.5 must be **rotated** in their dashboards; the old
    values are compromised by definition.

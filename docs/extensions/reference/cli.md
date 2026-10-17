@@ -25,10 +25,23 @@ release as well.
 ```sh
 sef create   "<name>" [dir]   # scaffold (sample panel)
 sef build    <dir>            # bundle → dist/modules.js
-sef pack     <dir>            # validates and writes <dir>.sef
+sef pack     <dir> [--key <pem>]  # validates + writes <dir>.sef (signs if keyed)
 sef validate <dir>            # validate only
+sef keygen   [dir]            # Ed25519 key pair (private 0600)
+sef verify   <file.sef> [--pubkey <pem>]
 sef --help                    # usage
 sef --version                 # CLI version
+```
+
+Signing adds `signature.json` (SHA-256 of the manifest and every file, plus an
+Ed25519 signature over a canonical payload). `--key`/`SEF_SIGNING_KEY` signs
+during `pack`; without it the package is unsigned and the market/auto-update
+will treat it as such.
+
+```sh
+sef keygen ./keys
+sef pack ./my-extension --key ./keys/sef-signing.key
+sef verify ./my-extension.sef --pubkey ./keys/sef-signing.pub
 ```
 
 ## `create`
@@ -71,7 +84,7 @@ The paths collected today are: `panels[].component`, `activityBar[].icon`,
 ## `pack`
 
 ```sh
-sef pack ./my-extension
+sef pack ./my-extension --key ./keys/sef-signing.key
 # ✓ package: …/my-extension.sef
 ```
 

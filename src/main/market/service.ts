@@ -426,7 +426,11 @@ export async function checkInstalledUpdates(): Promise<number> {
     if (!rel?.assetUrl || rel.version === sidecar.version) continue
     try {
       const bytes = await downloadAsset(rel.assetUrl)
-      const installed = await installSefFromBuffer(bytes, { expectedId: sidecar.slug })
+      const installed = await installSefFromBuffer(bytes, {
+        expectedId: sidecar.slug,
+        // Una actualización desatendida NUNCA instala un paquete sin firma.
+        requireSignature: true
+      })
       if (!installed.success) continue
       await fs.writeFile(
         path.join(root, installed.extension.id, '.market.json'),
