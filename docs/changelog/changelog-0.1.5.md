@@ -1108,7 +1108,7 @@ and the backend. Each item names the exposed surface and what changed.
   `network.fetch` the host is launched through `bwrap --unshare-net`
   (`osSandbox.ts`): no outbound network, writable paths re-bound, the rest of
   the filesystem read-only. It falls back to the previous behavior if bwrap or
-  user namespaces are unavailable; Windows/macOS still rely on the manifest.
+  user namespaces are unavailable; Windows still relies on the manifest.
 - **Installed extension panels run in an isolated iframe.** The React bundle is
   no longer imported into the IDE renderer: it is served from
   `scrakk-ext://<id>/__bundle__/host.html` with its own React runtime
@@ -1118,3 +1118,7 @@ and the backend. Each item names the exposed surface and what changed.
   package can opt out with `"ui": { "legacyBundle": true }`. Verified by
   rendering a real SEF panel through the runtime; covered by
   `tests/ui-isolation.test.ts` and `tests/webview-csp.test.ts`.
+- **Windows and Linux only.** Removed the macOS `dmg` target from
+  `electron-builder.yml` and the macOS references from the install/update,
+  security and permissions docs. The release pipeline already built only Linux
+  and Windows; now the config cannot produce a macOS artifact by accident.

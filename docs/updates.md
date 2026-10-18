@@ -66,7 +66,7 @@ skipped with a warning.
 
 - **Linux**: only the **AppImage** self-updates. On deb/tar.gz installs or from
   source, the notice offers the link to the release.
-- **Signing**: Windows/macOS without a certificate show the system warning;
+- **Signing**: Windows builds without a certificate show the system warning;
   auto-update still works.
 - The first release with the updater is the one that already ships `latest*.yml`;
   from there on the following versions update themselves.

@@ -21,7 +21,8 @@ produced by `.github/workflows/release.yml`.
 |---|---|---|
 | Linux | `.AppImage`, `.deb`, `.tar.gz` | `linux.target` in `electron-builder.yml` |
 | Windows | NSIS `.exe` installer | `win.target: nsis`; no MSI is built |
-| macOS | `dmg` target configured, **not published** | `release.yml` only builds Linux and Windows |
+
+Scrakk Studio ships **Windows and Linux only**. There is no macOS target.
 
 Linux:
 
@@ -79,12 +80,10 @@ asar because `electron-builder.yml` lists them under `asarUnpack`.
 
 ## Limits
 
-- **macOS is not published.** `dmg` exists in `electron-builder.yml`, but
-  `release.yml` has only `build-linux` and `build-windows` jobs, so the Releases
-  page has no macOS artifact. You can build it yourself from source.
+- **Windows and Linux only.** There is no macOS target or artifact.
 - **No MSI.** Windows ships only the NSIS `.exe` installer.
-- **No code signing.** Windows/macOS builds without a certificate trigger the
-  system warning; auto-update still works.
+- **No code signing.** Windows builds without a certificate trigger the system
+  warning; auto-update still works.
 - **Linux updates.** Only the AppImage self-updates; `deb`, `tar.gz` and source
   installs get a link to the release.
 - **Native toolchains are optional** except where you rebuild them:

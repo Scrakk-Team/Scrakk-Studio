@@ -46,8 +46,8 @@ backend market/Storage/consent policies were corrected (migrations
    Linux-only.** The Extension Host runs with Node's `--permission` model: it
    cannot read arbitrary files or spawn processes unless the manifest declares
    `fs.read`/`fs.write`/`shell.exec`. On Linux, an extension without
-   `network.fetch` is also wrapped in `bwrap --unshare-net`. Windows/macOS have
-   no equivalent wrapper yet, so their network is still controlled only by the
+   `network.fetch` is also wrapped in `bwrap --unshare-net`. Windows has no
+   equivalent wrapper yet, so its network is still controlled only by the
    manifest contract. `runAsNode` is enabled in the fuses
    because it is required to launch the sandboxed host as Node; an attacker who
    can launch the binary with environment variables can use it as a Node
@@ -65,10 +65,9 @@ backend market/Storage/consent policies were corrected (migrations
    anymore, so extension bundles cannot reach it, but any XSS in the app's own
    modules runs with that capability. Narrowing the bridge remains the
    long-term fix.
-5. **Unsigned app builds.** Authenticode/notarization are not configured; the
-   updater relies on the GitHub feed. Electron fuses are enabled, but code
-   signing is still required to make `EnableEmbeddedAsarIntegrityValidation`
-   effective.
+5. **Unsigned Windows builds.** Authenticode is not configured; the updater
+   relies on the GitHub feed. Electron fuses are enabled, but code signing is
+   still required to make `EnableEmbeddedAsarIntegrityValidation` effective.
 6. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
    falls back to `basic_text`. Account tokens **and provider API keys** are not
    persisted in that case (fail-closed): they live in memory for the session.

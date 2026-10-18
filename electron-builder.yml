@@ -153,7 +153,4 @@ nsis:
   # Explícito para que `latest.yml` y el asset real usen el MISMO nombre.
   artifactName: "Scrakk-Studio-${version}.${ext}"
 
-mac:
-  target:
-    - dmg
-  icon: assets/scrakk-studio-b.png
+# Solo Windows y Linux. No hay target macOS ni se publican artefactos para él.
