@@ -152,8 +152,29 @@ export interface ThemeFonts {
   ui?: ThemeFontSlot
 }
 
+/** Ajuste de glassmorphism del fondo (backdrop blur de las superficies). */
+export interface ThemeGlass {
+  /** Radio del blur en px (0–40). */
+  blur?: number
+  /** Saturación en % (0–300). */
+  saturate?: number
+}
+
+/**
+ * `glass`:
+ *  - `false` → sin glassmorphism (`backdrop-filter: none`).
+ *  - número → blur en px, saturación 150 %.
+ *  - objeto → `{ blur?, saturate? }`.
+ *  - omitido → glassmorphism automático (16 px / 150 %), por compatibilidad.
+ */
+export type ThemeGlassSetting = false | number | ThemeGlass
+
+interface ThemeBackgroundBase {
+  glass?: ThemeGlassSetting
+}
+
 /** Fondo del tema: una imagen o un overlay que aporta el propio pack. */
-export interface ThemeBackgroundImage {
+export interface ThemeBackgroundImage extends ThemeBackgroundBase {
   type: 'image'
   /** https: o data: (≤4096 chars, sin `"`, `)` ni `\` para url("…") seguro). */
   image: string
@@ -172,7 +193,7 @@ export interface ThemeBackgroundImage {
  * ejemplo el mismo pack que aporta el tema). Se monta detrás del chrome cuando
  * el tema está activo y no hay un fondo de evento en curso.
  */
-export interface ThemeBackgroundOverlay {
+export interface ThemeBackgroundOverlay extends ThemeBackgroundBase {
   type: 'overlay'
   overlay: string
   /** Opacidad 0–1. Default 1. */
@@ -262,6 +283,30 @@ const BG_POSITIONS = new Set([
 ])
 
 /**
+ * Valida el ajuste de glassmorphism. `true`/ausente → automático (undefined);
+ * `false` → apagado; número → blur; objeto → blur/saturación.
+ */
+function normalizeThemeGlass(raw: unknown): ThemeGlassSetting | undefined {
+  if (raw === false) return false
+  if (raw === true || raw === undefined || raw === null) return undefined
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    return { blur: Math.max(0, Math.min(40, raw)) }
+  }
+  if (raw && typeof raw === 'object') {
+    const r = raw as Record<string, unknown>
+    const out: ThemeGlass = {}
+    if (typeof r.blur === 'number' && Number.isFinite(r.blur)) {
+      out.blur = Math.max(0, Math.min(40, r.blur))
+    }
+    if (typeof r.saturate === 'number' && Number.isFinite(r.saturate)) {
+      out.saturate = Math.max(0, Math.min(300, r.saturate))
+    }
+    if (out.blur !== undefined || out.saturate !== undefined) return out
+  }
+  return undefined
+}
+
+/**
  * Valida el objeto `background` de un tema. Tolerante como el resto:
  * objeto malformado → null (warn) y el tema sigue sin imagen.
  */
@@ -283,6 +328,8 @@ export function normalizeThemeBackground(raw: unknown): ThemeBackground | null {
     if (typeof r.opacity === 'number' && Number.isFinite(r.opacity)) {
       out.opacity = Math.max(0, Math.min(1, r.opacity))
     }
+    const glass = normalizeThemeGlass(r.glass)
+    if (glass !== undefined) out.glass = glass
     return out
   }
 
@@ -326,6 +373,8 @@ export function normalizeThemeBackground(raw: unknown): ThemeBackground | null {
       console.warn('[extensions/themes] background.imageBlur inválida, se ignora:', r.imageBlur)
     }
   }
+  const glass = normalizeThemeGlass(r.glass)
+  if (glass !== undefined) out.glass = glass
   return out
 }
 

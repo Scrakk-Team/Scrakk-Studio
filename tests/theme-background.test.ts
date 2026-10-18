@@ -95,6 +95,52 @@ describe('normalizeThemeBackground', () => {
     expect(normalizeThemeBackground({ type: 'overlay', overlay: 'bad id' })).toBeNull()
     expect(normalizeThemeBackground({ type: 'overlay' })).toBeNull()
   })
+
+  it('normaliza el glassmorphism del fondo', () => {
+    expect(
+      normalizeThemeBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        glass: false
+      })
+    ).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm',
+      glass: false
+    })
+    expect(
+      normalizeThemeBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        glass: 24
+      })
+    ).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm',
+      glass: { blur: 24 }
+    })
+    expect(
+      normalizeThemeBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        glass: { blur: 99, saturate: 900 }
+      })
+    ).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm',
+      glass: { blur: 40, saturate: 300 }
+    })
+    expect(
+      normalizeThemeBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        glass: true
+      })
+    ).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm'
+    })
+  })
 })
 
 describe('normalizeThemeDefinition con background', () => {

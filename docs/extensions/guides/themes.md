@@ -102,12 +102,23 @@ string or a list.
 
 ```json
 {
-  "background": { "type": "overlay", "overlay": "my-pack.night-sky", "opacity": 1 }
+  "background": {
+    "type": "overlay",
+    "overlay": "my-pack.night-sky",
+    "opacity": 1,
+    "glass": false
+  }
 }
 ```
 
-Both shapes turn on the theme's automatic glass blur for translucent
-surfaces.
+Both shapes also accept **`glass`**, which controls the backdrop blur of the
+translucent surfaces (`--glass-blur`):
+
+- omitted → automatic `16px` / `150%` (kept for compatibility);
+- `false` → `none`: no glassmorphism, surfaces are simply translucent;
+- a number → blur in px, saturation stays at `150%`;
+- `{ "blur"?: number, "saturate"?: number }` → custom values (`blur` 0–40 px,
+  `saturate` 0–300 %).
 
 The theme is validated **tolerantly**: anything invalid is dropped with a warning
 and the rest of the theme still applies.

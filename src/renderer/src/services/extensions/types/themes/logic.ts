@@ -273,10 +273,22 @@ function buildCssVars(def: ThemeDefinition): string {
       push(c.background.imagePosition ?? 'center', '--theme-bg-position')
       push(c.background.imageBlur ?? '0px', '--theme-bg-blur')
     }
-    // Glassmorphism automático: las superficies translúcidas lo consumen
-    // vía `backdrop-filter: var(--glass-blur, none)`. Sin fondo no se
-    // emite → none → cero costo GPU y cero cambio visual.
-    push(`blur(${GLASS_BLUR_PX}px) saturate(150%)`, '--glass-blur')
+    // Glassmorphism de las superficies translúcidas (`--glass-blur`). El tema
+    // decide: false lo apaga, un número fija el blur, un objeto fija blur y
+    // saturación; ausente mantiene el automático por compatibilidad.
+    const glass = c.background.glass
+    if (glass === false) {
+      push('none', '--glass-blur')
+    } else if (typeof glass === 'number') {
+      push(`blur(${glass}px) saturate(150%)`, '--glass-blur')
+    } else if (glass && typeof glass === 'object') {
+      push(
+        `blur(${glass.blur ?? GLASS_BLUR_PX}px) saturate(${glass.saturate ?? 150}%)`,
+        '--glass-blur'
+      )
+    } else {
+      push(`blur(${GLASS_BLUR_PX}px) saturate(150%)`, '--glass-blur')
+    }
   }
   // Fuente UI del tema (v1: solo UI, no editor/terminal).
   const fonts = resolveThemeFonts(def)

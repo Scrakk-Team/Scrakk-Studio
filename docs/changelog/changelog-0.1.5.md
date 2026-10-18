@@ -222,7 +222,7 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.3`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.4`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
   cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
   jack-o'-lanterns, cool fog and rising embers. The event no longer opens the
@@ -230,10 +230,10 @@ published are not edited. The file goes per version:
   background has its own cool fog). It also forces the pack's **Halloween Glass**
   theme: a transparent base with low-alpha glass surfaces and a cool accent, so
   the scene shows through the whole UI. The theme itself declares the Storm
-  scene as its `background` overlay, so selecting **Halloween Glass** manually
-  also brings the background, without waiting for the event. A lightning strike
-  briefly lights the scene, and the soft layers render at half resolution so the
-  full-screen effect stays cheap.
+  scene as its `background` overlay **and sets `glass: false`**, so selecting
+  **Halloween Glass** manually brings the background without the blur. A
+  lightning strike briefly lights the scene, and the soft layers render at half
+  resolution so the full-screen effect stays cheap.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
@@ -540,6 +540,12 @@ published are not edited. The file goes per version:
   own background, the event wins and the theme scene returns when it ends. The
   Halloween Glass theme declares the Storm scene this way, so the background is
   part of the theme and not only of the event.
+- **The theme defines whether the surfaces get glassmorphism.** The background
+  accepts `"glass": false` to leave `backdrop-filter` off, a number for a custom
+  blur radius, or `{ "blur", "saturate" }`; omitting it keeps the previous
+  automatic `16px`/`150%`. Halloween Glass uses `false`, so the scene shows
+  through sharply instead of with a blur. The value is emitted as the same
+  `--glass-blur` variable the UI already consumes.
 - **The corner radius now animates when you switch themes.** The radii are
   registered custom properties (`@property --radius-*` with
   `syntax: '<length>'`), which makes them animatable, and `:root` transitions
