@@ -18,6 +18,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import * as JsxRuntime from 'react/jsx-runtime'
+import * as JsxDevRuntime from 'react/jsx-dev-runtime'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 
 export default React
@@ -84,3 +85,4 @@ export const {
 export { createRoot, hydrateRoot }
 export const jsx = JsxRuntime.jsx
 export const jsxs = JsxRuntime.jsxs
+export const jsxDEV = JsxDevRuntime.jsxDEV
