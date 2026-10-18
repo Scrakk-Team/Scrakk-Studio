@@ -23,14 +23,16 @@ bundle.
 
 | Extension | What it adds |
 |---|---|
-| `halloween-themes` | 12 colour themes (9 dark / 3 light), five of them with their own typeface |
+| `halloween-themes` | 12 colour themes (9 dark / 3 light), five of them with their own typeface, plus the **Halloween Night** event and its Storm background (blood moon, clouds, rain, bats, a haunted house, a graveyard and lightning) |
 | `canvas` | A drawing board panel, three command-palette commands, its own theme, and an AI tool (`canvas_draw`) that draws on the same board |
 
 ```text
 extensions/
 ├── halloween-themes/
 │   ├── manifest.json          # the folder name IS the extension id
-│   └── themes/*.json
+│   ├── themes/*.json
+│   ├── events/*.json          # timeline of the event
+│   └── overlay/*.tsx          # background/effect components the event mounts
 └── canvas/
     ├── manifest.json
     └── panels/ runtime/ icons/ themes/
@@ -46,8 +48,8 @@ Every extension keeps its **own version**. A tag names the extension and its
 version:
 
 ```sh
-git tag halloween-themes@1.3.0
-git push origin halloween-themes@1.3.0
+git tag halloween-themes@1.4.0
+git push origin halloween-themes@1.4.0
 ```
 
 The [release workflow](https://github.com/Scrakk-Team/extensions/blob/main/.github/workflows/release.yml)
@@ -59,7 +61,7 @@ extensions, so when a store row pins an asset (`asset_name`) the resolver looks
 for *the newest release that contains that asset* instead of the repository's
 "latest release" — otherwise installing one extension could fetch the release of
 another. The version shown in the store comes from the tag suffix
-(`halloween-themes@1.3.0` → `1.3.0`).
+(`halloween-themes@1.4.0` → `1.4.0`).
 
 ## Installing one
 
