@@ -42,29 +42,40 @@ backend market/Storage/consent policies were corrected (migrations
 
 ## Residual risks (known)
 
-1. **Signed packages still run trusted code.** The Ed25519 signature proves
+1. **The host sandbox covers fs and child_process, not the network.** The
+   Extension Host runs with Node's `--permission` model: it cannot read
+   arbitrary files or spawn processes unless the manifest declares `fs.read`/
+   `fs.write`/`shell.exec`. Network access is still unrestricted (Node's model
+   does not cover sockets); that needs an OS-level sandbox. UI bundles also
+   still run in the renderer (see below). `runAsNode` is enabled in the fuses
+   because it is required to launch the sandboxed host as Node; an attacker who
+   can launch the binary with environment variables can use it as a Node
+   interpreter, but they already have code execution as the user.
+2. **Signed packages still run trusted code.** The Ed25519 signature proves
    the package came from the pinned publisher key and was not altered; it does
    not sandbox the extension. A malicious publisher can sign malicious code.
    Keep the install consent, and only install authors you trust.
-2. **Renderer ↔ main bridge.** `window.api` exposes filesystem reads/writes and
+3. **Renderer ↔ main bridge.** `window.api` exposes filesystem reads/writes and
    `fs:exec-command`. This is required by the editor and the agent, but it means
    any future XSS or an extension bundle running in the renderer can execute
    commands. The real fix is moving extension UI bundles to an isolated origin
    and narrowing the bridge.
-3. **Extension host sandbox.** Extensions can `require('child_process')` and
-   `fs`. Node's permission model / a VM boundary is not enabled.
-4. **Unsigned app builds.** Authenticode/notarization are not configured; the
+4. **Extension UI bundles run in the renderer.** `panels`/`activityBar` React
+   components are imported in the IDE origin and can call `window.api`; the host
+   sandbox does not cover them. Migrating them to webview contributions is the
+   next phase.
+5. **Unsigned app builds.** Authenticode/notarization are not configured; the
    updater relies on the GitHub feed. Electron fuses are enabled, but code
    signing is still required to make `EnableEmbeddedAsarIntegrityValidation`
    effective.
-5. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
+6. **`safeStorage` without a keyring.** On Linux without libsecret, Chromium
    falls back to `basic_text`. Account tokens **and provider API keys** are not
    persisted in that case (fail-closed): they live in memory for the session.
    Install GNOME Keyring/KWallet if you need persistence.
-6. **OTP limits are local.** The client now has a cooldown/quota, but the auth
+7. **OTP limits are local.** The client now has a cooldown/quota, but the auth
    API (`api.scrakk.art`) must enforce its own per-email/IP rate limit; that
    code is not in this repository.
-7. **Secrets rotation is an operational step.** The audit removed the archive
+8. **Secrets rotation is an operational step.** The audit removed the archive
    and fixed the ignore rules, but the `service_role`, R2 and DeepL credentials
    that existed before 0.1.5 must be **rotated** in their dashboards; the old
    values are compromised by definition.

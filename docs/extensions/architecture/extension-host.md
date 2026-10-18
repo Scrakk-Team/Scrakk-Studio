@@ -26,11 +26,13 @@ the extension wants from the world it asks for over RPC, and the **main** decide
 
 `ExtensionHostManager` (`main/extensions/hostManager.ts`) spawns **one Electron
 `utilityProcess` per extension** that needs it (`ensureHost`). It is separated
-from the renderer and has no access to the UI, but it is **not an OS sandbox**:
-the process is Node and can `require('child_process')`, `fs` or `net`. Treat an
-installed extension as code with your user's privileges; the install consent and
-the publisher signature are the trust boundary (the fs jail and `permissions`
-still apply to the mediated APIs). `spawnHost` is the seam: if the execution
+from the renderer and has no access to the UI. The host runs under Node's
+permission model (`--permission`): filesystem access is limited to the package,
+storage, temp and the workspace (per `fs.read`/`fs.write`), and
+`child_process` requires `shell.exec`; native addons are denied. **Network is
+not restricted** by Node's model, so an extension can still reach the internet.
+UI bundles are a separate story: they run in the renderer until migrated to
+webview contributions. `spawnHost` is the seam: if the execution
 runtime changes, you replace **that** function and keep everything else.
 
 ## Lifecycle

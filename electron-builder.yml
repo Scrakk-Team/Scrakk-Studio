@@ -37,13 +37,20 @@ directories:
   output: release
   buildResources: build-resources
 
+# Nombre estable para TODOS los artefactos. Sin esto, electron-builder escribe
+# un `latest.yml` con un nombre distinto al del asset real y el auto-update de
+# Windows termina en 404. `tools/release/feed.mjs` lo verifica en el release.
+artifactName: "Scrakk-Studio-${version}.${ext}"
+
 asar: true
 
 # Fuses de Electron (se aplican al empaquetar). Sin esto, cualquiera puede
 # reabrir la app empaquetada como Node (`ELECTRON_RUN_AS_NODE`) o inyectar
 # `NODE_OPTIONS`/`--inspect` para ejecutar código en el proceso main.
 electronFuses:
-  runAsNode: false
+  # Necesario para lanzar el Extension Host como Node puro con `--permission`
+  # (el `utilityProcess` de Electron no aplica el modelo de permisos).
+  runAsNode: true
   enableNodeOptionsEnvironmentVariable: false
   enableNodeCliInspectArguments: false
   enableCookieEncryption: true
@@ -138,6 +145,10 @@ win:
   target:
     - nsis
   icon: assets/scrakk-studio-b.png
+
+nsis:
+  # Explícito para que `latest.yml` y el asset real usen el MISMO nombre.
+  artifactName: "Scrakk-Studio-${version}.${ext}"
 
 mac:
   target:

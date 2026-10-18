@@ -23,6 +23,7 @@
     "i18n": "node tools/i18n.mjs",
     "i18n:extract": "node tools/i18n-extract.mjs",
     "pack:audit": "node tools/pack-audit.mjs",
+    "release:verify": "node tools/verify-release-feed.mjs verify --dir release",
     "perf:baseline": "node tools/perf/baseline.mjs",
     "perf:baseline:runtime": "node tools/perf/baseline.mjs --runtime",
     "postinstall": "node node_modules/electron/install.js",

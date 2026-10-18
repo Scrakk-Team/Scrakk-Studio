@@ -20,6 +20,7 @@
  */
 
 import { app, utilityProcess } from 'electron'
+import { fork } from 'node:child_process'
 import * as fs from 'node:fs/promises'
 import type { Dirent } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -58,6 +59,7 @@ import {
   type TreeNodeModel
 } from '@shared/extensionHost/protocol'
 import { canReadDocument, checkPathAccess } from '@shared/permissions'
+import { buildSandboxPolicy } from './sandbox'
 import { isRealPathInsideAny } from './realpathJail'
 import { childEnv } from '../env'
 import { RpcPeer } from './host/rpc'
@@ -92,7 +94,7 @@ export interface HostProcessLike {
   kill(): void
 }
 
-export type HostSpawner = (entryPath: string) => HostProcessLike
+export type HostSpawner = (entryPath: string, execArgv?: string[]) => HostProcessLike
 
 /**
  * Puente hacia el renderer para las cosas que viven en la UI (registry de
@@ -283,7 +285,37 @@ export function hostEntryPath(): string {
   return resolveSpawnEntry('extension-host.js')
 }
 
-function defaultSpawn(entryPath: string): HostProcessLike {
+function defaultSpawn(entryPath: string, execArgv: string[] = []): HostProcessLike {
+  // Sandbox real: `utilityProcess` de Electron NO aplica `--permission`
+  // (probado: el hijo ve `process.permission === undefined`). Para tener el
+  // modelo de permisos de Node hay que lanzar el host como Node puro
+  // (`ELECTRON_RUN_AS_NODE`) con `--permission`. El fuse `runAsNode` queda
+  // habilitado a propósito en electron-builder.yml.
+  if (execArgv.length > 0) {
+    const child = fork(entryPath, [], {
+      execPath: process.execPath,
+      execArgv,
+      env: { ...childEnv(), ELECTRON_RUN_AS_NODE: '1' },
+      // Canal IPC para `RpcPeer` + stdout/stderr visibles.
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc']
+    })
+    child.stdout?.on('data', (chunk: Buffer) => process.stdout.write(chunk))
+    child.stderr?.on('data', (chunk: Buffer) => process.stderr.write(chunk))
+    return {
+      postMessage: (message) => {
+        child.send(message as object)
+      },
+      on: (event, listener) => {
+        if (event === 'message') {
+          child.on('message', (message) => (listener as (value: unknown) => void)(message))
+        } else {
+          child.on('exit', (code) => (listener as (value: number) => void)(code ?? -1))
+        }
+      },
+      kill: () => child.kill()
+    }
+  }
+
   const child = utilityProcess.fork(entryPath, [], {
     serviceName: 'scrakk-extension-host',
     // Una extensión no hereda R2/GitHub/Supabase del main.
@@ -558,7 +590,21 @@ export class ExtensionHostManager {
       disposed: false
     }
 
-    session.child = this.spawn(hostEntryPath())
+    const sandbox = buildSandboxPolicy({
+      extensionPath: request.extensionPath,
+      workspaceRoots: request.workspaceRoots,
+      storage: extras.storage,
+      permissions: request.permissions,
+      appRoot: app.getAppPath(),
+      hostEntry: hostEntryPath(),
+      resourcesPath: process.resourcesPath,
+      homeDir: this.homeDir,
+      enabled: process.env.SCRAKK_DISABLE_EXTENSION_SANDBOX !== '1'
+    })
+    if (sandbox.driver === 'none') {
+      console.warn(`[extensions] sandbox desactivado para "${request.extensionId}": ${sandbox.reason}`)
+    }
+    session.child = this.spawn(hostEntryPath(), sandbox.execArgv)
     this.sessions.set(request.extensionId, session)
     this.installHandlers(session)
 

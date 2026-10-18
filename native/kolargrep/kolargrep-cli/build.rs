@@ -34,10 +34,10 @@ fn compile_windows_resources() {
         "FileDescription",
         "kolargrep - trigram-indexed grep for large codebases",
     );
-    res.set("CompanyName", "Microsoft Corporation");
+    res.set("CompanyName", "Scrakk");
     res.set(
         "LegalCopyright",
-        "Copyright (c) Microsoft Corporation. All rights reserved.",
+        "Copyright (c) Scrakk Studio. Portions copyright (c) Microsoft Corporation (MIT).",
     );
     res.set("InternalName", "kolargrep");
     res.set("OriginalFilename", "kolargrep.exe");

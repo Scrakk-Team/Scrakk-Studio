@@ -904,6 +904,19 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   Tampering with any file, adding/removing entries or swapping the key fails
   with a clear error. Covered by `tests/sef-signature.test.ts` (IDE) and
   `tests/sign.test.ts` (CLI).
+- **The Extension Host runs under the Node permission model.** A repository
+  can ship a malicious extension, and the host used to be plain Node with
+  `fs`/`child_process`/`net`. Electron 44 bundles Node 24, so the host is now
+  spawned with `--permission` (via `ELECTRON_RUN_AS_NODE`, because
+  `utilityProcess` does **not** apply the permission model — verified). Read
+  roots are the app, the package, storage, temp and the workspace (only with
+  `fs.read`); writes are storage, temp and the workspace (only with
+  `fs.write`); `child_process` is allowed only with `shell.exec`; addons/WASI
+  are denied. `sandbox.ts` builds the argv (pure and tested) and the host
+  reports ready over IPC. Network is **not** restricted by Node's model yet
+  (phase 2: OS sandbox). `runAsNode` is enabled in the fuses because it is the
+  only way to launch the sandboxed host; the tradeoff is documented in
+  SECURITY.md. Covered by `tests/extension-sandbox.test.ts`.
 ### Security (backend)
 - **The extension market can no longer self-publish, self-verify or swap its
   repo after approval.** `extensions_admin_guard` was `BEFORE UPDATE` only, so
@@ -978,8 +991,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   could read `~/.ssh/id_rsa` or plant `~/.aws/credentials` without the extension
   jail. Sensitive paths (`.ssh`, `.aws`, `.gcloud`, `.kube`, `.gnupg`, `*.pem`,
   `*.key`, `id_rsa`, `.netrc`) are rejected and reads are capped at 256 MB.
-  `electron-builder.yml` now sets `runAsNode: false`,
-  `enableNodeOptionsEnvironmentVariable: false`,
+  `electron-builder.yml` now sets `enableNodeOptionsEnvironmentVariable: false`,
   `enableNodeCliInspectArguments: false`, `enableCookieEncryption: true` and
   `onlyLoadAppFromAsar: true`, and the update feed points at the canonical
   `Scrakk-Team/Scrakk-Studio` instead of relying on a GitHub redirect.
@@ -1062,3 +1074,19 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   provider key (the main resolves it from `providerId`).
 - Extension-host page metadata now says "separate process (not an OS sandbox)"
   instead of implying isolation.
+- **Windows auto-update names now match the published asset.** The v0.1.4
+  `latest.yml` pointed at `Scrakk-Studio-Setup-0.1.4.exe` while the release
+  published `Scrakk.Studio.Setup.0.1.4.exe`; electron-updater requested a 404
+  and Windows users could not update. `electron-builder.yml` now fixes a single
+  `artifactName` (`Scrakk-Studio-${version}.${ext}`) for all targets, and
+  `tools/verify-release-feed.mjs` verifies every `latest*.yml` URL/path against the
+  release directory as a blocking step before publishing. Covered by
+  `tests/release-feed.test.ts`.
+- **The release pipeline audits the packaged asar and stops uploading
+  `builder-debug.yml`.** `npm run pack:audit` runs on both Linux and Windows
+  after packaging (sourcemaps, docs, tests, tools, native sources and secret
+  strings), and the artifact globs exclude the internal builder debug file.
+- **The `kolargrep` Windows binary no longer claims to be Microsoft.** The
+  fork's VERSIONINFO said `CompanyName = Microsoft Corporation` and a Microsoft
+  copyright while shipping inside Scrakk Studio; it now says `Scrakk` and keeps
+  the upstream MIT attribution in the copyright line.

@@ -84,11 +84,12 @@ semantics by hand; keep the two in sync if either changes.
 
 - `permissions` is a **declaration** for the user and the jail; there is no
   per-permission prompt yet (the UI shows what was declared).
-- This is **not a sandbox**: extension code runs in a Node process with the
-  user's privileges, and UI bundles run in the renderer. The jail and the
-  permission checks cover the mediated `workspace.fs`/`lsp` APIs, not a direct
-  `require('child_process')`. Only install extensions you trust (signed packages
-  pin the publisher key, but a malicious publisher can still sign malware).
+- The **host** runs under Node's `--permission` model: no arbitrary filesystem
+  and no `child_process` unless the manifest declares `fs.read`/`fs.write`/
+  `shell.exec`. Network is still unrestricted, and UI bundles still run in the
+  renderer (they can call `window.api` until they are migrated to webviews).
+  Signed packages pin the publisher key, but a malicious publisher can still
+  sign malware.
 - The absence of `permissions` means **no** disk access through the mediated API
   (deny).
 - `lsp.use` is gated at the point of **using** `ctx.api.lsp`: without the

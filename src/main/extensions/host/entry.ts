@@ -26,9 +26,38 @@ interface ParentPortLike {
   on(event: 'message', listener: (event: { data: unknown }) => void): void
 }
 
-const parentPort = (process as unknown as { parentPort?: ParentPortLike }).parentPort
+/**
+ * Canal con el main. Dos transportes válidos:
+ *  - `utilityProcess.fork` → `process.parentPort` (evento con `.data`);
+ *  - `child_process.fork` + `ELECTRON_RUN_AS_NODE` (host sandboxeado con
+ *    `--permission`) → IPC estándar de Node (`process.send`/`message`).
+ */
+interface HostChannel {
+  send(message: unknown): void
+  onMessage(listener: (data: unknown) => void): void
+}
 
-if (!parentPort) {
+const parentPort = (process as unknown as { parentPort?: ParentPortLike }).parentPort
+const ipcProcess = process as unknown as {
+  send?: (message: unknown) => boolean
+  on(event: 'message', listener: (message: unknown) => void): void
+}
+
+const channel: HostChannel | null = parentPort
+  ? {
+      send: (message) => parentPort.postMessage(message),
+      onMessage: (listener) => parentPort.on('message', (event) => listener(event.data))
+    }
+  : typeof ipcProcess.send === 'function'
+    ? {
+        send: (message) => {
+          ipcProcess.send?.(message)
+        },
+        onMessage: (listener) => ipcProcess.on('message', listener)
+      }
+    : null
+
+if (!channel) {
   // Sin canal no hay nada que hacer: morir rápido y claro es mejor que
   // quedarse colgado sin poder recibir `init`.
   console.error('[extension-host] arrancado sin canal con el proceso main')
@@ -36,12 +65,12 @@ if (!parentPort) {
 }
 
 const peer = new RpcPeer(
-  { send: (message: HostMessage) => parentPort.postMessage(message) },
+  { send: (message: HostMessage) => channel.send(message) },
   { idSign: -1, label: 'extension-host' }
 )
 
-parentPort.on('message', (event) => {
-  peer.receive(event.data as HostMessage)
+channel.onMessage((data) => {
+  peer.receive(data as HostMessage)
 })
 
 // Errores no capturados de la EXTENSIÓN: se reportan al main (que los ve la
