@@ -222,15 +222,16 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.1`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.2`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
   cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
   jack-o'-lanterns, cool fog and rising embers. The event no longer opens the
   red accent `stage.fog` that painted those two blobs over the scene (the
-  background has its own cool fog). A lightning strike briefly lights the whole
-  scene, and the soft layers render at half resolution so the full-screen effect
-  stays cheap. The Blood Cult surfaces are translucent so the scene shows
-  through.
+  background has its own cool fog). It also forces the pack's **Halloween Glass**
+  theme: a transparent base with low-alpha glass surfaces and a cool accent, so
+  the scene shows through the whole UI instead of sitting behind opaque Blood
+  Cult panels. A lightning strike briefly lights the whole scene, and the soft
+  layers render at half resolution so the full-screen effect stays cheap.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
