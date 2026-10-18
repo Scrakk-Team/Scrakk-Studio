@@ -89,6 +89,12 @@ export interface EventShape {
   path: string
   /** `d` de UN ala (la derecha). El motor dibuja su espejo para la izquierda. */
   wing?: string
+  /**
+   * Si el path es UNA sola silueta (un SVG trazado), el cuerpo ocupa `[x0, x1]`
+   * del viewBox: el motor recorta cada mitad y la rota sobre el hombro, así se
+   * mueven las alas y no el cuerpo.
+   */
+  wingClip?: [number, number]
   /** [x, y] del hombro: el ala rota acá. Default [w/2, h/2]. */
   wingAnchor?: [number, number]
   /** [ancho, alto] del sistema de coordenadas. Default [1, 1]. */

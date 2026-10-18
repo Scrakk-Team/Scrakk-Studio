@@ -186,6 +186,13 @@ interface CompiledShape {
   path: Path2D
   /** El ala (una sola: la derecha). El motor dibuja su espejo. */
   wing: Path2D | null
+  /**
+   * Modo "silueta": el path es el bicho ENTERO y las alas se separan recortando
+   * el cuerpo ([x0, x1] en unidades del viewBox) y rotando cada mitad alrededor
+   * del hombro. Sirve para un SVG de un solo path (un trazo de potrace) donde no
+   * hay alas separadas.
+   */
+  wingClip: [number, number] | null
   /** Hombro del ala, en unidades del viewBox. */
   anchor: [number, number]
   viewBox: [number, number]
@@ -200,13 +207,14 @@ function compileShape(shape: EventShape): CompiledShape | null {
   // Sin Path2D (tests jsdom) no dibujamos, pero el resto del motor sigue vivo.
   if (typeof Path2D === 'undefined') return null
   const viewBox: [number, number] = shape.viewBox ?? [1, 1]
-  const key = `${viewBox[0]}x${viewBox[1]}|${shape.wing ?? ''}|${shape.path}`
+  const key = `${viewBox[0]}x${viewBox[1]}|${shape.wing ?? ''}|${shape.wingClip?.join(',') ?? ''}|${shape.path}`
   const cached = shapeCache.get(key)
   if (cached) return cached
   try {
     const compiled: CompiledShape = {
       path: new Path2D(shape.path),
       wing: shape.wing ? new Path2D(shape.wing) : null,
+      wingClip: shape.wingClip ? [shape.wingClip[0], shape.wingClip[1]] : null,
       // Sin hombro explícito, el centro de la forma: es donde se "agarra" el ala
       // cuando el pack no lo precisa.
       anchor: shape.wingAnchor ?? [viewBox[0] / 2, viewBox[1] / 2],
@@ -484,7 +492,35 @@ function draw(): void {
       ctx.translate(-vbW / 2, -vbH / 2)
       ctx.fillStyle = p.fill
       ctx.fill(p.shape.path)
-      if (p.shape.wing) {
+      if (p.shape.wingClip) {
+        // Silueta única: el cuerpo ya se dibujó arriba, quieto. Cada ala es una
+        // MITAD del path recortada y rotada alrededor de su hombro — así se
+        // mueven las alas y NO el cuerpo, sin necesitar dos paths.
+        const [bodyLeft, bodyRight] = p.shape.wingClip
+        const [ax, ay] = p.shape.anchor
+        const rad = (flap.wingAngle * Math.PI) / 180
+        // Izquierda (x < bodyLeft): +ángulo la sube.
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(-vbW, -vbH, bodyLeft + vbW, vbH * 3)
+        ctx.clip()
+        ctx.translate(ax, ay)
+        ctx.rotate(rad)
+        ctx.translate(-ax, -ay)
+        ctx.fill(p.shape.path)
+        ctx.restore()
+        // Derecha (x > bodyRight): espejo del pivote y del ángulo.
+        const mx = vbW - ax
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect(bodyRight, -vbH, vbW, vbH * 3)
+        ctx.clip()
+        ctx.translate(mx, ay)
+        ctx.rotate(-rad)
+        ctx.translate(-mx, -ay)
+        ctx.fill(p.shape.path)
+        ctx.restore()
+      } else if (p.shape.wing) {
         // El ala: derecha y su espejo, girando alrededor del hombro. Es la
         // ÚNICA parte que se mueve con `flapHz`.
         const [ax, ay] = p.shape.anchor

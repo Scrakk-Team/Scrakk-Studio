@@ -106,6 +106,12 @@ function normalizeShape(raw: unknown): EventShape | null {
   const shape: EventShape = { path }
   const wing = safePath(r.wing)
   if (wing) shape.wing = wing
+  const clip = r.wingClip
+  if (Array.isArray(clip) && clip.length === 2) {
+    const x0 = num(clip[0])
+    const x1 = num(clip[1])
+    if (x0 !== undefined && x1 !== undefined && x1 > x0) shape.wingClip = [x0, x1]
+  }
   const anchor = normalizePoint(r.wingAnchor)
   if (anchor && typeof anchor[0] === 'number' && typeof anchor[1] === 'number') {
     shape.wingAnchor = [anchor[0], anchor[1]]

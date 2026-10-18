@@ -463,6 +463,13 @@ published are not edited. The file goes per version:
   lowest and most centred button/input/`select`/`[data-overlay-anchor]`), so an
   effect lands on something instead of in the void. The core mounts and
   forwards; it has no idea what the component draws.
+- **A single-path SVG can flap its wings.** A traced silhouette (potrace) has no
+  separate wing paths, so `draw.wing` was unusable on it. New `draw.wingClip`
+  (`[x0, x1]`, the body's x-range): the engine draws the body once and then
+  re-draws the whole path **clipped to each half and rotated around the
+  shoulder** — the wings move, the body does not. The pack's bats now use a
+  traced bat SVG instead of the hand-authored one, and their `bank` is gone (it
+  was tilting the whole silhouette, body included).
 - **The Halloween pack now ships the lightning.** The bolt is the real WebGL
   `Lightning` from React Bits (ported to TSX) living in the pack's `overlay/`
   folder, together with a `NightSky` background (stars + drifting fog). The
