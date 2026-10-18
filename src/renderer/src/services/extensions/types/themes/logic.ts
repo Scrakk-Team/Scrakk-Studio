@@ -264,16 +264,17 @@ function buildCssVars(def: ThemeDefinition): string {
     push(c.panelBorder, '--panel-border-color')
     push(c.panelBorderOpacity ?? 100, '--panel-border-opacity')
   }
-  // Fondo con imagen (capa detrás de todo el chrome). Solo si el objeto
-  // sobrevivió al merge; la URL ya viene saneada del schema.
+  // Fondo del tema (imagen u overlay) detrás de todo el chrome.
   if (c.background) {
-    push(`url("${c.background.image}")`, '--theme-bg-image')
-    push(c.background.imageOpacity ?? 1, '--theme-bg-opacity')
-    push(c.background.imageSize ?? 'cover', '--theme-bg-size')
-    push(c.background.imagePosition ?? 'center', '--theme-bg-position')
-    push(c.background.imageBlur ?? '0px', '--theme-bg-blur')
+    if (c.background.type === 'image') {
+      push(`url("${c.background.image}")`, '--theme-bg-image')
+      push(c.background.imageOpacity ?? 1, '--theme-bg-opacity')
+      push(c.background.imageSize ?? 'cover', '--theme-bg-size')
+      push(c.background.imagePosition ?? 'center', '--theme-bg-position')
+      push(c.background.imageBlur ?? '0px', '--theme-bg-blur')
+    }
     // Glassmorphism automático: las superficies translúcidas lo consumen
-    // vía `backdrop-filter: var(--glass-blur, none)`. Sin imagen no se
+    // vía `backdrop-filter: var(--glass-blur, none)`. Sin fondo no se
     // emite → none → cero costo GPU y cero cambio visual.
     push(`blur(${GLASS_BLUR_PX}px) saturate(150%)`, '--glass-blur')
   }
@@ -449,6 +450,27 @@ export function getActiveThemeBackground(): ThemeBackground | null {
 }
 
 /**
+ * Arma la transición de RADIOS (clase `theme-animate` en <html>).
+ *
+ * Se arma en el frame SIGUIENTE al primer tema aplicado: así el tema inicial no
+ * se anima al arrancar (no hay morph desde los radios por defecto) y, en cambio,
+ * cada cambio de tema posterior interpola el radio en vivo.
+ */
+let radiusTransitionsArmed = false
+
+function armRadiusTransitions(): void {
+  if (radiusTransitionsArmed || typeof document === 'undefined') return
+  radiusTransitionsArmed = true
+  const arm = (): void => {
+    // Algunos entornos de test montan un DOM mínimo sin `classList`.
+    const root = document.documentElement as HTMLElement | undefined
+    root?.classList?.add('theme-animate')
+  }
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(arm)
+  else arm()
+}
+
+/**
  * Activa un tema registrado. Idempotente por id.
  * Devuelve false si el id no existe.
  */
@@ -477,6 +499,7 @@ export function activateTheme(id: string): boolean {
   activeId = id
   saveStoredActive({ id, extensionId: entry.extensionId })
   window.dispatchEvent(new CustomEvent('theme-changed', { detail: { themeId: id } }))
+  armRadiusTransitions()
   emit()
   return true
 }

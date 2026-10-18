@@ -21,3 +21,12 @@
   filter: blur(var(--theme-bg-blur, 0px));
   pointer-events: none;
 }
+
+/* Overlay de fondo del theme: el canvas del pack se autoposiciona; este
+   contenedor lo deja detrás del chrome y aplica la opacidad del tema. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}

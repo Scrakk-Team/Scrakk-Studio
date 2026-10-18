@@ -222,16 +222,18 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.2`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.3`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
   cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
   jack-o'-lanterns, cool fog and rising embers. The event no longer opens the
   red accent `stage.fog` that painted those two blobs over the scene (the
   background has its own cool fog). It also forces the pack's **Halloween Glass**
   theme: a transparent base with low-alpha glass surfaces and a cool accent, so
-  the scene shows through the whole UI instead of sitting behind opaque Blood
-  Cult panels. A lightning strike briefly lights the whole scene, and the soft
-  layers render at half resolution so the full-screen effect stays cheap.
+  the scene shows through the whole UI. The theme itself declares the Storm
+  scene as its `background` overlay, so selecting **Halloween Glass** manually
+  also brings the background, without waiting for the event. A lightning strike
+  briefly lights the scene, and the soft layers render at half resolution so the
+  full-screen effect stays cheap.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
@@ -531,6 +533,13 @@ published are not edited. The file goes per version:
   the `npm run sef:*` scripts.
 
 ### Themes (Appearance)
+- **A theme can now own an animated background, not just a static image.**
+  `colors.background` accepts `{ "type": "overlay", "overlay": "<id>", "opacity"? }`
+  and mounts an overlay component contributed by the extension (normally the
+  same pack). Picking the theme brings its scene with it; while an event has its
+  own background, the event wins and the theme scene returns when it ends. The
+  Halloween Glass theme declares the Storm scene this way, so the background is
+  part of the theme and not only of the event.
 - **The corner radius now animates when you switch themes.** The radii are
   registered custom properties (`@property --radius-*` with
   `syntax: '<length>'`), which makes them animatable, and `:root` transitions

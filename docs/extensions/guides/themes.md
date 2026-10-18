@@ -89,8 +89,25 @@ string or a list.
   for you) or a **stylesheet** (e.g. Google Fonts `/css2?family=…`). `family`
   must match the family the file or stylesheet declares. If it cannot load, the
   theme stays on the fallback stack and a red notification says so.
-- `background` — background image: `{ type: "image", image, imageOpacity?, imageSize?, imagePosition?, imageBlur? }`.
-  `image` is `https:`/`data:` (no quotes or spaces, ≤ 4096 chars).
+- `background` — a layer behind the **whole** chrome. Two shapes:
+  - `{ "type": "image", "image": "...", "imageOpacity"?, "imageSize"?, "imagePosition"?, "imageBlur"? }`.
+    `image` is `https:` or `data:` (no quotes or spaces, ≤ 4096 chars).
+  - `{ "type": "overlay", "overlay": "my-pack.scene", "opacity"? }`. It mounts
+    an **overlay component** contributed by an extension
+    (`contributes.overlays`), normally the same pack as the theme. This is how a
+    theme can ship an animated scene instead of a static image. While an event
+    has its own background, the event wins; when it ends, the theme's overlay
+    comes back. The `overlay` id must be registered; if it is missing the theme
+    simply has no background.
+
+```json
+{
+  "background": { "type": "overlay", "overlay": "my-pack.night-sky", "opacity": 1 }
+}
+```
+
+Both shapes turn on the theme's automatic glass blur for translucent
+surfaces.
 
 The theme is validated **tolerantly**: anything invalid is dropped with a warning
 and the rest of the theme still applies.

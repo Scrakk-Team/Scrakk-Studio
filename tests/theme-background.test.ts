@@ -79,6 +79,22 @@ describe('normalizeThemeBackground', () => {
     })
     expect(def?.imagePosition).toBe('50% 20%')
   })
+
+  it('acepta un overlay y normaliza la opacidad', () => {
+    expect(
+      normalizeThemeBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        opacity: 2
+      })
+    ).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm',
+      opacity: 1
+    })
+    expect(normalizeThemeBackground({ type: 'overlay', overlay: 'bad id' })).toBeNull()
+    expect(normalizeThemeBackground({ type: 'overlay' })).toBeNull()
+  })
 })
 
 describe('normalizeThemeDefinition con background', () => {
@@ -108,6 +124,21 @@ describe('normalizeThemeDefinition con background', () => {
     const def = normalizeThemeDefinition(themeWithBackground({ type: 'video' }))
     expect(def).not.toBeNull()
     expect(def?.colors.background).toBeUndefined()
+  })
+
+  it('conserva un background overlay', () => {
+    const def = normalizeThemeDefinition(
+      themeWithBackground({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        opacity: 0.9
+      })
+    )
+    expect(def?.colors.background).toEqual({
+      type: 'overlay',
+      overlay: 'halloween-themes.storm',
+      opacity: 0.9
+    })
   })
 })
 
@@ -181,8 +212,28 @@ describe('getActiveThemeBackground', () => {
         image: 'https://example.com/bg.jpg',
         imageOpacity: 0.8
       })
+      const withOverlay = {
+        name: 'O',
+        type: 'dark' as const,
+        colors: {
+          bg: 'transparent',
+          background: {
+            type: 'overlay' as const,
+            overlay: 'halloween-themes.storm',
+            opacity: 0.9
+          }
+        }
+      }
+      logic.registerTheme({ id: 'ov-t', name: 'O', type: 'dark', extensionId: 'e', isBuiltin: false, definition: withOverlay })
+      logic.activateTheme('ov-t')
+      expect(logic.getActiveThemeBackground()).toEqual({
+        type: 'overlay',
+        overlay: 'halloween-themes.storm',
+        opacity: 0.9
+      })
       logic.unregisterTheme('plain-t')
       logic.unregisterTheme('img-t')
+      logic.unregisterTheme('ov-t')
     } finally {
       vi.unstubAllGlobals()
     }

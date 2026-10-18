@@ -20,6 +20,7 @@
 import { memo, useEffect, useMemo, useState, type ComponentType, type JSX } from 'react'
 import {
   getOverlay,
+  subscribeToOverlays,
   type OverlayComponentProps
 } from '@services/extensions/types/overlays/logic'
 import { getActiveOverlayLayer, subscribeToActiveEvent } from './runtime'
@@ -27,16 +28,22 @@ import { onOverlayEvent } from './overlayBus'
 
 export interface OverlayHostProps {
   layer: 'effects' | 'background'
+  /**
+   * Fuerza un overlay concreto en vez del que aporta el evento activo. Lo usa
+   * el fondo del tema: el mismo componente puede venir del pack del theme.
+   */
+  overlayId?: string
 }
 
-export function OverlayHost({ layer }: OverlayHostProps): JSX.Element | null {
-  const [, setTick] = useState(0)
+export function OverlayHost({ layer, overlayId }: OverlayHostProps): JSX.Element | null {
+  const [tick, setTick] = useState(0)
   useEffect(() => subscribeToActiveEvent(() => setTick((n) => n + 1)), [])
+  useEffect(() => subscribeToOverlays(() => setTick((n) => n + 1)), [])
 
-  const active = getActiveOverlayLayer(layer)
+  const active = overlayId ? null : getActiveOverlayLayer(layer)
   const [component, setComponent] = useState<ComponentType<OverlayComponentProps> | null>(null)
-  const activeId = active?.id ?? null
-  const activeEvent = active?.eventId ?? null
+  const activeId = overlayId ?? active?.id ?? null
+  const activeEvent = active?.eventId ?? overlayId ?? null
 
   useEffect(() => {
     setComponent(null)
@@ -55,22 +62,31 @@ export function OverlayHost({ layer }: OverlayHostProps): JSX.Element | null {
     return () => {
       alive = false
     }
-    // Depende del overlay y del evento, no del objeto (que se recrea por render).
+    // `tick` reevalúa cuando se registra el overlay (puede llegar después del
+    // tema) o cuando cambia el evento activo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeId, activeEvent])
+  }, [activeId, activeEvent, tick])
 
   // Props ESTABLES: el overlay del pack no tiene que re-renderizarse porque el
   // motor avisó de un cambio de niebla o de shake (eso además pisaba estados
   // internos, como la opacidad del rayo).
   const eventProp = useMemo(
-    () => (active ? { id: active.eventId, name: active.eventName } : undefined),
+    () =>
+      active
+        ? { id: active.eventId, name: active.eventName }
+        : overlayId
+          ? { id: overlayId, name: overlayId }
+          : undefined,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [active?.eventId, active?.eventName]
+    [active?.eventId, active?.eventName, overlayId]
   )
-  const overlayProps = useMemo(() => (activeId ? getOverlay(activeId)?.props : undefined), [activeId])
+  const overlayProps = useMemo(
+    () => (activeId ? getOverlay(activeId)?.props : undefined),
+    [activeId, tick]
+  )
   const StableOverlay = useMemo(() => (component ? memo(component) : null), [component])
 
-  if (!active || !StableOverlay) return null
+  if (!activeId || !StableOverlay) return null
 
   return <StableOverlay on={onOverlayEvent} event={eventProp} props={overlayProps} />
 }

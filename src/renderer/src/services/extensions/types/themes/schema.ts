@@ -152,8 +152,8 @@ export interface ThemeFonts {
   ui?: ThemeFontSlot
 }
 
-/** Fondo con imagen del tema (eye-dark): capa detrás de todo el chrome. */
-export interface ThemeBackground {
+/** Fondo del tema: una imagen o un overlay que aporta el propio pack. */
+export interface ThemeBackgroundImage {
   type: 'image'
   /** https: o data: (≤4096 chars, sin `"`, `)` ni `\` para url("…") seguro). */
   image: string
@@ -166,6 +166,20 @@ export interface ThemeBackground {
   /** '12px', clamp 0–40. Default '0px'. */
   imageBlur?: string
 }
+
+/**
+ * Overlay de fondo: el id de una contribución `overlays` ya registrada (por
+ * ejemplo el mismo pack que aporta el tema). Se monta detrás del chrome cuando
+ * el tema está activo y no hay un fondo de evento en curso.
+ */
+export interface ThemeBackgroundOverlay {
+  type: 'overlay'
+  overlay: string
+  /** Opacidad 0–1. Default 1. */
+  opacity?: number
+}
+
+export type ThemeBackground = ThemeBackgroundImage | ThemeBackgroundOverlay
 
 /** #hex | rgb()/rgba() | var(…) | transparent — los estados usan alpha. */
 function isCssColor(value: unknown): value is string {
@@ -254,8 +268,26 @@ const BG_POSITIONS = new Set([
 export function normalizeThemeBackground(raw: unknown): ThemeBackground | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
+
+  if (r.type === 'overlay') {
+    if (
+      typeof r.overlay !== 'string' ||
+      r.overlay.length === 0 ||
+      r.overlay.length > 200 ||
+      !/^[a-z0-9][a-z0-9._-]*$/i.test(r.overlay)
+    ) {
+      console.warn('[extensions/themes] background.overlay inválido')
+      return null
+    }
+    const out: ThemeBackgroundOverlay = { type: 'overlay', overlay: r.overlay }
+    if (typeof r.opacity === 'number' && Number.isFinite(r.opacity)) {
+      out.opacity = Math.max(0, Math.min(1, r.opacity))
+    }
+    return out
+  }
+
   if (r.type !== 'image') {
-    console.warn('[extensions/themes] background solo soporta {type:"image"}:', r.type)
+    console.warn('[extensions/themes] background solo soporta {type:"image"} u {type:"overlay"}:', r.type)
     return null
   }
   if (
@@ -268,7 +300,7 @@ export function normalizeThemeBackground(raw: unknown): ThemeBackground | null {
     console.warn('[extensions/themes] background.image inválida (https:/data: sin comillas ni espacios)')
     return null
   }
-  const out: ThemeBackground = { type: 'image', image: r.image }
+  const out: ThemeBackgroundImage = { type: 'image', image: r.image }
   if (typeof r.imageOpacity === 'number' && Number.isFinite(r.imageOpacity)) {
     out.imageOpacity = Math.max(0, Math.min(1, r.imageOpacity))
   }
