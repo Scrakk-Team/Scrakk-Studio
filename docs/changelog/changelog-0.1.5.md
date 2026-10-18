@@ -385,6 +385,12 @@ published are not edited. The file goes per version:
   data: bats flying in from both sides, fog tinted with the theme's accent, a
   thunder clap, a vignette and a status chip — plus the pack's own theme forced
   while it lasts.
+- **The event background is no longer hidden behind the app shell.** `.shell`
+  painted `background: var(--color-bg)` **after** its `z-index: -1` children, so
+  the pack's background canvas (and any theme background image) sat behind an
+  almost-opaque layer: the event showed only the theme's red base. The base
+  colour now lives on `body`, which is painted first, so the Storm scene is
+  visible through the translucent panels.
 - **Performance and accessibility are part of the contract.** Effects render on a
   single canvas with a hard particle cap and one animation frame loop, they honour
   the IDE's low-end mode and `prefers-reduced-motion` (particles and shake are

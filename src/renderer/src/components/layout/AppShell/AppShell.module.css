@@ -9,6 +9,8 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg);
+  /* Sin `background` acá: esta capa se pinta DESPUÉS de los hijos con
+     z-index negativo y tapaba el fondo del evento (y la imagen del theme).
+     El color base ya lo pone `body { background: var(--color-bg) }`. */
   color: var(--color-text);
 }
