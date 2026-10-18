@@ -24,7 +24,7 @@ import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { OscTitleParser } from './oscTitle'
 
 import { t } from '@core/i18n'
-/** API del terminal expuesta por el preload (window.api.terminal). */
+/** API del terminal expuesta por el preload (api.terminal). */
 interface TerminalApi {
   create: (req: { id: string; shell?: string; cwd?: string; cols: number; rows: number }) => Promise<unknown>
   write: (req: { id: string; data: string }) => Promise<void>

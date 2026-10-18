@@ -8,7 +8,7 @@
  * Los iconos de una extensión se pintan con `dangerouslySetInnerHTML` en la
  * ActivityBar/ToolDock. Un SVG es HTML: `<svg onload=…>`, `<script>`,
  * `<foreignObject>` o `href="javascript:…"` se ejecutan en el origen del IDE
- * (con acceso a `window.api`), sin necesidad de que la extensión traiga un
+ * (con acceso a `api`), sin necesidad de que la extensión traiga un
  * bundle. Se eliminan los vectores activos y, si queda algo raro, se descarta
  * el icono entero en vez de arriesgar.
  *

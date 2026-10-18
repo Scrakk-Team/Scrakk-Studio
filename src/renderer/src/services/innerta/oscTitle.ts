@@ -7,7 +7,7 @@
  * (terminadas con BEL `\x07` o ST `ESC \`). Lo setean los prompts (bash/zsh) y
  * las TUIs (vim, lazygit…).
  *
- * El host YA ve los bytes CRUDOS del PTY (`window.api.terminal.onData`), así que
+ * El host YA ve los bytes CRUDOS del PTY (`api.terminal.onData`), así que
  * no hace falta que el motor lo reenvíe: se parsea acá.
  *
  * Parser INCREMENTAL: un chunk del PTY corta las secuencias donde quiere, así que

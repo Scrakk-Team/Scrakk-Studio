@@ -8,7 +8,7 @@
  * Una extensión aporta language servers completos con la misma forma que
  * los builtin del core (command/extensions/rootMarkers/gatedBy/install).
  * El registro se sincroniza con el runtime del proceso main vía IPC
- * (window.api.lsp.registerDynamicServers) — prioridad:
+ * (api.lsp.registerDynamicServers) — prioridad:
  *   user > project (.scrakk/lsp.json) > dynamic (extensiones) > builtin.
  */
 

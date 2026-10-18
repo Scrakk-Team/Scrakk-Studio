@@ -6,7 +6,7 @@
  * Tool executor — executes tool calls from AI.
  * Uses Registry dispatch + PolicyEngine + state machine.
  *
- * NOTE: All ole.* calls have been replaced with window.api.fs.* (Electron IPC).
+ * NOTE: All ole.* calls have been replaced with api.fs.* (Electron IPC).
  */
 
 import type { ToolCall, ToolResult, ExecutionResult, ToolContext } from './tools'
