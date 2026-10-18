@@ -12,11 +12,11 @@ default: nothing works unless the manifest declares it).
 
 > **Trust model:** the host runs under Node's `--permission` model (fs access is
 > limited by `fs.read`/`fs.write`; `child_process` requires `shell.exec`; native
-> addons are denied). **Network is not isolated.** UI bundles run in the
-> renderer but no longer receive the IPC bridge (`window.api`), so they cannot
-> call `fs`/`terminal`/`git`/`llm`; they still share the DOM/origin. Signed
-> packages pin the publisher key but do not turn a malicious publisher into a
-> safe one.
+> addons are denied). On Linux, if `network.fetch` is not declared, the host is
+> also wrapped in `bwrap --unshare-net`. Installed `panels` run in an isolated
+> `scrakk-ext://<id>` iframe; `activityBar`/`centerTabs` bundles and the
+> `ui.legacyBundle` opt-out still run in the renderer. Signed packages pin the
+> publisher key but do not turn a malicious publisher into a safe one.
 
 ## What a handler receives
 

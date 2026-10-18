@@ -64,6 +64,11 @@ export interface ExtensionManifest {
    * que viajan con la app, como el pack de lenguajes.
    */
   hidden?: boolean
+  /**
+   * Opt-out explícito del aislamiento de paneles. Solo para paquetes legacy
+   * que dependen de hooks del layout; implica ejecutar el bundle en el renderer.
+   */
+  ui?: { legacyBundle?: boolean }
 }
 
 export interface ExtensionContributions {

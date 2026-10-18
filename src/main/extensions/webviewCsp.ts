@@ -24,3 +24,26 @@ export function webviewCsp(extensionId: string, scheme = 'scrakk-ext'): string {
     "form-action 'none'"
   ].join('; ')
 }
+
+/**
+ * CSP del documento que hospeda el bundle React aislado.
+ *
+ * El bundle y el runtime se sirven desde el MISMO origen `scrakk-ext://<id>`;
+ * el inline script solo arma el import map y monta el componente. No hay
+ * `window.api` ni acceso al DOM del IDE.
+ */
+export function bundleHostCsp(extensionId: string, scheme = 'scrakk-ext'): string {
+  const source = `${scheme}://${extensionId}`
+  return [
+    "default-src 'none'",
+    `script-src ${source} 'unsafe-inline'`,
+    "style-src 'unsafe-inline'",
+    `img-src ${source} https: data:`,
+    `media-src ${source} https: data:`,
+    `font-src ${source} https: data:`,
+    `connect-src ${source} https: wss:`,
+    "frame-src 'none'",
+    "base-uri 'none'",
+    "form-action 'none'"
+  ].join('; ')
+}

@@ -86,9 +86,10 @@ semantics by hand; keep the two in sync if either changes.
   per-permission prompt yet (the UI shows what was declared).
 - The **host** runs under Node's `--permission` model: no arbitrary filesystem
   and no `child_process` unless the manifest declares `fs.read`/`fs.write`/
-  `shell.exec`. Network is still unrestricted, and UI bundles still run in the
-  renderer; they no longer receive `window.api` (the bridge is captured once at
-  boot), but they still share the DOM/origin until migrated to webviews.
+  `shell.exec`. On Linux, `network.fetch` also controls a `bwrap --unshare-net`
+  wrapper for the host (Windows/macOS still rely on the API contract). Installed
+  panels run in an isolated iframe; `activityBar`/`centerTabs` and the
+  `ui.legacyBundle` opt-out still run in the renderer.
   Signed packages pin the publisher key, but a malicious publisher can still
   sign malware.
 - The absence of `permissions` means **no** disk access through the mediated API

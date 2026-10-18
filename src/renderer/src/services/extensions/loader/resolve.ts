@@ -57,6 +57,12 @@ export async function registerManifest(
     return res.success && typeof res.content === 'string' ? res.content : null
   }
 
+  // Los paneles de una extensión instalada corren en un iframe aislado por
+  // defecto. `ui.legacyBundle` es un opt-out para paquetes viejos que dependen
+  // de los hooks del layout del IDE.
+  const isolatedUi = !isBuiltin && manifest.ui?.legacyBundle !== true
+  const entry = manifest.entry ?? 'dist/modules.js'
+
   const contributes = manifest.contributes ?? {}
 
   for (const [kind, raw] of Object.entries(contributes)) {
@@ -68,7 +74,7 @@ export async function registerManifest(
 
     let parsed
     try {
-      parsed = handler.parse(raw, { hasModule })
+      parsed = handler.parse(raw, { hasModule, allowMissingModules: isolatedUi })
     } catch (error) {
       console.warn(`[extensions] "${extId}" falló parseando ${kind}:`, error)
       continue
@@ -85,6 +91,8 @@ export async function registerManifest(
           hasRuntime: manifest.runtime !== undefined,
           // Sólo las .sef tienen raíz en disco (ver `readFile` arriba).
           extensionPath: packageDir || undefined,
+          entry,
+          isolatedUi,
           resolver,
           readFile,
           api: buildExtensionApi({ extensionId: extId, permissions: manifest.permissions })

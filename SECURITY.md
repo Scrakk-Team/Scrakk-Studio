@@ -42,30 +42,29 @@ backend market/Storage/consent policies were corrected (migrations
 
 ## Residual risks (known)
 
-1. **The host sandbox covers fs and child_process, not the network.** The
-   Extension Host runs with Node's `--permission` model: it cannot read
-   arbitrary files or spawn processes unless the manifest declares `fs.read`/
-   `fs.write`/`shell.exec`. Network access is still unrestricted (Node's model
-   does not cover sockets); that needs an OS-level sandbox. UI bundles also
-   still run in the renderer (see below). `runAsNode` is enabled in the fuses
+1. **The host sandbox covers fs and child_process; network isolation is
+   Linux-only.** The Extension Host runs with Node's `--permission` model: it
+   cannot read arbitrary files or spawn processes unless the manifest declares
+   `fs.read`/`fs.write`/`shell.exec`. On Linux, an extension without
+   `network.fetch` is also wrapped in `bwrap --unshare-net`. Windows/macOS have
+   no equivalent wrapper yet, so their network is still controlled only by the
+   manifest contract. `runAsNode` is enabled in the fuses
    because it is required to launch the sandboxed host as Node; an attacker who
    can launch the binary with environment variables can use it as a Node
    interpreter, but they already have code execution as the user.
-2. **Signed packages still run trusted code.** The Ed25519 signature proves
+2. **Installed panels are isolated; `activityBar`/`centerTabs` are not.** Panel
+   bundles run in an `scrakk-ext://` iframe with their own React runtime.
+   `activityBar`/`centerTabs` and packages with `"ui": { "legacyBundle": true }`
+   still run in the IDE origin (no `window.api`, but DOM access).
+3. **Signed packages still run trusted code.** The Ed25519 signature proves
    the package came from the pinned publisher key and was not altered; it does
    not sandbox the extension. A malicious publisher can sign malicious code.
    Keep the install consent, and only install authors you trust.
-3. **Renderer ↔ main bridge.** `window.api` exposes filesystem reads/writes and
-   `fs:exec-command`. This is required by the editor and the agent, but it means
-   any future XSS or an extension bundle running in the renderer can execute
-   commands. The real fix is moving extension UI bundles to an isolated origin
-   and narrowing the bridge.
-4. **Extension UI bundles still run in the renderer.** `panels`/`activityBar`
-   React components are imported in the IDE origin. They **no longer receive**
-   `window.api` (the bridge is handed out once at boot to `services/api`), so
-   they cannot call `fs`/`terminal`/`git`/`lsp`/`llm`. They still share the DOM
-   and origin, so this is capability reduction, not a full UI sandbox. Migrating
-   them to webview contributions is the next phase.
+4. **The renderer still holds a broad IPC bridge.** `services/api.ts` captures
+   `WindowApi` at boot (filesystem, terminal, git, llm). It is not global
+   anymore, so extension bundles cannot reach it, but any XSS in the app's own
+   modules runs with that capability. Narrowing the bridge remains the
+   long-term fix.
 5. **Unsigned app builds.** Authenticode/notarization are not configured; the
    updater relies on the GitHub feed. Electron fuses are enabled, but code
    signing is still required to make `EnableEmbeddedAsarIntegrityValidation`
@@ -77,17 +76,3 @@ backend market/Storage/consent policies were corrected (migrations
 7. **OTP limits are local.** The client now has a cooldown/quota, but the auth
    API (`api.scrakk.art`) must enforce its own per-email/IP rate limit; that
    code is not in this repository.
-8. **Secrets rotation is an operational step.** The audit removed the archive
-   and fixed the ignore rules, but the `service_role`, R2 and DeepL credentials
-   that existed before 0.1.5 must be **rotated** in their dashboards; the old
-   values are compromised by definition.
-
-## Secret rotation checklist
-
-1. Supabase → Project Settings → API → rotate the JWT signing secret and update
-   `tools/admin/.env` (never commit it).
-2. Cloudflare R2 → create per-bucket tokens (`PutObject` only for the image
-   buckets), update `.env` and the Supabase Vault (`get_r2_config`).
-3. DeepL → revoke the `:fx` key and create a new one.
-4. If any of those values were ever pushed, assume the repository's history is
-   compromised and rotate again after cleaning.

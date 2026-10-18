@@ -18,16 +18,33 @@
 
 import type { PanelEntry } from '@features/layout'
 import { panelComponentLoader, type ComponentResolver } from '../../manifest'
+import { makeIsolatedPanel } from '@features/extensionviews/ExtensionBundlePanel'
 import type { PanelContribution } from './schema'
+
+export interface IsolatedPanelOptions {
+  extensionId: string
+  entry: string
+}
 
 export function buildPanelEntry(
   contribution: PanelContribution,
-  resolver: ComponentResolver
+  resolver: ComponentResolver,
+  isolated?: IsolatedPanelOptions
 ): PanelEntry {
-  return {
+  const base = {
     id: contribution.id,
     title: contribution.title,
-    closable: contribution.closable,
+    closable: contribution.closable
+  }
+  if (isolated) {
+    return {
+      ...base,
+      // Componente ya montable: un iframe con origen scrakk-ext://<id>.
+      component: makeIsolatedPanel(isolated.extensionId, isolated.entry, contribution.component)
+    }
+  }
+  return {
+    ...base,
     load: panelComponentLoader(resolver, contribution.component)
   }
 }

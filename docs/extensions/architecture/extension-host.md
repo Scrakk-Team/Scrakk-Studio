@@ -31,9 +31,11 @@ permission model (`--permission`): filesystem access is limited to the package,
 storage, temp and the workspace (per `fs.read`/`fs.write`), and
 `child_process` requires `shell.exec`; native addons are denied. **Network is
 not restricted** by Node's model, so an extension can still reach the internet.
-UI bundles are a separate story: they run in the renderer until migrated to
-webview contributions, but they no longer receive `window.api` (the bridge is
-taken once by `services/api.ts` at boot). `spawnHost` is the seam: if the execution
+UI bundles are a separate story. Installed `panels` are rendered inside an
+`scrakk-ext://<id>` iframe with their own React runtime: they do not share the
+IDE origin or receive `window.api`. `activityBar`/`centerTabs` still load in the
+renderer; a package can opt out of panel isolation with
+`"ui": { "legacyBundle": true }` (trusted code). `spawnHost` is the seam: if the execution
 runtime changes, you replace **that** function and keep everything else.
 
 ## Lifecycle

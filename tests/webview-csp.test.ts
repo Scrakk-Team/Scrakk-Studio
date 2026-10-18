@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { webviewCsp } from '../src/main/extensions/webviewCsp'
+import { bundleHostCsp, webviewCsp } from '../src/main/extensions/webviewCsp'
 
 function directive(csp: string, name: string): string {
   const part = csp
@@ -36,5 +36,16 @@ describe('webviewCsp', () => {
 
   it('no filtra directivas entre extensiones', () => {
     expect(webviewCsp('a.ext')).not.toContain('b.ext')
+  })
+})
+
+
+describe('bundleHostCsp — iframe del bundle aislado', () => {
+  it('solo permite scripts del origen de la extensión y el inline del host', () => {
+    const csp = bundleHostCsp('demo.ext')
+    expect(directive(csp, 'script-src')).toContain('scrakk-ext://demo.ext')
+    expect(directive(csp, 'script-src')).toContain("'unsafe-inline'")
+    expect(directive(csp, 'frame-src')).toBe("frame-src 'none'")
+    expect(directive(csp, 'connect-src')).toContain('https:')
   })
 })

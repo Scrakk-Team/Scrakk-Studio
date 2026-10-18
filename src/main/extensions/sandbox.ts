@@ -44,6 +44,9 @@ export interface SandboxPolicyInput {
 export interface SandboxPolicy {
   driver: SandboxDriver
   execArgv: string[]
+  /** Rutas que el host puede leer/escribir (las usa el sandbox del SO). */
+  readPaths: string[]
+  writePaths: string[]
   /** Razón del fallback cuando `driver === 'none'`. */
   reason?: string
 }
@@ -102,10 +105,22 @@ export function buildSandboxPolicy(input: SandboxPolicyInput): SandboxPolicy {
   ])
 
   if (input.enabled === false) {
-    return { driver: 'none', execArgv: [], reason: 'deshabilitado por SCRAKK_DISABLE_EXTENSION_SANDBOX' }
+    return {
+      driver: 'none',
+      execArgv: [],
+      readPaths: read,
+      writePaths: write,
+      reason: 'deshabilitado por SCRAKK_DISABLE_EXTENSION_SANDBOX'
+    }
   }
   if (!supportsPermissionModel()) {
-    return { driver: 'none', execArgv: [], reason: 'el runtime no soporta --permission' }
+    return {
+      driver: 'none',
+      execArgv: [],
+      readPaths: read,
+      writePaths: write,
+      reason: 'el runtime no soporta --permission'
+    }
   }
 
   const execArgv = [
@@ -117,5 +132,5 @@ export function buildSandboxPolicy(input: SandboxPolicyInput): SandboxPolicy {
     ...write.map((dir) => `--allow-fs-write=${dir}`),
     ...(canSpawn ? ['--allow-child-process'] : [])
   ]
-  return { driver: 'node-permission', execArgv }
+  return { driver: 'node-permission', execArgv, readPaths: read, writePaths: write }
 }

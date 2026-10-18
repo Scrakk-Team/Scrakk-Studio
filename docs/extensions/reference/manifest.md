@@ -45,6 +45,10 @@ declarative: everything the extension contributes is described there and the
 | `contributes` | object | no | The contributions (see [Contributes](contributes.md)) |
 | `hidden` | boolean | no | Not listed in Settings → Extensions, but **still active**. For internal data packs (e.g. the languages pack) |
 
+`ui.legacyBundle` (boolean) opts a package out of the isolated panel iframe and
+runs its React bundle in the IDE origin again — trusted code, use only for
+legacy packages.
+
 `permissions` gates the mediated API, the filesystem jail and the host sandbox
 (Node `--permission`): `fs.read`/`fs.write` control the workspace,
 `shell.exec` is required to spawn processes. Network is not restricted and UI

@@ -26,7 +26,11 @@ export const panelsHandler: AnyExtensionTypeHandler = {
   },
 
   register(contribution: PanelContribution, ctx: ExtensionTypeContext) {
-    const entry = buildPanelEntry(contribution, ctx.resolver)
+    const isolated =
+      ctx.isolatedUi && ctx.extensionPath
+        ? { extensionId: ctx.extensionId, entry: ctx.entry ?? 'dist/modules.js' }
+        : undefined
+    const entry = buildPanelEntry(contribution, ctx.resolver, isolated)
     ExtensionRegistry.registerPanel(entry, ctx.extensionId)
     return entry
   },

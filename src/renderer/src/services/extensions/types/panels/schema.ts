@@ -39,7 +39,7 @@ export function parsePanelContributions(
       console.warn('[extensions/panels] contribución inválida descartada:', c)
       continue
     }
-    if (!ctx.hasModule(c.component)) {
+    if (!ctx.allowMissingModules && !ctx.hasModule(c.component)) {
       console.warn(`[extensions/panels] "${c.id}" sin módulo: ${c.component}`)
       continue
     }

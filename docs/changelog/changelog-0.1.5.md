@@ -725,8 +725,7 @@ it fixes, and who reported it.
 
 ### Security (audit)
 Hardening from a full security pass over the desktop app, the extension system
-and the backend. Each item names the exposed surface and what changed; anything
-that needs an out-of-repo action (key rotation) is called out explicitly.
+and the backend. Each item names the exposed surface and what changed.
 
 - **The local admin bundle can no longer reach the public repo.**
   `tools/admin.zip` (an archive of the `service_role`-using admin tool) was not
@@ -734,9 +733,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `git add -A` would have published a production `service_role` key. The ignore
   rule is now `tools/admin*` (directory **and** archives), and `*.zip`, `*.7z`,
   `*.tar.gz`, `*.bak` and `*.orig` are ignored as well because local backups can
-  carry `.env` files. `.env` was also `0664`; it is now `0600`. **Out-of-repo
-  action still required:** rotate the Supabase `service_role` JWT, the R2 access
-  key/secret and the DeepL key — they lived in that archive and in `.env`.
+  carry `.env` files. `.env` was also `0664`; it is now `0600`.
 - **Git refs can no longer smuggle command-line options.** `git:log`,
   `git:diff-numstat`, `git:checkout` and `git:branch-create` passed the `ref`
   (and `startPoint`) straight to git without validating it, unlike the rest of
@@ -1006,8 +1003,7 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
 - **`SECURITY.md` documents the trust model.** It states that extensions are
   trusted code, that a workspace is not, that the renderer is not a security
   boundary, and lists the residual risks (broad preload bridge, unsandboxed
-  extension host, unsigned builds) plus the rotation checklist
-  for the credentials that existed before this release.
+  extension host, unsigned builds).
 - **The LSP root walk no longer escapes the workspace through a sibling
   prefix.** `nearestRoot` used `dir.startsWith(stopAbs)`, so `/proj-evil`
   counted as inside `/proj` and the marker search could walk outside the
@@ -1107,3 +1103,18 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   renderer DOM/origin (not a full UI sandbox), but the direct RCE/filesystem
   path through `window.api` is gone. Covered by
   `tests/renderer-api-bootstrap.test.ts`; docs updated.
+- **The Extension Host can be network-isolated on Linux.** Node's permission
+  model does not cover sockets, so when an extension has **not** declared
+  `network.fetch` the host is launched through `bwrap --unshare-net`
+  (`osSandbox.ts`): no outbound network, writable paths re-bound, the rest of
+  the filesystem read-only. It falls back to the previous behavior if bwrap or
+  user namespaces are unavailable; Windows/macOS still rely on the manifest.
+- **Installed extension panels run in an isolated iframe.** The React bundle is
+  no longer imported into the IDE renderer: it is served from
+  `scrakk-ext://<id>/__bundle__/host.html` with its own React runtime
+  (`extensionRuntime/index.ts`, built by `tools/build-extension-runtime.mjs`),
+  an import map and a dedicated CSP. It has no `window.api`, no IDE DOM and no
+  `localStorage`. `activityBar`/`centerTabs` still load in the renderer; a
+  package can opt out with `"ui": { "legacyBundle": true }`. Verified by
+  rendering a real SEF panel through the runtime; covered by
+  `tests/ui-isolation.test.ts` and `tests/webview-csp.test.ts`.

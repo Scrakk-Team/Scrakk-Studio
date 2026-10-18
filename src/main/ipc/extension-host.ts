@@ -46,7 +46,7 @@ import { flattenConfigurationDefaults } from '../extensions/host/vscodeApi'
 import { setExtensionProvidersQueryFn } from '../extensions/providerBridge'
 
 import { t } from '@shared/i18n'
-import { webviewCsp } from '../extensions/webviewCsp'
+import { bundleHostCsp, webviewCsp } from '../extensions/webviewCsp'
 export const EXTENSION_SCHEME = 'scrakk-ext'
 
 /** Segmento reservado de URL para el documento de una vista. */
@@ -58,6 +58,9 @@ const VIEW_SEGMENT = '__view__'
  * escribe dos webviews distintos.
  */
 const PANEL_SEGMENT = '__panel__'
+
+/** Documento + runtime del bundle React aislado de una extensión instalada. */
+const BUNDLE_SEGMENT = '__bundle__'
 
 /**
  * Debe correr ANTES de `app.whenReady()` (Electron exige registrar los
@@ -510,6 +513,34 @@ export function registerExtensionHostIpc(): void {
       }
     }
 
+    // 0) Panel React aislado: documento + runtime servidos desde el paquete
+    //    de la app (no del de la extensión) bajo el origen scrakk-ext.
+    if (relative === `${BUNDLE_SEGMENT}/host.html`) {
+      return new Response(bundleHostHtml(extensionId), {
+        status: 200,
+        headers: {
+          'content-type': 'text/html; charset=utf-8',
+          'content-security-policy': bundleHostCsp(extensionId)
+        }
+      })
+    }
+    if (relative === `${BUNDLE_SEGMENT}/runtime.js` || relative === `${BUNDLE_SEGMENT}/layout-stub.js`) {
+      const name = relative.slice(BUNDLE_SEGMENT.length + 1)
+      const file = path.join(app.getAppPath(), 'out', 'renderer', name)
+      try {
+        const data = await fs.readFile(file)
+        return new Response(new Uint8Array(data), {
+          status: 200,
+          headers: {
+            'content-type': 'text/javascript; charset=utf-8',
+            'cache-control': 'no-cache'
+          }
+        })
+      } catch {
+        return new Response('runtime no encontrado', { status: 404 })
+      }
+    }
+
     // 1) Documento de una vista → HTML que publicó la extensión.
     if (relative === VIEW_SEGMENT || relative.startsWith(`${VIEW_SEGMENT}/`)) {
       const viewId = relative.slice(VIEW_SEGMENT.length).replace(/^\/+/, '')
@@ -579,6 +610,51 @@ export function registerExtensionHostIpc(): void {
 export async function shutdownExtensionHosts(): Promise<void> {
   await manager?.shutdownAll()
   manager = null
+}
+
+/** Documento del iframe aislado: import map + montaje del componente. */
+function bundleHostHtml(extensionId: string): string {
+  const source = `${EXTENSION_SCHEME}://${extensionId}`
+  const imports = JSON.stringify({
+    imports: {
+      react: './runtime.js',
+      'react-dom': './runtime.js',
+      'react-dom/client': './runtime.js',
+      'react/jsx-runtime': './runtime.js',
+      'react/jsx-dev-runtime': './runtime.js',
+      '@features/layout': './layout-stub.js'
+    }
+  })
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>html,body,#root{height:100%;margin:0;background:transparent;color:inherit;font:13px system-ui,sans-serif}#error{color:#e5484d;white-space:pre-wrap;padding:12px}</style>
+  <script type="importmap">${imports}</script>
+</head>
+<body>
+  <div id="root"></div>
+  <pre id="error" hidden></pre>
+  <script type="module">
+    import { createElement } from 'react'
+    import { createRoot } from 'react-dom/client'
+    const params = new URLSearchParams(location.search)
+    const entry = (params.get('entry') || 'dist/modules.js').replace(/^\/+/, '')
+    const component = params.get('component') || ''
+    try {
+      const mod = await import(new URL(entry, ${JSON.stringify(source)} + '/').href)
+      const C = mod.modules?.[component]
+      if (!C) throw new Error('componente no encontrado: ' + component)
+      createRoot(document.getElementById('root')).render(createElement(C))
+    } catch (error) {
+      const box = document.getElementById('error')
+      box.hidden = false
+      box.textContent = 'No se pudo cargar el panel aislado: ' + (error?.message || error)
+    }
+  </script>
+</body>
+</html>`
 }
 
 /** Inserta el shim del webview al principio del `<head>` (o del documento). */

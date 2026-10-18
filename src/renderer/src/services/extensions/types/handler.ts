@@ -29,6 +29,12 @@ export interface ParseContext {
    * `.sef` instaladas; las builtin resuelven con globs → siempre true).
    */
   hasModule: (path: string) => boolean
+  /**
+   * Los paneles aislados (iframe) no se importan en el renderer, así que no
+   * hay un module map del que sacar `hasModule`. El schema de panels acepta la
+   * ruta y el iframe falla visiblemente si el build no la incluyó.
+   */
+  allowMissingModules?: boolean
 }
 
 /** Contexto de registro de una contribución. */
@@ -54,6 +60,10 @@ export interface ExtensionTypeContext {
    * de la extensión.
    */
   extensionPath?: string
+  /** Entry compilado del paquete (`manifest.entry`). */
+  entry?: string
+  /** Los paneles de esta extensión corren en un iframe aislado. */
+  isolatedUi?: boolean
   /** Resolvedor de componentes/íconos del paquete (kinds visuales). */
   resolver: ComponentResolver
   /**

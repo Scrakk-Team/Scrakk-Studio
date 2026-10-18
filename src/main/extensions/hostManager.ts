@@ -20,7 +20,7 @@
  */
 
 import { app, utilityProcess } from 'electron'
-import { fork } from 'node:child_process'
+import { fork, spawn, type ChildProcess } from 'node:child_process'
 import * as fs from 'node:fs/promises'
 import type { Dirent } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -60,6 +60,7 @@ import {
 } from '@shared/extensionHost/protocol'
 import { canReadDocument, checkPathAccess } from '@shared/permissions'
 import { buildSandboxPolicy } from './sandbox'
+import { buildNetworkSandbox, type OsSandbox } from './osSandbox'
 import { isRealPathInsideAny } from './realpathJail'
 import { childEnv } from '../env'
 import { RpcPeer } from './host/rpc'
@@ -94,7 +95,14 @@ export interface HostProcessLike {
   kill(): void
 }
 
-export type HostSpawner = (entryPath: string, execArgv?: string[]) => HostProcessLike
+export interface HostSpawnOptions {
+  /** Args de Node (sandbox `--permission`). */
+  execArgv: string[]
+  /** Wrapper de red del SO (bwrap). */
+  osSandbox?: OsSandbox | null
+}
+
+export type HostSpawner = (entryPath: string, options?: HostSpawnOptions) => HostProcessLike
 
 /**
  * Puente hacia el renderer para las cosas que viven en la UI (registry de
@@ -285,45 +293,50 @@ export function hostEntryPath(): string {
   return resolveSpawnEntry('extension-host.js')
 }
 
-function defaultSpawn(entryPath: string, execArgv: string[] = []): HostProcessLike {
-  // Sandbox real: `utilityProcess` de Electron NO aplica `--permission`
-  // (probado: el hijo ve `process.permission === undefined`). Para tener el
-  // modelo de permisos de Node hay que lanzar el host como Node puro
-  // (`ELECTRON_RUN_AS_NODE`) con `--permission`. El fuse `runAsNode` queda
-  // habilitado a propósito en electron-builder.yml.
-  if (execArgv.length > 0) {
-    const child = fork(entryPath, [], {
-      execPath: process.execPath,
-      execArgv,
-      env: { ...childEnv(), ELECTRON_RUN_AS_NODE: '1' },
-      // Canal IPC para `RpcPeer` + stdout/stderr visibles.
-      stdio: ['ignore', 'pipe', 'pipe', 'ipc']
-    })
-    child.stdout?.on('data', (chunk: Buffer) => process.stdout.write(chunk))
-    child.stderr?.on('data', (chunk: Buffer) => process.stderr.write(chunk))
-    return {
-      postMessage: (message) => {
-        child.send(message as object)
-      },
-      on: (event, listener) => {
-        if (event === 'message') {
-          child.on('message', (message) => (listener as (value: unknown) => void)(message))
-        } else {
-          child.on('exit', (code) => (listener as (value: number) => void)(code ?? -1))
-        }
-      },
-      kill: () => child.kill()
-    }
+/** Adapta un ChildProcess (fork o bwrap+spawn) a la interfaz del manager. */
+function toHostProcess(child: ChildProcess): HostProcessLike {
+  child.stdout?.on('data', (chunk: Buffer) => process.stdout.write(chunk))
+  child.stderr?.on('data', (chunk: Buffer) => process.stderr.write(chunk))
+  return {
+    postMessage: (message) => {
+      child.send(message as object)
+    },
+    on: (event, listener) => {
+      if (event === 'message') {
+        child.on('message', (message) => (listener as (value: unknown) => void)(message))
+      } else {
+        child.on('exit', (code) => (listener as (value: number) => void)(code ?? -1))
+      }
+    },
+    kill: () => child.kill()
+  }
+}
+
+function defaultSpawn(entryPath: string, options: HostSpawnOptions = { execArgv: [] }): HostProcessLike {
+  const env = { ...childEnv(), ELECTRON_RUN_AS_NODE: '1' }
+  const stdio: ['ignore', 'pipe', 'pipe', 'ipc'] = ['ignore', 'pipe', 'pipe', 'ipc']
+
+  // Red aislada (Linux, sin network.fetch): bwrap ejecuta el binario de la app
+  // como Node. El canal IPC se conserva (fd 3).
+  if (options.osSandbox) {
+    const child = spawn(
+      options.osSandbox.file,
+      [...options.osSandbox.args, process.execPath, ...options.execArgv, entryPath],
+      { env, stdio }
+    )
+    return toHostProcess(child)
   }
 
+  // Sandbox de Node sin wrapper de red.
+  if (options.execArgv.length > 0) {
+    const child = fork(entryPath, [], { execPath: process.execPath, execArgv: options.execArgv, env, stdio })
+    return toHostProcess(child)
+  }
+
+  // Fallback: sin modelo de permisos (runtime viejo o sandbox desactivado).
   const child = utilityProcess.fork(entryPath, [], {
     serviceName: 'scrakk-extension-host',
-    // Una extensión no hereda R2/GitHub/Supabase del main.
     env: childEnv(),
-    // `pipe` (no `inherit`) y se reenvía a mano: el CANAL es `parentPort`, no
-    // stdio, así que una extensión puede escribir libremente sin corromper el
-    // protocolo — y su salida se ve. Sin esto, un host que muere al arrancar
-    // no dice POR QUÉ y sólo se ve un timeout que parece un cuelgue.
     stdio: 'pipe'
   })
   child.stdout?.on('data', (chunk: Buffer) => process.stdout.write(chunk))
@@ -340,7 +353,6 @@ function defaultSpawn(entryPath: string, execArgv: string[] = []): HostProcessLi
     kill: () => child.kill()
   }
 }
-
 // ── Manager ───────────────────────────────────────────────────────────────
 
 export class ExtensionHostManager {
@@ -604,7 +616,14 @@ export class ExtensionHostManager {
     if (sandbox.driver === 'none') {
       console.warn(`[extensions] sandbox desactivado para "${request.extensionId}": ${sandbox.reason}`)
     }
-    session.child = this.spawn(hostEntryPath(), sandbox.execArgv)
+    const osSandbox = buildNetworkSandbox({
+      enabled: !request.permissions.includes('network.fetch'),
+      writePaths: sandbox.writePaths
+    })
+    session.child = this.spawn(hostEntryPath(), {
+      execArgv: sandbox.execArgv,
+      osSandbox
+    })
     this.sessions.set(request.extensionId, session)
     this.installHandlers(session)
 

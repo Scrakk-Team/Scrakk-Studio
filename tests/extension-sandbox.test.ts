@@ -14,6 +14,7 @@ import * as path from 'node:path'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { buildSandboxPolicy, supportsPermissionModel } from '../src/main/extensions/sandbox'
+import { buildNetworkSandbox } from '../src/main/extensions/osSandbox'
 
 const run = promisify(execFile)
 
@@ -130,6 +131,43 @@ describe.skipIf(!supportsPermissionModel())('Node permission model (integración
       expect(stdout).toContain('READ_BLOCKED')
       expect(stdout).toContain('CP_BLOCKED')
       expect(stdout).toContain('SELF_OK')
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+
+describe('buildNetworkSandbox (bwrap)', () => {
+  it('no envuelve si la extensión declara network.fetch', () => {
+    expect(
+      buildNetworkSandbox({ enabled: false, writePaths: [], platform: 'linux', bwrap: 'bwrap' })
+    ).toBeNull()
+  })
+
+  it('solo aplica en Linux y si bwrap está disponible', () => {
+    expect(
+      buildNetworkSandbox({ enabled: true, writePaths: [], platform: 'win32', bwrap: 'bwrap' })
+    ).toBeNull()
+    expect(
+      buildNetworkSandbox({ enabled: true, writePaths: [], platform: 'linux', bwrap: null })
+    ).toBeNull()
+  })
+
+  it('aisla la red y re-bindea solo las rutas de escritura existentes', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'scrakk-bwrap-'))
+    try {
+      const sandbox = buildNetworkSandbox({
+        enabled: true,
+        writePaths: [dir],
+        platform: 'linux',
+        bwrap: '/usr/bin/bwrap'
+      })
+      expect(sandbox?.driver).toBe('bwrap')
+      expect(sandbox?.args).toContain('--unshare-net')
+      expect(sandbox?.args).toEqual(
+        expect.arrayContaining(['--bind', dir, dir])
+      )
     } finally {
       await fs.rm(dir, { recursive: true, force: true })
     }

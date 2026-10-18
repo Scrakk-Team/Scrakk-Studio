@@ -94,9 +94,14 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
     'fileHandlers',
     'overlays'
   ] as const
-  const needsBundle = BUNDLE_KINDS.some(
-    (kind) => Array.isArray((contributes as Record<string, unknown>)[kind])
-  )
+  // Los paneles aislados se cargan dentro del iframe desde el `.sef`; no
+  // necesitan que el renderer importe el bundle. Si hay otros kinds con
+  // código (activityBar, centerTabs, fileHandlers, overlays) igual se importa.
+  const isolatedPanels = manifest.ui?.legacyBundle !== true
+  const needsBundle = BUNDLE_KINDS.some((kind) => {
+    if (kind === 'panels' && isolatedPanels) return false
+    return Array.isArray((contributes as Record<string, unknown>)[kind])
+  })
 
   let modules: Record<string, ComponentType> = {}
   if (needsBundle) {
