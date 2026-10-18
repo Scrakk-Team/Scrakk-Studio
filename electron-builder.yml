@@ -74,6 +74,9 @@ asarUnpack:
   # eso ahí funcionaba).
   - '**/node_modules/web-tree-sitter/**'
   - out/main/extension-host.js
+  # El host corre como Node puro (sandbox `--permission`), sin el parche asar
+  # de Electron: sus chunks tienen que estar desempacados o el require falla.
+  - out/main/chunks/**
   - out/main/tree-sitter-worker.js
   - out/main/*.node
 

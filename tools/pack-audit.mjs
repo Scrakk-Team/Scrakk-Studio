@@ -37,9 +37,16 @@ const FORBIDDEN_PATHS = [
   { re: /\.tsx?$/i, why: 'fuente TypeScript', scope: 'app' }
 ]
 
+/** Términos que solo se avisan (pueden ser comentarios o nombres de variable). */
+const WARN_CONTENT = [
+  { re: /\bservice_role\b/i, why: 'mención de service_role' }
+]
+
 const FORBIDDEN_CONTENT = [
-  { re: /service_role/i, why: 'service_role key' },
-  { re: /SUPABASE_SERVICE_ROLE/i, why: 'SUPABASE_SERVICE_ROLE_KEY' },
+  // Un JWT real (tres segmentos base64url). El string "service_role" suelto
+  // aparece en comentarios/documentación y NO es una clave: se avisa, no falla.
+  { re: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, why: 'JWT (posible service_role)' },
+  { re: /SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*['"]?[A-Za-z0-9._-]{20,}/, why: 'SUPABASE_SERVICE_ROLE_KEY con valor' },
   { re: /PAYPAL_CLIENT_SECRET/i, why: 'PayPal secret' },
   { re: /DEEPSEEK_API_KEY/, why: 'DeepSeek key' },
   { re: /RESEND_API_KEY/, why: 'Resend key' },
@@ -121,6 +128,11 @@ for (let i = 0; i < files.length; i++) {
   const text = buf.toString('utf8')
   scanned++
   const isApp = files[i].startsWith('out/') || files[i] === 'package.json'
+  for (const rule of WARN_CONTENT) {
+    if (!rule.re.test(text)) continue
+    console.warn(`⚠ ${files[i]}: ${rule.why} (no es una clave por sí solo)`)
+    warns++
+  }
   for (const rule of FORBIDDEN_CONTENT) {
     if (!rule.re.test(text)) continue
     if (isApp) {

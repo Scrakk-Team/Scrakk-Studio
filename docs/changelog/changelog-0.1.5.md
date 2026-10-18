@@ -1086,7 +1086,14 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   `builder-debug.yml`.** `npm run pack:audit` runs on both Linux and Windows
   after packaging (sourcemaps, docs, tests, tools, native sources and secret
   strings), and the artifact globs exclude the internal builder debug file.
+  The audit no longer fails on the literal string `service_role` (it appears in
+  comments/docs); it now fails on a real JWT or a `SUPABASE_SERVICE_ROLE_KEY`
+  with a value.
 - **The `kolargrep` Windows binary no longer claims to be Microsoft.** The
   fork's VERSIONINFO said `CompanyName = Microsoft Corporation` and a Microsoft
   copyright while shipping inside Scrakk Studio; it now says `Scrakk` and keeps
   the upstream MIT attribution in the copyright line.
+- **The packaged Extension Host can load its chunks.** The host entry is
+  unpacked and now runs as plain Node (sandbox), so it cannot read
+  `out/main/chunks/*` from inside `app.asar`. `out/main/chunks/**` is now
+  unpacked too; the packaged host boots under `--permission` and sends `ready`.

@@ -45,8 +45,10 @@ declarative: everything the extension contributes is described there and the
 | `contributes` | object | no | The contributions (see [Contributes](contributes.md)) |
 | `hidden` | boolean | no | Not listed in Settings → Extensions, but **still active**. For internal data packs (e.g. the languages pack) |
 
-`permissions` gates the mediated API and the filesystem jail; it is **not** a
-sandbox (extension code runs with the user's privileges). See
+`permissions` gates the mediated API, the filesystem jail and the host sandbox
+(Node `--permission`): `fs.read`/`fs.write` control the workspace,
+`shell.exec` is required to spawn processes. Network is not restricted and UI
+bundles run in the renderer. See
 [Permissions](../guides/permissions.md#notes).
 
 `entry` vs `runtime`: `entry` is the **UI bundle** (React components the renderer
