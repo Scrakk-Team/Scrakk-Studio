@@ -15,6 +15,7 @@ import { detectLanguageFromPath } from '@features/editor/languages'
 import { baseNameOf } from '@features/explorer/utils/fileUtils'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 export interface ActiveSocialSession {
   accountId: string
   peerId: string
@@ -48,7 +49,7 @@ export async function shareFileToSocial(path: string, content?: string): Promise
 
   let text = content
   if (text === undefined) {
-    const res = await window.api.fs.readFile(path)
+    const res = await api.fs.readFile(path)
     if (!res.success || typeof res.content !== 'string') {
       notify({ title: t('social.no.se.pudo.compartir'), message: res.error ?? '' })
       return
@@ -57,7 +58,7 @@ export async function shareFileToSocial(path: string, content?: string): Promise
   }
 
   const name = baseNameOf(path)
-  const result = await window.api.social.sendCodeFile(session.accountId, session.peerId, {
+  const result = await api.social.sendCodeFile(session.accountId, session.peerId, {
     name,
     lang: detectLanguageFromPath(path) ?? 'plaintext',
     content: text

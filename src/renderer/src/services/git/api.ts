@@ -3,7 +3,7 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 /**
- * Git — cliente tipado sobre window.api.git (puente preload → main).
+ * Git — cliente tipado sobre api.git (puente preload → main).
  *
  * Fino a propósito: validación y argv viven en main; aquí solo tipado y
  * guard para entornos sin puente (web/dev) con el mismo shape de error.
@@ -12,13 +12,14 @@
 import type { GitApi, GitResult } from '@shared/git'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 function noBridge<T>(): GitResult<T> {
   return { ok: false, error: { code: 'failed', message: t('services.puente.nativo.no.disponible') } }
 }
 
 function bridge(): GitApi | null {
   try {
-    return typeof window !== 'undefined' ? (window.api?.git ?? null) : null
+    return typeof window !== 'undefined' ? (api?.git ?? null) : null
   } catch {
     return null
   }

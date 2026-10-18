@@ -12,6 +12,7 @@
 
 import type { DynamicLspServerDef } from '@shared/lsp'
 import type { LspContribution } from './schema'
+import { api } from '@services/api'
 
 /**
  * `command` del server → ruta ejecutable.
@@ -68,8 +69,8 @@ export async function registerServers(
   contributions: LspContribution[],
   extensionPath?: string
 ): Promise<string[]> {
-  if (!window.api?.lsp || contributions.length === 0) return []
-  const res = await window.api.lsp.registerDynamicServers(
+  if (!api?.lsp || contributions.length === 0) return []
+  const res = await api.lsp.registerDynamicServers(
     extensionId,
     contributions.map((contribution) => toDynamicDef(contribution, extensionPath))
   )
@@ -86,5 +87,5 @@ export async function registerServer(
 }
 
 export async function unregisterServers(extensionId: string): Promise<void> {
-  await window.api?.lsp?.removeDynamicServers(extensionId)
+  await api?.lsp?.removeDynamicServers(extensionId)
 }

@@ -24,7 +24,7 @@ bar. The renderer keeps the overlay colours in sync with the active theme:
 const cs = getComputedStyle(document.documentElement)
 color: cs.getPropertyValue('--titlebar-bg').trim() || '#101010'
 symbolColor: cs.getPropertyValue('--color-text-secondary').trim() || '#b8b8b8'
-window.api?.windowControls.setTitleBarOverlay({ color, symbolColor })
+api?.windowControls.setTitleBarOverlay({ color, symbolColor })
 ```
 
 That read runs on mount and again on every `subscribeToThemes` event, so
@@ -41,7 +41,7 @@ toggleMaximize()
 ```
 
 `useWindowControls()` exposes `minimize`, `toggleMaximize`, `close` and the
-`maximized` flag, and degrades to no-ops when there is no `window.api` (browser
+`maximized` flag, and degrades to no-ops when there is no `api` (browser
 dev).
 
 ## The application menu
@@ -65,7 +65,7 @@ Each item carries an `onClick` that calls a **feature function directly**. The
 menu is a thin UI over feature APIs, not a command-registry front end:
 
 - File → `openFilesViaDialog()`, `openFolderViaDialog()`, `requestCloseFile()`,
-  `window.api.windowControls.close()`.
+  `api.windowControls.close()`.
 - Edit → `performEditorEdit(action)` when focus was not in a text field, else
   `document.execCommand(...)` (the `DOM_COMMAND` fallback). The focus is sampled
   on `pointerdown` capture so opening the menu does not steal Copy/Paste from a

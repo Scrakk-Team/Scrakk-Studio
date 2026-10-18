@@ -34,6 +34,7 @@ import type {
   LspServerStatus
 } from '@shared/lsp'
 import { PERMISSIONS } from '@shared/permissions'
+import { api } from '@services/api'
 
 export interface ExtensionLspApi {
   status(): Promise<LspServerStatus[]>
@@ -116,9 +117,9 @@ export function buildExtensionApi(options: BuildExtensionApiOptions): ExtensionA
   // El fs SIEMPRE se expone vía canales escopados — main es el que decide.
   const fsApi: ExtensionFsApi = {
     readFile: (path) =>
-      window.api.extensions.fsFor(options.extensionId).readFile(path),
+      api.extensions.fsFor(options.extensionId).readFile(path),
     writeFile: (path, content) =>
-      window.api.extensions.fsFor(options.extensionId).writeFile(path, content)
+      api.extensions.fsFor(options.extensionId).writeFile(path, content)
   }
 
   // Proxy perezoso: lanzar PermissionError al USAR lsp sin permiso.

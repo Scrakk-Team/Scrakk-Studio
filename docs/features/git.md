@@ -119,7 +119,7 @@ panel itself opens files as normal tabs.
 
 ## Underlying service
 
-`gitApi` (`@services/git/api.ts`) is a thin typed `Proxy` over `window.api.git`.
+`gitApi` (`@services/git/api.ts`) is a thin typed `Proxy` over `api.git`.
 Real validation and argv live in `src/main/ipc/git.ts`; the channels are declared
 in `src/shared/git.ts` (`git:status`, `git:log`, `git:reflog`, `git:diff-numstat`,
 `git:show-commit`, `git:stage`, `git:unstage`, `git:discard`, `git:commit`, …).

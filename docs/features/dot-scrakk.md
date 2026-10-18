@@ -97,7 +97,7 @@ the same folder share one. Results are uniform — `{ ok: true, data }` or `{ ok
 
 ## The jail (main process)
 
-The renderer talks to `window.api.scrakk`; the main handler (`src/main/scrakk/fs.ts` via
+The renderer talks to `api.scrakk`; the main handler (`src/main/scrakk/fs.ts` via
 `src/main/scrakk/ipc.ts`) validates every relative path before touching disk:
 
 ```ts

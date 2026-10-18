@@ -32,7 +32,8 @@ storage, temp and the workspace (per `fs.read`/`fs.write`), and
 `child_process` requires `shell.exec`; native addons are denied. **Network is
 not restricted** by Node's model, so an extension can still reach the internet.
 UI bundles are a separate story: they run in the renderer until migrated to
-webview contributions. `spawnHost` is the seam: if the execution
+webview contributions, but they no longer receive `window.api` (the bridge is
+taken once by `services/api.ts` at boot). `spawnHost` is the seam: if the execution
 runtime changes, you replace **that** function and keep everything else.
 
 ## Lifecycle

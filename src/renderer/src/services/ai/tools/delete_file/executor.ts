@@ -4,23 +4,24 @@
 
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
     const path = args.path as string
     const fullPath = resolvePath(path, ctx.projectRoot)
 
-    const exists = await window.api.fs.exists(fullPath)
+    const exists = await api.fs.exists(fullPath)
     if (!exists.exists) {
       return { success: false, content: `File not found: ${path}` }
     }
 
     // Contenido ANTES de borrar: es lo que deja que la card abra el diff de la
     // eliminación. Se lee MIENTRAS el archivo existe — después no hay qué leer.
-    const readResponse = await window.api.fs.readFile(fullPath)
+    const readResponse = await api.fs.readFile(fullPath)
     const originalContent = readResponse.success ? (readResponse.content ?? '') : ''
 
-    const response = await window.api.fs.deleteFile(fullPath)
+    const response = await api.fs.deleteFile(fullPath)
 
     if (response.success) {
       window.dispatchEvent(new CustomEvent('refresh-explorer'))

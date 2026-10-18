@@ -36,7 +36,7 @@ three tsconfigs (see below).
 ### `src/main`
 
 The Node/Electron side. Grouped by domain: `ipc/` (the handlers behind
-`window.api`), `lsp/`, `extensions/` (including `host/` and `treeSitter/`),
+`services/api`), `lsp/`, `extensions/` (including `host/` and `treeSitter/`),
 `llm/`, `models-dev/`, `search/`, `account/`, `social/`, `web/`, `windows/`,
 `encodings/`, `fonts/`, `images/`, `perf/`, `scrakk/`. Entry point:
 `src/main/index.ts`. Auto-update lives in `app-updates.ts` and

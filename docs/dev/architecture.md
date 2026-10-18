@@ -17,7 +17,7 @@ engine. This page is the map; the subsystem docs go deeper.
 | Area | Entry point | What it is |
 |---|---|---|
 | `src/main` | `src/main/index.ts` | Node/Electron side: FS, LSP, extensions, the LLM fetch, terminal, git, updates |
-| `src/preload` | `src/preload/index.ts` | The only bridge: builds `window.api` over `contextBridge` |
+| `src/preload` | `src/preload/index.ts` | The only bridge: builds the `WindowApi` object over `contextBridge` and hands it out once via `window.__takeApi()` |
 | `src/renderer/src` | `main.tsx` → `app/App.tsx` | React UI, services and the Innerta bridges |
 | `src/shared` | — | Contracts and pure logic compiled into both processes |
 
@@ -60,7 +60,7 @@ and file sync to `requestIdleCallback`.
 
 The renderer runs with **`contextIsolation` + `sandbox` and no
 `nodeIntegration`**: it never touches processes. `src/preload/index.ts` builds
-one `WindowApi` object and exposes it as `window.api`. Every call is `invoke`
+one `WindowApi` object and exposes it through the one-shot `window.__takeApi()`; the renderer captures it in `services/api.ts` as `api`. Every call is `invoke`
 (request/response) or `send`/`on` (events).
 
 ```ts
@@ -78,8 +78,9 @@ app.whenReady().then(() => {
 
 ```ts
 // renderer: typical calls
-await window.api.fs.readFile(path)
-const off = window.api.llm.chatStream(request, { onContent, onDone, onError })
+import { api } from '@services/api'
+await api.fs.readFile(path)
+const off = api.llm.chatStream(request, { onContent, onDone, onError })
 ```
 
 The LLM stream is the clearest example: the renderer registers the delta
@@ -134,7 +135,7 @@ contract.
 
 - The **main process cannot import renderer code and vice versa**; anything both
   need must live in `src/shared`, which must stay free of React and Electron.
-- The preload surface (`window.api`) is large and manual; every new IPC group is
+- The preload surface (`api`) is large and manual; every new IPC group is
   a new entry there and in `index.d.ts`.
 - The renderer is sandboxed, so process-level work (LSP, terminal, search
   sidecars) always crosses IPC.

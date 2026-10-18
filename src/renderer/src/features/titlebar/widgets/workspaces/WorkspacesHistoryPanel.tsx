@@ -15,6 +15,7 @@ import {
 import styles from './WorkspacesHistoryPanel.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 interface WorkspacesHistoryPanelProps {
   /** Se llama al navegar (el host cierra el popover). */
   onNavigate?: () => void
@@ -58,7 +59,7 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
   }
 
   const addWorkspace = async (): Promise<void> => {
-    const res = await window.api.fs.pickFolder()
+    const res = await api.fs.pickFolder()
     if (res.success && res.path) {
       recordWorkspace(res.path)
       setWorkspaceRoot(res.path)

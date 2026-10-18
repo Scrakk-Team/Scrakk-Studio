@@ -19,6 +19,7 @@
  */
 
 import { lsGet, lsSet } from '@services/storage'
+import { api } from '@services/api'
 
 const STORAGE_KEY = 'scrakk-studio:lsp:disabled-servers'
 
@@ -47,7 +48,7 @@ function emit(): void {
 
 /** Empuja la lista al main (idempotente; se llama al arrancar y al cambiar). */
 function push(): void {
-  void window.api?.lsp?.setDisabledServers?.(disabled)?.catch?.(() => undefined)
+  void api?.lsp?.setDisabledServers?.(disabled)?.catch?.(() => undefined)
 }
 
 /** Ids apagados ahora mismo. */
@@ -85,7 +86,7 @@ export function subscribeToDisabledServers(listener: () => void): () => void {
  * Se llama UNA vez al arrancar la app (antes de abrir archivos).
  */
 export function initDisabledServers(): void {
-  if (!window.api?.lsp?.setDisabledServers) return
+  if (!api?.lsp?.setDisabledServers) return
   push()
 }
 

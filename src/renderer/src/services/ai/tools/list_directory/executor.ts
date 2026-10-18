@@ -4,6 +4,7 @@
 
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
+import { api } from '@services/api'
 
 const EXCLUDED_DIRS = new Set([
   'node_modules', '.git', 'dist', '.next', '.nuxt', '.output',
@@ -16,7 +17,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
       ? resolvePath(args.path as string, ctx.projectRoot)
       : ctx.projectRoot
 
-    const response = await window.api.fs.scanDirectory(targetPath, 1)
+    const response = await api.fs.scanDirectory(targetPath, 1)
 
     if (!response.success) {
       return { success: false, content: `Error listing directory: ${response.error}` }

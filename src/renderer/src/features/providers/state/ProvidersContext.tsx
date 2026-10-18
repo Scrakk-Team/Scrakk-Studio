@@ -16,6 +16,7 @@ import { getProvider, getProviders, subscribeProviderCatalog, type ProviderConfi
 import { PROVIDERS_STORAGE_KEY } from '../settings'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 const STORAGE_KEY = PROVIDERS_STORAGE_KEY
 
 interface StoredProvidersState {
@@ -153,14 +154,14 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
       const legacy = stored.apiKeys
       if (legacy && Object.keys(legacy).length > 0) {
         try {
-          await window.api.llm.migrateApiKeys(legacy)
+          await api.llm.migrateApiKeys(legacy)
         } catch {
           // Si falla, el persist de abajo igual las quita: el usuario tendrá
           // que volver a pegar la key (no se deja una copia en claro).
         }
       }
       try {
-        const status = await window.api.llm.apiKeyStatus()
+        const status = await api.llm.apiKeyStatus()
         if (alive) setKeyStatus(status)
       } catch {
         // Sin main (tests/SSR) no hay estado de keys.
@@ -230,13 +231,13 @@ export function ProvidersProvider({ children }: { children: ReactNode }) {
     const key = apiKey.trim()
     // Optimista para la UI; el valor real lo guarda el main.
     setKeyStatus((prev) => ({ ...prev, [providerId]: key.length > 0 }))
-    void window.api.llm.setApiKey(providerId, key).catch(() => undefined)
+    void api.llm.setApiKey(providerId, key).catch(() => undefined)
     if (key) setActiveProviderId(providerId)
   }, [])
 
   const removeApiKey = useCallback((providerId: string) => {
     setKeyStatus((prev) => ({ ...prev, [providerId]: false }))
-    void window.api.llm.deleteApiKey(providerId).catch(() => undefined)
+    void api.llm.deleteApiKey(providerId).catch(() => undefined)
     // Si era el proveedor activo, sin key no puede chatear → se desactiva.
     setActiveProviderId((prev) => (prev === providerId ? null : prev))
   }, [])

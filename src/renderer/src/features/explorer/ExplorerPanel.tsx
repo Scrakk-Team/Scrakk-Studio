@@ -50,6 +50,7 @@ import {
   effectiveMode,
   setPreferredMode
 } from '@features/fileHandlers/preferences'
+import { api } from '@services/api'
 /** Fila fantasma mientras se crea un archivo/carpeta. */
 interface CreatingState {
   parentPath: string
@@ -530,7 +531,7 @@ export function ExplorerPanel({
       if (root) {
         items.push({
           label: t('explorer.abrir.en.explorador'),
-          onClick: () => void window.api.fs.openInFolder(root)
+          onClick: () => void api.fs.openInFolder(root)
         })
       }
       return items
@@ -605,7 +606,7 @@ export function ExplorerPanel({
       {
         label: t('explorer.mostrar.en.explorador'),
         separatorBefore: true,
-        onClick: () => void window.api.fs.openInFolder(node.path)
+        onClick: () => void api.fs.openInFolder(node.path)
       },
       {
         label: t('explorer.copiar.ruta'),

@@ -4,6 +4,7 @@
 
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
@@ -12,12 +13,12 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
     const fullSource = resolvePath(source, ctx.projectRoot)
     const fullDest = resolvePath(destination, ctx.projectRoot)
 
-    const exists = await window.api.fs.exists(fullSource)
+    const exists = await api.fs.exists(fullSource)
     if (!exists.exists) {
       return { success: false, content: `Source not found: ${source}` }
     }
 
-    const response = await window.api.fs.moveFile(fullSource, fullDest)
+    const response = await api.fs.moveFile(fullSource, fullDest)
 
     if (response.success) {
       window.dispatchEvent(new CustomEvent('refresh-explorer'))

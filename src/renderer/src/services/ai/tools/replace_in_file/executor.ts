@@ -5,6 +5,7 @@
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
 import { lspAfterEdit } from '../../../lsp'
+import { api } from '@services/api'
 
 /**
  * Regex que matchea `text` tolerando un CR final y espacios/tabs finales de
@@ -24,7 +25,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
     const fullPath = resolvePath(path, ctx.projectRoot)
 
     // Read existing content
-    const readResponse = await window.api.fs.readFile(fullPath)
+    const readResponse = await api.fs.readFile(fullPath)
     if (!readResponse.success || readResponse.content === undefined) {
       return {
         success: false,
@@ -67,7 +68,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
     }
 
     const finalContent = newContent ?? content
-    const writeResponse = await window.api.fs.writeFile(fullPath, finalContent)
+    const writeResponse = await api.fs.writeFile(fullPath, finalContent)
 
     if (writeResponse.success) {
       window.dispatchEvent(new CustomEvent('refresh-explorer'))

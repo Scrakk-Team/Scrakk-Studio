@@ -23,6 +23,7 @@ import { SCRAKK_WEBSITE } from '@shared/links'
 import styles from './InfoSection.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 export function InfoSection(): JSX.Element {
   const updates = useUpdates()
   const [checking, setChecking] = useState(false)
@@ -38,7 +39,7 @@ export function InfoSection(): JSX.Element {
     setChecking(true)
     setMessage(null)
     try {
-      const state = await window.api.updates.updaterCheck()
+      const state = await api.updates.updaterCheck()
       const release = await refreshLatest()
       const version = state.version ?? release?.version ?? updates.latest?.version
 
@@ -82,7 +83,7 @@ export function InfoSection(): JSX.Element {
 
     setUninstalling(true)
     setUninstallError(null)
-    const result = await window.api.app.uninstall()
+    const result = await api.app.uninstall()
     if (!result.ok) setUninstallError(result.error ?? t('settings.no.se.pudo.desinstalar'))
     setUninstalling(false)
   }

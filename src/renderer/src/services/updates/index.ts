@@ -20,6 +20,7 @@ import type { ReleaseInfo, UpdaterState } from '@shared/updates'
 import { notify } from '@services/notifications'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 const SEEN_KEY = 'updates:seen-version'
 
 export interface UpdatesSnapshot {
@@ -110,7 +111,7 @@ export function markSeen(): void {
 /** Una lectura de la última release (Supabase; respaldo GitHub). */
 export async function refreshLatest(): Promise<ReleaseInfo | null> {
   try {
-    const result = await window.api.updates.getLatest()
+    const result = await api.updates.getLatest()
     applyRelease(result.release ?? null, result.updateAvailable)
     if (!result.ok && result.error) set({ error: result.error })
     return result.release ?? null
@@ -154,7 +155,7 @@ export function notifyAvailable(release?: ReleaseInfo): void {
 /** Lee el estado del instalador (sin disparar una comprobación). */
 export async function syncUpdaterState(): Promise<void> {
   try {
-    applyUpdaterState(await window.api.updates.updaterState())
+    applyUpdaterState(await api.updates.updaterState())
   } catch {
     /* el estado queda como estaba */
   }
@@ -162,7 +163,7 @@ export async function syncUpdaterState(): Promise<void> {
 
 /** Descarga la actualización (avisa el resultado). */
 export async function downloadUpdate(): Promise<UpdaterState> {
-  const state = await window.api.updates.updaterDownload()
+  const state = await api.updates.updaterDownload()
   applyUpdaterState(state)
   if (state.status === 'unsupported') {
     notify({
@@ -180,7 +181,7 @@ export async function downloadUpdate(): Promise<UpdaterState> {
 
 /** Instala y reinicia la app. */
 export async function installUpdate(): Promise<void> {
-  await window.api.updates.updaterInstall()
+  await api.updates.updaterInstall()
 }
 
 /** Aviso de que la actualización ya está descargada. */

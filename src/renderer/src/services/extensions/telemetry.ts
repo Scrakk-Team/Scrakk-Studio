@@ -25,6 +25,7 @@
  */
 
 import { getPersistedTelemetryEnabled, persistTelemetryEnabled } from '@services/storage'
+import { api } from '@services/api'
 
 /**
  * Publica el valor actual (o uno explícito) a los hosts de extensiones.
@@ -32,7 +33,7 @@ import { getPersistedTelemetryEnabled, persistTelemetryEnabled } from '@services
  */
 export function publishTelemetryEnabled(enabled: boolean = getPersistedTelemetryEnabled()): void {
   try {
-    window.api?.extensions?.host?.setTelemetryEnabled?.(enabled)
+    api?.extensions?.host?.setTelemetryEnabled?.(enabled)
   } catch {
     // Sin puente: el ajuste sigue guardado en el renderer y se publica en el
     // próximo arranque. Fallar aquí no puede romper el arranque de la app.

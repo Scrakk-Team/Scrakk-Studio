@@ -28,31 +28,32 @@ import type {
   UploadedImage,
   UserPresence
 } from '@shared/social'
+import { api } from '@services/api'
 
 export const social = {
-  watch: (accountId: string): Promise<SocialResult<null>> => window.api.social.watch(accountId),
+  watch: (accountId: string): Promise<SocialResult<null>> => api.social.watch(accountId),
   listFriends: (accountId: string): Promise<SocialResult<Friend[]>> =>
-    window.api.social.listFriends(accountId),
+    api.social.listFriends(accountId),
   searchUsers: (accountId: string, query: string): Promise<SocialResult<SocialUser[]>> =>
-    window.api.social.searchUsers(accountId, query),
+    api.social.searchUsers(accountId, query),
   listRequests: (accountId: string): Promise<SocialResult<FriendRequest[]>> =>
-    window.api.social.listRequests(accountId),
+    api.social.listRequests(accountId),
   sendRequest: (accountId: string, targetId: string): Promise<SocialResult<string>> =>
-    window.api.social.sendRequest(accountId, targetId),
+    api.social.sendRequest(accountId, targetId),
   respondRequest: (
     accountId: string,
     requestId: string,
     accept: boolean
-  ): Promise<SocialResult<string>> => window.api.social.respondRequest(accountId, requestId, accept),
+  ): Promise<SocialResult<string>> => api.social.respondRequest(accountId, requestId, accept),
   removeFriend: (accountId: string, otherId: string): Promise<SocialResult<boolean>> =>
-    window.api.social.removeFriend(accountId, otherId),
+    api.social.removeFriend(accountId, otherId),
   listMessages: (
     accountId: string,
     withUserId: string,
     beforeId?: string | null,
     limit?: number
   ): Promise<SocialResult<DirectMessage[]>> =>
-    window.api.social.listMessages(accountId, withUserId, beforeId ?? null, limit ?? 50),
+    api.social.listMessages(accountId, withUserId, beforeId ?? null, limit ?? 50),
   sendMessage: (
     accountId: string,
     toUserId: string,
@@ -60,44 +61,44 @@ export const social = {
     replyTo?: string | null,
     attachments?: ImageUpload[]
   ): Promise<SocialResult<DirectMessage>> =>
-    window.api.social.sendMessage(accountId, toUserId, body, replyTo ?? null, attachments ?? []),
+    api.social.sendMessage(accountId, toUserId, body, replyTo ?? null, attachments ?? []),
   uploadImage: (
     accountId: string,
     kind: 'chat' | 'avatar',
     image: ImageUpload
-  ): Promise<SocialResult<UploadedImage>> => window.api.social.uploadImage(accountId, kind, image),
+  ): Promise<SocialResult<UploadedImage>> => api.social.uploadImage(accountId, kind, image),
   editMessage: (
     accountId: string,
     messageId: string,
     body: string
-  ): Promise<SocialResult<DirectMessage>> => window.api.social.editMessage(accountId, messageId, body),
+  ): Promise<SocialResult<DirectMessage>> => api.social.editMessage(accountId, messageId, body),
   deleteMessage: (accountId: string, messageId: string): Promise<SocialResult<null>> =>
-    window.api.social.deleteMessage(accountId, messageId),
+    api.social.deleteMessage(accountId, messageId),
   markRead: (accountId: string, withUserId: string): Promise<SocialResult<null>> =>
-    window.api.social.markRead(accountId, withUserId),
+    api.social.markRead(accountId, withUserId),
   getPresence: (accountId: string): Promise<SocialResult<UserPresence[]>> =>
-    window.api.social.getPresence(accountId),
+    api.social.getPresence(accountId),
   setPresence: (
     accountId: string,
     status: PresenceStatus,
     activity: PresenceActivity
-  ): Promise<SocialResult<null>> => window.api.social.setPresence(accountId, status, activity),
+  ): Promise<SocialResult<null>> => api.social.setPresence(accountId, status, activity),
   sendTyping: (accountId: string, peerId: string, typing: boolean): Promise<void> =>
-    window.api.social.sendTyping(accountId, peerId, typing),
+    api.social.sendTyping(accountId, peerId, typing),
   onIncomingMessage: (callback: (event: IncomingMessageEvent) => void): (() => void) =>
-    window.api.social.onIncomingMessage(callback),
+    api.social.onIncomingMessage(callback),
   onMessageUpdated: (callback: (event: MessageUpdateEvent) => void): (() => void) =>
-    window.api.social.onMessageUpdated(callback),
+    api.social.onMessageUpdated(callback),
   onMessageDeleted: (callback: (event: MessageDeleteEvent) => void): (() => void) =>
-    window.api.social.onMessageDeleted(callback),
+    api.social.onMessageDeleted(callback),
   onRequestsChanged: (callback: (event: AccountEvent) => void): (() => void) =>
-    window.api.social.onRequestsChanged(callback),
+    api.social.onRequestsChanged(callback),
   onFriendsChanged: (callback: (event: AccountEvent) => void): (() => void) =>
-    window.api.social.onFriendsChanged(callback),
+    api.social.onFriendsChanged(callback),
   onPresenceChanged: (callback: (event: PresenceEvent) => void): (() => void) =>
-    window.api.social.onPresenceChanged(callback),
+    api.social.onPresenceChanged(callback),
   onTypingChanged: (callback: (event: TypingEvent) => void): (() => void) =>
-    window.api.social.onTypingChanged(callback)
+    api.social.onTypingChanged(callback)
 }
 
 export type {

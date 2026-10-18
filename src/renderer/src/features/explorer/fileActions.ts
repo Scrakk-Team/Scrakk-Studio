@@ -15,6 +15,7 @@
 import { openFileInEditor } from '@features/editor'
 import { getWorkspaceRoot, setWorkspaceRoot } from './hooks/useWorkspaceState'
 import { baseNameOf } from '@services/workspaces/history'
+import { api } from '@services/api'
 
 /** Separa con el separador que ya usa la ruta (Windows o POSIX). */
 function joinPath(dir: string, name: string): string {
@@ -27,7 +28,7 @@ async function uniqueUntitledPath(root: string): Promise<string> {
   for (let i = 1; i < 1000; i += 1) {
     const name = i === 1 ? 'untitled.txt' : `untitled-${i}.txt`
     const candidate = joinPath(root, name)
-    const res = await window.api.fs.exists(candidate)
+    const res = await api.fs.exists(candidate)
     if (!res.exists) return candidate
   }
   return joinPath(root, `untitled-${Date.now()}.txt`)
@@ -35,7 +36,7 @@ async function uniqueUntitledPath(root: string): Promise<string> {
 
 /** Abre el diálogo nativo y abre los archivos elegidos en el editor. */
 export async function openFilesViaDialog(): Promise<string[]> {
-  const res = await window.api.fs.pickFile()
+  const res = await api.fs.pickFile()
   if (!res.success || !res.paths) return []
   for (const filePath of res.paths) openFileInEditor(filePath, baseNameOf(filePath))
   return res.paths
@@ -43,7 +44,7 @@ export async function openFilesViaDialog(): Promise<string[]> {
 
 /** Abre el diálogo nativo y cambia el workspace a la carpeta elegida. */
 export async function openFolderViaDialog(): Promise<string | null> {
-  const res = await window.api.fs.pickFolder()
+  const res = await api.fs.pickFolder()
   if (!res.success || !res.path) return null
   setWorkspaceRoot(res.path)
   return res.path
@@ -60,7 +61,7 @@ export async function createNewFile(workspaceRoot = getWorkspaceRoot()): Promise
   const root = workspaceRoot ?? (await openFolderViaDialog())
   if (!root) return null
   const path = await uniqueUntitledPath(root)
-  const written = await window.api.fs.writeFile(path, '')
+  const written = await api.fs.writeFile(path, '')
   if (!written.success) return null
   openFileInEditor(path, baseNameOf(path))
   return path

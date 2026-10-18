@@ -1097,3 +1097,13 @@ that needs an out-of-repo action (key rotation) is called out explicitly.
   unpacked and now runs as plain Node (sandbox), so it cannot read
   `out/main/chunks/*` from inside `app.asar`. `out/main/chunks/**` is now
   unpacked too; the packaged host boots under `--permission` and sends `ready`.
+- **Extension UI bundles no longer receive the IPC bridge.** `window.api` used
+  to stay on the global object forever, so any bundle imported by the extension
+  loader (or an XSS) could call `fs`, `terminal`, `git`, `lsp` or `llm`
+  directly, bypassing the host sandbox. The preload now exposes a one-shot
+  `window.__takeApi()`; `src/renderer/src/services/api.ts` captures it at boot
+  and every renderer call uses that captured `api` (222 call sites migrated).
+  Later code, including extension bundles, gets `null`. They still share the
+  renderer DOM/origin (not a full UI sandbox), but the direct RCE/filesystem
+  path through `window.api` is gone. Covered by
+  `tests/renderer-api-bootstrap.test.ts`; docs updated.

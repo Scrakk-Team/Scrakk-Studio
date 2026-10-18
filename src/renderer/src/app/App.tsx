@@ -50,6 +50,7 @@ import {
   getMinimapVisible,
   setMinimapVisibleEverywhere
 } from '@features/editor/engines/innerta/InnertaEngine'
+import { api } from '@services/api'
 
 /**
  * Los proveedores ya no usan modal: abren Ajustes → Chat → Proveedores.
@@ -72,7 +73,7 @@ const APP_COMMANDS: Command[] = [
     get title() { return t('app.abrir.carpeta') },
     category: 'Workspace',
     run: async () => {
-      const res = await window.api.fs.pickFolder()
+      const res = await api.fs.pickFolder()
       if (res.success && res.path) setWorkspaceRoot(res.path)
     }
   },

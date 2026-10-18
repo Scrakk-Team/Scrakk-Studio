@@ -50,6 +50,7 @@ import {
 import { argToPath, baseNameOfPath } from '@shared/compatibility/vscode/commands/args'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /** Prefijo con el que VS Code auto-genera el id de un contenedor. */
 const VIEW_EXTENSION_PREFIX = 'workbench.view.extension.'
 
@@ -170,7 +171,7 @@ const HANDLERS: Record<BuiltinHandlerKey, (args: unknown[]) => void | Promise<vo
       return
     }
     // Sin argumento: la carpeta la elige el usuario, igual que en VS Code.
-    const result = await window.api.fs.pickFolder()
+    const result = await api.fs.pickFolder()
     if (result.success && result.path) setWorkspaceRoot(result.path)
   },
 

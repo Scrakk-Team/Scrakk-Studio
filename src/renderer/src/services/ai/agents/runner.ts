@@ -5,7 +5,7 @@
 /**
  * Runner de agentes — ejecución AISLADA de un subagente.
  *
- * Corre un mini-loop de tools sobre `window.api.llm.chatStream` usando el
+ * Corre un mini-loop de tools sobre `api.llm.chatStream` usando el
  * prompt/permisos/tools/modelo del agente, SIN aparecer en el transcript del
  * chat (equivalente a `surface_completion: false` del CLI). Lo usan la tool
  * `task` y la mención `@agente` del input.
@@ -17,6 +17,7 @@ import { getProvider } from '@services/providers'
 import { activeProviderSelection, readProviderSettings } from '@features/providers/settings'
 import type { ToolCall, ToolDefinition } from '../tools/types'
 import { AGENT_MODEL_INHERIT, type AgentProfile } from './types'
+import { api } from '@services/api'
 
 export interface RunAgentInput {
   agent: AgentProfile
@@ -129,11 +130,11 @@ function streamOnce(input: {
       fn()
     }
     const onAbort = (): void => {
-      window.api.llm.stopStream(requestId)
+      api.llm.stopStream(requestId)
     }
     signal?.addEventListener('abort', onAbort, { once: true })
 
-    stop = window.api.llm.chatStream(
+    stop = api.llm.chatStream(
       {
         requestId,
         providerId: resolved.provider.id,

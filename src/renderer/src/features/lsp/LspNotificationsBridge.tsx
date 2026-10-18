@@ -14,6 +14,7 @@ import { useEffect, type JSX } from 'react'
 import { onLspServerEvent } from '@services/lsp'
 import { notify } from '@services/notifications'
 import { openSettingsModal } from '@features/settings'
+import { api } from '@services/api'
 
 const seenFailures = new Map<string, number>()
 
@@ -46,7 +47,7 @@ export function LspNotificationsBridge(): JSX.Element | null {
           { label: 'Ver servidores', run: () => openSettingsModal('servers') },
           {
             label: 'Reiniciar',
-            run: () => void window.api.lsp.restartServer(event.serverName)
+            run: () => void api.lsp.restartServer(event.serverName)
           }
         ]
       })

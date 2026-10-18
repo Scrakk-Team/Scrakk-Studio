@@ -22,6 +22,7 @@ import type {
   ScrakkRoots,
   ScrakkScope
 } from '@shared/scrakk'
+import { api } from '@services/api'
 
 /** Raíz del proyecto abierto (la escribe el Explorer). */
 export function scrakkProjectRoot(): string | null {
@@ -67,17 +68,17 @@ export function scrakkHandle(scope: ScrakkScope, dir = ''): ScrakkHandle {
   return {
     scope,
     dir,
-    list: (relative) => window.api.scrakk.list(op(relative)),
-    read: (relative) => window.api.scrakk.read(op(relative)),
-    write: (relative, content) => window.api.scrakk.write({ ...op(relative), content }),
-    readJson: (relative) => window.api.scrakk.readJson(op(relative)),
-    writeJson: (relative, data) => window.api.scrakk.writeJson({ ...op(relative), data }),
-    remove: (relative) => window.api.scrakk.delete(op(relative)),
-    mkdir: (relative) => window.api.scrakk.mkdir(op(relative)),
-    exists: (relative) => window.api.scrakk.exists(op(relative)),
-    stat: (relative) => window.api.scrakk.stat(op(relative)),
-    watch: (relative) => window.api.scrakk.watch(op(relative)),
-    unwatch: (relative) => window.api.scrakk.unwatch(op(relative))
+    list: (relative) => api.scrakk.list(op(relative)),
+    read: (relative) => api.scrakk.read(op(relative)),
+    write: (relative, content) => api.scrakk.write({ ...op(relative), content }),
+    readJson: (relative) => api.scrakk.readJson(op(relative)),
+    writeJson: (relative, data) => api.scrakk.writeJson({ ...op(relative), data }),
+    remove: (relative) => api.scrakk.delete(op(relative)),
+    mkdir: (relative) => api.scrakk.mkdir(op(relative)),
+    exists: (relative) => api.scrakk.exists(op(relative)),
+    stat: (relative) => api.scrakk.stat(op(relative)),
+    watch: (relative) => api.scrakk.watch(op(relative)),
+    unwatch: (relative) => api.scrakk.unwatch(op(relative))
   }
 }
 
@@ -111,12 +112,12 @@ export function getScrakkNamespace(id: string, defaultScope: ScrakkScope = 'proj
 
 /** Raíces absolutas de la API (user + project). */
 export function scrakkRoots(): Promise<ScrakkRoots> {
-  return window.api.scrakk.roots(scrakkProjectRoot())
+  return api.scrakk.roots(scrakkProjectRoot())
 }
 
 /** Suscripción a cambios en cualquier raíz vigilada. */
 export function onScrakkChanged(callback: (event: ScrakkChangeEvent) => void): () => void {
-  return window.api.scrakk.onChanged(callback)
+  return api.scrakk.onChanged(callback)
 }
 
 export const scrakk = {

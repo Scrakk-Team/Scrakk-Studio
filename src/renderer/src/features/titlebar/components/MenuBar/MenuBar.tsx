@@ -19,6 +19,7 @@ import { useTheme } from '@core/theme/ThemeProvider'
 import styles from './MenuBar.module.css'
 
 import { t, useLocale } from '@core/i18n'
+import { api } from '@services/api'
 type MenuId = 'file' | 'edit' | 'view' | 'help'
 
 const MENU_IDS: MenuId[] = ['file', 'edit', 'view', 'help']
@@ -133,7 +134,7 @@ export function MenuBar(): JSX.Element {
             label: t('menu.file.closeWindow'),
             shortcut: 'Alt+F4',
             separatorBefore: true,
-            onClick: () => window.api?.windowControls.close()
+            onClick: () => api?.windowControls.close()
           }
         ]
       },

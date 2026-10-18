@@ -20,6 +20,7 @@ import type {
   ComponentResolver,
   RegisteredExtension
 } from '../manifest'
+import { api } from '@services/api'
 
 export async function registerManifest(
   manifest: ExtensionManifest,
@@ -51,8 +52,8 @@ export async function registerManifest(
    */
   const readFile = async (path: string): Promise<string | null> => {
     if (isBuiltin || !packageDir) return null
-    if (!window.api?.fs) return null
-    const res = await window.api.fs.readFile(`${packageDir}/${path}`)
+    if (!api?.fs) return null
+    const res = await api.fs.readFile(`${packageDir}/${path}`)
     return res.success && typeof res.content === 'string' ? res.content : null
   }
 

@@ -18,28 +18,29 @@ import type {
   UpdateProfileRequest,
   VerifyCodeRequest
 } from '@shared/account'
+import { api } from '@services/api'
 
 export const account = {
   requestCode(req: RequestCodeRequest): Promise<AccountResult<null>> {
-    return window.api.account.requestCode(req)
+    return api.account.requestCode(req)
   },
   verifyCode(req: VerifyCodeRequest): Promise<AccountResult<AccountProfile>> {
-    return window.api.account.verifyCode(req)
+    return api.account.verifyCode(req)
   },
   current(accountId: string): Promise<AccountResult<AccountProfile | null>> {
-    return window.api.account.current(accountId)
+    return api.account.current(accountId)
   },
   update(accountId: string, req: UpdateProfileRequest): Promise<AccountResult<AccountProfile>> {
-    return window.api.account.update(accountId, req)
+    return api.account.update(accountId, req)
   },
   listAccounts(): Promise<AccountResult<AccountList>> {
-    return window.api.account.listAccounts()
+    return api.account.listAccounts()
   },
   setDefault(accountId: string): Promise<AccountResult<AccountList>> {
-    return window.api.account.setDefault(accountId)
+    return api.account.setDefault(accountId)
   },
   removeAccount(accountId: string): Promise<AccountResult<AccountList>> {
-    return window.api.account.removeAccount(accountId)
+    return api.account.removeAccount(accountId)
   }
 }
 

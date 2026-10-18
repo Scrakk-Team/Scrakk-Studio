@@ -14,7 +14,7 @@ create/rename/delete, native drag & drop and VS Code-style file decorations. The
 
 The root is stored in `localStorage` under `scrakk-studio:root-path`. Any module
 can change it via `setWorkspaceRoot(path)` (the empty-state button calls
-`window.api.fs.pickFolder()`); a `workspace-changed` `CustomEvent` tells every
+`api.fs.pickFolder()`); a `workspace-changed` `CustomEvent` tells every
 mounted Explorer (and other listeners) to follow.
 
 ```ts
@@ -27,10 +27,10 @@ setWorkspaceRoot('/repo')   // persists + dispatches 'workspace-changed'
 ## Expanding and loading
 
 Folders start collapsed with `children: null`. Expanding calls
-`window.api.fs.readdir(dir)` (name + type, no per-entry `stat`) and caches the
+`api.fs.readdir(dir)` (name + type, no per-entry `stat`) and caches the
 result; large directories are inserted in `BATCH_SIZE = 400` chunks with
 `requestAnimationFrame`. Each loaded, expanded folder is watched
-(`window.api.fs.watchDir`) and re-read when `fs.onWatchChanged` fires. Metrics are
+(`api.fs.watchDir`) and re-read when `fs.onWatchChanged` fires. Metrics are
 fixed in `constants.ts`:
 
 | Constant | Value | Meaning |

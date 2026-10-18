@@ -95,7 +95,7 @@ line of output live and is clickable; clicking dispatches `subagent:open`, which
 `providerId`), then uses the agent model unless it is `inherit`, in which case
 it uses the active model. Tool definitions
 are the globally enabled ones filtered by the agent's `tools` and
-`hardPermissions`. It streams with `window.api.llm.chatStream` and executes tool
+`hardPermissions`. It streams with `api.llm.chatStream` and executes tool
 calls with the real `executeTools` (so permissions still apply). The loop is
 capped at `MAX_ROUNDS = 24`; the run stops early if its `signal` is aborted.
 

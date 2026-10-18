@@ -46,13 +46,14 @@ export {
   setServerDisabled,
   subscribeToDisabledServers
 } from './disabledServers'
+import { api } from '@services/api'
 
 /**
  * Sincroniza el workspace del LSP con el del Explorer: lee la raíz inicial
  * y sigue el evento 'workspace-changed'. Se llama UNA vez desde main.tsx.
  */
 export function initLspWorkspaceSync(): void {
-  if (!window.api?.lsp) return
+  if (!api?.lsp) return
   // Los servers que el usuario apagó (Ajustes → Servidores) se aplican ANTES
   // de cualquier archivo: si no, el server arrancaría y recién después se
   // apagaría (con sus diagnósticos ya publicados).

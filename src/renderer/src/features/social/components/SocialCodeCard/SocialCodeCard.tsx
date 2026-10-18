@@ -32,6 +32,7 @@ import { useSocial } from '../../state/SocialContext'
 import styles from './SocialCodeCard.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 interface SocialCodeCardProps {
   message: DirectMessage
   isOwn: boolean
@@ -60,7 +61,7 @@ export function SocialCodeCard({ message, isOwn }: SocialCodeCardProps): JSX.Ele
     setBusy(true)
     setError(null)
     try {
-      const result = (await window.api.social.codeFileContent(
+      const result = (await api.social.codeFileContent(
         accountId,
         message.id
       )) as SocialResult<{ content: string; meta: SocialCodeFile }>
@@ -82,7 +83,7 @@ export function SocialCodeCard({ message, isOwn }: SocialCodeCardProps): JSX.Ele
 
   const remove = useCallback(async (): Promise<void> => {
     if (!accountId || !isOwn) return
-    const result = (await window.api.social.deleteCodeFile(
+    const result = (await api.social.deleteCodeFile(
       accountId,
       message.id
     )) as SocialResult<boolean>

@@ -4,6 +4,7 @@
 
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   const commandId = `cmd-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -15,7 +16,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
       detail: { command, cwd, commandId, status: 'start' }
     }))
 
-    const response = await window.api.fs.execCommand(command, cwd, 60_000)
+    const response = await api.fs.execCommand(command, cwd, 60_000)
 
     window.dispatchEvent(new CustomEvent('terminal-command-done', {
       detail: { commandId }

@@ -21,6 +21,7 @@
 
 import { notify } from '@services/notifications'
 import type { ScreenshotResponse } from '@shared/screenshot'
+import { api } from '@services/api'
 
 /** Selector del canvas de Innerta (el mismo que usa el engine para el foco). */
 const CANVAS_SELECTOR = '.scrakk-innerta-canvas'
@@ -41,10 +42,10 @@ function editorRect(): { x: number; y: number; width: number; height: number } |
 export async function captureEditorScreenshot(
   options: { silent?: boolean } = {}
 ): Promise<ScreenshotResponse> {
-  const api = window.api?.screenshot
+const shotApi = api?.screenshot
   if (!api) return { success: false, error: 'el puente de capturas no está disponible' }
 
-  const response = await api.capture({ rect: editorRect() })
+  const response = await shotApi.capture({ rect: editorRect() })
   if (options.silent) return response
 
   if (response.success && response.path) {
@@ -57,7 +58,7 @@ export async function captureEditorScreenshot(
         {
           label: 'Mostrar en carpeta',
           run: () => {
-            void window.api?.fs?.openInFolder(response.path ?? '')
+            void api.fs?.openInFolder(response.path ?? '')
           }
         }
       ]

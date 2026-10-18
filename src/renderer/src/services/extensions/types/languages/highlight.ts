@@ -41,6 +41,7 @@ import {
 import { resolvePackagePath } from '@services/extensions/extensionDirs'
 import { resolveSlotForScopes, type HostToken, type ScopeRule } from '@shared/syntax'
 import type { TokenizeGrammarRef } from '@shared/extensions'
+import { api } from '@services/api'
 
 /** Gramática TextMate ya resuelta a una ruta absoluta del paquete. */
 interface ResolvedTextMateGrammar {
@@ -177,8 +178,8 @@ export interface LanguageHighlight {
 export async function tokenizeWithLanguageGrammar(
   options: LanguageHighlightOptions
 ): Promise<LanguageHighlight | null> {
-  const api = window.api?.extensions
-  if (!api?.tokenize) return null
+  const extApi = api?.extensions
+  if (!extApi?.tokenize) return null
 
   const language = options.languageId
     ? LanguageRegistry.get(options.languageId)
@@ -188,7 +189,7 @@ export async function tokenizeWithLanguageGrammar(
   const { refs, root } = collectGrammarRefs(language)
   if (!root) return null
 
-  const result = await api.tokenize({
+  const result = await extApi.tokenize({
     scopeName: root.scopeName,
     grammars: refs,
     text: options.text

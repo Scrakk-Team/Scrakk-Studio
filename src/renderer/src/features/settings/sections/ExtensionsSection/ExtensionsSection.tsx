@@ -44,6 +44,7 @@ import type { InstalledExtensionInfo } from '@shared/extensions'
 import styles from './ExtensionsSection.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 type Status = { kind: 'ok' | 'error'; text: string } | null
 
 function contributionsText(extensionId: string, enabled: boolean): string {
@@ -140,9 +141,9 @@ export function ExtensionsSection(): JSX.Element {
   )
 
   const refreshInstalled = useCallback(async () => {
-    if (!window.api?.extensions) return
+    if (!api?.extensions) return
     try {
-      setInstalled(await window.api.extensions.listInstalled())
+      setInstalled(await api.extensions.listInstalled())
     } catch {
       // Sin puente nativo: solo se listan las builtin.
     }
@@ -155,17 +156,17 @@ export function ExtensionsSection(): JSX.Element {
   const installedIds = new Set(installed.map((entry) => entry.id))
 
   const handleInstall = useCallback(async () => {
-    if (!window.api?.extensions) {
+    if (!api?.extensions) {
       setStatus({ kind: 'error', text: t('settings.el.puente.nativo.no.esta') })
       return
     }
     setBusy(true)
     setStatus(null)
     try {
-      const picked = await window.api.extensions.pickSef()
+      const picked = await api.extensions.pickSef()
       if (!picked.success || !picked.path) return
 
-      const result = await window.api.extensions.installSef(picked.path)
+      const result = await api.extensions.installSef(picked.path)
       if (!result.success) {
         setStatus({ kind: 'error', text: result.error })
         return
@@ -190,17 +191,17 @@ export function ExtensionsSection(): JSX.Element {
   }, [refreshInstalled])
 
   const handleInstallVsix = useCallback(async () => {
-    if (!window.api?.extensions) {
+    if (!api?.extensions) {
       setStatus({ kind: 'error', text: t('settings.el.puente.nativo.no.esta') })
       return
     }
     setBusy(true)
     setStatus(null)
     try {
-      const picked = await window.api.extensions.pickVsix()
+      const picked = await api.extensions.pickVsix()
       if (!picked.success || !picked.path) return
 
-      const result = await window.api.extensions.installVsix(picked.path)
+      const result = await api.extensions.installVsix(picked.path)
       if (!result.success) {
         setStatus({ kind: 'error', text: result.error })
         return
@@ -237,11 +238,11 @@ export function ExtensionsSection(): JSX.Element {
 
   const handleUninstall = useCallback(
     async (entry: InstalledExtensionInfo) => {
-      if (!window.api?.extensions) return
+      if (!api?.extensions) return
       setBusy(true)
       setStatus(null)
       try {
-        const result = await window.api.extensions.uninstall(entry.id)
+        const result = await api.extensions.uninstall(entry.id)
         if (!result.success) {
           setStatus({ kind: 'error', text: result.error ?? t('settings.no.se.pudo.desinstalar') })
           return

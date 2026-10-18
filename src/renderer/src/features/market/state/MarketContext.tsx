@@ -31,6 +31,7 @@ import type {
   MarketUpsertRequest
 } from '@shared/market'
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 
 export type MarketTab = 'store' | 'installed' | 'mine'
 
@@ -98,7 +99,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   // Cuenta activa (para subir / ratear / mis extensiones).
   useEffect(() => {
     void (async () => {
-      const list = await window.api.account.listAccounts()
+      const list = await api.account.listAccounts()
       if (list.ok) setAccountId(list.data.activeId)
     })()
   }, [])
@@ -108,8 +109,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
     setError(null)
     try {
       const [extensions, cats] = await Promise.all([
-        window.api.market.search({ query, category, limit: 60 }),
-        window.api.market.categories()
+        api.market.search({ query, category, limit: 60 }),
+        api.market.categories()
       ])
       // `search` es una LECTURA: devuelve el array pelado (igual que
       // `categories`/`mine`/`get`). Los `MarketResult` son para las escrituras.
@@ -132,12 +133,12 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       return
     }
     // Job: refresca la última release de mis extensiones (cache) antes de listar.
-    await window.api.market.refresh(accountId).catch(() => undefined)
-    setMine(await window.api.market.mine(accountId))
+    await api.market.refresh(accountId).catch(() => undefined)
+    setMine(await api.market.mine(accountId))
   }, [accountId])
 
   const refreshInstalled = useCallback(async (): Promise<void> => {
-    const list = await window.api.extensions.listInstalled()
+    const list = await api.extensions.listInstalled()
     setInstalled(list.filter((e) => !e.id.startsWith('scrakk.')))
   }, [])
 
@@ -156,8 +157,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       setDetailRatings([])
       setDetailRelease(null)
       const [ratings, release] = await Promise.all([
-        window.api.market.ratings(accountId, extension.slug),
-        window.api.market.resolveRelease({
+        api.market.ratings(accountId, extension.slug),
+        api.market.resolveRelease({
           repoProvider: extension.repoProvider,
           repoUrl: extension.repoUrl,
           assetName: extension.assetName
@@ -174,14 +175,14 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const install = useCallback(
     async (extension: MarketExtension): Promise<MarketResult<unknown>> => {
       setBusy(`install:${extension.slug}`)
-      const result = await window.api.market.install(accountId, extension.slug)
+      const result = await api.market.install(accountId, extension.slug)
       setBusy(null)
       if (result.ok) {
         // El paquete ya quedó en disco (lo escribe el main), pero el RUNTIME no
         // lo conoce: hay que registrarlo igual que "Install .sef" en Ajustes, o
         // sus contribuciones (temas, paneles, iconos) no aparecen hasta
         // reiniciar la app.
-        const list = await window.api.extensions.listInstalled()
+        const list = await api.extensions.listInstalled()
         const entry = list.find((item) => item.id === result.data.id)
         if (entry) {
           await registerInstalledExtension(entry)
@@ -197,7 +198,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
 
   const uninstall = useCallback(
     async (id: string): Promise<void> => {
-      await window.api.extensions.uninstall(id)
+      await api.extensions.uninstall(id)
       await refreshInstalled()
     },
     [refreshInstalled]
@@ -206,8 +207,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const rate = useCallback(
     async (slug: string, stars: number, comment?: string): Promise<MarketResult<null>> => {
       if (!accountId) return { ok: false, error: t('market.cargando') }
-      const result = await window.api.market.rate(accountId, { slug, stars, comment })
-      if (result.ok) setDetailRatings(await window.api.market.ratings(accountId, slug))
+      const result = await api.market.rate(accountId, { slug, stars, comment })
+      if (result.ok) setDetailRatings(await api.market.ratings(accountId, slug))
       return result
     },
     [accountId]
@@ -216,7 +217,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const report = useCallback(
     async (req: MarketReportRequest): Promise<MarketResult<null>> => {
       if (!accountId) return { ok: false, error: t('market.cargando') }
-      return window.api.market.report(accountId, req)
+      return api.market.report(accountId, req)
     },
     [accountId]
   )
@@ -224,7 +225,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const save = useCallback(
     async (req: MarketUpsertRequest): Promise<MarketResult<MarketExtension>> => {
       if (!accountId) return { ok: false, error: t('market.cargando') }
-      const result = await window.api.market.upsert(accountId, req)
+      const result = await api.market.upsert(accountId, req)
       if (result.ok) await refreshMine()
       return result
     },
@@ -234,7 +235,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const removeExtension = useCallback(
     async (slug: string): Promise<MarketResult<null>> => {
       if (!accountId) return { ok: false, error: t('market.cargando') }
-      const result = await window.api.market.remove(accountId, slug)
+      const result = await api.market.remove(accountId, slug)
       if (result.ok) await refreshMine()
       return result
     },
@@ -245,7 +246,7 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
     async (file: File): Promise<MarketResult<string>> => {
       if (!accountId) return { ok: false, error: t('market.cargando') }
       const base64 = await fileToBase64(file)
-      return window.api.market.uploadImage(accountId, { base64, mime: file.type, name: file.name })
+      return api.market.uploadImage(accountId, { base64, mime: file.type, name: file.name })
     },
     [accountId]
   )

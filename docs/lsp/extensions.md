@@ -95,7 +95,7 @@ project (<root>/.scrakk/lsp.json)
 ## Lifecycle
 
 1. **Boot/install**: the generic loader dispatches each contribution to the
-   handler → `window.api.lsp.registerDynamicServers(extensionId, defs)`
+   handler → `api.lsp.registerDynamicServers(extensionId, defs)`
    (merge by id if the extension contributes several servers).
 2. The manager invalidates the per-root loads; the new servers start **lazily** on
    the next matching file.

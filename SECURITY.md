@@ -60,10 +60,12 @@ backend market/Storage/consent policies were corrected (migrations
    any future XSS or an extension bundle running in the renderer can execute
    commands. The real fix is moving extension UI bundles to an isolated origin
    and narrowing the bridge.
-4. **Extension UI bundles run in the renderer.** `panels`/`activityBar` React
-   components are imported in the IDE origin and can call `window.api`; the host
-   sandbox does not cover them. Migrating them to webview contributions is the
-   next phase.
+4. **Extension UI bundles still run in the renderer.** `panels`/`activityBar`
+   React components are imported in the IDE origin. They **no longer receive**
+   `window.api` (the bridge is handed out once at boot to `services/api`), so
+   they cannot call `fs`/`terminal`/`git`/`lsp`/`llm`. They still share the DOM
+   and origin, so this is capability reduction, not a full UI sandbox. Migrating
+   them to webview contributions is the next phase.
 5. **Unsigned app builds.** Authenticode/notarization are not configured; the
    updater relies on the GitHub feed. Electron fuses are enabled, but code
    signing is still required to make `EnableEmbeddedAsarIntegrityValidation`

@@ -41,6 +41,7 @@ import { commandUnavailableReason } from '@shared/compatibility/vscode/commands/
 import { runVSCodeCommand } from './vscodeCommands'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /** `severity` del host → severidad de la app. */
 function toSeverity(severity: string): 'info' | 'warn' | 'error' {
   if (severity === 'error') return 'error'
@@ -288,7 +289,7 @@ export interface ExtensionHostBridgeHandle {
  * Sin puente nativo (tests, SSR) no hace nada.
  */
 export function initExtensionHostBridge(): ExtensionHostBridgeHandle {
-  const host = window.api?.extensions?.host
+  const host = api?.extensions?.host
   if (!host) {
     return { dispose: () => undefined }
   }

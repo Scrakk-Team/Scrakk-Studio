@@ -12,13 +12,14 @@
  */
 
 import { setProviderCatalog } from './registry'
+import { api } from '@services/api'
 
 let started = false
 
 /** Carga el catálogo cacheado (memoria → disco) sin tocar la red. */
 export async function loadCachedProviderCatalog(): Promise<void> {
   try {
-    const cached = await window.api.modelsDev.catalog()
+    const cached = await api.modelsDev.catalog()
     if (cached && cached.providers.length > 0) setProviderCatalog(cached.providers)
   } catch {
     // Sin bridge (tests/web): se sigue con la lista vacía.
@@ -28,7 +29,7 @@ export async function loadCachedProviderCatalog(): Promise<void> {
 /** Fuerza el fetch remoto y actualiza la lista. */
 export async function refreshProviderCatalog(): Promise<void> {
   try {
-    const fresh = await window.api.modelsDev.refresh()
+    const fresh = await api.modelsDev.refresh()
     if (fresh && fresh.providers.length > 0) setProviderCatalog(fresh.providers)
   } catch {
     // Sin red: queda el cache.

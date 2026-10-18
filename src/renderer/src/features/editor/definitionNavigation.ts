@@ -22,6 +22,7 @@ import { getEditorFiles, openFileInEditor, activateFile } from './editorBus'
 import { getFileSessionText } from './fileSession'
 import { revealInnertaPosition } from './engines/innerta/hostBridge'
 import { resolveDefinition, resolveSymbolDefinition, wordAt } from './treeNavigationLogic'
+import { api } from '@services/api'
 
 export interface DefinitionTarget {
   path: string
@@ -34,7 +35,7 @@ export async function activeFileText(path: string): Promise<string | null> {
   const live = getFileSessionText(path)
   if (typeof live === 'string') return live
   try {
-    const res = await window.api.fs.readFile(path)
+    const res = await api.fs.readFile(path)
     return res.success ? (res.content ?? null) : null
   } catch {
     return null

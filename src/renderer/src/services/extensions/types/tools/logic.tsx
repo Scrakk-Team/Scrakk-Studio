@@ -26,6 +26,7 @@ import type { ComponentType, JSX } from 'react'
 import type { ExtensionTypeContext } from '../handler'
 import { ExtensionToolVisual, type ToolVisualProps } from './ExtensionToolVisual'
 import type { ToolContribution } from './schema'
+import { api } from '@services/api'
 
 export interface RegisteredToolRef {
   extensionId: string
@@ -144,7 +145,7 @@ export function buildExtensionTool(contribution: ToolContribution, ctx: Extensio
         }
       }
       try {
-        const response = await window.api.extensions.host.executeCommand({
+        const response = await api.extensions.host.executeCommand({
           id: extensionId,
           command: contribution.command,
           args: [args]

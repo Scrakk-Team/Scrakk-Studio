@@ -8,6 +8,7 @@ import { WidgetContainer } from './widgets/WidgetContainer'
 import { useWindowControls } from './hooks/useWindowControls'
 import { subscribeToThemes } from '@services/extensions'
 import styles from './Titlebar.module.css'
+import { api } from '@services/api'
 
 /**
  * Colores del overlay leídos del tema ACTIVO (vars computadas — sirve para
@@ -41,12 +42,12 @@ export function Titlebar(_props: TitlebarProps): JSX.Element {
   // re-lee las vars computadas en cada cambio (activar/desactivar/uninstall).
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
-      window.api?.windowControls.setTitleBarOverlay(readOverlayColors())
+      api?.windowControls.setTitleBarOverlay(readOverlayColors())
     })
     return () => cancelAnimationFrame(raf)
   }, [])
   useEffect(() => subscribeToThemes(() => {
-    window.api?.windowControls.setTitleBarOverlay(readOverlayColors())
+    api?.windowControls.setTitleBarOverlay(readOverlayColors())
   }), [])
 
   const handleDoubleClick = (event: MouseEvent<HTMLElement>): void => {

@@ -12,13 +12,14 @@
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
 import { detectLineEnding, normalizeText } from '../textNormalize'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
     const path = args.path as string
     const fullPath = resolvePath(path, ctx.projectRoot)
 
-    const response = await window.api.fs.readFile(fullPath)
+    const response = await api.fs.readFile(fullPath)
 
     if (!response.success || response.content === undefined) {
       return {

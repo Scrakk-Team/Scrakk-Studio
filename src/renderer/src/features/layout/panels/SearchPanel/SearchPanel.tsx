@@ -10,6 +10,7 @@ import type { GrepMatch } from '@shared/fs'
 import styles from './SearchPanel.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 const ROOT_KEY = 'scrakk-studio:root-path'
 const DEBOUNCE_MS = 250
 const MAX_RESULTS = 100
@@ -95,7 +96,7 @@ export function SearchPanel(): JSX.Element {
     const timer = setTimeout(() => {
       void (async () => {
         try {
-          const res = await window.api.fs.searchInFiles(root, q, undefined, false, MAX_RESULTS)
+          const res = await api.fs.searchInFiles(root, q, undefined, false, MAX_RESULTS)
           if (genRef.current !== gen) return
           if (res.success) {
             setMatches(res.matches ?? [])

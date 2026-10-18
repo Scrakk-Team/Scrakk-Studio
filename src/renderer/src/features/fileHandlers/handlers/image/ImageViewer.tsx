@@ -5,6 +5,7 @@
 import { useEffect, useState, type JSX } from 'react'
 import type { FileHandlerViewProps } from '../../types'
 import styles from '../../viewers.module.css'
+import { api } from '@services/api'
 
 /**
  * Visor de imágenes: el archivo se lee por IPC en base64 (la CSP del renderer
@@ -20,7 +21,7 @@ export default function ImageViewer({ path }: FileHandlerViewProps): JSX.Element
     setError(null)
     void (async () => {
       // El puente lo agrega el PRELOAD: si la ventana es vieja, no existe.
-      const readBinary = window.api?.fs?.readBinary
+      const readBinary = api?.fs?.readBinary
       if (typeof readBinary !== 'function') {
         setError('Falta el puente fs.readBinary: hay que reiniciar la app (no alcanza con recargar).')
         return

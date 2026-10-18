@@ -12,6 +12,7 @@ import {
   refreshLatest,
   syncUpdaterState
 } from '@services/updates'
+import { api } from '@services/api'
 
 /**
  * Puente de actualizaciones.
@@ -26,7 +27,7 @@ export function UpdatesBridge(): JSX.Element | null {
   useEffect(() => {
     // Si el preload es viejo (app sin reiniciar tras tocar main/preload), no
     // están las suscripciones: no romper la UI, sólo no recibir el push.
-    const updates = window.api?.updates
+    const updates = api?.updates
     if (!updates?.onRelease || !updates.onUpdaterState) return
 
     const offRelease = updates.onRelease((release) => {

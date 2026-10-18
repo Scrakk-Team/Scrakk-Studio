@@ -8,6 +8,7 @@ import { wireInnertaInput } from '@features/editor/engines/innerta/innertaInput'
 import { applyInnertaTheme, listenThemeChanges } from '@features/editor/engines/innerta/innertaTheme'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /**
  * InnertaTerminalPanel — panel `innerta-terminal` contribuido por la extensión
  * builtin `innerta-terminal`. No hardcodea el renderer en el core del IDE:
@@ -15,7 +16,7 @@ import { t } from '@core/i18n'
  *
  * La vista es un render normal del editor con:
  *   lsp=false, syntax=false, folding=false, readOnly=true, cursor=block
- * y un PTY en el fondo (`window.api.terminal` cuando exista, por ahora mock).
+ * y un PTY en el fondo (`api.terminal` cuando exista, por ahora mock).
  */
 export default function InnertaTerminalPanel(): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null)
@@ -51,7 +52,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
       // y setTerminalFont ANTES de crear el PTY para que getRealDims() use
       // las metricas correctas de la fuente del sistema.
       try {
-        const fontApi = (window as unknown as { api?: { terminal?: { getMonoFont: () => Promise<{ data: number[] } | null> } } }).api?.terminal
+        const fontApi = api?.terminal
         const mod = view.module as unknown as import('@features/editor/engines/innerta/InnertaEngine').InnertaModule
         const raw = view.module as unknown as Record<string, unknown>
         const fsApi = (raw as { FS?: { writeFile: (p: string, d: Uint8Array) => void } }).FS
@@ -97,7 +98,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
 
       // Resize: notificar PTY cuando el panel cambia de tamaño
       const resizeRo = new ResizeObserver(() => {
-        if (!host || !api) return
+        if (!host) return
         const dims = getRealDims()
         view.resize(dims.cols, dims.rows)
       })
@@ -113,7 +114,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
           if (readFn) {
             const output = readFn()
             if (output && output.length > 0) {
-              const apiInner = (window as unknown as { api?: { terminal?: { write: (r: unknown) => Promise<void> } } }).api?.terminal
+              const apiInner = api?.terminal
               if (apiInner) void apiInner.write({ id: termId, data: output })
             }
           }
@@ -140,7 +141,7 @@ export default function InnertaTerminalPanel(): JSX.Element {
 
       // Sobrescribir keydown para que no inserte en el buffer sino que vaya al PTY
       const onKeyDownPty = (e: KeyboardEvent): void => {
-        const apiInner = (window as unknown as { api?: { terminal?: { write: (r: unknown) => Promise<void> } } }).api?.terminal
+        const apiInner = api?.terminal
         if (!apiInner) return
         // Mapeo mínimo VT: Enter -> \r, Backspace -> \x7f, Tab -> \t, Escape -> \x1b, Arrows -> ESC[A etc.
         let data: string | null = null
@@ -189,17 +190,10 @@ export default function InnertaTerminalPanel(): JSX.Element {
       }
       canvas.addEventListener('keydown', onKeyDownPty, true)
 
-      // PTY real via window.api.terminal (main/ipc/terminal.ts)
-      const api = (window as unknown as { api?: { terminal?: {
-        create: (r: unknown) => Promise<unknown>
-        write: (r: unknown) => Promise<void>
-        cd: (r: unknown) => Promise<void>
-        onData: (cb: (p: { id: string; data: string }) => void) => () => void
-        onExit: (cb: (p: { id: string; exitCode: number }) => void) => () => void
-        destroy: (r: unknown) => Promise<void>
-      } } }).api?.terminal
+      // PTY real via api.terminal (main/ipc/terminal.ts)
+      const terminalApi = api?.terminal
 
-      if (!api) {
+      if (!terminalApi) {
         view.setContent('$ Innerta Terminal (sin PTY — api no disponible)\r\n')
         return
       }
@@ -213,23 +207,23 @@ export default function InnertaTerminalPanel(): JSX.Element {
       } catch {
         initialCwd = undefined
       }
-      void api.create({ id: termId, cwd: initialCwd, cols: termCols, rows: termRows })
+      void terminalApi.create({ id: termId, cwd: initialCwd, cols: termCols, rows: termRows })
       // Cambio de workspace: reubicar esta terminal en el proyecto nuevo (no se
       // recrea el PTY: no se pierde el historial).
       const onWorkspaceChanged = (event: Event): void => {
         const path = (event as CustomEvent<{ path?: string }>).detail?.path
         if (typeof path !== 'string' || path.length === 0) return
-        void api.cd({ id: termId, path })
+        void terminalApi.cd({ id: termId, path })
       }
       window.addEventListener('workspace-changed', onWorkspaceChanged)
       unsubWorkspace = () => window.removeEventListener('workspace-changed', onWorkspaceChanged)
       // Sincronizar VtParser con las mismas dims que el PTY
       view.resize(termCols, termRows)
-      unsubData = api.onData((payload) => {
+      unsubData = terminalApi.onData((payload) => {
         if (payload.id !== termId) return
         view.append(payload.data)
       })
-      unsubExit = api.onExit((payload) => {
+      unsubExit = terminalApi.onExit((payload) => {
         if (payload.id !== termId) return
         view.append(`\r\n[exit ${payload.exitCode}]\r\n`)
       })
@@ -254,8 +248,8 @@ export default function InnertaTerminalPanel(): JSX.Element {
       unsubData?.()
       unsubExit?.()
       unsubWorkspace?.()
-      const api = (window as unknown as { api?: { terminal?: { destroy: (r: unknown) => Promise<void> } } }).api?.terminal
-      if (api) void api.destroy({ id: termId })
+      const terminalApi = api?.terminal
+      if (terminalApi) void terminalApi.destroy({ id: termId })
       if (viewRef.current) {
         viewRef.current.dispose()
       } else {

@@ -64,7 +64,7 @@ LSP client** that runs in Electron's main process (shared contract → main runt
 The editor or the agent touches a file → the manager resolves which servers serve
 it (by extension + root markers, in their owning root), starts them lazily,
 synchronizes the buffer and exposes diagnostics/requests; the whole surface is
-available through `window.api.lsp` (preload) and `@services/lsp` (renderer).
+available through `api.lsp` (renderer, captured from the preload) and `@services/lsp` (renderer).
 
 ## Where the code lives
 
@@ -81,7 +81,7 @@ src/main/lsp/                      # runtime (main process)
 ├── install.ts                     # auto-install recipes
 └── index.ts                       # IPC handlers
 src/main/scrakkFolder.ts           # .scrakk folder system (shared)
-src/preload/index.ts               # window.api.lsp
+src/preload/index.ts               # api.lsp (services/api)
 src/renderer/src/services/lsp/     # renderer public API
 ├── api.ts                         # typed ops + generic requests
 ├── diagnosticsStore.ts            # reactive multi-server cache

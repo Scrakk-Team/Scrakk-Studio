@@ -5,6 +5,7 @@
 import type { ExecutionResult, ToolContext } from '../types'
 import { resolvePath } from '../utils'
 import { lspAfterEdit } from '../../../lsp'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
@@ -12,7 +13,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
     const content = args.content as string
     const fullPath = resolvePath(path, ctx.projectRoot)
 
-    const existing = await window.api.fs.readFile(fullPath)
+    const existing = await api.fs.readFile(fullPath)
     if (!existing.success || existing.content === undefined) {
       return {
         success: false,
@@ -21,7 +22,7 @@ export async function execute(args: Record<string, unknown>, ctx: ToolContext): 
     }
 
     const newContent = existing.content + content
-    const response = await window.api.fs.writeFile(fullPath, newContent)
+    const response = await api.fs.writeFile(fullPath, newContent)
 
     if (response.success) {
       window.dispatchEvent(new CustomEvent('refresh-explorer'))

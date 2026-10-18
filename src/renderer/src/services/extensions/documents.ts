@@ -33,6 +33,7 @@ import type {
   DocumentSelection,
   DocumentSnapshot
 } from '@shared/extensionHost/protocol'
+import { api } from '@services/api'
 
 /** Cómo se escribe un documento (una sola puerta, para poder testearla). */
 export interface DocumentSink {
@@ -42,7 +43,7 @@ export interface DocumentSink {
 const defaultSink: DocumentSink = {
   send: (events) => {
     try {
-      window.api?.extensions?.host?.syncDocuments(events)
+      api?.extensions?.host?.syncDocuments(events)
     } catch {
       // Sin puente (tests): no hay nada que sincronizar.
     }
@@ -251,7 +252,7 @@ export function notifyDocumentSaved(path: string): void {
   const text = session.getText()
   if (typeof revision !== 'number' || typeof text !== 'string') return
   try {
-    window.api?.extensions?.host?.syncDocuments([
+    api?.extensions?.host?.syncDocuments([
       { kind: 'save', path, version: revision },
       { kind: 'change', document: snapshotOf(path, text, false, revision + 1) }
     ])

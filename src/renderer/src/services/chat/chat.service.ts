@@ -11,6 +11,7 @@ import { getEnabledToolDefinitions } from '../ai/tools'
 import { executeTools } from '../ai/toolExecutor'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /** Entrada de un envío: el proveedor se resuelve en la UI (ProvidersProvider). */
 export interface SendMessageInput {
   provider: ProviderConfig | null
@@ -98,7 +99,7 @@ export function createLlmChatService(): ChatService {
         // termina por el evento chatStreamStopped (onStopped) y el loop
         // corta al ver signal.aborted — se conserva todo lo streamado.
         const onAbort = (): void => {
-          if (activeRequestId) window.api.llm.stopStream(activeRequestId)
+          if (activeRequestId) api.llm.stopStream(activeRequestId)
         }
         input.signal?.addEventListener('abort', onAbort, { once: true })
 
@@ -112,7 +113,7 @@ export function createLlmChatService(): ChatService {
             const requestId = crypto.randomUUID()
             activeRequestId = requestId
 
-            const stop = window.api.llm.chatStream(
+            const stop = api.llm.chatStream(
               {
                 requestId,
                 providerId: provider.id,

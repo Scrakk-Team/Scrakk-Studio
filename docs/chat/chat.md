@@ -52,7 +52,7 @@ and repeats until the model answers with no tool calls. Every round fires
 `onRoundStart(round)`; the panel creates **one assistant segment per round**, so
 reasoning, tool cards and text from consecutive rounds stay separate.
 
-Deltas arrive through `window.api.llm.chatStream` (`llm:chat-stream-chunk`,
+Deltas arrive through `api.llm.chatStream` (`llm:chat-stream-chunk`,
 `-reasoning`, `-tool-calls`, `-done`, `-stopped`, `-error`). The panel does not
 `setState` per token: it buffers deltas per segment and flushes once per frame.
 
@@ -74,7 +74,7 @@ const flushDeltas = (): void => {
 ```
 
 The "Detener" button aborts an `AbortController`, which calls
-`window.api.llm.stopStream(requestId)`. The main process aborts the fetch and
+`api.llm.stopStream(requestId)`. The main process aborts the fetch and
 emits `chatStreamStopped`, so the round resolves with the **partial** content
 instead of failing. The main process also enforces an **inactivity** timeout:
 `IDLE_TIMEOUT_MS = 120_000` (`src/main/ipc/llm.ts`) aborts if the provider sends

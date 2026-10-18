@@ -87,7 +87,8 @@ semantics by hand; keep the two in sync if either changes.
 - The **host** runs under Node's `--permission` model: no arbitrary filesystem
   and no `child_process` unless the manifest declares `fs.read`/`fs.write`/
   `shell.exec`. Network is still unrestricted, and UI bundles still run in the
-  renderer (they can call `window.api` until they are migrated to webviews).
+  renderer; they no longer receive `window.api` (the bridge is captured once at
+  boot), but they still share the DOM/origin until migrated to webviews.
   Signed packages pin the publisher key, but a malicious publisher can still
   sign malware.
 - The absence of `permissions` means **no** disk access through the mediated API

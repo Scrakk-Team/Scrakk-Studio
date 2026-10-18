@@ -5,7 +5,7 @@
 /**
  * LSP — API pública del renderer.
  *
- * Cliente fino sobre el runtime del proceso main (window.api.lsp). Aquí vive
+ * Cliente fino sobre el runtime del proceso main (api.lsp). Aquí vive
  * la superficie que el editor, las tools del agente o cualquier panel
  * consumen: workspace sync, requests tipados y diagnósticos en vivo.
  *
@@ -25,32 +25,33 @@ import type {
 import { getProblems } from './diagnosticsStore'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 // ── Workspace ──────────────────────────────────────────────────────────────
 
 /** Setea el root del proyecto (debe llamarse al abrir/cambiar carpeta). */
 export async function setLspWorkspace(rootPath: string): Promise<string[]> {
-  if (!window.api?.lsp) return []
-  const res = await window.api.lsp.setWorkspace(rootPath)
+  if (!api?.lsp) return []
+  const res = await api.lsp.setWorkspace(rootPath)
   return res.ok ? res.servers : []
 }
 
 // ── Estado ─────────────────────────────────────────────────────────────────
 
 export async function lspStatus(): Promise<LspServerStatus[]> {
-  if (!window.api?.lsp) return []
-  return window.api.lsp.status()
+  if (!api?.lsp) return []
+  return api.lsp.status()
 }
 
 // ── Sync de archivos (editor / tools) ──────────────────────────────────────
 
 /** didOpen/didChange/didSave en los servers que atienden el archivo. */
 export async function lspNotifyFileChanged(path: string, content: string): Promise<void> {
-  await window.api?.lsp?.notifyFileChanged(path, content)
+  await api?.lsp?.notifyFileChanged(path, content)
 }
 
 /** didClose en todos los servers que lo tengan abierto. */
 export async function lspNotifyFileClosed(path: string): Promise<void> {
-  await window.api?.lsp?.notifyFileClosed(path)
+  await api?.lsp?.notifyFileClosed(path)
 }
 
 /**
@@ -59,14 +60,14 @@ export async function lspNotifyFileClosed(path: string): Promise<void> {
  * Es el equivalente directo de drain_lsp_diagnostics del CLI.
  */
 export async function lspDrainDiagnostics(timeoutMs?: number): Promise<FileDiagnostics[]> {
-  if (!window.api?.lsp) return []
-  return window.api.lsp.drainDiagnostics(timeoutMs)
+  if (!api?.lsp) return []
+  return api.lsp.drainDiagnostics(timeoutMs)
 }
 
 /** Diagnósticos actuales para rutas específicas (abre el archivo si hace falta). */
 export async function lspReadDiagnostics(paths: string[]): Promise<FileDiagnostics[]> {
-  if (!window.api?.lsp) return []
-  return window.api.lsp.readDiagnostics(paths)
+  if (!api?.lsp) return []
+  return api.lsp.readDiagnostics(paths)
 }
 
 // ── Requests genéricos ─────────────────────────────────────────────────────
@@ -77,8 +78,8 @@ export async function lspRequest(
   params?: unknown,
   options?: { filePath?: string; broadcast?: boolean; timeoutMs?: number; serverName?: string }
 ): Promise<LspRequestResponse> {
-  if (!window.api?.lsp) return { ok: false, results: [], error: t('services.sin.puente.lsp') }
-  return window.api.lsp.request({
+  if (!api?.lsp) return { ok: false, results: [], error: t('services.sin.puente.lsp') }
+  return api.lsp.request({
     method,
     params,
     filePath: options?.filePath,
@@ -390,20 +391,20 @@ export async function lspInlayHintResolve(hint: Record<string, unknown>): Promis
 // ── Multi-root real ────────────────────────────────────────────────────────
 
 export async function lspAddWorkspaceRoot(rootPath: string): Promise<string[]> {
-  if (!window.api?.lsp) return []
-  const res = await window.api.lsp.addWorkspaceRoot(rootPath)
+  if (!api?.lsp) return []
+  const res = await api.lsp.addWorkspaceRoot(rootPath)
   return res.ok ? res.servers : []
 }
 
 export async function lspRemoveWorkspaceRoot(rootPath: string): Promise<string[]> {
-  if (!window.api?.lsp) return []
-  const res = await window.api.lsp.removeWorkspaceRoot(rootPath)
+  if (!api?.lsp) return []
+  const res = await api.lsp.removeWorkspaceRoot(rootPath)
   return res.roots
 }
 
 export async function lspListWorkspaceRoots(): Promise<string[]> {
-  if (!window.api?.lsp) return []
-  const res = await window.api.lsp.listWorkspaceRoots()
+  if (!api?.lsp) return []
+  const res = await api.lsp.listWorkspaceRoots()
   return res.roots
 }
 
@@ -419,8 +420,8 @@ export interface LspProgressEvent {
 }
 
 export function onLspProgress(callback: (payload: LspProgressEvent) => void): () => void {
-  if (!window.api?.lsp) return () => {}
-  return window.api.lsp.onProgress(callback)
+  if (!api?.lsp) return () => {}
+  return api.lsp.onProgress(callback)
 }
 
 // ── Progreso de instalación ─────────────────────────────────────────────────
@@ -433,8 +434,8 @@ export function onLspProgress(callback: (payload: LspProgressEvent) => void): ()
 export function onLspInstallProgress(
   callback: (payload: LspInstallProgressPayload) => void
 ): () => void {
-  if (!window.api?.lsp?.onInstallProgress) return () => {}
-  return window.api.lsp.onInstallProgress(callback)
+  if (!api?.lsp?.onInstallProgress) return () => {}
+  return api.lsp.onInstallProgress(callback)
 }
 
 export type { LspInstallProgressPayload, LspInstallStage }
@@ -626,15 +627,15 @@ export function uriToFilePath(uri: string): string {
 export function onLspDiagnostics(
   callback: (payload: { serverName: string; path: string; diagnostics: LspDiagnostic[] }) => void
 ): () => void {
-  if (!window.api?.lsp) return () => {}
-  return window.api.lsp.onDiagnostics(callback)
+  if (!api?.lsp) return () => {}
+  return api.lsp.onDiagnostics(callback)
 }
 
 export function onLspServerEvent(
   callback: (payload: { serverName: string; state: string; error?: string }) => void
 ): () => void {
-  if (!window.api?.lsp) return () => {}
-  return window.api.lsp.onServerEvent(callback)
+  if (!api?.lsp) return () => {}
+  return api.lsp.onServerEvent(callback)
 }
 
 // ── Utilidades ─────────────────────────────────────────────────────────────
@@ -663,13 +664,13 @@ function flattenLocations(res: LspRequestResponse): Array<{ uri: string; range: 
 // ── Acciones por server (modal LSP) ────────────────────────────────────────
 
 export async function lspRestartServer(serverName: string): Promise<LspServerActionResult> {
-  if (!window.api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
-  return window.api.lsp.restartServer(serverName)
+  if (!api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
+  return api.lsp.restartServer(serverName)
 }
 
 export async function lspInstallServer(serverName: string): Promise<LspServerActionResult> {
-  if (!window.api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
-  return window.api.lsp.installServer(serverName)
+  if (!api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
+  return api.lsp.installServer(serverName)
 }
 
 /** Instala un requisito del lenguaje (prerrequisito) de un server. */
@@ -677,6 +678,6 @@ export async function lspInstallRequirement(
   serverName: string,
   requirementId: string
 ): Promise<LspServerActionResult> {
-  if (!window.api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
-  return window.api.lsp.installRequirement(serverName, requirementId)
+  if (!api?.lsp) return { ok: false, error: t('services.sin.puente.lsp') }
+  return api.lsp.installRequirement(serverName, requirementId)
 }

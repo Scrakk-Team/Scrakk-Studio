@@ -20,6 +20,7 @@ import {
   type LanguageConfiguration
 } from '@services/extensions/types/languages/logic'
 import { detectLanguageFromPath } from '@features/editor/languages'
+import { api } from '@services/api'
 
 /** Pares del lenguaje tal como los espera el motor (`openers`/`closers`). */
 export interface AutoPairs {
@@ -111,7 +112,7 @@ const fileCache = new Map<string, Promise<LanguageConfiguration | null>>()
 
 async function readConfiguration(path: string): Promise<LanguageConfiguration | null> {
   try {
-    const result = await window.api.fs.readFile(path)
+    const result = await api.fs.readFile(path)
     if (!result.success || typeof result.content !== 'string') return null
     return parseLanguageConfiguration(result.content)
   } catch {

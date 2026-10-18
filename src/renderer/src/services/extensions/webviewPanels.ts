@@ -25,6 +25,7 @@ import { tabsStore } from '@features/tabs'
 import type { WebviewPanelModel } from '@shared/extensionHost/protocol'
 import { ExtensionWebviewPanelLoader } from '@features/extensionviews/ExtensionWebviewPanelLoader'
 import { webviewPanelId } from '@features/extensionviews/ids'
+import { api } from '@services/api'
 
 type Listener = () => void
 
@@ -146,7 +147,7 @@ class ExtensionPanelsStore {
       this.panels.delete(rawId)
       ExtensionRegistry.unregisterPanel(webviewPanelId(rawId))
       this.emit()
-      void window.api?.extensions?.host?.panelClose({ id: model.extensionId, panelId: rawId })
+      void api?.extensions?.host?.panelClose({ id: model.extensionId, panelId: rawId })
     }
   }
 }

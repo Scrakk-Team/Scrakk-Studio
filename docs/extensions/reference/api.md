@@ -12,9 +12,11 @@ default: nothing works unless the manifest declares it).
 
 > **Trust model:** the host runs under Node's `--permission` model (fs access is
 > limited by `fs.read`/`fs.write`; `child_process` requires `shell.exec`; native
-> addons are denied). **Network is not isolated** and UI bundles still run in
-> the renderer (`window.api`). Signed packages pin the publisher key but do not
-> turn a malicious publisher into a safe one.
+> addons are denied). **Network is not isolated.** UI bundles run in the
+> renderer but no longer receive the IPC bridge (`window.api`), so they cannot
+> call `fs`/`terminal`/`git`/`llm`; they still share the DOM/origin. Signed
+> packages pin the publisher key but do not turn a malicious publisher into a
+> safe one.
 
 ## What a handler receives
 

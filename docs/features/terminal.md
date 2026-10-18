@@ -34,12 +34,12 @@ main process). They are decoupled from the React mount so the shell survives:
 The PTY is driven through the preload API:
 
 ```ts
-window.api.terminal.create({ id, shell, cwd, cols, rows })
-window.api.terminal.write({ id, data })
-window.api.terminal.resize({ id, cols, rows })
-window.api.terminal.destroy({ id })
-window.api.terminal.onData(({ id, data }) => { /* … */ })
-window.api.terminal.onExit(({ id, exitCode }) => { /* … */ })
+api.terminal.create({ id, shell, cwd, cols, rows })
+api.terminal.write({ id, data })
+api.terminal.resize({ id, cols, rows })
+api.terminal.destroy({ id })
+api.terminal.onData(({ id, data }) => { /* … */ })
+api.terminal.onExit(({ id, exitCode }) => { /* … */ })
 ```
 
 ## Fonts (resolved from the system)

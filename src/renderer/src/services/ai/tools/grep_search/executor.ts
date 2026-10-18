@@ -3,10 +3,11 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 import type { ExecutionResult, ToolContext } from '../types'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, ctx: ToolContext): Promise<ExecutionResult> {
   try {
-    const response = await window.api.fs.searchInFiles(
+    const response = await api.fs.searchInFiles(
       ctx.projectRoot,
       args.query as string,
       args.include_pattern as string | undefined,

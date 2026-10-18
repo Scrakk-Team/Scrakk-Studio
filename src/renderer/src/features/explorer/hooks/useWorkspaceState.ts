@@ -22,6 +22,7 @@ import { BATCH_SIZE } from '../constants'
 import { joinPath, parentPathOf } from '../utils/fileUtils'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 export interface FileNode {
   name: string
   /** Ruta absoluta. */
@@ -144,18 +145,18 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
   const ensureWatched = useCallback((dirPath: string): void => {
     if (watchedRef.current.has(dirPath)) return
     watchedRef.current.add(dirPath)
-    window.api.fs.watchDir(dirPath)
+    api.fs.watchDir(dirPath)
   }, [])
 
   const unwatch = useCallback((dirPath: string): void => {
     if (!watchedRef.current.has(dirPath)) return
     watchedRef.current.delete(dirPath)
-    window.api.fs.unwatchDir(dirPath)
+    api.fs.unwatchDir(dirPath)
   }, [])
 
   const unwatchAll = useCallback((): void => {
     for (const dirPath of watchedRef.current) {
-      window.api.fs.unwatchDir(dirPath)
+      api.fs.unwatchDir(dirPath)
     }
     watchedRef.current.clear()
   }, [])
@@ -193,7 +194,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
       loadingRef.current.add(dirPath)
       bump()
       try {
-        const res = await window.api.fs.readdir(dirPath)
+        const res = await api.fs.readdir(dirPath)
         if (generation !== generationRef.current) return // lectura obsoleta
         if (res.success) {
           const nodes = sortEntries(res.entries.map((entry) => toNode(entry, dirPath, level)))
@@ -217,7 +218,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
       const generation = generationRef.current
       setIsLoadingRoot(true)
       try {
-        const res = await window.api.fs.readdir(path)
+        const res = await api.fs.readdir(path)
         if (generation !== generationRef.current) return
         if (res.success) {
           const nodes = sortEntries(res.entries.map((entry) => toNode(entry, path, 0)))
@@ -254,7 +255,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
 
   // Suscripción única a cambios de directorios vigilados.
   useEffect(() => {
-    return window.api.fs.onWatchChanged(({ path }) => refreshNode(path))
+    return api.fs.onWatchChanged(({ path }) => refreshNode(path))
   }, [refreshNode])
 
   // Limpieza al desmontar: desvigilar todo.
@@ -376,7 +377,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
   }, [bump, unwatchAll])
 
   const openFolder = useCallback(async (): Promise<{ ok: boolean; error?: string }> => {
-    const res = await window.api.fs.pickFolder()
+    const res = await api.fs.pickFolder()
     if (res.success && res.path) {
       setRootPath(res.path)
       return { ok: true }
@@ -388,13 +389,13 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
     async (parentPath: string, name: string, isDirectory: boolean): Promise<{ ok: boolean; error?: string }> => {
       const full = joinPath(parentPath, name)
       // No sobrescribir: si ya existe algo con ese nombre, fallar antes.
-      const existing = await window.api.fs.exists(full)
+      const existing = await api.fs.exists(full)
       if (existing.exists) {
         return { ok: false, error: t('explorer.ya.existe.un.archivo.o') }
       }
       const res = isDirectory
-        ? await window.api.fs.mkdir(full)
-        : await window.api.fs.writeFile(full, '')
+        ? await api.fs.mkdir(full)
+        : await api.fs.writeFile(full, '')
       if (res.success) {
         refreshNode(parentPath)
       }
@@ -408,12 +409,12 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
       const parent = parentPathOf(oldPath)
       const newPath = joinPath(parent, newName)
       if (newPath !== oldPath) {
-        const existing = await window.api.fs.exists(newPath)
+        const existing = await api.fs.exists(newPath)
         if (existing.exists) {
           return { ok: false, error: t('explorer.ya.existe.un.archivo.o') }
         }
       }
-      const res = await window.api.fs.moveFile(oldPath, newPath)
+      const res = await api.fs.moveFile(oldPath, newPath)
       if (res.success) {
         // Si era carpeta, su sub-cache queda huérfana bajo la ruta vieja.
         cacheRef.current.delete(oldPath)
@@ -428,7 +429,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
   const deleteEntry = useCallback(
     async (path: string): Promise<{ ok: boolean; error?: string }> => {
       const parent = parentPathOf(path)
-      const res = await window.api.fs.deleteFile(path)
+      const res = await api.fs.deleteFile(path)
       if (res.success) {
         cacheRef.current.delete(path)
         loadedRef.current.delete(path)
@@ -447,7 +448,7 @@ export function useWorkspaceState(rootOverride?: string): WorkspaceApi {
       let error: string | undefined
       for (const path of paths) {
         const name = path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1)
-        const res = await window.api.fs.moveFile(path, joinPath(targetDir, name))
+        const res = await api.fs.moveFile(path, joinPath(targetDir, name))
         if (!res.success) {
           ok = false
           error = res.error

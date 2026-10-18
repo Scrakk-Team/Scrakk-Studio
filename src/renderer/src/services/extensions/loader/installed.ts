@@ -24,13 +24,14 @@ import { ExtensionTypeRegistry } from '../types'
 import { isExtensionEnabled } from '../enabled'
 import type { ExtensionManifest, ComponentResolver } from '../manifest'
 import type { ComponentType } from 'react'
+import { api } from '@services/api'
 
 /** Archivo ESM autocontenido exportado por el paquete compilado. */
 interface SefBundle {
   modules?: Record<string, ComponentType>
 }
 
-/** Entrada instalada expuesta por el puente nativo (window.api.extensions). */
+/** Entrada instalada expuesta por el puente nativo (api.extensions). */
 export interface InstalledExtensionEntry {
   id: string
   name: string
@@ -63,7 +64,7 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
   // registrar, no al usar.
   setExtensionDir(entry.id, entry.dir)
 
-  const manifestRes = await window.api.fs.readFile(`${entry.dir}/manifest.json`)
+  const manifestRes = await api.fs.readFile(`${entry.dir}/manifest.json`)
   if (!manifestRes.success || typeof manifestRes.content !== 'string') return
 
   const manifest = JSON.parse(manifestRes.content) as ExtensionManifest
@@ -99,7 +100,7 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
 
   let modules: Record<string, ComponentType> = {}
   if (needsBundle) {
-    const bundleRes = await window.api.fs.readFile(`${entry.dir}/${manifest.entry ?? 'dist/index.js'}`)
+    const bundleRes = await api.fs.readFile(`${entry.dir}/${manifest.entry ?? 'dist/index.js'}`)
     if (!bundleRes.success || typeof bundleRes.content !== 'string') return
     // Los externals (react, hooks del layout) vienen BARE y un blob URL no los
     // puede resolver: se reescriben a un módulo que re-exporta el namespace
@@ -133,13 +134,13 @@ export async function registerInstalledExtension(entry: InstalledExtensionEntry)
 }
 
 export async function loadInstalledExtensions(): Promise<void> {
-  const api = window.api?.extensions
+  const extApi = api?.extensions
   if (!api) return // Web/dev sin puente nativo: solo builtin.
 
   // Primero re-traducir las VSIX del traductor viejo: el materializado en
   // disco cambia ANTES de leerlo (así el boot registra la versión nueva).
   try {
-    const re = await api.retranslateVsix()
+    const re = await extApi.retranslateVsix()
     if (re.updated.length > 0) {
       console.log('[extensions] re-traducidas:', re.updated.join(', '))
       if (re.skipped.length > 0) {
@@ -150,7 +151,7 @@ export async function loadInstalledExtensions(): Promise<void> {
     console.warn('[extensions] re-traducción falló (continuando con lo instalado):', error)
   }
 
-  const installed = await api.listInstalled()
+  const installed = await extApi.listInstalled()
   for (const entry of installed) {
     await safe(`extensión "${entry.id}"`, () => registerInstalledExtension(entry))
   }

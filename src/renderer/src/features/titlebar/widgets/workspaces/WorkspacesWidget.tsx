@@ -23,6 +23,7 @@ import { WorkspacesHistoryPanel } from './WorkspacesHistoryPanel'
 import styles from './WorkspacesWidget.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /** Key del popover de workspaces en el registry de modales (para toggle). */
 const WORKSPACES_POPOVER_KEY = 'workspaces-history'
 
@@ -81,7 +82,7 @@ export function WorkspacesWidget(): JSX.Element {
   }, [])
 
   const addWorkspace = useCallback(async (): Promise<void> => {
-    const res = await window.api.fs.pickFolder()
+    const res = await api.fs.pickFolder()
     if (res.success && res.path) {
       recordWorkspace(res.path)
       setWorkspaceRoot(res.path)

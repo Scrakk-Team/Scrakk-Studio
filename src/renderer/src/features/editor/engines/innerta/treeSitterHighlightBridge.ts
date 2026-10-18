@@ -69,6 +69,7 @@ import type {
   DynamicQueryRef,
   DynamicTokenizeRequest
 } from '@shared/extensions'
+import { api } from '@services/api'
 
 const DEBOUNCE_MS = 250
 
@@ -224,8 +225,8 @@ export function refreshDynamicHighlight(
   }
 
   const run = (): void => {
-    const api = window.api?.extensions
-    if (!api?.tokenizeDynamic) {
+const extApi = api?.extensions
+    if (!extApi?.tokenizeDynamic) {
       explain('el puente nativo no expone tokenizeDynamic')
       return
     }
@@ -294,7 +295,7 @@ export function refreshDynamicHighlight(
     // SCOPES como los de TextMate, así que el tema decide el color igual.
     const rules = currentThemeTokenRules()
 
-    void api
+    void extApi
       .tokenizeDynamic(request)
       .then((result) => {
         // Respuesta vieja: el archivo cambió mientras el worker tokenizaba.

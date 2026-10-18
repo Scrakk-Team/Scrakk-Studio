@@ -8,6 +8,7 @@
  */
 
 import type { ExecutionResult, ToolContext } from '../types'
+import { api } from '@services/api'
 
 export async function execute(args: Record<string, unknown>, _ctx: ToolContext): Promise<ExecutionResult> {
   const query = typeof args.query === 'string' ? args.query.trim() : ''
@@ -16,14 +17,14 @@ export async function execute(args: Record<string, unknown>, _ctx: ToolContext):
     ? (args.allowed_domains as unknown[]).filter((d): d is string => typeof d === 'string')
     : undefined
 
-  if (!window.api.web) {
+  if (!api.web) {
     return {
       success: false,
       content: 'La API web no está disponible en esta ventana (reinicia la app para cargar el preload nuevo).'
     }
   }
 
-  const response = await window.api.web.search({ query, allowedDomains })
+  const response = await api.web.search({ query, allowedDomains })
   if (!response.ok) return { success: false, content: `Web search failed: ${response.error}` }
   if (response.results.length === 0) {
     return { success: true, content: `No results for "${query}".` }

@@ -2,13 +2,13 @@
 title: "The LSP API — full surface for frontend/editor/agent"
 group: lsp
 order: 20
-summary: "Three levels: window.api.lsp (raw, preload) · @services/lsp (renderer, typed and convenient) · the agent's lsp tool. Everything runs on the main-process runtime."
+summary: "Three levels: api.lsp (renderer, captured once) · @services/lsp (renderer, typed and convenient) · the agent's lsp tool. Everything runs on the main-process runtime."
 ---
 # The LSP API — full surface for frontend/editor/agent
 
 The LSP API is in **three levels**, depending on who uses it:
 
-- `window.api.lsp` — raw, in the preload.
+- `api.lsp` — the captured bridge (`services/api.ts`).
 - `@services/lsp` — typed and convenient, for the renderer (editor, panels).
 - the `lsp` tool — for the agent.
 

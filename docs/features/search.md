@@ -21,7 +21,7 @@ stale answers are dropped:
 ```ts
 // src/renderer/src/features/layout/panels/SearchPanel/SearchPanel.tsx
 const MAX_RESULTS = 100
-const res = await window.api.fs.searchInFiles(root, query, undefined, false, MAX_RESULTS)
+const res = await api.fs.searchInFiles(root, query, undefined, false, MAX_RESULTS)
 //  fs.searchInFiles(root, query, includePattern?, caseSensitive?, maxResults?, regex?)
 ```
 

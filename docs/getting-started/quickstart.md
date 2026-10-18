@@ -14,7 +14,7 @@ composed in `src/renderer/src/app/App.tsx`.
 
 Use **File → Open folder**, run the command *Open folder* from the command
 palette (`mod+shift+p`), or call it from the explorer panel. Internally it calls
-`window.api.fs.pickFolder()` and sets the workspace root with
+`api.fs.pickFolder()` (from `services/api`) and sets the workspace root with
 `setWorkspaceRoot()`; the explorer updates from there.
 
 Key bindings you will use immediately:

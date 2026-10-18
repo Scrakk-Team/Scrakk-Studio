@@ -31,7 +31,7 @@ Host and to feed per-account presence).
 
 ## Opening a folder
 
-- **Empty state**: the Explorer's button calls `window.api.fs.pickFolder()` and then
+- **Empty state**: the Explorer's button calls `api.fs.pickFolder()` and then
   `setWorkspaceRoot(path)`.
 - **Titlebar widget** (`WorkspacesWidget`): shows the active folder's real base name
   (`baseNameOf`), a ‹ / › pair to step through the history, and a **+** to pick a folder. The
@@ -42,7 +42,7 @@ Host and to feed per-account presence).
 ```ts
 import { setWorkspaceRoot } from '@features/explorer'
 
-const res = await window.api.fs.pickFolder()
+const res = await api.fs.pickFolder()
 if (res.success && res.path) setWorkspaceRoot(res.path)
 ```
 

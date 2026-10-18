@@ -36,11 +36,12 @@ import type { ToolDockPanelProps } from '../../types'
 import styles from './OutlinePanel.module.css'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 async function readContent(path: string): Promise<string | null> {
   const live = getFileSessionText(path)
   if (typeof live === 'string') return live
   try {
-    const res = await window.api.fs.readFile(path)
+    const res = await api.fs.readFile(path)
     return res.success ? (res.content ?? null) : null
   } catch {
     return null

@@ -19,6 +19,7 @@ import { runCommand } from '@services/commands'
 import type { StatusBarItemModel, StatusBarItemPayload } from '@shared/extensionHost/protocol'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 type Listener = () => void
 
 class ExtensionStatusBarStore {
@@ -83,7 +84,7 @@ class ExtensionStatusBarStore {
     if (!item?.command) return
     if (await runCommand(item.command)) return
     try {
-      const result = await window.api?.extensions?.host?.executeCommand({
+      const result = await api?.extensions?.host?.executeCommand({
         id: item.extensionId,
         command: item.command,
         args: []

@@ -20,7 +20,7 @@ manager).
 | --- | --- |
 | Contract (IPC + types) | `src/shared/screenshot.ts` |
 | Capture and write | `src/main/ipc/screenshot.ts` (`webContents.capturePage()`) |
-| Bridge | `src/preload/index.ts` → `window.api.screenshot.capture({ rect, dir, name })` |
+| Bridge | `src/preload/index.ts` → `api.screenshot.capture({ rect, dir, name })` |
 | Command + notice | `src/renderer/src/features/editor/screenshot.ts` |
 
 ### Why the main does the capture
@@ -79,7 +79,7 @@ dependency was not worth it for this.
 Typical use from a probe:
 
 ```js
-const shot = await evaluate(ws, `window.api.screenshot.capture(${JSON.stringify({
+const shot = await evaluate(ws, `api.screenshot.capture(${JSON.stringify({
   dir: '/tmp/innerta-shots', name: 'editor-with-extension', rect
 })})`)
 ```

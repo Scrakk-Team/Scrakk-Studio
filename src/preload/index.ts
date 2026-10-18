@@ -668,4 +668,17 @@ const api: WindowApi = {
   }
 }
 
-contextBridge.exposeInMainWorld('api', api)
+/**
+ * La API se entrega UNA SOLA VEZ al arrancar el renderer.
+ *
+ * Antes quedaba en `window.api` para siempre, así que cualquier bundle de
+ * extensión (o XSS) podía leer/escribir archivos o ejecutar comandos con el
+ * bridge completo. El renderer la captura en `services/api.ts` antes de cargar
+ * extensiones; después de eso `takeApi()` devuelve null.
+ */
+let apiTaken = false
+contextBridge.exposeInMainWorld('__takeApi', () => {
+  if (apiTaken) return null
+  apiTaken = true
+  return api
+})
