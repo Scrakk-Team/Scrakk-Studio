@@ -360,25 +360,19 @@ export async function install(
   // otra extensión instalada (y su sidecar de auto-update).
   const installed = await installSefFromBuffer(bytes, {
     expectedId: slug,
-    confirm: (manifest) => confirmExtensionInstall(manifest, 'market')
-  })
-  if (!installed.success) return fail(installed.error)
-
-  // Sidecar para auto-update (slug ↔ extensión instalada).
-  try {
-    await fs.writeFile(
-      path.join(extensionsRoot(), installed.extension.id, '.market.json'),
-      JSON.stringify({
+    confirm: (manifest) => confirmExtensionInstall(manifest, 'market'),
+    // El sidecar entra en la MISMA unidad atómica que el paquete.
+    extraFiles: {
+      '.market.json': JSON.stringify({
         slug,
         version: rel.version,
         repoProvider: ext.repoProvider,
         repoUrl: ext.repoUrl,
         assetName: ext.assetName
       })
-    )
-  } catch {
-    /* el sidecar es opcional */
-  }
+    }
+  })
+  if (!installed.success) return fail(installed.error)
   await anon.rpc('increment_extension_download', { p_slug: slug }).then(
     () => undefined,
     () => undefined
@@ -429,13 +423,12 @@ export async function checkInstalledUpdates(): Promise<number> {
       const installed = await installSefFromBuffer(bytes, {
         expectedId: sidecar.slug,
         // Una actualización desatendida NUNCA instala un paquete sin firma.
-        requireSignature: true
+        requireSignature: true,
+        extraFiles: {
+          '.market.json': JSON.stringify({ ...sidecar, version: rel.version })
+        }
       })
       if (!installed.success) continue
-      await fs.writeFile(
-        path.join(root, installed.extension.id, '.market.json'),
-        JSON.stringify({ ...sidecar, version: rel.version })
-      )
       updated += 1
     } catch {
       /* se reintenta en el próximo arranque */

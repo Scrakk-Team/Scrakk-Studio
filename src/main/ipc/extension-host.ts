@@ -612,6 +612,11 @@ export async function shutdownExtensionHosts(): Promise<void> {
   manager = null
 }
 
+/** Apaga el host de UNA extensión antes de reemplazar sus archivos. */
+export async function shutdownExtensionHost(extensionId: string): Promise<void> {
+  await manager?.shutdown(extensionId)
+}
+
 /** Documento del iframe aislado: import map + montaje del componente. */
 function bundleHostHtml(extensionId: string): string {
   const source = `${EXTENSION_SCHEME}://${extensionId}`

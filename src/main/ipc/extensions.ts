@@ -41,10 +41,19 @@ import { t } from '@shared/i18n'
 import { confirmExtensionInstall } from '../extensions/consent'
 import { verifySefFiles } from '../extensions/signature'
 import { publisherStatus, rememberPublisher, forgetPublisher } from '../extensions/publisherTrust'
+import { atomicInstall, cleanupStaleInstalls } from '../extensions/atomicInstall'
+import { shutdownExtensionHost } from './extension-host'
+
+let staleInstallCleanupDone = false
 
 async function extensionsRoot(): Promise<string> {
   const dir = path.join(app.getPath('userData'), 'extensions')
   await fs.mkdir(dir, { recursive: true })
+  // Restos de un crash/EPERM de una sesión anterior (`.staging-*`/`.backup-*`).
+  if (!staleInstallCleanupDone) {
+    staleInstallCleanupDone = true
+    await cleanupStaleInstalls(dir)
+  }
   return dir
 }
 
@@ -164,6 +173,8 @@ export async function installSefFromBuffer(
     confirm?: (manifest: Record<string, unknown>) => Promise<boolean>
     /** El market/auto-update exige firma; la instalación local la tolera. */
     requireSignature?: boolean
+    /** Sidecars que deben entrar en la misma unidad atómica (`.market.json`). */
+    extraFiles?: Record<string, string | Uint8Array>
   } = {}
 ): Promise<InstallSefResponse> {
   try {
@@ -205,18 +216,16 @@ export async function installSefFromBuffer(
       return { success: false, error: t('main.ext.cancelada') }
     }
 
+    // El host puede tener un `.node`/archivo abierto (Windows: EPERM). Se
+    // apaga ANTES del swap; se relanza lazy en el próximo uso.
+    await shutdownExtensionHost(parsed.id)
     const root = await extensionsRoot()
-    const targetDir = path.join(root, parsed.id)
-    await fs.rm(targetDir, { recursive: true, force: true })
-    await fs.mkdir(targetDir, { recursive: true })
-
-    for (const [relative, data] of parsed.files) {
-      const target = path.join(targetDir, relative)
-      const normalized = path.normalize(relative)
-      if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-      await fs.mkdir(path.dirname(target), { recursive: true })
-      await fs.writeFile(target, data)
-    }
+    const { targetDir } = await atomicInstall({
+      root,
+      id: parsed.id,
+      files: parsed.files,
+      extraFiles: options.extraFiles
+    })
 
     // Solo se fija la clave después de escribir el paquete correctamente.
     if (signature.signed && signature.ok && publisherTrust === 'new' && signature.keyId && signature.publicKey) {
@@ -261,28 +270,22 @@ export function registerExtensionsIpc(): void {
           return { success: false, error: t('main.ext.cancelada') }
         }
 
+        await shutdownExtensionHost(converted.id)
         const root = await extensionsRoot()
-        const targetDir = path.join(root, converted.id)
-        await fs.rm(targetDir, { recursive: true, force: true })
-        await fs.mkdir(targetDir, { recursive: true })
-
-        for (const [relative, data] of converted.files) {
-          const normalized = path.normalize(relative)
-          if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-          const target = path.join(targetDir, relative)
-          await fs.mkdir(path.dirname(target), { recursive: true })
-          await fs.writeFile(target, data as Uint8Array | string)
-        }
-        await fs.writeFile(
-          path.join(targetDir, '.source.json'),
-          JSON.stringify({
-            source: 'vscode',
-            coverage: converted.report.coverage,
-            translator: COMPAT_TRANSLATOR_VERSION,
-            // Para re-traducir sin el .vsix original guardado.
-            originalPath: request.path
-          })
-        )
+        const { targetDir } = await atomicInstall({
+          root,
+          id: converted.id,
+          files: converted.files,
+          extraFiles: {
+            '.source.json': JSON.stringify({
+              source: 'vscode',
+              coverage: converted.report.coverage,
+              translator: COMPAT_TRANSLATOR_VERSION,
+              // Para re-traducir sin el .vsix original guardado.
+              originalPath: request.path
+            })
+          }
+        })
 
         const contributes = manifest.contributes as Record<string, unknown> | undefined
         const countOf = (key: string): number =>
@@ -420,24 +423,20 @@ export function registerExtensionsIpc(): void {
             skipped.push(entry.name)
             continue
           }
-          await fs.rm(dir, { recursive: true, force: true })
-          await fs.mkdir(dir, { recursive: true })
-          for (const [relative, data] of converted.files) {
-            const normalized = path.normalize(relative)
-            if (normalized.includes('..') || path.isAbsolute(normalized)) continue
-            const target = path.join(dir, relative)
-            await fs.mkdir(path.dirname(target), { recursive: true })
-            await fs.writeFile(target, data as Uint8Array | string)
-          }
-          await fs.writeFile(
-            path.join(dir, '.source.json'),
-            JSON.stringify({
-              source: 'vscode',
-              coverage: converted.report.coverage,
-              translator: COMPAT_TRANSLATOR_VERSION,
-              originalPath: sidecar.originalPath
-            })
-          )
+          await shutdownExtensionHost(entry.name)
+          await atomicInstall({
+            root,
+            id: entry.name,
+            files: converted.files,
+            extraFiles: {
+              '.source.json': JSON.stringify({
+                source: 'vscode',
+                coverage: converted.report.coverage,
+                translator: COMPAT_TRANSLATOR_VERSION,
+                originalPath: sidecar.originalPath
+              })
+            }
+          })
           updated.push(entry.name)
         } catch {
           skipped.push(entry.name)

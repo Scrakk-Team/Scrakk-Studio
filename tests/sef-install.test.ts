@@ -94,6 +94,37 @@ describe('installSefFromBuffer', () => {
     await expect(fs.access(path.join(userData, 'extensions', 'demo'))).rejects.toThrow()
   })
 
+  it('actualiza sin dejar archivos de la versión anterior', async () => {
+    const first = await installSefFromBuffer(
+      sef({
+        'manifest.json': JSON.stringify({ id: 'demo', name: 'Demo', version: '1.0.0' }),
+        'old.txt': 'old'
+      })
+    )
+    expect(first.success).toBe(true)
+
+    const second = await installSefFromBuffer(
+      sef({
+        'manifest.json': JSON.stringify({ id: 'demo', name: 'Demo', version: '2.0.0' }),
+        'new.txt': 'new'
+      })
+    )
+    expect(second.success).toBe(true)
+    await expect(fs.access(path.join(userData, 'extensions', 'demo', 'new.txt'))).resolves.toBeUndefined()
+    await expect(fs.access(path.join(userData, 'extensions', 'demo', 'old.txt'))).rejects.toThrow()
+  })
+
+  it('escribe extraFiles dentro de la misma instalación', async () => {
+    const result = await installSefFromBuffer(
+      sef({ 'manifest.json': JSON.stringify({ id: 'demo', name: 'Demo', version: '1' }) }),
+      { extraFiles: { '.market.json': '{"slug":"demo"}' } }
+    )
+    expect(result.success).toBe(true)
+    await expect(
+      fs.readFile(path.join(userData, 'extensions', 'demo', '.market.json'), 'utf-8')
+    ).resolves.toContain('demo')
+  })
+
   it('rechaza un id con traversal', async () => {
     const result = await installSefFromBuffer(
       sef({ 'manifest.json': JSON.stringify({ id: '../evil', name: 'Evil', version: '1' }) })

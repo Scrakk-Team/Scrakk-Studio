@@ -1122,3 +1122,13 @@ and the backend. Each item names the exposed surface and what changed.
   `electron-builder.yml` and the macOS references from the install/update,
   security and permissions docs. The release pipeline already built only Linux
   and Windows; now the config cannot produce a macOS artifact by accident.
+- **Extension installs are atomic (#13).** The installer deleted the previous
+  extension before writing the new one, so a truncated package, a full disk or
+  an `EPERM` on Windows left the user with a broken install and no rollback.
+  `atomicInstall.ts` now stages inside the extensions root (same filesystem),
+  validates every entry, writes the package and its sidecars (`.source.json`,
+  `.market.json`) as one unit, then swaps with `rename` and restores the backup
+  if the swap fails. The extension host is shut down before the swap and stale
+  `.staging-*`/`.backup-*` directories are recovered/cleaned on boot. Real
+  filesystem tests cover update, empty package, mid-write failure, traversal,
+  sidecars and backup recovery. Adapted from PR #18 by CodeIbrah.
