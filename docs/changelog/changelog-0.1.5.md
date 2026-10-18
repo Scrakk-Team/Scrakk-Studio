@@ -221,6 +221,14 @@ published are not edited. The file goes per version:
   guide documents (`.woff2`) — was parsed as CSS, failed, and the UI kept its old
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
+- **Halloween Themes now ships the Halloween Night event**
+  (`halloween-themes@1.4.0`). The Storm background used to be a dark red sky with
+  two glow blobs; it is now a layered scene — blood moon with craters, drifting
+  cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
+  jack-o'-lanterns, cool fog and rising embers. A lightning strike briefly lights
+  the whole scene, and the soft layers render at half resolution so the
+  full-screen effect stays cheap. The Blood Cult surfaces are translucent so the
+  scene shows through.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
