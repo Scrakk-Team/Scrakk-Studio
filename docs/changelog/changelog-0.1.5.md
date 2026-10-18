@@ -463,6 +463,12 @@ published are not edited. The file goes per version:
   lowest and most centred button/input/`select`/`[data-overlay-anchor]`), so an
   effect lands on something instead of in the void. The core mounts and
   forwards; it has no idea what the component draws.
+- **The flap has depth now.** A flat up/down swing never reads as 3D. Each wing
+  rotates around its shoulder **and foreshortens** (0.62x at the near extreme) as
+  it comes toward the viewer, and the paint order follows the depth: the wing
+  that comes forward is drawn **in front of** the body, the one going back
+  **behind** it. The body still does not move — it is one still silhouette under
+  a pair of wings that sweep in and out of the screen.
 - **A single-path SVG can flap its wings.** A traced silhouette (potrace) has no
   separate wing paths, so `draw.wing` was unusable on it. New `draw.wingClip`
   (`[x0, x1]`, the body's x-range): the engine draws the body once and then

@@ -177,8 +177,13 @@ describe('sin canvas / sin Path2D / sin rAF', () => {
  */
 describe('aleteo: sólo el ala, el cuerpo quieto', () => {
   it('sin flapHz no hay ángulo de ala', () => {
-    expect(flapFrame(0, 1234)).toEqual({ rotation: 0, wingAngle: 0 })
-    expect(flapFrame(0, 1234, -8)).toEqual({ rotation: -8, wingAngle: 0 })
+    expect(flapFrame(0, 1234)).toEqual({ rotation: 0, wingAngle: 0, wingDepth: 0, wingScale: 1 })
+    expect(flapFrame(0, 1234, -8)).toEqual({
+      rotation: -8,
+      wingAngle: 0,
+      wingDepth: 0,
+      wingScale: 1
+    })
   })
 
   it('el ala oscila entre los dos extremos del batido', () => {
@@ -198,6 +203,17 @@ describe('aleteo: sólo el ala, el cuerpo quieto', () => {
         expect(flapFrame(hz, t, 12).rotation).toBe(12)
       }
     }
+  })
+
+  it('el ala se ACORTA cuando viene hacia el espectador (3D)', () => {
+    // A 1 Hz: t=250 el ala viene (+1), t=750 se va (-1).
+    const near = flapFrame(1, 250)
+    const far = flapFrame(1, 750)
+    expect(near.wingDepth).toBeCloseTo(1)
+    expect(far.wingDepth).toBeCloseTo(-1)
+    expect(near.wingScale).toBeCloseTo(0.62)
+    expect(far.wingScale).toBeCloseTo(1)
+    expect(near.wingScale).toBeLessThan(far.wingScale)
   })
 
   it('nunca deja el ala más allá de ±WING_SWING_DEG', () => {

@@ -424,10 +424,19 @@ export function flapFrame(
   flapHz: number,
   tMs: number,
   rotate0 = 0
-): { rotation: number; wingAngle: number } {
-  if (flapHz <= 0) return { rotation: rotate0, wingAngle: 0 }
+): { rotation: number; wingAngle: number; wingDepth: number; wingScale: number } {
+  if (flapHz <= 0) return { rotation: rotate0, wingAngle: 0, wingDepth: 0, wingScale: 1 }
   const phase = Math.sin((tMs / 1000) * Math.PI * 2 * flapHz)
-  return { rotation: rotate0, wingAngle: phase * WING_SWING_DEG }
+  return {
+    rotation: rotate0,
+    // Giro en el plano (sube/baja).
+    wingAngle: phase * WING_SWING_DEG,
+    // Profundidad: +1 = el ala viene hacia el espectador, -1 = se va.
+    wingDepth: phase,
+    // Escorzo: un ala que viene hacia vos se ve MÁS CORTA. Es lo que da la
+    // sensación de 3D (sin esto el aleteo es un recorte plano).
+    wingScale: 1 - 0.38 * (0.5 + 0.5 * phase)
+  }
 }
 
 function draw(): void {
@@ -493,33 +502,39 @@ function draw(): void {
       ctx.fillStyle = p.fill
       ctx.fill(p.shape.path)
       if (p.shape.wingClip) {
-        // Silueta única: el cuerpo ya se dibujó arriba, quieto. Cada ala es una
-        // MITAD del path recortada y rotada alrededor de su hombro — así se
-        // mueven las alas y NO el cuerpo, sin necesitar dos paths.
+        // Silueta única + ALETEO 3D. El cuerpo se dibuja UNA vez y quieto; cada
+        // ala es una MITAD del path, recortada, rotada sobre su hombro y
+        // ESCORZADA (más corta cuando viene hacia el espectador). El ORDEN
+        // depende de la profundidad: el ala que viene va DELANTE del cuerpo y la
+        // que se va queda DETRÁS — eso es lo que hace que se lea en 3D.
         const [bodyLeft, bodyRight] = p.shape.wingClip
         const [ax, ay] = p.shape.anchor
         const rad = (flap.wingAngle * Math.PI) / 180
-        // Izquierda (x < bodyLeft): +ángulo la sube.
-        ctx.save()
-        ctx.beginPath()
-        ctx.rect(-vbW, -vbH, bodyLeft + vbW, vbH * 3)
-        ctx.clip()
-        ctx.translate(ax, ay)
-        ctx.rotate(rad)
-        ctx.translate(-ax, -ay)
-        ctx.fill(p.shape.path)
-        ctx.restore()
-        // Derecha (x > bodyRight): espejo del pivote y del ángulo.
-        const mx = vbW - ax
-        ctx.save()
-        ctx.beginPath()
-        ctx.rect(bodyRight, -vbH, vbW, vbH * 3)
-        ctx.clip()
-        ctx.translate(mx, ay)
-        ctx.rotate(-rad)
-        ctx.translate(-mx, -ay)
-        ctx.fill(p.shape.path)
-        ctx.restore()
+        const paintWing = (left: boolean): void => {
+          ctx!.save()
+          ctx!.beginPath()
+          if (left) ctx!.rect(-vbW, -vbH, bodyLeft + vbW, vbH * 3)
+          else ctx!.rect(bodyRight, -vbH, vbW, vbH * 3)
+          ctx!.clip()
+          const px = left ? ax : vbW - ax
+          ctx!.translate(px, ay)
+          ctx!.rotate(left ? rad : -rad)
+          // Escorzo alrededor del hombro (no del centro de la forma).
+          ctx!.scale(flap.wingScale, 1)
+          ctx!.translate(-px, -ay)
+          ctx!.fill(p.shape!.path)
+          ctx!.restore()
+        }
+        const near = flap.wingDepth >= 0
+        if (near) {
+          ctx.fill(p.shape.path) // cuerpo atrás
+          paintWing(true)
+          paintWing(false)
+        } else {
+          paintWing(true) // alas atrás
+          paintWing(false)
+          ctx.fill(p.shape.path) // cuerpo delante
+        }
       } else if (p.shape.wing) {
         // El ala: derecha y su espejo, girando alrededor del hombro. Es la
         // ÚNICA parte que se mueve con `flapHz`.
@@ -527,7 +542,7 @@ function draw(): void {
         for (const side of [1, -1] as const) {
           ctx.save()
           ctx.translate(ax, ay)
-          ctx.scale(side, 1)
+          ctx.scale(side * flap.wingScale, 1)
           ctx.rotate((flap.wingAngle * side * Math.PI) / 180)
           ctx.translate(-ax, -ay)
           ctx.fill(p.shape.wing)
