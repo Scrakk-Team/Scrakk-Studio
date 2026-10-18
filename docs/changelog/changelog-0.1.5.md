@@ -1145,3 +1145,13 @@ and the backend. Each item names the exposed surface and what changed.
   `.staging-*`/`.backup-*` directories are recovered/cleaned on boot. Real
   filesystem tests cover update, empty package, mid-write failure, traversal,
   sidecars and backup recovery. Adapted from PR #18 by CodeIbrah.
+- **The terminal PTY is back after the one-shot bridge migration.** Four
+  internal call sites still read the bridge through a cast
+  (`(window as ...).api?.terminal`) instead of the captured `api` module:
+  `services/innerta/terminalSession.ts` (create/write/resize/destroy),
+  `services/innerta/viewFactory.ts` (resize),
+  `features/editor/engines/innerta/emojiFace.ts` (emoji font) and
+  `services/events/runtime.ts` (event assets). After `window.api` stopped
+  existing they received `null`, so the terminal showed
+  "Innerta Terminal (sin PTY — api no disponible)". They now use
+  `@services/api`; the PTY is created again.

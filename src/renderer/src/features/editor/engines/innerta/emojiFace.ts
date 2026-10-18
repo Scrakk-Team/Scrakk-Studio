@@ -33,6 +33,7 @@
  */
 
 import type { InnertaModule } from './InnertaEngine'
+import { api } from '@services/api'
 
 /** ¿El texto trae algún carácter de presentación EMOJI? (para ir a buscarla) */
 const EMOJI_PRESENTATION = /\p{Emoji_Presentation}/u
@@ -45,9 +46,7 @@ interface TerminalApi {
 }
 
 function getApi(): TerminalApi | null {
-  return (
-    (window as unknown as { api?: { terminal?: TerminalApi } }).api?.terminal ?? null
-  )
+  return (api?.terminal as TerminalApi | undefined) ?? null
 }
 
 /** La fuente, una sola vez por renderer (pesa ~10 MB). */

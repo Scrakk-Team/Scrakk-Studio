@@ -48,6 +48,7 @@ import {
   subscribeEventClock,
   subscribeTestingEvents
 } from './testing'
+import { api } from '@services/api'
 
 /** Cada cuánto se revisa si hay que activar o apagar algo. */
 const CHECK_INTERVAL_MS = 60_000
@@ -176,7 +177,7 @@ interface AppFsBridge {
 }
 
 function appFsBridge(): AppFsBridge | undefined {
-  return (window as unknown as { api?: { fs?: AppFsBridge } }).api?.fs
+  return api?.fs as AppFsBridge | undefined
 }
 
 /**

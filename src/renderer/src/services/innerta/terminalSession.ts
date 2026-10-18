@@ -24,6 +24,7 @@ import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { OscTitleParser } from './oscTitle'
 
 import { t } from '@core/i18n'
+import { api } from '@services/api'
 /** API del terminal expuesta por el preload (api.terminal). */
 interface TerminalApi {
   create: (req: { id: string; shell?: string; cwd?: string; cols: number; rows: number }) => Promise<unknown>
@@ -122,9 +123,7 @@ export async function listMonoFontFamilies(): Promise<string[]> {
 }
 
 function getTerminalApi(): TerminalApi | null {
-  return (
-    (window as unknown as { api?: { terminal?: TerminalApi } }).api?.terminal ?? null
-  )
+  return (api?.terminal as TerminalApi | undefined) ?? null
 }
 
 /** Misma key que el Explorer/workspaces: raíz del proyecto abierto. */
@@ -676,14 +675,14 @@ class TerminalSessionImpl implements LiveSession {
    */
   private async applyFont(view: InnertaViewHandle): Promise<void> {
     try {
-      const api = (window as unknown as { api?: { terminal?: TerminalApi } }).api?.terminal
+      const terminalApi = api?.terminal as TerminalApi | undefined
       const raw = view.module as unknown as Record<string, unknown>
       const fsApi = (raw as { FS?: { writeFile: (p: string, d: Uint8Array) => void } }).FS
 
       const family = this.effectiveFamily()
       const stack =
-        api?.getFontStack && fsApi
-          ? await api.getFontStack(family ? { family } : undefined)
+        terminalApi?.getFontStack && fsApi
+          ? await terminalApi.getFontStack(family ? { family } : undefined)
           : null
       if (this.disposed) return
 
@@ -701,7 +700,7 @@ class TerminalSessionImpl implements LiveSession {
       }
 
       // Sin cadena (o motor sin el export): la mono de siempre, o la embebida.
-      const single = api?.getMonoFont && fsApi ? await api.getMonoFont() : null
+      const single = terminalApi?.getMonoFont && fsApi ? await terminalApi.getMonoFont() : null
       if (this.disposed) return
       if (single?.data?.length && fsApi) {
         const path = '/fonts/terminal/system-mono.ttf'

@@ -14,6 +14,7 @@ import {
   createIsolatedInnertaModule
 } from '@features/editor/engines/innerta/innertaLoader'
 import type { InnertaModule } from '@features/editor/engines/innerta/InnertaEngine'
+import { api } from '@services/api'
 
 export type InnertaViewMode = 'custom' | 'editor' | 'terminal' | 'preview'
 export type InnertaViewOpts = {
@@ -219,10 +220,8 @@ export async function createInnertaView(
     },
     resize(cols: number, rows: number) {
       // Notificar al PTY (via IPC) — resize del shell real
-      const api = (window as unknown as { api?: { terminal?: {
-        resize: (r: unknown) => Promise<void>
-      } } }).api?.terminal
-      if (api) void api.resize({ id, cols, rows })
+      const terminalApi = api?.terminal
+      if (terminalApi) void terminalApi.resize({ id, cols, rows })
       // Tambien resizear el VtParser en WASM para que PTY y grid
       // SIEMPRE tengan las mismas dimensiones.
       const rawResize = (rawByViewId.get(id) ?? getInnertaRawModule()) as Record<string, unknown> | null
