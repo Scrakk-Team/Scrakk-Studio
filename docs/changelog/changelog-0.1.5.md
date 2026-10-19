@@ -222,7 +222,7 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.5`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.6`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
   cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
   orange jack-o'-lanterns with light only in their eyes and mouth, cool fog and
@@ -232,9 +232,11 @@ published are not edited. The file goes per version:
   low-alpha glass surfaces and a cool accent, so the scene shows through the
   whole UI. The theme itself declares the Storm scene as its `background`
   overlay **and sets `glass: false`**, so selecting **Halloween Glass** manually
-  brings the background without the blur. A lightning strike briefly lights the
-  scene, and the soft layers render at half resolution so the full-screen effect
-  stays cheap.
+  brings the background without the blur. Lightning strikes still come from the
+  top but land at a random X around the anchor, and the permanent center bolt is
+  gone, so a click no longer draws two bolts. A strike briefly lights the scene,
+  and the soft layers render at half resolution so the full-screen effect stays
+  cheap.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
