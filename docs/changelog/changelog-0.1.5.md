@@ -119,6 +119,14 @@ published are not edited. The file goes per version:
   window paints — used by all three platforms.
 
 ### Status bar (UI)
+- **The notifications popover now uses the workspaces pagination.** The list was
+  already split into pages of five, but the pager sat in a sticky footer with text
+  glyphs (`‹ ›`) and bordered buttons, so next to the workspaces one it read as a
+  different control. It now uses the same header: the title on the left, a compact
+  `‹ 1 / N ›` with chevron icons on the right and the counter in the middle. The
+  popover's own header is hidden so the title is not painted twice, the page index
+  is clamped when the list shrinks (dismissing notifications) and the pager stays
+  hidden on a single page. The empty state keeps the header.
 - **The errors/warnings chip now sits to the right of the commits chip.** It was
   to its left, so the problems count and the Git branch appeared in the opposite
   order from what was expected; the row now reads LSP · commits · problems ·
