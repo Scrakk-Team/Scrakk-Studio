@@ -7,11 +7,37 @@
 /* Historial de notificaciones (popover anclado). Mismo lenguaje que las
    cards del host: acento de severidad abajo, fondo surface. */
 
-.list {
+.panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Cabecera propia + paginador (mismo esquema que workspaces) ─────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  /* Chrome del popover: cancela el padding superior del panel y sangra a los
+     bordes, igual que la cabecera que pinta el host. */
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3)) 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
 
 .sectionTitle {
@@ -125,32 +151,24 @@
   color: var(--color-text);
 }
 
-/* ── Paginador (pie del popover) ─────────────────────────────────────────── */
+/* ── Paginador (en la cabecera, como workspaces) ─────────────────────────── */
 
 .pager {
-  position: sticky;
-  bottom: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  margin: var(--space-1) calc(-1 * var(--space-3)) calc(-1 * var(--space-3));
-  padding: var(--space-2) 0;
-  background: var(--color-surface-raised);
-  border-top: 1px solid var(--color-border);
+  gap: 2px;
 }
 
 .pagerBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--color-border);
+  width: 22px;
+  height: 22px;
+  border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 16px;
   line-height: 1;
   cursor: pointer;
 }
@@ -166,9 +184,9 @@
 }
 
 .pagerLabel {
+  min-width: 34px;
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-  min-width: 44px;
   text-align: center;
 }
 

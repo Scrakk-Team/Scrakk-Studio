@@ -96,10 +96,6 @@ export function NotificationsHistoryPanel(): JSX.Element {
   const active = notificationRegistry.list()
   const past = notificationRegistry.history()
 
-  if (active.length === 0 && past.length === 0) {
-    return <p className={styles.empty}>{t('features.sin.notificaciones.todavia')}</p>
-  }
-
   // Activas primero, luego el historial: UNA sola lista paginada. El título de
   // cada grupo se pinta cuando el grupo cambia dentro de la página.
   const items: PanelItem[] = [
@@ -111,65 +107,76 @@ export function NotificationsHistoryPanel(): JSX.Element {
   const visible = items.slice(current * PAGE_SIZE, current * PAGE_SIZE + PAGE_SIZE)
 
   return (
-    <div className={styles.list}>
-      {visible.map((item, index) => {
-        const startsGroup = index === 0 || visible[index - 1].kind !== item.kind
-        const key =
-          item.kind === 'active'
-            ? `active-${item.notification.id}`
-            : `past-${item.entry.id}-${item.entry.dismissedAt}`
-        return (
-          <Fragment key={key}>
-            {startsGroup ? (
-              <div className={styles.sectionHead}>
-                <h3 className={styles.sectionTitle}>
-                  {item.kind === 'active' ? t('features.activas') : t('features.historial')}
-                </h3>
-                {item.kind === 'past' ? (
-                  <button
-                    type="button"
-                    className={styles.clearBtn}
-                    onClick={() => clearNotificationHistory()}
-                  >
-                    {t('features.limpiar')}
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-            {item.kind === 'active' ? (
-              <ActiveRow notification={item.notification} />
-            ) : (
-              <HistoryRow entry={item.entry} />
-            )}
-          </Fragment>
-        )
-      })}
+    <div className={styles.panel}>
+      {/* Cabecera propia (el spec va con hideHeader): el paginador queda
+          alineado con el título, igual que en el historial de workspaces. */}
+      <div className={styles.header}>
+        <span className={styles.headerTitle}>{t('statusbar.notificaciones')}</span>
+        {pageCount > 1 ? (
+          <div className={styles.pager}>
+            <button
+              type="button"
+              className={styles.pagerBtn}
+              disabled={current === 0}
+              aria-label={t('features.pagina.anterior')}
+              onClick={() => setPage(Math.max(0, current - 1))}
+            >
+              <ProductIcon id="chevron-right" size={12} style={{ transform: 'rotate(180deg)' }} />
+            </button>
+            <span className={styles.pagerLabel}>
+              {current + 1} / {pageCount}
+            </span>
+            <button
+              type="button"
+              className={styles.pagerBtn}
+              disabled={current === pageCount - 1}
+              aria-label={t('features.pagina.siguiente')}
+              onClick={() => setPage(Math.min(pageCount - 1, current + 1))}
+            >
+              <ProductIcon id="chevron-right" size={12} />
+            </button>
+          </div>
+        ) : null}
+      </div>
 
-      {pageCount > 1 ? (
-        <div className={styles.pager}>
-          <button
-            type="button"
-            className={styles.pagerBtn}
-            disabled={current === 0}
-            aria-label={t('features.pagina.anterior')}
-            onClick={() => setPage(Math.max(0, current - 1))}
-          >
-            ‹
-          </button>
-          <span className={styles.pagerLabel}>
-            {current + 1} / {pageCount}
-          </span>
-          <button
-            type="button"
-            className={styles.pagerBtn}
-            disabled={current === pageCount - 1}
-            aria-label={t('features.pagina.siguiente')}
-            onClick={() => setPage(Math.min(pageCount - 1, current + 1))}
-          >
-            ›
-          </button>
-        </div>
+      {visible.length === 0 ? (
+        <p className={styles.empty}>{t('features.sin.notificaciones.todavia')}</p>
       ) : null}
+
+      <div className={styles.list}>
+        {visible.map((item, index) => {
+          const startsGroup = index === 0 || visible[index - 1].kind !== item.kind
+          const key =
+            item.kind === 'active'
+              ? `active-${item.notification.id}`
+              : `past-${item.entry.id}-${item.entry.dismissedAt}`
+          return (
+            <Fragment key={key}>
+              {startsGroup ? (
+                <div className={styles.sectionHead}>
+                  <h3 className={styles.sectionTitle}>
+                    {item.kind === 'active' ? t('features.activas') : t('features.historial')}
+                  </h3>
+                  {item.kind === 'past' ? (
+                    <button
+                      type="button"
+                      className={styles.clearBtn}
+                      onClick={() => clearNotificationHistory()}
+                    >
+                      {t('features.limpiar')}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+              {item.kind === 'active' ? (
+                <ActiveRow notification={item.notification} />
+              ) : (
+                <HistoryRow entry={item.entry} />
+              )}
+            </Fragment>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -63,6 +63,9 @@ export function StatusBar({ onOpenSettings }: StatusBarProps): JSX.Element {
       title: t('statusbar.notificaciones'),
       anchor,
       width: 300,
+      // La cabecera la pinta el panel: así el paginador va alineado con el
+      // título y comparte estado con la lista (mismo esquema que workspaces).
+      hideHeader: true,
       render: () => <NotificationsHistoryPanel />
     })
   }
