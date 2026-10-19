@@ -222,21 +222,23 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.7`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.8`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
-  cloud banks, rain, bats, a haunted house, a chapel, dead trees, tombstones,
-  orange jack-o'-lanterns with light only in their eyes and mouth, cool fog and
-  rising embers. The event no longer opens the red accent `stage.fog` that
-  painted those two blobs over the scene (the background has its own cool fog).
-  It also forces the pack's **Halloween Glass** theme: a transparent base with
-  low-alpha glass surfaces and a cool accent, so the scene shows through the
-  whole UI. The theme itself declares the Storm scene as its `background`
-  overlay **and sets `glass: false`**, so selecting **Halloween Glass** manually
-  brings the background without the blur. Lightning strikes still come from the
-  top but land at a visibly random X (12–36 % to either side of the anchor), and
-  the permanent center bolt is gone, so a click no longer draws two bolts. A
-  strike briefly lights the scene, and the soft layers render at half resolution
-  so the full-screen effect stays cheap.
+  cloud banks, rain, bats, a haunted house, a chapel, a small cemetery on the
+  hillside (fence, crypt, tilted stones and crosses), cool fog and rising embers.
+  The jack-o'-lanterns are orange and shaded — projected ground shadow, radial
+  body shading and a stem shadow — with light only in their eyes and mouth. The
+  event no longer opens the red accent `stage.fog` that painted those two blobs
+  over the scene (the background has its own cool fog). It also forces the pack's
+  **Halloween Glass** theme: a transparent base with low-alpha glass surfaces and
+  a cool accent, so the scene shows through the whole UI. The theme itself
+  declares the Storm scene as its `background` overlay **and sets
+  `glass: false`**, so selecting **Halloween Glass** manually brings the
+  background without the blur. Lightning strikes still come from the top but
+  land at a visibly random X (12–36 % to either side of the anchor), and the
+  permanent center bolt is gone, so a click no longer draws two bolts. A strike
+  briefly lights the scene, and the soft layers render at half resolution so the
+  full-screen effect stays cheap.
 
 ### Notes
 - **A note now carries its own config.** Each note is **global** (visible in
