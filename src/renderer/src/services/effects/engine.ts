@@ -526,14 +526,23 @@ function draw(): void {
           ctx!.restore()
         }
         const near = flap.wingDepth >= 0
+        const bodyPath = p.shape.path
+        const paintBody = (): void => {
+          ctx!.save()
+          ctx!.beginPath()
+          ctx!.rect(bodyLeft, -vbH, bodyRight - bodyLeft, vbH * 3)
+          ctx!.clip()
+          ctx!.fill(bodyPath)
+          ctx!.restore()
+        }
         if (near) {
-          ctx.fill(p.shape.path) // cuerpo atrás
+          paintBody() // cuerpo atrás
           paintWing(true)
           paintWing(false)
         } else {
           paintWing(true) // alas atrás
           paintWing(false)
-          ctx.fill(p.shape.path) // cuerpo delante
+          paintBody() // cuerpo delante
         }
       } else if (p.shape.wing) {
         // El ala: derecha y su espejo, girando alrededor del hombro. Es la
