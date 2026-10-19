@@ -222,10 +222,10 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.8`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.9`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — blood moon with craters, drifting
   cloud banks, rain, bats, a haunted house, a chapel, a small cemetery on the
-  hillside (fence, crypt, tilted stones and crosses), cool fog and rising embers.
+  hillside (fence, crypt, solid tilted stones and crosses), cool fog and rising embers.
   The jack-o'-lanterns are orange and shaded — projected ground shadow, radial
   body shading and a stem shadow — with light only in their eyes and mouth. The
   event no longer opens the red accent `stage.fog` that painted those two blobs
