@@ -18,6 +18,7 @@
 
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import {
+  buttonPosition,
   moveButton,
   restoreButtonLayout,
   snapshotButtonLayout,
@@ -112,6 +113,11 @@ export function startButtonDrag(
   const startX = event.clientX
   const startY = event.clientY
   const snapshot = snapshotButtonLayout()
+  // Lado en el que vivía el botón al empezar: sirve para distinguir "reordené
+  // dentro de la barra" de "lo llevé a otro lado". La barra mide 48px, así que
+  // el puntero se sale con facilidad; soltar fuera NO debe deshacer un reorden
+  // interno (era la causa de que el botón volviera a su sitio "a veces").
+  const startSide = buttonPosition(id)?.side ?? null
   let dragging = false
   let changed = false
 
@@ -169,8 +175,11 @@ export function startButtonDrag(
       finish(false)
       return
     }
-    // Fuera de las barras: se deshace el drag (nunca queda "perdido").
-    finish(true)
+    // Fuera de las barras: si el botón sigue en el lado donde nació, el
+    // reorden interno se queda como se vio; si ya había saltado a otra barra o
+    // al dock, se cancela el cambio de lado.
+    const currentSide = buttonPosition(id)?.side ?? null
+    finish(startSide !== null && currentSide !== startSide)
   }
 
   function onCancel(): void {
