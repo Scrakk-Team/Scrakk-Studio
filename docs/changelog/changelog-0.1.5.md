@@ -228,9 +228,16 @@ published are not edited. The file goes per version:
   move used to be applied only from `pointermove`, so a fast drag that released
   over the dock (or a bar) without an intermediate move at that exact spot left
   the button in the bar while the pointer was already over the target. The drop
-  is now resolved again from the **release point**, and if the button is released
-  outside the bars the layout from the start of the drag is restored — a button
-  never ends up in a place that is not visible ("lost in the void").
+  is now resolved again from the **release point**; releasing outside the bars
+  cancels a **cross-side** move (the button returns to the bar/dock it came
+  from) but keeps an in-bar reorder.
+- **A reorder no longer snaps back when the pointer leaves the bar.** The bar is
+  only 48px wide, so the cursor often leaves it by a few pixels during a vertical
+  drag; the "dropped outside = cancel" rule then restored the start layout and
+  the button returned to its old slot — it looked like dragging only worked
+  "when it felt like it". A drop outside now keeps the position when the button
+  stayed on the side where it started; the restore only applies when the button
+  had already jumped to another bar or the dock.
 - **Both drags share one controller** (`features/activitybar/buttonDrag.ts`).
   The ActivityBar and the ToolDock had two copies of the same logic that
   disagreed on where the indices came from (the bar read a ref map in mount
