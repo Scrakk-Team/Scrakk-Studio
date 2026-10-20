@@ -479,12 +479,11 @@
   width: 100%;
   border: none;
   border-radius: var(--radius-md);
-  background: var(--color-bg);
+  background: var(--color-surface);
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--text-sm);
   outline: none;
-  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .input {
@@ -509,16 +508,8 @@
   cursor: pointer;
 }
 
-.input:focus,
-.textarea:focus {
-  background: var(--color-surface);
-}
-
-.select:hover,
-.select:focus-visible,
-.select[aria-expanded='true'] {
-  background: var(--color-surface);
-}
+/* Sin estados de foco/hover: el campo se ve activo siempre y el click no
+   dispara una transición de fondo. */
 
 .selectLabel {
   flex: 1;
