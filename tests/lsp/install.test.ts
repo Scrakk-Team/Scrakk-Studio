@@ -165,8 +165,8 @@ describe('safeArchivePath (zip-slip)', () => {
   const dest = '/home/dev/.scrakk/lsp/server'
 
   it('acepta entradas relativas dentro del destino', () => {
-    expect(safeArchivePath(dest, 'bin/server')).toBe(path.join(dest, 'bin/server'))
-    expect(safeArchivePath(dest, 'LICENSE')).toBe(path.join(dest, 'LICENSE'))
+    expect(safeArchivePath(dest, 'bin/server')).toBe(path.resolve(dest, 'bin/server'))
+    expect(safeArchivePath(dest, 'LICENSE')).toBe(path.resolve(dest, 'LICENSE'))
   })
 
   it('rechaza `..`, rutas absolutas y unidades de Windows', () => {

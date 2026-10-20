@@ -132,7 +132,7 @@
   "main.o.pon.su.directorio.en": "Or add its directory to your PATH (it also checks for ~/.local/bin, nvm, fnm, volta, snap, and linuxbrew).",
   "main.operacion.cancelada": "Operation canceled",
   "main.otp.demasiados.intentos": "Too many attempts. Try again in {minutes} min.",
-  "main.otp.espera": "Wait {seconds}s before requesting another code.",
+  "main.otp.espera": "Wait {seconds} s before requesting another code.",
   "main.payload.incompleto": "Incomplete payload",
   "main.payload.incompleto.path.text.encoding": "Incomplete payload (path/text/encoding)",
   "main.pon.tu.nombre": "Enter your name",

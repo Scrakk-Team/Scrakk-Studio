@@ -12627,6 +12627,270 @@
       "needsReview": false,
       "at": "2026-10-20T02:37:55.082902Z",
       "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "appearance.filter.creator": {
+      "src": "7d6397b4852e7a80",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.filter.all": {
+      "src": "bd02b9a7d71dac67",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.filter.empty": {
+      "src": "6cc9f3df649e2e48",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.sort.label": {
+      "src": "ee5a03bdd90a3c06",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.sort.creator": {
+      "src": "7d6397b4852e7a80",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.sort.version": {
+      "src": "2356f2a5f656dcd5",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.sort.name": {
+      "src": "7ae954771946edd0",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.filter.extension": {
+      "src": "b19cc0c0282a5136",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "appearance.filter.all.extensions": {
+      "src": "aff4d19d6ee43b20",
+      "area": "appearance",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.desinstalar.no.disponible": {
+      "src": "95c63d4a35234f24",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.desinstalar.ejecuta.manual": {
+      "src": "693d559c23136a35",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.desinstalar.sin.desinstalador": {
+      "src": "9332f533f74a0369",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.cancelada": {
+      "src": "c5a46cf522978ead",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.consentimiento.cancelar": {
+      "src": "bb9dbb406dcbd524",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.consentimiento.instalar": {
+      "src": "d3e3cdbc06b61ded",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.consentimiento.mensaje": {
+      "src": "fcddc5c28b38412f",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.consentimiento.titulo": {
+      "src": "32e15ac2ab79b186",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ext.sin.permisos": {
+      "src": "369ec4c28aeb86b4",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.falta.la.api.key": {
+      "src": "bd2e28d342a69349",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.otp.demasiados.intentos": {
+      "src": "88e14a3626c698c7",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.otp.espera": {
+      "src": "d5632215c2130199",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.ruta.sensible.protegida": {
+      "src": "13ed0a5a7bda469e",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.trust.cancelar": {
+      "src": "e0edfa867419fccc",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.trust.confiar": {
+      "src": "18a893531751ae27",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.trust.denegado": {
+      "src": "bb2e23d7274cba68",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.trust.mensaje": {
+      "src": "e0d60bbb94fe8826",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "main.trust.titulo": {
+      "src": "d07cf576b9d1efdd",
+      "area": "main",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "market.form.zone.info": {
+      "src": "7263ec8c2d08c2c0",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "market.form.zone.repo": {
+      "src": "85477234e6b322bb",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "market.form.zone.meta": {
+      "src": "040112f28c8dfaf1",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "market.form.zone.media": {
+      "src": "9b2274d648272eee",
+      "area": "market",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "settings.desinstalar.confirmar.titulo": {
+      "src": "9647a509f2e91312",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "settings.desinstalar.confirmar.detalle": {
+      "src": "843fdb892cdd99f6",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T18:14:46.375Z",
+      "approvedAt": "2026-10-20T18:14:46.375Z"
     }
   },
   "version": 1

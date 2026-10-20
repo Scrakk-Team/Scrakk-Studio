@@ -77,7 +77,8 @@ describe('llm/apiKeys', () => {
     expect(raw).not.toContain('sk-secret-value')
     expect(JSON.parse(raw).encrypted).toBe(true)
     const stat = await fs.stat(file)
-    expect(stat.mode & 0o777).toBe(0o600)
+    // Windows no modela permisos POSIX (siempre 0o666).
+    if (process.platform !== 'win32') expect(stat.mode & 0o777).toBe(0o600)
   })
 
   it('sin keyring NO persiste la key en disco (solo memoria)', async () => {

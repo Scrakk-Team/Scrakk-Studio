@@ -18,6 +18,9 @@ import { buildNetworkSandbox } from '../src/main/extensions/osSandbox'
 
 const run = promisify(execFile)
 
+/** `buildSandboxPolicy` resuelve cada ruta: comparamos contra lo resuelto. */
+const P = (value: string): string => path.resolve(value)
+
 const base = {
   extensionPath: '/opt/ext',
   workspaceRoots: ['/home/dev/project'],
@@ -46,29 +49,29 @@ describe('buildSandboxPolicy', () => {
     expect(policy.driver).toBe('node-permission')
     expect(flags(policy)).toContain('--permission')
     expect(flags(policy)).not.toContain('--allow-child-process')
-    expect(prefixes(policy, '--allow-fs-read=')).toContain('--allow-fs-read=/opt/ext')
+    expect(prefixes(policy, '--allow-fs-read=')).toContain(`--allow-fs-read=${P('/opt/ext')}`)
     expect(prefixes(policy, '--allow-fs-read=')).not.toContain(
-      '--allow-fs-read=/home/dev/project'
+      `--allow-fs-read=${P('/home/dev/project')}`
     )
     expect(prefixes(policy, '--allow-fs-write=')).not.toContain(
-      '--allow-fs-write=/home/dev/project'
+      `--allow-fs-write=${P('/home/dev/project')}`
     )
   })
 
   it('fs.read habilita lectura del workspace, no escritura', () => {
     const policy = buildSandboxPolicy({ ...base, permissions: ['fs.read'] })
     expect(prefixes(policy, '--allow-fs-read=')).toContain(
-      '--allow-fs-read=/home/dev/project'
+      `--allow-fs-read=${P('/home/dev/project')}`
     )
     expect(prefixes(policy, '--allow-fs-write=')).not.toContain(
-      '--allow-fs-write=/home/dev/project'
+      `--allow-fs-write=${P('/home/dev/project')}`
     )
   })
 
   it('fs.write habilita escritura del workspace', () => {
     const policy = buildSandboxPolicy({ ...base, permissions: ['fs.write'] })
     expect(prefixes(policy, '--allow-fs-write=')).toContain(
-      '--allow-fs-write=/home/dev/project'
+      `--allow-fs-write=${P('/home/dev/project')}`
     )
   })
 
@@ -81,8 +84,8 @@ describe('buildSandboxPolicy', () => {
 
   it('fs.all agrega el home (lectura y escritura)', () => {
     const policy = buildSandboxPolicy({ ...base, permissions: ['fs.all'] })
-    expect(prefixes(policy, '--allow-fs-read=')).toContain('--allow-fs-read=/home/dev')
-    expect(prefixes(policy, '--allow-fs-write=')).toContain('--allow-fs-write=/home/dev')
+    expect(prefixes(policy, '--allow-fs-read=')).toContain(`--allow-fs-read=${P('/home/dev')}`)
+    expect(prefixes(policy, '--allow-fs-write=')).toContain(`--allow-fs-write=${P('/home/dev')}`)
   })
 
   it('no permite addons ni WASI', () => {
