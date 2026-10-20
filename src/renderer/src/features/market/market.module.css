@@ -536,14 +536,13 @@
 }
 
 .mediaRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: var(--space-3);
 }
 
 .mediaRow > .field {
-  flex: 1 1 180px;
   min-width: 0;
 }
 

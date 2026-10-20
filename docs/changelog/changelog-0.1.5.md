@@ -447,8 +447,9 @@ published are not edited. The file goes per version:
   native select). The form follows the Git panel's calm layout: fields sit in
   **Information / Repository / Metadata / Media** zones, labels are sentence
   case (no uppercase), rows wrap in the narrow panel, and the icon/screenshots
-  share a media row. The image controls are horizontal surface buttons with a
-  plus (the Notes/Git treatment) and the remove buttons are small icon-only chips.
+  share a fixed two-column media row, so the icon and screenshot upload
+  controls sit side by side. They are horizontal surface buttons with a plus
+  (the Notes/Git treatment) and the remove buttons are small icon-only chips.
   The global chevrons, settings selectors and context-menu styles are untouched.
 - **A repository can now host several extensions, each with its own version.**
   The store resolved `owner/repo` → *the latest release* → the `.sef`; with a
