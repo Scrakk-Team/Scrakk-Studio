@@ -90,7 +90,9 @@ export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
   section('shortcuts', 'settings.nav.shortcuts', 'keyboard', ShortcutsSection),
   section('servers', 'settings.nav.servers', 'server', ServersSection, 'editor'),
   section('highlight', 'settings.nav.highlight', 'code', HighlightSection, 'editor'),
-  section('terminal', 'settings.nav.terminal', 'terminal', TerminalSection),
+  // Oculto a pedido: el selector de fuente era su único contenido. El setting
+  // persistido y el código quedan (nada que lo lea se rompe); sólo no se navega.
+  hiddenSection('terminal', 'settings.nav.terminal', 'terminal', TerminalSection),
   section('extensions', 'settings.nav.extensions', 'extensions', ExtensionsSection),
   // Oculto por pedido (queda el código, no se muestra en el nav).
   hiddenSection('performance', 'settings.nav.performance', 'chart', PerformanceSection),
