@@ -60,9 +60,8 @@
 
 /* ── Buscador ───────────────────────────────────────────────────────────── */
 
-/* Sin franja ni sangrado: el "fondo exterior" del sticky (márgenes negativos +
-   surface-raised) quedaba como una banda con los bordes cortados. Es un campo
-   normal, con el mismo borde que los inputs del resto de Ajustes. */
+/* Sin franja ni sangrado (el sticky con márgenes negativos se veía cortado).
+   El campo es igual al buscador de Temas: SIN borde, relleno sobre el fondo. */
 .searchWrap {
   display: flex;
 }
@@ -70,19 +69,15 @@
 .searchInput {
   flex: 1;
   min-width: 0;
-  height: 36px;
+  height: 40px;
   padding: 0 var(--space-3);
-  border: 1px solid var(--color-border);
+  border: none;
   border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: inherit;
   font-size: var(--text-sm);
   outline: none;
-}
-
-.searchInput:focus {
-  border-color: var(--color-accent);
 }
 
 .searchInput::placeholder {
