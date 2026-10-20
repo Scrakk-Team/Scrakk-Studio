@@ -83,6 +83,8 @@ if (!gotTheLock) {
     // GLOBAL, sin pasar por el DOM, así que ningún preventDefault del renderer
     // los frena y zoomeaban el IDE ENTERO. Además el zoom de página se guarda
     // por origen en el perfil y sobrevive al reinicio.
+    // Los atajos útiles de ese menú (Recargar, DevTools, F11) se reponen en
+    // `main-window.ts` con `before-input-event`, sin volver a habilitar el zoom.
     Menu.setApplicationMenu(null)
     // .env local (R2 y dev): el entorno real siempre gana.
     loadLocalEnv()

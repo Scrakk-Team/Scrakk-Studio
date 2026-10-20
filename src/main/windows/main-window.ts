@@ -119,17 +119,40 @@ export function createMainWindow(): BrowserWindow {
     if (!window.isDestroyed()) window.webContents.setZoomFactor(1)
   })
 
-  // Bloqueo extra de atajos de DevTools en el build entregado (F12,
-  // Ctrl/Cmd+Shift+I/J/C). Además del devTools:false de arriba.
-  if (app.isPackaged) {
-    window.webContents.on('before-input-event', (event, input) => {
-      const key = input.key.toLowerCase()
-      const combo = input.control || input.meta
-      if (key === 'f12' || (combo && input.shift && (key === 'i' || key === 'j' || key === 'c'))) {
-        event.preventDefault()
-      }
-    })
-  }
+  // `Menu.setApplicationMenu(null)` (ver main/index.ts) se llevó también los
+  // aceleradores que traía el menú POR DEFECTO de Electron: Recargar
+  // (Ctrl+R / F5), Recargar sin caché (Ctrl+Shift+R), DevTools (Ctrl+Shift+I /
+  // F12) y Pantalla completa (F11). Se reponen acá — sin los roles de zoom,
+  // que eran el motivo de quitar el menú — para que el flujo de desarrollo
+  // siga funcionando sin volver a habilitar el zoom de página.
+  window.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') return
+    const key = input.key.toLowerCase()
+    // Ctrl+Alt+… es el espacio de atajos de la app: no se toca.
+    const primary = input.control && !input.alt
+
+    // DevTools: se abren en dev y se bloquean en el build entregado (además
+    // del `devTools: false` de webPreferences).
+    if (key === 'f12' || (primary && input.shift && (key === 'i' || key === 'j' || key === 'c'))) {
+      event.preventDefault()
+      if (!app.isPackaged && !window.isDestroyed()) window.webContents.toggleDevTools()
+      return
+    }
+
+    // Recargar (Ctrl+R / F5) y sin caché (Ctrl+Shift+R / Shift+F5).
+    if ((primary && key === 'r') || key === 'f5') {
+      event.preventDefault()
+      if (window.isDestroyed()) return
+      if (input.shift) window.webContents.reloadIgnoringCache()
+      else window.webContents.reload()
+      return
+    }
+
+    if (key === 'f11' && !primary) {
+      event.preventDefault()
+      if (!window.isDestroyed()) window.setFullScreen(!window.isFullScreen())
+    }
+  })
 
   // Notificar al renderer los cambios de maximizado (ícono max/restore).
   const notifyMaximized = (): void => {
