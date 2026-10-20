@@ -181,14 +181,19 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
             {iconUrl ? (
               <div className={styles.image}>
                 <img src={iconUrl} alt="" />
-                <button type="button" className={styles.imageRemove} onClick={() => setIconUrl('')}>
-                  ×
+                <button
+                  type="button"
+                  className={styles.imageRemove}
+                  aria-label={t('common.cerrar')}
+                  onClick={() => setIconUrl('')}
+                >
+                  <ProductIcon id="close" size={10} aria-hidden="true" />
                 </button>
               </div>
             ) : null}
-            <label className={styles.ghost}>
-              <ProductIcon id="plus" size={13} />
-              {t('market.form.subir')}
+            <label className={styles.uploadTile}>
+              <ProductIcon id="plus" size={16} />
+              <span>{t('market.form.subir')}</span>
               <input
                 type="file"
                 accept="image/*"
@@ -210,16 +215,17 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
               <button
                 type="button"
                 className={styles.imageRemove}
+                aria-label={t('common.cerrar')}
                 onClick={() => setScreenshots((prev) => prev.filter((s) => s !== src))}
               >
-                ×
+                <ProductIcon id="close" size={10} aria-hidden="true" />
               </button>
             </div>
           ))}
           {screenshots.length < MARKET_MAX_SCREENSHOTS ? (
-            <label className={styles.ghost}>
-              <ProductIcon id="plus" size={13} />
-              {t('market.form.subir')}
+            <label className={styles.uploadTile}>
+              <ProductIcon id="plus" size={16} />
+              <span>{t('market.form.subir')}</span>
               <input
                 type="file"
                 accept="image/*"

@@ -573,15 +573,17 @@
 .images {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: flex-start;
+  gap: var(--space-2);
 }
 
 .image {
   position: relative;
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-sm);
+  width: 76px;
+  height: 76px;
+  border-radius: var(--radius-input);
   border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
   overflow: hidden;
 }
 
@@ -591,20 +593,65 @@
   object-fit: cover;
 }
 
+/* Misma pieza que el botón "+" de Notas: superficie, icono y texto, sin
+   pastilla flotante. */
+.uploadTile {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 76px;
+  height: 76px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.uploadTile:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.uploadTile svg {
+  color: var(--color-text-secondary);
+}
+
 .imageRemove {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
   display: inline-flex;
   width: 18px;
   height: 18px;
   align-items: center;
   justify-content: center;
-  border: none;
+  padding: 0;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-capsule);
-  background: color-mix(in srgb, var(--color-danger) 85%, transparent);
-  color: #fff;
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-text-secondary);
   cursor: pointer;
+}
+
+.imageRemove:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-hover);
+  color: var(--color-text);
 }
 
 .hint {
