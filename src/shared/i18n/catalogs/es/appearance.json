@@ -14,5 +14,14 @@
   "appearance.base.note": "Usando el tema base de la app.",
   "appearance.language.label": "Idioma de la interfaz",
   "appearance.language.hint": "Se aplica al instante. El español es la base; el inglés se completa por lotes.",
-  "appearance.language.aria": "Idioma de la interfaz"
+  "appearance.language.aria": "Idioma de la interfaz",
+  "appearance.filter.creator": "Creador",
+  "appearance.filter.all": "Todos",
+  "appearance.filter.empty": "Ningún tema coincide con los filtros.",
+  "appearance.sort.label": "Organizar por",
+  "appearance.sort.creator": "Creador",
+  "appearance.sort.version": "Última versión",
+  "appearance.sort.name": "Abecedario",
+  "appearance.filter.extension": "Extensión",
+  "appearance.filter.all.extensions": "Todas"
 }

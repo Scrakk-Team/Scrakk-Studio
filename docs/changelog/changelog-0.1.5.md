@@ -439,6 +439,22 @@ published are not edited. The file goes per version:
   unregisters it before registering the new one.
 
 ### Extension store
+- **You can edit a published extension from its page.** The "mine" list had an
+  icon-only button (a refresh glyph, no label) and the store page had no way back
+  into the form, so changing the icon or a screenshot meant deleting and
+  re-creating the listing. The editor state moved into the market context
+  (`openEditor` / `closeEditor`), the list button is now a **pencil with a
+  label**, and the ficha of your own extension has an explicit **"Editar
+  extensión"** that opens **the same publish form**, pre-filled — images and icon
+  included — and saves by `id` instead of creating a new one. The form renders
+  above the detail, so closing it drops you back on the ficha.
+- **The extension page shows the icon, not a frame around it.** The detail view
+  painted the icon over `--color-surface` with the system radius, so a pack that
+  ships a transparent PNG (a circle, a logo) showed up inside a rounded square —
+  a background plus a visible edge that was never part of the artwork. The icon is
+  now drawn bare (`object-fit: contain`, no background, no border), so what you
+  see is exactly the image the pack shipped.
+
 - **The store search and publish form now follow the Settings language.** The
   search matches the Appearance theme search field. Every field inside the
   publish/install form is a 40 px filled, borderless field, always painted with
@@ -731,6 +747,15 @@ published are not edited. The file goes per version:
   shape — avatars, dots — not a corner).
 
 ### Settings (UI)
+- **Appearance themes can be filtered and sorted.** The theme browser now has a
+  **Creator** filter (Scrakk plus each extension author), an **Extension** filter
+  (Scrakk plus each package that contributes themes) and an **Organizar por**
+  menu with creator, latest version and alphabetical, all through the existing
+  global ContextMenu. Search also matches creator and extension names, and every
+  card shows the extension it comes from.
+- **Theme palette swatches blend.** The three colors on each card are now one
+  continuous gradient with wide fade zones between them, instead of three
+  hard-cut blocks; the separations read as a union.
 - **The Legal section follows the About layout.** The three documents were
   full-width bordered boxes stacked in a column, which read like form fields and
   left a big empty block. They are now **capsule links in a row** (the same

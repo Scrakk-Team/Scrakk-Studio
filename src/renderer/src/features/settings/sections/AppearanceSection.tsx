@@ -11,7 +11,9 @@
  * registrarse; la UI se re-renderiza suscrita a ese stream.
  */
 
-import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
+import { useCallback, useEffect, useRef, useState, type JSX, type MouseEvent } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
+import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import {
   listRegisteredThemes,
   getActiveThemeId,
@@ -33,6 +35,8 @@ import {
 } from '@core/i18n'
 import styles from './AppearanceSection.module.css'
 
+type ThemeSort = 'creator' | 'version' | 'name'
+
 interface ThemeCardProps {
   theme: RegisteredThemeEntry
   isActive: boolean
@@ -41,29 +45,36 @@ interface ThemeCardProps {
 
 function ThemeSwatches({ theme }: { theme: RegisteredThemeEntry }): JSX.Element {
   const colors = theme.definition.colors
-  const swatches = [
-    { color: colors.accent, fallback: '#888' },
-    { color: colors.editorBg ?? colors.surface, fallback: '#222' },
-    { color: colors.bg, fallback: '#000' }
-  ]
+  const c0 = colors.accent ?? '#888'
+  const c1 = colors.editorBg ?? colors.surface ?? '#222'
+  const c2 = colors.bg ?? '#000'
+  // Zonas con meseta y transiciones anchas: los tres colores se reconocen, pero
+  // las uniones se desvanecen en vez de cortarse con un borde duro.
+  const gradient = `linear-gradient(90deg,
+    ${c0} 0%,
+    ${c0} 14%,
+    ${c1} 40%,
+    ${c1} 60%,
+    ${c2} 86%,
+    ${c2} 100%)`
   return (
-    <div className={styles.swatches} aria-hidden="true">
-      {swatches.map((swatch, index) => (
-        <span
-          key={index}
-          className={styles.swatch}
-          style={{ background: swatch.color ?? swatch.fallback }}
-        />
-      ))}
-    </div>
+    <div
+      className={styles.swatches}
+      style={{ background: gradient }}
+      aria-hidden="true"
+    />
   )
 }
 
 function ThemeCard({ theme, isActive, onActivate }: ThemeCardProps): JSX.Element {
   const t = useT()
+  const extension = theme.isBuiltin ? null : ExtensionRegistry.getExtension(theme.extensionId)
+  const extensionName = theme.isBuiltin
+    ? t('settings.scrakk')
+    : (extension?.name ?? theme.extensionId)
   const author = theme.isBuiltin
     ? t('settings.scrakk')
-    : (ExtensionRegistry.getExtension(theme.extensionId)?.name ?? theme.extensionId)
+    : (extension?.author?.trim() || extensionName)
 
   return (
     <button
@@ -73,9 +84,10 @@ function ThemeCard({ theme, isActive, onActivate }: ThemeCardProps): JSX.Element
         .join(' ')}
       data-theme-id={theme.id}
       onClick={() => onActivate(theme.id)}
-      title={`${theme.name} (${theme.type})`}
+      title={`${theme.name} · ${extensionName} (${theme.type})`}
     >
       <span className={styles.cardName}>{theme.name}</span>
+      <span className={styles.cardSource}>{extensionName}</span>
       <ThemeSwatches theme={theme} />
       <span className={styles.cardMeta}>
         <span className={[styles.badge, theme.type === 'light' ? styles.badgeLight : null]
@@ -83,7 +95,7 @@ function ThemeCard({ theme, isActive, onActivate }: ThemeCardProps): JSX.Element
           .join(' ')}>
           {theme.type === 'light' ? t('appearance.theme.light') : t('appearance.theme.dark')}
         </span>
-        <span className={styles.author}>{author}</span>
+        {author !== extensionName ? <span className={styles.author}>{author}</span> : null}
       </span>
     </button>
   )
@@ -141,14 +153,159 @@ export function AppearanceSection(): JSX.Element {
   }
 
   const [query, setQuery] = useState('')
+  const [creator, setCreator] = useState<string>('all')
+  const [extensionFilter, setExtensionFilter] = useState<string>('all')
+  const [sort, setSort] = useState<ThemeSort>('name')
+
+  const creatorOf = (theme: RegisteredThemeEntry): { key: string; label: string } => {
+    if (theme.isBuiltin) return { key: 'scrakk', label: t('settings.scrakk') }
+    const extension = ExtensionRegistry.getExtension(theme.extensionId)
+    const label = extension?.author?.trim() || extension?.name || theme.extensionId
+    return { key: label.toLocaleLowerCase(), label }
+  }
+
+  const extensionOf = (theme: RegisteredThemeEntry): { key: string; label: string } => {
+    if (theme.isBuiltin) return { key: 'scrakk', label: t('settings.scrakk') }
+    const extension = ExtensionRegistry.getExtension(theme.extensionId)
+    return { key: theme.extensionId, label: extension?.name ?? theme.extensionId }
+  }
+
+  const versionOf = (theme: RegisteredThemeEntry): string =>
+    ExtensionRegistry.getExtension(theme.extensionId)?.version ?? ''
+
+  const creatorMap = new Map<string, { key: string; label: string; count: number }>()
+  for (const theme of allThemes) {
+    const creatorInfo = creatorOf(theme)
+    const entry = creatorMap.get(creatorInfo.key)
+    if (entry) entry.count += 1
+    else creatorMap.set(creatorInfo.key, { ...creatorInfo, count: 1 })
+  }
+  const creators = [...creatorMap.values()].sort((a, b) =>
+    a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+  )
+
+  const extensionMap = new Map<string, { key: string; label: string; count: number }>()
+  for (const theme of allThemes) {
+    const extensionInfo = extensionOf(theme)
+    const entry = extensionMap.get(extensionInfo.key)
+    if (entry) entry.count += 1
+    else extensionMap.set(extensionInfo.key, { ...extensionInfo, count: 1 })
+  }
+  const extensions = [...extensionMap.values()].sort((a, b) =>
+    a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+  )
+
+  useEffect(() => {
+    if (creator !== 'all' && !creators.some((entry) => entry.key === creator)) {
+      setCreator('all')
+    }
+  }, [creator, creators])
+
+  useEffect(() => {
+    if (extensionFilter !== 'all' && !extensions.some((entry) => entry.key === extensionFilter)) {
+      setExtensionFilter('all')
+    }
+  }, [extensionFilter, extensions])
+
   const q = query.trim().toLowerCase()
-  const visibleThemes = q
-    ? allThemes.filter((theme) =>
-        [theme.name, theme.id, theme.type].some((field) =>
-          field.toLowerCase().includes(q)
-        )
-      )
-    : allThemes
+  const filteredThemes = allThemes.filter((theme) => {
+    if (creator !== 'all' && creatorOf(theme).key !== creator) return false
+    if (extensionFilter !== 'all' && extensionOf(theme).key !== extensionFilter) return false
+    if (!q) return true
+    const creatorLabel = creatorOf(theme).label
+    const extensionLabel = extensionOf(theme).label
+    return [theme.name, theme.id, theme.type, creatorLabel, extensionLabel].some((field) =>
+      field.toLowerCase().includes(q)
+    )
+  })
+
+  const visibleThemes = [...filteredThemes].sort((a, b) => {
+    const byName = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    if (sort === 'creator') {
+      const byCreator = creatorOf(a).label.localeCompare(creatorOf(b).label, undefined, {
+        sensitivity: 'base'
+      })
+      return byCreator || byName
+    }
+    if (sort === 'version') {
+      const byVersion = versionOf(b).localeCompare(versionOf(a), undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
+      return byVersion || byName
+    }
+    return byName
+  })
+
+  const creatorLabel =
+    creator === 'all'
+      ? t('appearance.filter.all')
+      : (creators.find((entry) => entry.key === creator)?.label ?? creator)
+  const extensionFilterLabel =
+    extensionFilter === 'all'
+      ? t('appearance.filter.all.extensions')
+      : (extensions.find((entry) => entry.key === extensionFilter)?.label ?? extensionFilter)
+  const sortLabel =
+    sort === 'creator'
+      ? t('appearance.sort.creator')
+      : sort === 'version'
+        ? t('appearance.sort.version')
+        : t('appearance.sort.name')
+
+  const openCreatorMenu = (event: MouseEvent<HTMLButtonElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    showContextMenu(rect.left, rect.bottom, [
+      {
+        label: t('appearance.filter.all'),
+        checked: creator === 'all',
+        onClick: () => setCreator('all')
+      },
+      ...creators.map((entry) => ({
+        label: entry.label,
+        shortcut: String(entry.count),
+        checked: creator === entry.key,
+        onClick: () => setCreator(entry.key)
+      }))
+    ])
+  }
+
+  const openExtensionMenu = (event: MouseEvent<HTMLButtonElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    showContextMenu(rect.left, rect.bottom, [
+      {
+        label: t('appearance.filter.all.extensions'),
+        checked: extensionFilter === 'all',
+        onClick: () => setExtensionFilter('all')
+      },
+      ...extensions.map((entry) => ({
+        label: entry.label,
+        shortcut: String(entry.count),
+        checked: extensionFilter === entry.key,
+        onClick: () => setExtensionFilter(entry.key)
+      }))
+    ])
+  }
+
+  const openSortMenu = (event: MouseEvent<HTMLButtonElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    showContextMenu(rect.left, rect.bottom, [
+      {
+        label: t('appearance.sort.creator'),
+        checked: sort === 'creator',
+        onClick: () => setSort('creator')
+      },
+      {
+        label: t('appearance.sort.version'),
+        checked: sort === 'version',
+        onClick: () => setSort('version')
+      },
+      {
+        label: t('appearance.sort.name'),
+        checked: sort === 'name',
+        onClick: () => setSort('name')
+      }
+    ])
+  }
 
   // Scroll de la lista: es un scroller PROPIO (`.browser`, 340px). Al entrar a
   // Ajustes el modal hace `scrollTo(0)` sobre SU contenedor, así que la lista
@@ -211,10 +368,59 @@ export function AppearanceSection(): JSX.Element {
               aria-label={t('appearance.search.aria')}
               spellCheck={false}
             />
+            <div className={styles.controlsRow}>
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-haspopup="menu"
+                onClick={openCreatorMenu}
+              >
+                <span className={styles.controlLabel}>{t('appearance.filter.creator')}</span>
+                <span className={styles.controlValue}>{creatorLabel}</span>
+                <ProductIcon
+                  id="chevron-down"
+                  size={12}
+                  className={styles.controlChevron}
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-haspopup="menu"
+                onClick={openExtensionMenu}
+              >
+                <span className={styles.controlLabel}>{t('appearance.filter.extension')}</span>
+                <span className={styles.controlValue}>{extensionFilterLabel}</span>
+                <ProductIcon
+                  id="chevron-down"
+                  size={12}
+                  className={styles.controlChevron}
+                  aria-hidden="true"
+                />
+              </button>
+              <button
+                type="button"
+                className={styles.controlButton}
+                aria-haspopup="menu"
+                onClick={openSortMenu}
+              >
+                <span className={styles.controlLabel}>{t('appearance.sort.label')}</span>
+                <span className={styles.controlValue}>{sortLabel}</span>
+                <ProductIcon
+                  id="chevron-down"
+                  size={12}
+                  className={styles.controlChevron}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
           {visibleThemes.length === 0 ? (
             <p className={styles.empty}>
-              {t('appearance.search.noResults', { query: query.trim() })}
+              {q
+                ? t('appearance.search.noResults', { query: query.trim() })
+                : t('appearance.filter.empty')}
             </p>
           ) : (
             <div className={styles.grid}>

@@ -14,5 +14,14 @@
   "appearance.search.noResults": "No results found for “{query}.”",
   "appearance.search.placeholder": "Search themes…",
   "appearance.theme.dark": "Dark",
-  "appearance.theme.light": "Light"
+  "appearance.theme.light": "Light",
+  "appearance.filter.creator": "Creator",
+  "appearance.filter.all": "All",
+  "appearance.filter.empty": "No themes match the filters.",
+  "appearance.sort.label": "Sort by",
+  "appearance.sort.creator": "Creator",
+  "appearance.sort.version": "Latest version",
+  "appearance.sort.name": "Alphabetical",
+  "appearance.filter.extension": "Extension",
+  "appearance.filter.all.extensions": "All"
 }
