@@ -7,27 +7,26 @@
 .menu {
   position: fixed;
   z-index: 9999;
-  min-width: 220px;
-  max-width: 300px;
+  min-width: 180px;
+  max-width: 280px;
   overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 6px;
-  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  padding: 4px;
+  background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  /* Glassmorphism automático (solo temas con imagen/fondo). */
+  border-radius: var(--radius-sm);
+  /* Glassmorphism automático (solo temas con imagen de fondo). */
   backdrop-filter: var(--glass-blur, none);
-  color: var(--color-text);
   font-size: var(--text-xs);
+  color: var(--color-text);
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  min-height: 32px;
-  padding: 6px 9px;
+  min-height: 28px;
+  padding: 4px 10px;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -36,9 +35,11 @@
   text-align: left;
   cursor: pointer;
   user-select: none;
-  transition:
-    background-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
+}
+
+.item:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
 }
 
 .item:hover:not(:disabled),
@@ -48,40 +49,41 @@
   outline: none;
 }
 
-.item:active:not(:disabled) {
-  background: var(--color-active);
-}
-
 .item.danger {
-  color: var(--color-danger, #e5484d);
+  color: #f87171;
 }
 
 .item.danger:hover:not(:disabled),
 .item.danger:focus-visible:not(:disabled) {
-  background: color-mix(in srgb, var(--color-danger, #e5484d) 12%, transparent);
-  color: var(--color-danger, #e5484d);
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  outline: none;
 }
 
 .item.disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: default;
 }
 
-/* Columna fija para check/icono: todos los labels arrancan alineados. */
-.lead {
+.check {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  font-size: 11px;
   flex-shrink: 0;
-  color: currentColor;
-  opacity: 0.9;
+  color: var(--color-text);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .label {
   flex: 1;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -107,17 +109,17 @@
 .shortcut {
   margin-left: auto;
   padding-left: 16px;
-  font-size: 10px;
-  letter-spacing: 0.02em;
-  color: var(--color-text-muted);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  opacity: 0.75;
   white-space: nowrap;
 }
 
 .separator {
   height: 1px;
-  margin: 6px 8px;
+  margin: 4px 6px;
   background: var(--color-border);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 /* Fila de un item: ancla (relative) del submenú. */
@@ -127,30 +129,28 @@
 
 /* Caret del item con submenú. */
 .caret {
-  display: inline-flex;
-  align-items: center;
   margin-left: auto;
   padding-left: 12px;
-  color: var(--color-text-muted);
-  opacity: 0.8;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  opacity: 0.75;
 }
 
 /* Submenú: mismo look que el menú, pegado a la derecha del item. */
 .submenu {
   position: absolute;
-  left: calc(100% + 6px);
-  top: -6px;
+  left: calc(100% + 2px);
+  top: -4px;
   z-index: 1;
-  min-width: 220px;
-  max-width: 300px;
+  min-width: 180px;
+  max-width: 280px;
   max-height: 380px;
   overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 6px;
-  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  padding: 4px;
+  background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   backdrop-filter: var(--glass-blur, none);
-  color: var(--color-text);
   font-size: var(--text-xs);
+  color: var(--color-text);
 }

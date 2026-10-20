@@ -49,34 +49,6 @@ interface ContextMenuProps {
 const MENU_MARGIN = 8
 const MENU_MAX_HEIGHT = 380
 
-function MenuCheck(): JSX.Element {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="m3.75 8.25 2.75 2.75 5.75-6"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function MenuChevron(): JSX.Element {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M6.25 4.25 9.75 8l-3.5 3.75"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 export function ContextMenu({ items, x, y, onClose, placement = 'below' }: ContextMenuProps): JSX.Element | null {
   const menuRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ left: x, top: y })
@@ -157,9 +129,8 @@ export function ContextMenu({ items, x, y, onClose, placement = 'below' }: Conte
                 item.onClick?.()
               }}
             >
-              <span className={styles.lead} aria-hidden="true">
-                {item.checked ? <MenuCheck /> : item.icon ? item.icon : null}
-              </span>
+              {item.checked ? <span className={styles.check}>✓</span> : null}
+              {item.icon ? <span className={styles.icon}>{item.icon}</span> : null}
               {item.sublabel ? (
                 <span className={styles.itemText}>
                   <span className={styles.label}>{item.label}</span>
@@ -168,7 +139,7 @@ export function ContextMenu({ items, x, y, onClose, placement = 'below' }: Conte
               ) : (
                 <span className={styles.label}>{item.label}</span>
               )}
-              {hasSub ? <span className={styles.caret}><MenuChevron /></span> : null}
+              {hasSub ? <span className={styles.caret}>›</span> : null}
               {!hasSub && item.shortcut ? <span className={styles.shortcut}>{item.shortcut}</span> : null}
             </button>
             {hasSub && openSub === index ? (
@@ -188,9 +159,8 @@ export function ContextMenu({ items, x, y, onClose, placement = 'below' }: Conte
                         sub.onClick?.()
                       }}
                     >
-                      <span className={styles.lead} aria-hidden="true">
-                        {sub.checked ? <MenuCheck /> : sub.icon ? sub.icon : null}
-                      </span>
+                      {sub.checked ? <span className={styles.check}>✓</span> : null}
+                      {sub.icon ? <span className={styles.icon}>{sub.icon}</span> : null}
                       <span className={styles.label}>{sub.label}</span>
                       {sub.shortcut ? <span className={styles.shortcut}>{sub.shortcut}</span> : null}
                     </button>

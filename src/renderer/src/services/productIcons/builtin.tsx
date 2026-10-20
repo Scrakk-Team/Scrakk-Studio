@@ -28,6 +28,8 @@ import {
   BugIcon,
   ChatIcon,
   CheckmarkIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   ClipboardIcon,
   ClipboardSearchIcon,
   Clock,
@@ -103,50 +105,6 @@ export interface BuiltinProductIconEntry {
   /** Sinónimos que también resuelven a este icono. */
   synonyms?: string[]
 }
-
-/**
- * Chevrons propios: un solo trazo redondeado, 16×16 y grosor 1.5. Los temas de
- * iconos pueden seguir pisando `chevron-down`/`chevron-right` por id.
- */
-const ChevronDownIcon: IconComponent = ({ size = 16, className, style }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    fill="none"
-    className={className}
-    style={style}
-    aria-hidden="true"
-  >
-    <path
-      d="M4.25 6.25 8 9.75l3.75-3.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
-const ChevronRightIcon: IconComponent = ({ size = 16, className, style }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    fill="none"
-    className={className}
-    style={style}
-    aria-hidden="true"
-  >
-    <path
-      d="M6.25 4.25 9.75 8l-3.5 3.75"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
 
 function wrapCenterPanel(): IconComponent {
   const Comp = ({ size }: { size?: number }): JSX.Element => (

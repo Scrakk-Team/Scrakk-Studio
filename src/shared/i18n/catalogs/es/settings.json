@@ -242,6 +242,5 @@
   "settings.atajos.importar.ok": "mapeados",
   "settings.atajos.importar.sin.comando": "sin comando",
   "settings.atajos.importar.con.condicion": "con condición",
-  "settings.atajos.aplicados": "Atajos aplicados.",
-  "settings.instalar.ayuda": "Paquete nativo .sef o extensión de VS Code (.vsix)."
+  "settings.atajos.aplicados": "Atajos aplicados."
 }

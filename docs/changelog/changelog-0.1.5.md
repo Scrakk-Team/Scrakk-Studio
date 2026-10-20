@@ -719,17 +719,6 @@ published are not edited. The file goes per version:
   shape — avatars, dots — not a corner).
 
 ### Settings (UI)
-- **A visual pass over the controls.** The theme search is now a real field —
-  search glyph, clear button, focus border — instead of a borderless rectangle.
-  Settings dropdown triggers share one 38 px glass surface with an accent hover
-  border, and the native terminal font select uses the same chevron and focus
-  treatment. The default chevron SVG was redrawn as a single rounded 1.5 px
-  stroke (theme icon packs can still override `chevron-down`/`chevron-right`).
-  The extension installer is now an install card with a primary `.sef` action,
-  a secondary `.vsix` conversion action and a status line with an icon. The
-  global context menu has a wider, calmer surface, aligned icon/check gutter,
-  refined separators, danger tokens instead of a hardcoded red, and the same
-  chevron/check SVGs as the rest of the UI.
 - **The Legal section follows the About layout.** The three documents were
   full-width bordered boxes stacked in a column, which read like form fields and
   left a big empty block. They are now **capsule links in a row** (the same

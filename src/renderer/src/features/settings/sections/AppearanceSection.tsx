@@ -25,7 +25,6 @@ import {
   type FontFallbackMode
 } from '@services/extensions'
 import { SegmentedTabs } from '@ui'
-import { ProductIcon } from '@services/productIcons/components'
 import {
   getLocalePreference,
   setLocalePreference,
@@ -204,33 +203,14 @@ export function AppearanceSection(): JSX.Element {
       ) : (
         <div ref={browserRef} className={styles.browser}>
           <div className={styles.themeSearchWrap}>
-            <div className={styles.searchField}>
-              <ProductIcon
-                id="search"
-                size={14}
-                className={styles.searchIcon}
-                aria-hidden="true"
-              />
-              <input
-                className={styles.searchInput}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t('appearance.search.placeholder')}
-                aria-label={t('appearance.search.aria')}
-                spellCheck={false}
-              />
-              {query ? (
-                <button
-                  type="button"
-                  className={styles.searchClear}
-                  onClick={() => setQuery('')}
-                  aria-label={t('appearance.search.clear')}
-                  title={t('appearance.search.clear')}
-                >
-                  <ProductIcon id="close" size={12} aria-hidden="true" />
-                </button>
-              ) : null}
-            </div>
+            <input
+              className={styles.themeSearchInput}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t('appearance.search.placeholder')}
+              aria-label={t('appearance.search.aria')}
+              spellCheck={false}
+            />
           </div>
           {visibleThemes.length === 0 ? (
             <p className={styles.empty}>

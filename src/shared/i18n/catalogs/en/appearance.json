@@ -14,6 +14,5 @@
   "appearance.search.noResults": "No results found for “{query}.”",
   "appearance.search.placeholder": "Search themes…",
   "appearance.theme.dark": "Dark",
-  "appearance.theme.light": "Light",
-  "appearance.search.clear": "Clear search"
+  "appearance.theme.light": "Light"
 }

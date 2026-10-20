@@ -242,6 +242,5 @@
   "settings.atajos.importar.ok": "mapped",
   "settings.atajos.importar.sin.comando": "without a command",
   "settings.atajos.importar.con.condicion": "with a condition",
-  "settings.atajos.aplicados": "Shortcuts applied.",
-  "settings.instalar.ayuda": "Native .sef package or VS Code extension (.vsix)."
+  "settings.atajos.aplicados": "Shortcuts applied."
 }

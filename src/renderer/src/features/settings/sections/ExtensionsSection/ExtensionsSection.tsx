@@ -391,45 +391,27 @@ export function ExtensionsSection(): JSX.Element {
         })}
       </ul>
 
-      <div className={styles.installBox}>
-        <div className={styles.installCopy}>
-          <span className={styles.installTitle}>{t('settings.instalar')}</span>
-          <span className={styles.installHint}>{t('settings.instalar.ayuda')}</span>
-        </div>
-        <div className={styles.installActions}>
-          <button
-            type="button"
-            className={styles.primaryButton}
-            disabled={busy}
-            onClick={() => void handleInstall()}
-          >
-            <ProductIcon id="download" size={14} />
-            {t('settings.instalar.sef')}
-          </button>
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            disabled={busy}
-            onClick={() => void handleInstallVsix()}
-          >
-            <ProductIcon id="arrow-right" size={14} />
-            {t('settings.instalar.vsix')}
-          </button>
-        </div>
+      <div className={styles.footer}>
+        <button
+          type="button"
+          className={styles.primaryButton}
+          disabled={busy}
+          onClick={() => void handleInstall()}
+        >
+          <ProductIcon id="download" size={14} />
+          {t('settings.instalar.sef')}
+        </button>
+        <button
+          type="button"
+          className={styles.primaryButton}
+          disabled={busy}
+          onClick={() => void handleInstallVsix()}
+        >
+          <ProductIcon id="download" size={14} />
+          {t('settings.instalar.vsix')}
+        </button>
         {status && (
-          <span
-            className={[
-              styles.statusRow,
-              status.kind === 'ok' ? styles.statusOk : styles.statusError
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            <ProductIcon
-              id={status.kind === 'ok' ? 'check' : 'alert'}
-              size={12}
-              aria-hidden="true"
-            />
+          <span className={status.kind === 'ok' ? styles.statusOk : styles.statusError}>
             {status.text}
           </span>
         )}
