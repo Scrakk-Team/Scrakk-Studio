@@ -27,6 +27,7 @@ import { productIconsHandler } from './productIcons/api'
 import { toolsHandler } from './tools'
 import { skillsHandler } from './skills'
 import { fileHandlersHandler } from './fileHandlers/api'
+import { keybindingsHandler } from './keybindings/api'
 
 let registered = false
 
@@ -50,6 +51,7 @@ export function ensureTypesRegistered(): void {
   ExtensionTypeRegistry.registerType(toolsHandler)
   ExtensionTypeRegistry.registerType(skillsHandler)
   ExtensionTypeRegistry.registerType(fileHandlersHandler)
+  ExtensionTypeRegistry.registerType(keybindingsHandler)
 }
 
 export { ExtensionTypeRegistry } from './registry'

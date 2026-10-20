@@ -61,7 +61,10 @@ export const STORAGE_KEYS = {
   I18N_LOCALE: 'i18n.locale',
 
   /** Keymap elegido (Scrakk / VS Code / JetBrains): re-mapea los comandos. */
-  KEYMAP_PRESET: 'keymap.preset'
+  KEYMAP_PRESET: 'keymap.preset',
+
+  /** Rebind por comando (`{ file.save: 'ctrl+s' | null }`), encima del preset. */
+  KEYMAP_OVERRIDES: 'keymap.overrides'
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

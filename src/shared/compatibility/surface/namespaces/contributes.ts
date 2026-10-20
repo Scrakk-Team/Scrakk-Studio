@@ -185,9 +185,10 @@ export const contributesNamespace: SurfaceNamespace = {
     {
       key: 'keybindings',
       label: 'Atajos de teclado',
-      route: 'none',
-      status: 'missing',
-      degradation: 'sin sistema de keybindings contribuibles aún'
+      route: 'sef',
+      status: 'real',
+      native: 'keybindings',
+      degradation: "se traducen combinación + comando; 'when' (contexto) no está soportado"
     },
     {
       key: 'debuggers',

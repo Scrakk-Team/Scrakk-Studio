@@ -22,10 +22,12 @@ import { HighlightSection } from './HighlightSection/HighlightSection'
 import { TerminalSection } from './TerminalSection/TerminalSection'
 import { InfoSection } from './InfoSection/InfoSection'
 import { LegalSection } from './LegalSection/LegalSection'
+import { ShortcutsSection } from './ShortcutsSection/ShortcutsSection'
 import { ChatSection, ProvidersSection, ToolsSection, SkillsSection, AgentsSection, PermissionsSection } from './chat'
 
 export type SettingsSectionId =
   | 'appearance'
+  | 'shortcuts'
   | 'editor'
   | 'extensions'
   | 'performance'
@@ -85,6 +87,7 @@ function hiddenSection(...args: Parameters<typeof section>): SettingsSectionDef 
 export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
   section('appearance', 'settings.nav.appearance', 'grid', AppearanceSection),
   section('editor', 'settings.nav.editor', 'code', EditorSection),
+  section('shortcuts', 'settings.nav.shortcuts', 'keyboard', ShortcutsSection),
   section('servers', 'settings.nav.servers', 'server', ServersSection, 'editor'),
   section('highlight', 'settings.nav.highlight', 'code', HighlightSection, 'editor'),
   section('terminal', 'settings.nav.terminal', 'terminal', TerminalSection),

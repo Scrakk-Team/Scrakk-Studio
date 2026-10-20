@@ -51,6 +51,11 @@ export { getPersistedGrammarEngine, persistGrammarEngine } from './storageServic
 export { getPersistedLocalePreference, persistLocalePreference } from './storageService'
 export { getPersistedKeymapPreset, persistKeymapPreset } from './storageService'
 export {
+  getPersistedKeymapOverrides,
+  persistKeymapOverrides,
+  type KeymapOverrides
+} from './storageService'
+export {
   getPersistedChatSessions,
   persistChatSessions,
   getPersistedChatActiveSession,

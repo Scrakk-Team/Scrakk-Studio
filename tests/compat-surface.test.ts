@@ -123,8 +123,9 @@ describe('lado VSIX ⇄ traductores', () => {
     expect(byKey.views.support).toBe('supported')
     expect(byKey.views.sefKind).toBe('views')
     expect(byKey.viewsContainers.support).toBe('supported')
-    expect(byKey.keybindings.support).toBe('unsupported')
-    expect(byKey.keybindings.reason).toBeTruthy()
+    // keybindings se traducen (command + key/chord); `when` se documenta aparte.
+    expect(byKey.keybindings.support).toBe('supported')
+    expect(byKey.keybindings.sefKind).toBe('keybindings')
     expect(byKey.code.support).toBe('supported')
     expect(describeKinds(kinds)).toContain('×1')
   })

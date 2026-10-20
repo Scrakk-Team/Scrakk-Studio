@@ -226,5 +226,21 @@
   "settings.ver.release.v": "View release v",
   "settings.vista.previa.del.archivo.a": "File preview to the right of the editor, with continuous scrolling and click-to-navigate functionality.",
   "settings.volver.a.arrancar.este.server": "Restart this server when necessary",
-  "settings.volver.arriba": "Back to top"
+  "settings.volver.arriba": "Back to top",
+  "settings.nav.shortcuts": "Shortcuts",
+  "settings.atajos.hint": "Each command declares its shortcut and you can change it here. Reset returns it to the factory one.",
+  "settings.atajos.preset": "Keymap",
+  "settings.atajos.buscar": "Search command…",
+  "settings.atajos.cambiar": "Change",
+  "settings.atajos.reiniciar": "Reset",
+  "settings.atajos.capturando": "Press the combination (Esc cancels, Del clears)",
+  "settings.atajos.sin.atajo": "No shortcut",
+  "settings.atajos.importar": "Import from VS Code…",
+  "settings.atajos.importar.hint": "Pick your keybindings.json: what can be translated is shown before applying anything.",
+  "settings.atajos.importar.aplicar": "Apply the translatable ones",
+  "settings.atajos.importar.cerrar": "Close",
+  "settings.atajos.importar.ok": "mapped",
+  "settings.atajos.importar.sin.comando": "without a command",
+  "settings.atajos.importar.con.condicion": "with a condition",
+  "settings.atajos.aplicados": "Shortcuts applied."
 }

@@ -17,6 +17,7 @@ import { detectColorThemes, translateColorThemes } from './types/themes/themes'
 import { detectProductIconThemes, translateProductIconThemes } from './types/product-icons/product-icons'
 import { detectViews, translateViews } from './types/views/views'
 import { detectLanguages, translateLanguages } from './types/languages/languages'
+import { detectKeybindings, translateKeybindings } from './types/keybindings/keybindings'
 
 export interface TranslatorResult {
   /** Key SEF (ej 'fileIcons'). */
@@ -115,6 +116,19 @@ export const TRANSLATORS: TranslatorEntry[] = [
     sefKind: 'views',
     detect: detectViews,
     translate: (manifest, files, opts) => adapt('views', translateViews(manifest, files, opts))
+  },
+  {
+    vsixKey: 'keybindings',
+    sefKind: 'keybindings',
+    detect: detectKeybindings,
+    translate: (manifest, files, opts) => {
+      const out = translateKeybindings(manifest, files, opts)
+      return adapt('keybindings', {
+        contributions: out.contributions as unknown as Array<Record<string, unknown>>,
+        assets: out.assets,
+        mapped: out.mapped
+      })
+    }
   },
   {
     // Kit de lenguaje: UNA contribución SEF que junta `languages` + `grammars`

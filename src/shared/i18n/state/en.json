@@ -12299,6 +12299,134 @@
       "needsReview": false,
       "at": "2026-10-20T00:09:59.205142Z",
       "approvedAt": "2026-10-20T00:09:59.205142Z"
+    },
+    "settings.nav.shortcuts": {
+      "src": "ca3cecf1334a1af8",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.hint": {
+      "src": "be5a147252e35a11",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.preset": {
+      "src": "cd99483a6458457d",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.buscar": {
+      "src": "0c9da862a9e5a7f5",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.cambiar": {
+      "src": "b322167924121f7b",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.reiniciar": {
+      "src": "4d1e6caec77227ec",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.capturando": {
+      "src": "dcf16f2de0875d9f",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.sin.atajo": {
+      "src": "a103e9001e4d01a3",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar": {
+      "src": "9e72e8dee58c0601",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.hint": {
+      "src": "2bd4d3ce7d49c996",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.aplicar": {
+      "src": "37287c19cfa904f6",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.cerrar": {
+      "src": "aeccae342e4bd0a7",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.ok": {
+      "src": "b47d227b24c6db7a",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.sin.comando": {
+      "src": "78da4f7784c4eb36",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.importar.con.condicion": {
+      "src": "2b6ace33e7db7cf8",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "settings.atajos.aplicados": {
+      "src": "ce7ac97928fd7413",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:43:43.390871Z",
+      "approvedAt": "2026-10-20T00:43:43.390871Z"
     }
   },
   "version": 1

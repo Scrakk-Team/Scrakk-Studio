@@ -161,6 +161,29 @@ export function persistKeymapPreset(preset: string): void {
   lsSet(STORAGE_KEYS.KEYMAP_PRESET, preset)
 }
 
+/** Overrides por comando. `null` = el usuario lo dejó sin atajo. */
+export type KeymapOverrides = Record<string, string | null>
+
+export function getPersistedKeymapOverrides(): KeymapOverrides {
+  try {
+    const raw = lsGet(STORAGE_KEYS.KEYMAP_OVERRIDES)
+    const parsed: unknown = typeof raw === 'string' && raw.length > 0 ? JSON.parse(raw) : {}
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    const out: KeymapOverrides = {}
+    for (const [command, combo] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof combo === 'string' && combo.trim().length > 0) out[command] = combo
+      else if (combo === null) out[command] = null
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
+export function persistKeymapOverrides(overrides: KeymapOverrides): void {
+  lsSet(STORAGE_KEYS.KEYMAP_OVERRIDES, JSON.stringify(overrides))
+}
+
 // ── Chat (sesiones + activa) ────────────────────────────────────────────────
 
 function isValidChatSessions(value: unknown): value is ChatSessionsData {

@@ -226,5 +226,21 @@
   "settings.ver.release.v": "Ver release v",
   "settings.vista.previa.del.archivo.a": "Vista previa del archivo a la derecha del editor, con desplazamiento\n            continuo y clic para navegar.",
   "settings.volver.a.arrancar.este.server": "Volver a arrancar este server cuando haga falta",
-  "settings.volver.arriba": "Volver arriba"
+  "settings.volver.arriba": "Volver arriba",
+  "settings.nav.shortcuts": "Atajos",
+  "settings.atajos.hint": "Cada comando declara su atajo y acá podés cambiarlo. Reiniciar lo devuelve al de fábrica.",
+  "settings.atajos.preset": "Esquema",
+  "settings.atajos.buscar": "Buscar comando…",
+  "settings.atajos.cambiar": "Cambiar",
+  "settings.atajos.reiniciar": "Reiniciar",
+  "settings.atajos.capturando": "Apretá la combinación (Esc cancela, Supr borra)",
+  "settings.atajos.sin.atajo": "Sin atajo",
+  "settings.atajos.importar": "Importar de VS Code…",
+  "settings.atajos.importar.hint": "Elegí tu keybindings.json: se muestra qué se puede traducir antes de aplicar nada.",
+  "settings.atajos.importar.aplicar": "Aplicar los traducibles",
+  "settings.atajos.importar.cerrar": "Cerrar",
+  "settings.atajos.importar.ok": "mapeados",
+  "settings.atajos.importar.sin.comando": "sin comando",
+  "settings.atajos.importar.con.condicion": "con condición",
+  "settings.atajos.aplicados": "Atajos aplicados."
 }
