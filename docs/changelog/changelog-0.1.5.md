@@ -118,6 +118,17 @@ published are not edited. The file goes per version:
   The icon is now `assets/scrakk-studio-b.png` — tracked, and the same image the
   window paints — used by all three platforms.
 
+### Welcome panel
+- **The tips were rewritten and now follow the app — and the language.** There
+  were eight hardcoded Spanish cards, several already wrong ("Ctrl+J opens the
+  terminal": Ctrl+J is the chat now, the terminal is `` Ctrl+` ``, and other tips
+  pointed at features that changed). There are ten now, stored as **i18n keys**
+  (`welcome.tip.<id>.title` / `.description`, Spanish + English) and each one
+  names the **command** it talks about, so the shortcut on the card is read from
+  the command registry: switch to the VS Code/JetBrains keymap and the tip shows
+  that combo instead of a stale literal. A test enforces that every tip has both
+  keys in both languages.
+
 ### Window (UI)
 - **The whole window can no longer be zoomed (Ctrl+= / Ctrl+- / Ctrl+0 / Ctrl+wheel).**
   The renderer guard was already there, but Electron's **default application
