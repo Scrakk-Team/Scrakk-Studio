@@ -286,7 +286,7 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.18`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.19`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — pale blue-white moon with craters and a small halo, wispy clouds in a sky
   layer that composites behind all terrain, rain, bats (the same silhouette the event uses, with the body
   clipped so flapping does not leave a static copy behind), a haunted house, a chapel, a small cemetery on the
@@ -308,7 +308,8 @@ published are not edited. The file goes per version:
   When the event starts, the background bats stay hidden: the first flock flies in
   with the audio, then a `bats:start` overlay event at 8 s fades the ambient
   bats in one by one. A theme-only background still shows them immediately.
-  Lightning now follows a Poisson process — exponential gaps plus short
+  The first bolt is scripted exactly on the first thunder cue; the rest follow a
+  Poisson process — exponential gaps plus short
   bursts, modeled on real flash telemetry — so there is no fixed cadence and no
   click trigger. The scripted event strikes and flash tints are gone; every bolt
   enters from the top at a random X/Y. A strike
