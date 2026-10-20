@@ -12,6 +12,7 @@
  */
 
 import { useCallback, useEffect, useState, type JSX } from 'react'
+import { ProductIcon } from '@services/productIcons/components'
 import {
   getTerminalFontFamily,
   listMonoFontFamilies,
@@ -60,19 +61,27 @@ export function TerminalSection(): JSX.Element {
           <span className={styles.rowName}>{t('settings.fuente.de.la.terminal')}</span>
           <span className={styles.rowMeta}>{t('settings.la.fuente.con.la.que.se.dibuja')}</span>
         </div>
-        <select
-          className={styles.select}
-          value={family}
-          onChange={(event) => handleFamily(event.target.value)}
-          aria-label={t('settings.fuente.de.la.terminal')}
-        >
-          <option value="">{t('settings.fuente.del.sistema')}</option>
-          {families.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
+        <div className={styles.selectWrap}>
+          <select
+            className={styles.select}
+            value={family}
+            onChange={(event) => handleFamily(event.target.value)}
+            aria-label={t('settings.fuente.de.la.terminal')}
+          >
+            <option value="">{t('settings.fuente.del.sistema')}</option>
+            {families.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <ProductIcon
+            id="chevron-down"
+            size={12}
+            className={styles.selectChevron}
+            aria-hidden="true"
+          />
+        </div>
       </div>
     </div>
   )

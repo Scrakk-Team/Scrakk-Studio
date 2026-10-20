@@ -287,20 +287,34 @@
   color: var(--color-text-muted);
 }
 
-/* Trigger del selector: botón con chevron de proicons + menú contextual global. */
+/* Trigger del selector: botón con chevron + menú contextual global. */
 .select {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  height: 38px;
+  padding: 0 6px 0 var(--space-3);
+  border-color: var(--color-border);
+  background: var(--color-surface);
   text-align: left;
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-out);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
 }
 
 .select:hover,
 .select[aria-expanded='true'] {
-  background: var(--color-hover);
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border));
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.select:focus-visible {
+  border-color: var(--color-accent);
+  outline: none;
 }
 
 .selectLabel {
@@ -309,11 +323,20 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .selectChevron {
   flex-shrink: 0;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.select:hover .selectChevron,
+.select[aria-expanded='true'] .selectChevron {
+  color: var(--color-text);
 }
 
 .selectChevronOpen {

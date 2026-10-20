@@ -14,5 +14,6 @@
   "appearance.base.note": "Usando el tema base de la app.",
   "appearance.language.label": "Idioma de la interfaz",
   "appearance.language.hint": "Se aplica al instante. El español es la base; el inglés se completa por lotes.",
-  "appearance.language.aria": "Idioma de la interfaz"
+  "appearance.language.aria": "Idioma de la interfaz",
+  "appearance.search.clear": "Limpiar búsqueda"
 }
