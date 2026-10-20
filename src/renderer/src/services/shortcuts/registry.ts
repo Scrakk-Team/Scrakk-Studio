@@ -12,29 +12,37 @@
  * acción declare `allowInInput: true`.
  */
 
-import { eventToCombo, isEditableTarget, parseCombo } from './key'
+import { eventToCombo, isEditableTarget, parseComboSpec } from './key'
+import { ChordTracker } from './chords'
 import type { ParsedCombo, ShortcutAction } from './types'
 
+/** Cuánto se espera la segunda parte de un chord (`Ctrl+K`, después `Ctrl+S`). */
+const CHORD_TIMEOUT_MS = 1200
+
 class ShortcutRegistry {
-  /** combo canónico → acciones registradas (ordenadas por prioridad). */
+  /** combo canónico (o chord `'a b'`) → acciones registradas (por prioridad). */
   private actions = new Map<string, ShortcutAction[]>()
   private parsedCombos = new Map<string, ParsedCombo>()
+  /** Estado de las secuencias en curso. */
+  private chords = new ChordTracker()
+  private chordTimer: ReturnType<typeof setTimeout> | null = null
   private keydownHandler: ((event: KeyboardEvent) => void) | null = null
 
   /**
    * Registra una acción. Devuelve una función para desregistrarla.
    */
   register(action: ShortcutAction): () => void {
-    const parsed = parseCombo(action.combo)
-    this.parsedCombos.set(parsed.combo, parsed)
+    // `parseComboSpec` acepta combinaciones simples Y chords ('ctrl+k ctrl+s').
+    const spec = parseComboSpec(action.combo)
+    this.parsedCombos.set(spec.combo, spec.segments[spec.segments.length - 1])
 
-    const list = this.actions.get(parsed.combo) ?? []
+    const list = this.actions.get(spec.combo) ?? []
     list.push(action)
     list.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
-    this.actions.set(parsed.combo, list)
+    this.actions.set(spec.combo, list)
 
     this.ensureListener()
-    return () => this.unregister(action.id, parsed.combo)
+    return () => this.unregister(action.id, spec.combo)
   }
 
   unregister(id: string, combo?: string): void {
@@ -48,10 +56,26 @@ class ShortcutRegistry {
 
   has(combo: string): boolean {
     try {
-      return this.actions.has(parseCombo(combo).combo)
+      return this.actions.has(parseComboSpec(combo).combo)
     } catch {
       return false
     }
+  }
+
+  /** ¿Combo es el comienzo de algún chord registrado? ('ctrl+k' → 'ctrl+k x'). */
+  private isChordPrefix(combo: string): boolean {
+    for (const key of this.actions.keys()) {
+      if (key.startsWith(`${combo} `)) return true
+    }
+    return false
+  }
+
+  private armChordTimeout(): void {
+    if (this.chordTimer) clearTimeout(this.chordTimer)
+    this.chordTimer = setTimeout(() => {
+      this.chords.reset()
+      this.chordTimer = null
+    }, CHORD_TIMEOUT_MS)
   }
 
   /** ¿Existe alguna acción registrada con este id? (tests/diagnostics). */
@@ -77,13 +101,35 @@ class ShortcutRegistry {
       if (event.repeat) return
       const combo = eventToCombo(event)
       if (!combo) return
-      const list = this.actions.get(combo)
+
+      // Chords: si lo apretado es el comienzo de una secuencia, se espera la
+      // segunda parte (con timeout) en vez de ejecutar un atajo simple.
+      const step = this.chords.push(
+        combo,
+        (candidate) => (this.actions.get(candidate)?.length ?? 0) > 0,
+        (candidate) => this.isChordPrefix(candidate)
+      )
+      if (step.wait) {
+        this.armChordTimeout()
+        event.preventDefault()
+        return
+      }
+      if (this.chordTimer) {
+        clearTimeout(this.chordTimer)
+        this.chordTimer = null
+      }
+      if (!step.run) return
+
+      const list = this.actions.get(step.run)
       if (!list || list.length === 0) return
 
       const inInput = isEditableTarget(event)
       for (const action of list) {
-        // Combos sin modificador no se tragan la escritura en campos.
-        if (inInput && !action.allowInInput && parseCombo(action.combo).modifiers.size === 0) {
+        // Combos sin modificador no se tragan la escritura en campos. En un
+        // chord manda la ÚLTIMA combinación (la que completa la secuencia).
+        const spec = parseComboSpec(action.combo)
+        const modifiers = spec.segments[spec.segments.length - 1].modifiers.size
+        if (inInput && !action.allowInInput && modifiers === 0) {
           continue
         }
         action.handler(event)

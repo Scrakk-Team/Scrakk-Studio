@@ -90,6 +90,30 @@ export function parseCombo(spec: string): ParsedCombo {
 }
 
 /**
+ * Spec que puede ser un CHORD: combinaciones separadas por espacios.
+ *
+ *   'mod+s'          → 1 segmento
+ *   'ctrl+k ctrl+s'  → 2 segmentos (chord: primero Ctrl+K, después Ctrl+S)
+ *
+ * El canónico del chord es la unión con un espacio; el registry lo guarda como
+ * una clave más y el matcheo se resuelve con `ChordTracker`.
+ */
+export interface ParsedComboSpec {
+  combo: string
+  /** Uno por combinación; más de uno = chord. */
+  segments: ParsedCombo[]
+}
+
+export function parseComboSpec(spec: string): ParsedComboSpec {
+  const parts = spec.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) {
+    throw new Error('[shortcuts] La spec del atajo está vacía.')
+  }
+  const segments = parts.map((part) => parseCombo(part))
+  return { combo: segments.map((segment) => segment.combo).join(' '), segments }
+}
+
+/**
  * Combo canónico del evento de teclado. Devuelve null si la tecla es solo un
  * modificador (Shift/Control/Alt/Meta presionados solos).
  */

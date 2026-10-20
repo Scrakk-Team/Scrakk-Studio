@@ -63,6 +63,15 @@ const KEY_DISPLAY: Record<string, string> = {
  * `isMac` inyectable para tests; default: plataforma real.
  */
 export function formatCombo(combo: string, isMac: boolean = IS_MAC): string {
+  // Un chord ('ctrl+k ctrl+s') se muestra como 'Ctrl+K Ctrl+S'.
+  if (/\s/.test(combo.trim())) {
+    return combo
+      .trim()
+      .split(/\s+/)
+      .map((segment) => formatCombo(segment, isMac))
+      .join(' ')
+  }
+
   const mac = isMac
   const parts = combo
     .toLowerCase()
