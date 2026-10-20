@@ -32,6 +32,7 @@ import {
   type ButtonSide
 } from '@features/activitybar'
 import { toggleSlotPanel } from '@features/layout'
+import { commandRegistry } from '@services/commands'
 import {
   getToolDockItemsForHost,
   subscribeToToolDockItems
@@ -40,6 +41,13 @@ import { useToolDockHost } from '../state/ToolDockHostContext'
 import type { DockEntry, ToolDockItem } from '../types'
 import { sanitizeSvgIcon } from '@services/extensions/svgIcon'
 import styles from './ToolDock.module.css'
+
+/** Atajos por defecto de los items del dock (reasignables en Ajustes → Atajos). */
+const TOOLDOCK_KEYBINDINGS: Record<string, string> = {
+  bookmarks: 'mod+alt+k',
+  outline: 'mod+alt+o',
+  timeline: 'mod+alt+y'
+}
 
 export function ToolDock(): JSX.Element | null {
   const { hostId, hostInfo, activePanelId, togglePanel, panelHeight, setPanelHeight, closing } =
@@ -66,6 +74,33 @@ export function ToolDock(): JSX.Element | null {
     // Dockeados primero (orden de la barra), luego items del registry.
     return [...docked, ...itemEntries]
   }, [hostInfo, itemsVersion, layoutVersion])
+
+  // Cada item del dock es también un COMANDO (`tooldock.<id>`): así aparece en
+  // la paleta y en Ajustes → Atajos, y se puede reasignar. Los botones
+  // dockeados de la ActivityBar ya tienen su `layout.toggle*` (ver TOGGLES).
+  const entryKey = entries
+    .map((entry) => (entry.kind === 'item' ? `item:${entry.item.id}` : `button:${entry.button.id}`))
+    .join('|')
+  useEffect(() => {
+    const unsubs = entries
+      .filter((entry) => entry.kind === 'item')
+      .map((entry) =>
+        commandRegistry.register(
+          {
+            id: `tooldock.${entry.item.id}`,
+            title: entry.item.title,
+            category: 'Paneles',
+            keybinding: TOOLDOCK_KEYBINDINGS[entry.item.id],
+            run: () => togglePanel(entry.item.id)
+          },
+          { allowOverwrite: true }
+        )
+      )
+    return () => unsubs.forEach((off) => off())
+    // entryKey resume la lista (los items del registry pueden cambiar); el resto
+    // son funciones estables del contexto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entryKey, togglePanel])
 
   if (entries.length === 0) return null
 

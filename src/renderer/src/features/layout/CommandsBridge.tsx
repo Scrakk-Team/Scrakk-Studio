@@ -15,25 +15,12 @@ import { commandRegistry } from '@services/commands'
 import { toggleHistoryView } from './panels/HistoryPanel/viewState'
 import { setSkillsViewOpen } from './panels/SkillsPanel/viewState'
 
-import { t } from '@core/i18n'
-interface ToggleDef {
-  id: string
-  title: string
-  slot: 'left' | 'right' | 'center'
-  panelId: string
-  keybinding?: string
-}
-
-const TOGGLES: ToggleDef[] = [
-  { id: 'layout.toggleChat', get title() { return t('layout.mostrar.ocultar.chat') }, slot: 'right', panelId: 'chat', keybinding: 'mod+j' },
-  { id: 'layout.toggleExplorer', get title() { return t('layout.mostrar.ocultar.explorador') }, slot: 'left', panelId: 'explorer', keybinding: 'mod+b' }
-]
-
+import { LAYOUT_TOGGLES } from './panelToggles'
 export function LayoutCommandsBridge(): JSX.Element | null {
   const { slots, toggleSlotPanel, openPanelTab } = useLayout()
 
   useEffect(() => {
-    const unsubs = TOGGLES.map((def) =>
+    const unsubs = LAYOUT_TOGGLES.map((def) =>
       commandRegistry.register({
         id: def.id,
         title: def.title,

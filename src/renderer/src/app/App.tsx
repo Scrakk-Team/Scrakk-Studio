@@ -158,33 +158,6 @@ const APP_COMMANDS: Command[] = [
     }
   },
   {
-    id: 'layout.toggleSearch',
-    get title() { return t('layout.panel.search') },
-    category: 'Paneles',
-    keybinding: 'mod+shift+f',
-    run: () => {
-      toggleSlotPanel('left', 'search')
-    }
-  },
-  {
-    id: 'layout.toggleProblems',
-    get title() { return t('layout.panel.problems') },
-    category: 'Paneles',
-    keybinding: 'mod+shift+m',
-    run: () => {
-      toggleSlotPanel('bottom', 'problems')
-    }
-  },
-  {
-    id: 'layout.toggleExtensions',
-    get title() { return t('layout.panel.extensions') },
-    category: 'Paneles',
-    keybinding: 'mod+shift+x',
-    run: () => {
-      toggleSlotPanel('left', 'extensions')
-    }
-  },
-  {
     id: 'view.toggleMinimap',
     get title() { return t('app.alternar.minimapa') },
     category: 'Ver',
