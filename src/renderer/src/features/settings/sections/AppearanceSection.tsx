@@ -11,7 +11,7 @@
  * registrarse; la UI se re-renderiza suscrita a ese stream.
  */
 
-import { useCallback, useEffect, useState, type JSX } from 'react'
+import { useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import {
   listRegisteredThemes,
   getActiveThemeId,
@@ -71,6 +71,7 @@ function ThemeCard({ theme, isActive, onActivate }: ThemeCardProps): JSX.Element
       className={[styles.card, isActive ? styles.cardActive : null]
         .filter(Boolean)
         .join(' ')}
+      data-theme-id={theme.id}
       onClick={() => onActivate(theme.id)}
       title={`${theme.name} (${theme.type})`}
     >
@@ -149,6 +150,25 @@ export function AppearanceSection(): JSX.Element {
       )
     : allThemes
 
+  // Scroll de la lista: es un scroller PROPIO (`.browser`, 340px). Al entrar a
+  // Ajustes el modal hace `scrollTo(0)` sobre SU contenedor, así que la lista
+  // quedaba en el inicio en vez de en el tema que tenés puesto. La primera vez
+  // que hay lista + tema activo, se centra la card activa. Después el scroll es
+  // del usuario: nada lo vuelve a mover (el orden alfabético es estable).
+  const browserRef = useRef<HTMLDivElement | null>(null)
+  const centeredOnActive = useRef(false)
+  useEffect(() => {
+    if (centeredOnActive.current) return
+    const browser = browserRef.current
+    if (!browser || !activeId || visibleThemes.length === 0) return
+    const card = browser.querySelector<HTMLElement>(`[data-theme-id="${CSS.escape(activeId)}"]`)
+    if (!card) return
+    centeredOnActive.current = true
+    const box = browser.getBoundingClientRect()
+    const target = card.getBoundingClientRect()
+    browser.scrollTop += target.top - box.top - (browser.clientHeight - target.height) / 2
+  }, [activeId, visibleThemes.length])
+
   // El aviso menciona `.sef` en medio del texto: se parte por ese token para
   // conservar el `<code>` sin meter HTML en el catálogo.
   const [hintBefore, hintAfter] = t('appearance.hint').split('.sef')
@@ -181,7 +201,7 @@ export function AppearanceSection(): JSX.Element {
       {allThemes.length === 0 ? (
         <p className={styles.empty}>{t('appearance.empty')}</p>
       ) : (
-        <div className={styles.browser}>
+        <div ref={browserRef} className={styles.browser}>
           <div className={styles.themeSearchWrap}>
             <input
               className={styles.themeSearchInput}
