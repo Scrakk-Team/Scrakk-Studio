@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Licencia completa en LICENSE (Apache License 2.0).
 
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, type JSX } from 'react'
 import { HeaderActionButton, usePanelTitleOptional } from '@features/layout'
 import { ProductIcon } from '@services/productIcons/components'
 import type { MarketExtension } from '@shared/market'
@@ -22,8 +22,8 @@ const TABS: Array<{ id: MarketTab; key: 'market.tab.tienda' | 'market.tab.instal
 /** Tienda de extensiones — panel completo (browse / instaladas / mías). */
 export function MarketPanel(): JSX.Element {
   const market = useMarket()
-  const [formOpen, setFormOpen] = useState(false)
-  const [editing, setEditing] = useState<MarketExtension | undefined>(undefined)
+  const formOpen = market.editorOpen
+  const editing = market.editing
 
   // Header del panel: título + botón de volver cuando hay submode (detalle o
   // form de publicar), igual que la vista de skills del chat.
@@ -57,10 +57,7 @@ export function MarketPanel(): JSX.Element {
             icon="chevron-right"
             iconRotation={180}
             size="sm"
-            onClick={() => {
-              setFormOpen(false)
-              setEditing(undefined)
-            }}
+            onClick={() => market.closeEditor()}
           />
         )
       }
@@ -82,24 +79,20 @@ export function MarketPanel(): JSX.Element {
     return () => setHeaderActions(null)
   }, [setHeaderActions, formOpen, market.detail, market.closeDetail])
 
-  if (market.detail) {
+  // El FORM va primero: editar desde la ficha tiene que poder abrirlo encima
+  // (al cerrar, volvés a la ficha que quedó abajo).
+  if (formOpen) {
     return (
       <div className={styles.panel}>
-        <ExtensionDetail />
+        <ExtensionForm initial={editing} onDone={() => market.closeEditor()} />
       </div>
     )
   }
 
-  if (formOpen) {
+  if (market.detail) {
     return (
       <div className={styles.panel}>
-        <ExtensionForm
-          initial={editing}
-          onDone={() => {
-            setFormOpen(false)
-            setEditing(undefined)
-          }}
-        />
+        <ExtensionDetail />
       </div>
     )
   }
@@ -169,14 +162,8 @@ export function MarketPanel(): JSX.Element {
         {market.tab === 'installed' ? <InstalledList /> : null}
         {market.tab === 'mine' ? (
           <MineList
-            onNew={() => {
-              setEditing(undefined)
-              setFormOpen(true)
-            }}
-            onEdit={(extension) => {
-              setEditing(extension)
-              setFormOpen(true)
-            }}
+            onNew={() => market.openEditor()}
+            onEdit={(extension) => market.openEditor(extension)}
           />
         ) : null}
       </div>
@@ -272,8 +259,14 @@ function MineList({
                 {extension.latestVersion ? ` · v${extension.latestVersion}` : ''}
               </span>
             </button>
-            <button type="button" className={styles.ghost} onClick={() => onEdit(extension)}>
-              <ProductIcon id="refresh" size={13} />
+            <button
+              type="button"
+              className={styles.ghost}
+              title={t('market.editar')}
+              aria-label={t('market.editar')}
+              onClick={() => onEdit(extension)}
+            >
+              <ProductIcon id="pencil" size={13} />
             </button>
             <button
               type="button"

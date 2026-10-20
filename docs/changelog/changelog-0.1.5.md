@@ -746,7 +746,20 @@ published are not edited. The file goes per version:
   `input`/`sm` **3px**, `xs` **2px** (the `capsule` shape stays, since it is a
   shape — avatars, dots — not a corner).
 
-### Settings (UI)
+### What's new
+- **A changelog modal on the first launch of a version.** The app already read
+  `docs/changelog/*.md` at build time (that is where the Welcome page's
+  announcement comes from), but the full entry was only reachable by opening that
+  panel. On the first launch after an update — or on a fresh install — a modal
+  now shows the **entire** changelog of the installed version, with the same
+  Markdown component and styles as the Welcome page, and marks it as read with
+  the same key the badge uses, so it appears exactly once per version. It only
+  fires when the packaged changelog matches `__APP_VERSION__`: a changelog written
+  ahead of the release does not pop up as an update.
+- **The minimap is OFF by default.** It shipped on, so a fresh install (or any
+  profile that never touched the switch) opened the editor with the right edge
+  already taken by a minimap nobody asked for. `getMinimapVisible()` now returns
+  `false` unless the user persisted `'true'`; Settings → Editor still toggles it.
 - **Appearance themes can be filtered and sorted.** The theme browser now has a
   **Creator** filter (Scrakk plus each extension author), an **Extension** filter
   (Scrakk plus each package that contributes themes) and an **Organizar por**

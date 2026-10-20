@@ -260,12 +260,17 @@ const MINIMAP_EVENT = 'innerta-minimap-changed'
 export const HIGHLIGHT_SOURCE_EVENT = 'highlight-source-changed'
 export const MINIMAP_SETTING_KEY = 'scrakk-editor-minimap'
 
-/** ¿El minimap está visible? (default: sí). */
+/**
+ * ¿El minimap está visible? **Default: NO**.
+ *
+ * Arranca apagado a propósito: es lo primero que come ancho del editor y la
+ * mayoría no lo usa. Si alguien lo prende, queda persistido en `'true'`.
+ */
 export function getMinimapVisible(): boolean {
   try {
-    return (localStorage.getItem(MINIMAP_SETTING_KEY) ?? 'true') !== 'false'
+    return localStorage.getItem(MINIMAP_SETTING_KEY) === 'true'
   } catch {
-    return true
+    return false
   }
 }
 

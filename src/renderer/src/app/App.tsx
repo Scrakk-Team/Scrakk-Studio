@@ -9,6 +9,7 @@ import { ChatsProvider, ToolConfirmationModal, registerChatCommands } from '@fea
 import {
   ProvidersProvider
 } from '@features/providers'
+import { maybeShowChangelogOnBoot } from '@features/changelog'
 import {
   LayoutProvider,
   PanelLayout,
@@ -213,6 +214,14 @@ export function App() {
   // arrancar; el registry se mantiene solo con sus watchers.
   useEffect(() => {
     skillRegistry.start()
+  }, [])
+
+  // Changelog de la versión instalada: UNA vez por versión (al actualizar o en
+  // la primera instalación), después del primer paint para no competir con el
+  // arranque. Si el perfil ya lo vio, no hace nada.
+  useEffect(() => {
+    const handle = window.setTimeout(() => maybeShowChangelogOnBoot(), 1200)
+    return () => window.clearTimeout(handle)
   }, [])
 
   // Catálogo de proveedores (models.dev): cache en disco → fetch remoto en

@@ -112,6 +112,30 @@
       "at": "2026-09-25T17:45:21.709Z",
       "approvedAt": "2026-09-25T17:45:46.190Z"
     },
+    "app.changelog.cerrar": {
+      "src": "3f3f7d88e05abb17",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:00:00.000Z",
+      "approvedAt": "2026-10-20T00:00:00.000Z"
+    },
+    "app.changelog.lead": {
+      "src": "3c4d23ac66ccfc2c",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:00:00.000Z",
+      "approvedAt": "2026-10-20T00:00:00.000Z"
+    },
+    "app.changelog.novedades": {
+      "src": "a74374d89f399836",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:00:00.000Z",
+      "approvedAt": "2026-10-20T00:00:00.000Z"
+    },
     "app.expandir.seleccion.objeto.de.texto": {
       "src": "9415b4849ddd3d98",
       "area": "app",

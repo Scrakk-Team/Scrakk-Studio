@@ -45,6 +45,12 @@ interface MarketContextValue {
   loading: boolean
   error: string | null
   detail: MarketExtension | null
+  /** El formulario está abierto. `editing` decide si es alta o edición. */
+  editorOpen: boolean
+  editing: MarketExtension | undefined
+  /** Abre el form de publicar (`undefined`) o el de editar una existente. */
+  openEditor: (extension?: MarketExtension) => void
+  closeEditor: () => void
   detailRatings: MarketRating[]
   detailRelease: MarketRelease | null
   mine: MarketExtension[]
@@ -90,6 +96,8 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [detail, setDetail] = useState<MarketExtension | null>(null)
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [editing, setEditing] = useState<MarketExtension | undefined>(undefined)
   const [detailRatings, setDetailRatings] = useState<MarketRating[]>([])
   const [detailRelease, setDetailRelease] = useState<MarketRelease | null>(null)
   const [mine, setMine] = useState<MarketExtension[]>([])
@@ -102,6 +110,16 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       const list = await api.account.listAccounts()
       if (list.ok) setAccountId(list.data.activeId)
     })()
+  }, [])
+
+  const openEditor = useCallback((extension?: MarketExtension): void => {
+    setEditing(extension)
+    setEditorOpen(true)
+  }, [])
+
+  const closeEditor = useCallback((): void => {
+    setEditorOpen(false)
+    setEditing(undefined)
   }, [])
 
   const refresh = useCallback(async (): Promise<void> => {
@@ -262,6 +280,10 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       loading,
       error,
       detail,
+      editorOpen,
+      editing,
+      openEditor,
+      closeEditor,
       detailRatings,
       detailRelease,
       mine,
@@ -293,6 +315,10 @@ export function MarketProvider({ children }: { children: ReactNode }): JSX.Eleme
       loading,
       error,
       detail,
+      editorOpen,
+      editing,
+      openEditor,
+      closeEditor,
       detailRatings,
       detailRelease,
       mine,

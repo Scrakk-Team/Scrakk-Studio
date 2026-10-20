@@ -259,13 +259,17 @@
   align-items: flex-start;
 }
 
+/* Icono de la ficha: SOLO el icono. Sin fondo ni marco: muchos packs traen un
+   PNG/SVG con transparencia (un círculo, un logo) y el `background` de antes se
+   veía como un cuadrado detrás, con las esquinas redondeadas haciendo de marco.
+   `contain` para no recortar los que no son cuadrados. */
 .detailIcon {
   width: 52px;
   height: 52px;
   flex-shrink: 0;
-  border-radius: var(--radius-md);
-  object-fit: cover;
-  background: var(--color-surface);
+  object-fit: contain;
+  background: none;
+  border: none;
 }
 
 .detailTitle {

@@ -11,12 +11,15 @@
   "app.boom.intencional.esto.es.una": "Intentional crash: this is a test of the global boundary",
   "app.capturar.el.editor.png": "Screenshot of the editor (PNG)",
   "app.cerrar.archivo.activo": "Close active file",
+  "app.changelog.cerrar": "Got it",
+  "app.changelog.lead": "Everything that changed in this version.",
+  "app.changelog.novedades": "What's new · v{version}",
   "app.expandir.seleccion.objeto.de.texto": "Expand selection (text object)",
   "app.guardar.archivo": "Save File",
+  "app.guardar.todos": "Save all files",
   "app.ir.a.la.definicion": "Go to definition",
   "app.language.servers": "Language Servers",
   "app.paleta.de.comandos": "Command Palette",
   "app.refrescar.explorador": "Refresh browser",
-  "app.sin.definicion.en.el.cursor": "No definition at the cursor",
-  "app.guardar.todos": "Save all files"
+  "app.sin.definicion.en.el.cursor": "No definition at the cursor"
 }

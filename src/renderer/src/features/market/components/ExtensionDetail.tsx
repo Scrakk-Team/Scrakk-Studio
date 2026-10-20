@@ -26,7 +26,8 @@ export function ExtensionDetail(): JSX.Element | null {
     busy,
     install,
     rate,
-    report
+    report,
+    openEditor
   } = useMarket()
   const [stars, setStars] = useState(0)
   const [comment, setComment] = useState('')
@@ -121,7 +122,19 @@ export function ExtensionDetail(): JSX.Element | null {
           <ProductIcon id="globe" size={13} />
           {t('market.ver.repo')}
         </a>
-        {!mine ? (
+        {mine ? (
+          // Editá tu propia extensión desde la ficha: abre EL MISMO form de
+          // publicación, pero con los datos cargados (imágenes e icono incluidos)
+          // y guarda por `id` en vez de crear una nueva.
+          <button
+            type="button"
+            className={styles.ghost}
+            onClick={() => openEditor(detail)}
+          >
+            <ProductIcon id="pencil" size={13} />
+            {t('market.editar')}
+          </button>
+        ) : (
           <button
             type="button"
             className={styles.ghost}
@@ -129,7 +142,7 @@ export function ExtensionDetail(): JSX.Element | null {
           >
             {t('market.reportar')}
           </button>
-        ) : null}
+        )}
       </div>
 
       {message ? <p className={styles.hint}>{message}</p> : null}
