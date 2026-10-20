@@ -103,6 +103,22 @@ export function createMainWindow(): BrowserWindow {
     if (!window.isDestroyed()) window.webContents.setZoomFactor(1)
   })
 
+  // El zoom de PÁGINA nunca más:
+  //  - pinch-zoom (trackpad) limitado a 1:1;
+  //  - `zoom-changed` (Ctrl+rueda) se cancela en el origen — el renderer lo
+  //    frena, pero el gesto del trackpad no siempre llega al DOM;
+  //  - cualquier intención de zoom vuelve a 1.
+  // Los zooms PROPIOS (canvas del editor, terminal, visor de nodos) no pasan
+  // por acá: los maneja el motor con su propia rueda/teclas.
+  window.webContents.setVisualZoomLevelLimits(1, 1)
+  window.webContents.on('zoom-changed', (event) => {
+    event.preventDefault()
+    if (!window.isDestroyed()) window.webContents.setZoomFactor(1)
+  })
+  window.webContents.on('did-finish-load', () => {
+    if (!window.isDestroyed()) window.webContents.setZoomFactor(1)
+  })
+
   // Bloqueo extra de atajos de DevTools en el build entregado (F12,
   // Ctrl/Cmd+Shift+I/J/C). Además del devTools:false de arriba.
   if (app.isPackaged) {

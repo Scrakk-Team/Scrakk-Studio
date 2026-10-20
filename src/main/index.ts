@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Licencia completa en LICENSE (Apache License 2.0).
 
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron'
 import { I18N_IPC } from '@shared/window-controls'
 import { setLocale } from '@shared/i18n'
 import { registerLlmIpc } from './ipc/llm'
@@ -77,6 +77,13 @@ if (!gotTheLock) {
   })
 
   app.whenReady().then(() => {
+    // SIN menú de aplicación. La app tiene el suyo en la titlebar (MenuBar) y el
+    // menú POR DEFECTO de Electron trae los roles `zoomIn`/`zoomOut`/`resetZoom`
+    // (Ctrl+= / Ctrl+- / Ctrl+0): esos aceleradores los procesa Chromium de forma
+    // GLOBAL, sin pasar por el DOM, así que ningún preventDefault del renderer
+    // los frena y zoomeaban el IDE ENTERO. Además el zoom de página se guarda
+    // por origen en el perfil y sobrevive al reinicio.
+    Menu.setApplicationMenu(null)
     // .env local (R2 y dev): el entorno real siempre gana.
     loadLocalEnv()
     // Idioma activo: lo persiste el renderer y lo aplica el main, para que
