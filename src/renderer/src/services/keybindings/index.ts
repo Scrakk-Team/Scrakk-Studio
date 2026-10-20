@@ -17,6 +17,7 @@
 
 import { commandRegistry } from '@services/commands'
 import { formatCombo } from '@services/shortcuts'
+import { msg } from '@core/i18n'
 import {
   getPersistedKeymapOverrides,
   getPersistedKeymapPreset,
@@ -164,7 +165,9 @@ export function listKeybindings(): KeybindingRow[] {
     const combo = command.keybinding ?? null
     return {
       command: command.id,
-      title: command.title,
+      // Traducido (la paleta ya lo hace con `msg`): sin esto la UI mostraba la
+      // CLAVE cruda, tipo `core.cambia.tema`.
+      title: msg(command.title),
       category: command.category,
       combo,
       display: combo ? formatCombo(combo) : '',

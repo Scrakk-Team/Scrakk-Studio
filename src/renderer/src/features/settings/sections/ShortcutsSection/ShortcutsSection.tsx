@@ -5,22 +5,21 @@
 /**
  * Ajustes → Atajos.
  *
- * Todo sale de los COMANDOS: la lista es `listKeybindings()` (título, combo
- * efectivo, si tiene override y su combo de fábrica), y cada cambio se aplica
- * con `setCommandKeybinding` (re-registra el comando y persiste el override).
+ * Todo sale de los COMANDOS: la lista es `listKeybindings()` (título YA
+ * traducido, combo efectivo, si tiene override y su combo de fábrica) y cada
+ * cambio se aplica con `setCommandKeybinding`.
  *
- * Dos formas de cambiar los atajos:
- *  - **Esquema**: un preset completo (Scrakk / VS Code / JetBrains).
- *  - **Cambiar** en una fila: captura la próxima combinación (Esc cancela,
- *    Supr la deja sin atajo).
- * Y una de importar: `keybindings.json` de VS Code, con **vista previa** de lo
- * que se puede traducir antes de escribir nada.
+ * La UI sigue el lenguaje de las secciones del IDE (Servidores LSP / Apariencia,
+ * Skills): suma de una línea, buscador sticky, filas planas sobre la superficie
+ * (sin cards) y `LoadingButton` para las acciones. El selector de esquema usa
+ * `SegmentedTabs`, el mismo control de Apariencia.
  */
 
 import { useCallback, useEffect, useMemo, useState, type JSX } from 'react'
-import { ProductIcon } from '@services/productIcons/components'
+import { LoadingButton, SegmentedTabs } from '@ui'
 import { commandRegistry } from '@services/commands'
 import { eventToCombo, formatCombo } from '@services/shortcuts'
+import { notify } from '@services/notifications'
 import { api } from '@services/api'
 import {
   KEYMAP_PRESETS,
@@ -47,19 +46,18 @@ export function ShortcutsSection(): JSX.Element {
   const [query, setQuery] = useState('')
   const [capturing, setCapturing] = useState<string | null>(null)
   const [imported, setImported] = useState<TranslateKeybindingsResult | null>(null)
-  const [status, setStatus] = useState('')
+  const [busy, setBusy] = useState(false)
 
   const refresh = useCallback((): void => {
     setRows(listKeybindings())
     setPreset(getActiveKeymap())
   }, [])
 
-  // El registry emite cuando cambia cualquier comando (también al aplicar un
-  // preset o al re-registrar por un rebind): la tabla se mantiene al día.
+  // El registry emite al re-registrar cualquier comando (preset, rebind, reset).
   useEffect(() => commandRegistry.subscribe(refresh), [refresh])
 
-  // Captura de la próxima combinación. En fase CAPTURE + stopPropagation para
-  // que el motor global no ejecute el atajo mientras se está grabando.
+  // Captura: fase CAPTURE + stopPropagation para que el motor global no ejecute
+  // el atajo mientras se está grabando.
   useEffect(() => {
     if (!capturing) return
     const onKey = (event: KeyboardEvent): void => {
@@ -86,18 +84,27 @@ export function ShortcutsSection(): JSX.Element {
   }, [capturing, refresh])
 
   const choosePreset = (id: KeymapPresetId): void => {
-    applyKeymap(id)
+    const result = applyKeymap(id)
     refresh()
-    setStatus('')
+    const applied = result.applied
+    notify({
+      title: t('settings.atajos.preset'),
+      message: `${KEYMAP_PRESETS[id].label} · ${applied}`,
+      severity: 'info'
+    })
   }
 
   const importFromVsCode = async (): Promise<void> => {
     const picked = await api.fs.pickFile()
     if (!picked.success || !picked.paths?.[0]) return
-    const file = await api.fs.readFile(picked.paths[0])
-    if (!file.success || typeof file.content !== 'string') return
-    setImported(translateKeybindings(file.content))
-    setStatus('')
+    setBusy(true)
+    try {
+      const file = await api.fs.readFile(picked.paths[0])
+      if (!file.success || typeof file.content !== 'string') return
+      setImported(translateKeybindings(file.content))
+    } finally {
+      setBusy(false)
+    }
   }
 
   const applyImported = (): void => {
@@ -109,7 +116,11 @@ export function ShortcutsSection(): JSX.Element {
     }
     setImported(null)
     refresh()
-    setStatus(`${t('settings.atajos.aplicados')} (${applied})`)
+    notify({
+      title: t('settings.atajos.aplicados'),
+      message: String(applied),
+      severity: 'success'
+    })
   }
 
   const filtered = useMemo(() => {
@@ -125,45 +136,38 @@ export function ShortcutsSection(): JSX.Element {
 
   return (
     <div className={styles.section}>
-      <p className={styles.hint}>{t('settings.atajos.hint')}</p>
+      <p className={styles.summary}>{t('settings.atajos.hint')}</p>
 
-      {/* ── Esquema (preset) ─────────────────────────────────────────────── */}
-      <div className={styles.row}>
-        <span className={styles.rowLabel}>{t('settings.atajos.preset')}</span>
-        <div className={styles.chips}>
-          {KEYMAP_PRESET_IDS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              className={[styles.chip, preset === id ? styles.chipActive : null]
-                .filter(Boolean)
-                .join(' ')}
-              title={KEYMAP_PRESETS[id].source}
-              onClick={() => choosePreset(id)}
-            >
-              {KEYMAP_PRESETS[id].label}
-            </button>
-          ))}
-        </div>
+      <div className={styles.presetRow}>
+        <span className={styles.presetLabel}>{t('settings.atajos.preset')}</span>
+        <SegmentedTabs
+          ariaLabel={t('settings.atajos.preset')}
+          activeId={preset}
+          items={KEYMAP_PRESET_IDS.map((id) => ({ id, label: KEYMAP_PRESETS[id].label }))}
+          onChange={(id) => choosePreset(id as KeymapPresetId)}
+        />
+        <LoadingButton
+          className={styles.importButton}
+          loading={busy}
+          onClick={() => void importFromVsCode()}
+        >
+          {t('settings.atajos.importar')}
+        </LoadingButton>
       </div>
 
-      {/* ── Buscar + importar ────────────────────────────────────────────── */}
-      <div className={styles.toolbar}>
+      <div className={styles.searchWrap}>
         <input
           type="search"
-          className={styles.search}
+          className={styles.searchInput}
           placeholder={t('settings.atajos.buscar')}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <button type="button" className={styles.button} onClick={() => void importFromVsCode()}>
-          {t('settings.atajos.importar')}
-        </button>
       </div>
 
       {imported ? (
-        <div className={styles.importPanel}>
-          <p className={styles.importHint}>{t('settings.atajos.importar.hint')}</p>
+        <div className={styles.notice}>
+          <p className={styles.summary}>{t('settings.atajos.importar.hint')}</p>
           <div className={styles.stats}>
             <span className={styles.statOk}>
               {imported.stats.ok} {t('settings.atajos.importar.ok')}
@@ -176,93 +180,99 @@ export function ShortcutsSection(): JSX.Element {
             </span>
           </div>
           {imported.error ? <p className={styles.error}>{imported.error}</p> : null}
-          <ul className={styles.preview}>
+          <div className={styles.preview}>
             {imported.bindings
               .filter((binding) => binding.status === 'ok')
               .slice(0, 40)
               .map((binding, index) => (
-                <li key={`${binding.sourceCommand}-${index}`} className={styles.previewRow}>
-                  <span className={styles.combo}>{formatCombo(binding.combo ?? '')}</span>
-                  <span className={styles.previewCommand}>{binding.command}</span>
-                  <span className={styles.previewSource}>{binding.sourceKey}</span>
-                </li>
+                <div key={`ok-${index}`} className={styles.previewRow}>
+                  <code className={styles.combo}>{formatCombo(binding.combo ?? '')}</code>
+                  <span className={styles.previewMeta}>
+                    {binding.command} ← {binding.sourceCommand}
+                  </span>
+                </div>
               ))}
             {imported.bindings
               .filter((binding) => binding.status !== 'ok')
               .slice(0, 10)
               .map((binding, index) => (
-                <li key={`skip-${index}`} className={styles.previewRowSkipped}>
-                  <span className={styles.combo}>{binding.sourceKey || '—'}</span>
-                  <span className={styles.previewCommand}>{binding.sourceCommand || '—'}</span>
-                  <span className={styles.previewSource}>{binding.reason ?? binding.status}</span>
-                </li>
+                <div key={`skip-${index}`} className={styles.previewRowSkip}>
+                  <code className={styles.combo}>{binding.sourceKey || '—'}</code>
+                  <span className={styles.previewMeta}>
+                    {binding.sourceCommand || '—'} · {binding.reason ?? binding.status}
+                  </span>
+                </div>
               ))}
-          </ul>
-          <div className={styles.importActions}>
-            <button
-              type="button"
-              className={styles.button}
+          </div>
+          <div className={styles.rowActions}>
+            <LoadingButton
+              loading={false}
               disabled={imported.stats.ok === 0}
               onClick={applyImported}
             >
               {t('settings.atajos.importar.aplicar')}
-            </button>
-            <button type="button" className={styles.buttonGhost} onClick={() => setImported(null)}>
+            </LoadingButton>
+            <LoadingButton loading={false} onClick={() => setImported(null)}>
               {t('settings.atajos.importar.cerrar')}
-            </button>
+            </LoadingButton>
           </div>
         </div>
       ) : null}
 
-      {/* ── Lista de comandos ────────────────────────────────────────────── */}
-      <div className={styles.list}>
-        {filtered.map((row) => {
-          const isCapturing = capturing === row.command
-          return (
-            <div key={row.command} className={styles.item}>
-              <div className={styles.itemMain}>
-                <span className={styles.itemTitle}>{row.title}</span>
-                <span className={styles.itemMeta}>
-                  {row.category ? `${row.category} · ` : ''}
-                  {row.command}
-                </span>
-              </div>
-              <span
-                className={[styles.comboBadge, isCapturing ? styles.comboCapturing : null]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {isCapturing
-                  ? t('settings.atajos.capturando')
-                  : row.combo
-                    ? row.display
-                    : t('settings.atajos.sin.atajo')}
-              </span>
-              <button
-                type="button"
-                className={styles.buttonSmall}
-                onClick={() => setCapturing(isCapturing ? null : row.command)}
-              >
-                {t('settings.atajos.cambiar')}
-              </button>
-              <button
-                type="button"
-                className={styles.buttonGhostSmall}
-                disabled={!row.overridden}
-                onClick={() => {
-                  resetCommandKeybinding(row.command)
-                  refresh()
-                }}
-              >
-                <ProductIcon id="refresh" size={11} aria-hidden="true" />
-                {t('settings.atajos.reiniciar')}
-              </button>
-            </div>
-          )
-        })}
+      <div className={styles.listWrap}>
+        {filtered.length === 0 ? (
+          <p className={styles.empty}>{t('settings.atajos.buscar')}</p>
+        ) : (
+          <div className={styles.list}>
+            {filtered.map((row) => {
+              const isCapturing = capturing === row.command
+              return (
+                <div key={row.command} className={styles.row}>
+                  <div className={styles.rowMain}>
+                    <div className={styles.rowTop}>
+                      <span className={styles.serverName}>{row.title}</span>
+                      <code
+                        className={[styles.combo, isCapturing ? styles.comboCapturing : null]
+                          .filter(Boolean)
+                          .join(' ')}
+                      >
+                        {isCapturing
+                          ? t('settings.atajos.capturando')
+                          : row.combo
+                            ? row.display
+                            : t('settings.atajos.sin.atajo')}
+                      </code>
+                    </div>
+                    <span className={styles.rowMeta}>
+                      {row.category ? `${row.category} · ` : ''}
+                      {row.command}
+                    </span>
+                  </div>
+                  <div className={styles.rowActions}>
+                    <LoadingButton
+                      loading={isCapturing}
+                      loadingLabel={t('settings.atajos.capturando')}
+                      onClick={() => setCapturing(isCapturing ? null : row.command)}
+                    >
+                      {t('settings.atajos.cambiar')}
+                    </LoadingButton>
+                    <LoadingButton
+                      loading={false}
+                      disabled={!row.overridden}
+                      onClick={() => {
+                        resetCommandKeybinding(row.command)
+                        refresh()
+                      }}
+                    >
+                      {t('settings.atajos.reiniciar')}
+                    </LoadingButton>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
-
-      <p className={styles.status}>{status}</p>
     </div>
   )
 }
