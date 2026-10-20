@@ -286,14 +286,14 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.15`). The Storm background used to be a dark red sky with
-  two glow blobs; it is now a layered scene — pale blue-white moon with craters and a small halo, drifting cloud banks,
-  rain, bats (the same silhouette the event uses, with the body
+  (`halloween-themes@1.4.16`). The Storm background used to be a dark red sky with
+  two glow blobs; it is now a layered scene — pale blue-white moon with craters and a small halo, wispy clouds in a sky
+  layer that composites behind all terrain, rain, bats (the same silhouette the event uses, with the body
   clipped so flapping does not leave a static copy behind), a haunted house, a chapel, a small cemetery on the
   hillside (fence, crypt, solid tilted stones and crosses), cool fog and rising embers.
   The fog is a seamless band that always covers the ground and keeps drifting
-  right. The single jack-o'-lantern sits on the ridge beside the big tree,
-  orange and shaded — projected ground shadow, radial
+  right. The single jack-o'-lantern sits on the ridge line beside the big tree,
+  higher than before, orange and shaded — projected ground shadow, radial
   body shading and a stem shadow — with light only in its eyes and mouth. The
   house and chapel windows are unlit (no halo), and a near foreground ridge
   covers the bottom of the buildings and trees so they sit behind the hill
@@ -304,9 +304,10 @@ published are not edited. The file goes per version:
   a cool accent, so the scene shows through the whole UI. The theme itself
   declares the Storm scene as its `background` overlay **and sets
   `glass: false`**, so selecting **Halloween Glass** manually brings the
-  background without the blur. Lightning now falls on its own every 6–15 seconds at a random X/Y instead of
-  being triggered by clicks; event-timed strikes still work. Bolts always enter
-  from the top, and the permanent center bolt is gone. A strike
+  background without the blur. Lightning now follows a Poisson process — exponential gaps plus short
+  bursts, modeled on real flash telemetry — so there is no fixed cadence and no
+  click trigger. The scripted event strikes and flash tints are gone; every bolt
+  enters from the top at a random X/Y. A strike
   briefly lights the scene, and the soft layers render at half resolution so the
   full-screen effect stays cheap.
 
