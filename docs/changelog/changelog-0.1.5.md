@@ -317,6 +317,15 @@ published are not edited. The file goes per version:
   boot; commands that do not exist yet are reported (`missing`), never faked.
   Windows/Linux only (no macOS): no `meta`/`⌘`, and no chords — the engine still
   matches a single combo per event, so presets pick a chord-free equivalent.
+- **Every side-bar and dock panel has a command now.** The panel toggles live in
+  one data table (`LAYOUT_TOGGLES`): chat, explorer, search, extensions, browser,
+  debug, notes, social, tabs and problems — each with its shortcut
+  (`Ctrl+B`/`Ctrl+J`, `Ctrl+Shift+F/X/D/S/T`, `Ctrl+Alt+B/N`, `Ctrl+Shift+M`…) —
+  so they show up in the command palette and in Settings → Shortcuts and can be
+  rebound like any other command. The dock's own items (bookmarks, outline,
+  timeline) register `tooldock.<id>` commands too (`Ctrl+Alt+K/O/Y`). A test
+  enforces unique ids, unique combos (two toggles on one combo would cancel each
+  other) and no clash with `git.panel`.
 - **Settings → Shortcuts.** A new section lists every command with its effective
   combo (from `listKeybindings()`), lets you **rebind** one by capturing the next
   combination (Esc cancels, Del clears), **reset** it to the factory combo, and
