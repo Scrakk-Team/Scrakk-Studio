@@ -194,7 +194,7 @@
   border: 1px solid var(--color-border);
   /* El fondo es un gradiente inline construido con los 3 colores del tema.
      El tamaño > 100% deja recorrerlo lentamente sin cortar los extremos. */
-  background-size: 160% 100%;
+  background-size: 115% 100%;
   background-position: 0% 50%;
   background-repeat: no-repeat;
   animation: swatch-drift 30s ease-in-out infinite alternate;

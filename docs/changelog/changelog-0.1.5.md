@@ -755,9 +755,10 @@ published are not edited. The file goes per version:
   card shows the extension it comes from.
 - **Theme palette swatches blend and drift.** The three colors on each card are
   one continuous gradient with wide fade zones between them instead of three
-  hard-cut blocks; the gradient is layered so the boundaries curve, the third
-  color is lifted against the card, and it drifts slowly over 30 s (disabled
-  with `prefers-reduced-motion`).
+  hard-cut blocks; the gradient is layered so the boundaries curve and the three
+  colors keep comparable visual weight. The middle and third colors are lifted
+  against the card, and the gradient drifts slowly over 30 s (disabled with
+  `prefers-reduced-motion`).
 - **The Legal section follows the About layout.** The three documents were
   full-width bordered boxes stacked in a column, which read like form fields and
   left a big empty block. They are now **capsule links in a row** (the same
