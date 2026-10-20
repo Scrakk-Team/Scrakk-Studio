@@ -312,6 +312,13 @@ published are not edited. The file goes per version:
   `terminal.new`, …). What used to be a cosmetic label (`Ctrl+O`, `Ctrl+W`,
   `Ctrl+Shift+O`) is a real, rebindable shortcut now, and the menu reflects the
   active keymap as it changes.
+- **Chords (key sequences) are supported by the shortcut engine.** A chord is two
+  combinations pressed in order — `Ctrl+K` then `Ctrl+S` — not a bigger combo.
+  VS Code leans on them (`Ctrl+K Ctrl+S`, `Ctrl+K Ctrl+W`). The engine now keeps a
+  pending sequence with a timeout (~1.2 s): if what you pressed starts a chord it
+  waits for the next combination instead of firing, an invalid continuation
+  cancels it, and the formatter renders `Ctrl+K Ctrl+S`. Presets can now use
+  chords too.
 - **New commands**: new file (`Ctrl+N`), open file (`Ctrl+O`), save all
   (`Ctrl+Alt+S`), terminal toggle (`` Ctrl+` ``) and new terminal
   (`` Ctrl+Shift+` ``), search/problems/extensions panels (`Ctrl+Shift+F/M/X`).
