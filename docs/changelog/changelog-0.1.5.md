@@ -363,10 +363,13 @@ published are not edited. The file goes per version:
   timeline) register `tooldock.<id>` commands too (`Ctrl+Alt+K/O/Y`). A test
   enforces unique ids, unique combos (two toggles on one combo would cancel each
   other) and no clash with `git.panel`.
-- **`tabs.toggleDocked` (`Ctrl+Alt+D`)** switches the editor tabs between the
+- **`tabs.toggleDocked` (`Ctrl+Alt+P`)** switches the editor tabs between the
   horizontal bar and the docked list panel. Docking opens the `tabs` panel;
   undocking closes it, so no orphan panel is left showing a list that no longer
   applies. It's a normal command: palette, Settings → Shortcuts and rebindable.
+  The first default was `Ctrl+Alt+D`, but on Linux desktops (GNOME/Ubuntu) that
+  is the system **"show desktop"** shortcut: the OS swallows it and the app never
+  sees the key. `Ctrl+Alt+P` (panel) is free on Windows and Linux.
 - **Settings → Shortcuts.** A new section lists every command with its effective
   combo (from `listKeybindings()`), lets you **rebind** one by capturing the next
   combination (Esc cancels, Del clears), **reset** it to the factory combo, and
