@@ -140,6 +140,13 @@ published are not edited. The file goes per version:
   the level Chromium saves per origin in the profile can no longer come back.
   The app's own zoom (editor canvas, terminal, node view) is untouched: it is
   handled by the engine, not by the page.
+- **Reload, DevTools and fullscreen work again.** Removing the application menu
+  also removed Electron's default accelerator set: `Ctrl+R`/`F5` (reload),
+  `Ctrl+Shift+R`/`Shift+F5` (force reload), `Ctrl+Shift+I`/`F12` (DevTools, dev
+  builds) and `F11` (fullscreen) stopped doing anything. They are re-registered
+  in the main process with `before-input-event` — without the zoom roles — so
+  the development flow works again while the page zoom stays blocked.
+  `Ctrl+Alt+…` is left untouched for the app's own shortcut engine.
 
 ### Status bar (UI)
 - **The notifications popover now uses the workspaces pagination.** The list was
