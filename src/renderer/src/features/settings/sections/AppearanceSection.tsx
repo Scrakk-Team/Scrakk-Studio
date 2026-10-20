@@ -54,23 +54,19 @@ function ThemeSwatches({ theme }: { theme: RegisteredThemeEntry }): JSX.Element 
     : !isTransparent(colors.surface)
       ? colors.surface!
       : '#222'
-  // El color medio también se levanta un poco para que no lo aplaste el acento.
   const c1 = `color-mix(in srgb, ${c1Base} 90%, ${text} 10%)`
   const c2Base = !isTransparent(colors.bg)
     ? colors.bg!
     : (colors.surfaceRaised ?? colors.surface ?? '#000')
-  // El tercer color suele ser el fondo (casi negro): lo mezclamos con el texto
-  // del tema, que es claro en temas oscuros y oscuro en temas claros, para que
-  // se lea contra la card sin cambiar de familia cromática.
   const c2 = `color-mix(in srgb, ${c2Base} 70%, ${text} 30%)`
-  // Capas radiales con centros en alturas distintas: las uniones se curvan y
-  // se funden; la base diagonal mantiene el tercer color a lo ancho.
-  const gradient = [
-    `radial-gradient(75% 220% at 10% 30%, ${c0} 0%, ${c0} 24%, transparent 62%)`,
-    `radial-gradient(80% 230% at 50% 72%, ${c1} 0%, ${c1} 30%, transparent 68%)`,
-    `radial-gradient(85% 240% at 90% 32%, ${c2} 0%, ${c2} 34%, transparent 72%)`,
-    `linear-gradient(105deg, ${c0} 0%, ${c0} 20%, ${c1} 38%, ${c1} 62%, ${c2} 80%, ${c2} 100%)`
-  ].join(', ')
+  // Tres franjas rectas, en diagonal, con el mismo peso.
+  const gradient = `linear-gradient(135deg,
+    ${c0} 0%,
+    ${c0} 33.333%,
+    ${c1} 33.333%,
+    ${c1} 66.666%,
+    ${c2} 66.666%,
+    ${c2} 100%)`
   return (
     <div
       className={styles.swatches}
