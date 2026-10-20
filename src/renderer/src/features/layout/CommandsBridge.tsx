@@ -15,6 +15,9 @@ import { commandRegistry } from '@services/commands'
 import { toggleHistoryView } from './panels/HistoryPanel/viewState'
 import { setSkillsViewOpen } from './panels/SkillsPanel/viewState'
 
+import { isTabsDocked, setTabsDocked } from '@features/tabs'
+import { closePanelTabEverywhere } from './actions'
+import { t } from '@core/i18n'
 import { LAYOUT_TOGGLES } from './panelToggles'
 export function LayoutCommandsBridge(): JSX.Element | null {
   const { slots, toggleSlotPanel, openPanelTab } = useLayout()
@@ -46,6 +49,33 @@ export function LayoutCommandsBridge(): JSX.Element | null {
         // Abrir historial cierra la vista de skills (comparten el panel).
         setSkillsViewOpen(false)
         toggleHistoryView()
+      }
+    })
+    return unsub
+  }, [openPanelTab])
+
+  // Tabs acopladas: el MISMO par que el botón de la tab (SplitView) y el del
+  // header del panel, pero como COMANDO: aparece en la paleta y en
+  // Ajustes → Atajos, así que tiene atajo y se puede reasignar. Acoplar abre el
+  // panel de tabs; desacoplar lo cierra para no dejar un panel huérfano
+  // mostrando una lista que ya no aplica.
+  useEffect(() => {
+    const unsub = commandRegistry.register({
+      id: 'tabs.toggleDocked',
+      // Título según el estado (getter: se evalúa al pintar la paleta/Ajustes).
+      get title() {
+        return isTabsDocked() ? t('layout.tabs.arriba') : t('layout.tabs.al.panel')
+      },
+      category: 'Paneles',
+      keybinding: 'mod+alt+d',
+      run: () => {
+        if (isTabsDocked()) {
+          setTabsDocked(false)
+          closePanelTabEverywhere('tabs')
+          return
+        }
+        setTabsDocked(true)
+        openPanelTab('left', 'tabs')
       }
     })
     return unsub

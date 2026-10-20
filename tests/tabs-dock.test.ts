@@ -3,55 +3,52 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 /**
- * Tests del estado "tabs acopladas": cambio, notificación y publicación de la
- * clave de contexto que condiciona el botón `tabs` de la activity bar.
+ * Tabs acopladas al panel (store de `features/tabs/dock.ts`).
+ *
+ * El modo se expone como comando `tabs.toggleDocked` (Ctrl+Alt+D por defecto);
+ * acá se fija el contrato del store que ese comando usa: cambio idempotente,
+ * notificación a los suscriptores y persistencia (cuando hay storage).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
   isTabsDocked,
   setTabsDocked,
-  toggleTabsDocked,
   subscribeToTabsDocked,
-  bindTabsDockedContext,
-  TABS_DOCKED_CONTEXT_KEY
+  toggleTabsDocked
 } from '../src/renderer/src/features/tabs/dock'
 
-beforeEach(() => {
-  setTabsDocked(false)
-})
+describe('tabs acopladas', () => {
+  beforeEach(() => setTabsDocked(false))
 
-describe('tabs dock — estado', () => {
-  it('arranca desacoplado y cambia con set/toggle', () => {
-    expect(isTabsDocked()).toBe(false)
-    setTabsDocked(true)
-    expect(isTabsDocked()).toBe(true)
+  it('toggle cambia el modo y notifica una vez', () => {
+    const seen: boolean[] = []
+    const unsub = subscribeToTabsDocked(() => seen.push(isTabsDocked()))
     toggleTabsDocked()
-    expect(isTabsDocked()).toBe(false)
+    expect(isTabsDocked()).toBe(true)
+    unsub()
+    expect(seen).toEqual([true])
   })
 
-  it('set idempotente NO notifica', () => {
-    let calls = 0
-    const unsub = subscribeToTabsDocked(() => calls++)
-    setTabsDocked(false)
-    expect(calls).toBe(0)
+  it('set es idempotente: fijar el mismo valor NO emite', () => {
+    let emitted = 0
+    const unsub = subscribeToTabsDocked(() => {
+      emitted += 1
+    })
+    setTabsDocked(false) // ya estaba en false
+    expect(emitted).toBe(0)
     setTabsDocked(true)
-    expect(calls).toBe(1)
+    expect(emitted).toBe(1)
+    setTabsDocked(true) // repetido
+    expect(emitted).toBe(1)
     unsub()
   })
-})
 
-describe('tabs dock — clave de contexto', () => {
-  it('publica el valor actual al conectar y en cada cambio', () => {
-    const published: Array<[string, unknown]> = []
-    bindTabsDockedContext((key, value) => published.push([key, value]))
-    // Al conectar publica el estado actual (false).
-    expect(published).toEqual([[TABS_DOCKED_CONTEXT_KEY, false]])
+  it('persiste el modo cuando hay storage', () => {
+    if (typeof localStorage === 'undefined') return // entorno sin storage
     setTabsDocked(true)
-    expect(published).toEqual([
-      [TABS_DOCKED_CONTEXT_KEY, false],
-      [TABS_DOCKED_CONTEXT_KEY, true]
-    ])
+    expect(localStorage.getItem('scrakk:tabs-docked')).toBe('1')
+    setTabsDocked(false)
+    expect(localStorage.getItem('scrakk:tabs-docked')).toBe('0')
   })
 })
