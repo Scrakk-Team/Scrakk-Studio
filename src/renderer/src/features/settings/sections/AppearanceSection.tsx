@@ -45,22 +45,34 @@ interface ThemeCardProps {
 
 function ThemeSwatches({ theme }: { theme: RegisteredThemeEntry }): JSX.Element {
   const colors = theme.definition.colors
+  const isTransparent = (value: string | undefined): boolean =>
+    !value || value.trim().toLowerCase() === 'transparent'
   const c0 = colors.accent ?? '#888'
-  const c1 = colors.editorBg ?? colors.surface ?? '#222'
-  const c2 = colors.bg ?? '#000'
-  // Zonas con meseta y transiciones anchas: los tres colores se reconocen, pero
-  // las uniones se desvanecen en vez de cortarse con un borde duro.
-  const gradient = `linear-gradient(90deg,
-    ${c0} 0%,
-    ${c0} 14%,
-    ${c1} 40%,
-    ${c1} 60%,
-    ${c2} 86%,
-    ${c2} 100%)`
+  const c1 = !isTransparent(colors.editorBg)
+    ? colors.editorBg!
+    : !isTransparent(colors.surface)
+      ? colors.surface!
+      : '#222'
+  const c2Base = !isTransparent(colors.bg)
+    ? colors.bg!
+    : (colors.surfaceRaised ?? colors.surface ?? '#000')
+  // El tercer color suele ser el fondo (casi negro): lo mezclamos con el texto
+  // del tema, que es claro en temas oscuros y oscuro en temas claros, para que
+  // se lea contra la card sin cambiar de familia cromática.
+  const text = colors.text ?? 'var(--color-text)'
+  const c2 = `color-mix(in srgb, ${c2Base} 70%, ${text} 30%)`
+  // Capas radiales con centros en alturas distintas: las uniones se curvan y
+  // se funden; la base diagonal mantiene el tercer color a lo ancho.
+  const gradient = [
+    `radial-gradient(90% 240% at 4% 22%, ${c0} 0%, ${c0} 34%, transparent 78%)`,
+    `radial-gradient(95% 250% at 50% 78%, ${c1} 0%, ${c1} 32%, transparent 82%)`,
+    `radial-gradient(100% 260% at 97% 32%, ${c2} 0%, ${c2} 38%, transparent 86%)`,
+    `linear-gradient(112deg, ${c0} 0%, ${c1} 50%, ${c2} 100%)`
+  ].join(', ')
   return (
     <div
       className={styles.swatches}
-      style={{ background: gradient }}
+      style={{ backgroundImage: gradient }}
       aria-hidden="true"
     />
   )

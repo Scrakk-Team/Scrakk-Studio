@@ -192,8 +192,27 @@
   overflow: hidden;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  /* El fondo es un gradiente inline construido con los 3 colores del tema. */
-  background-size: 100% 100%;
+  /* El fondo es un gradiente inline construido con los 3 colores del tema.
+     El tamaño > 100% deja recorrerlo lentamente sin cortar los extremos. */
+  background-size: 160% 100%;
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  animation: swatch-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes swatch-drift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swatches {
+    animation: none;
+  }
 }
 
 .cardMeta {
