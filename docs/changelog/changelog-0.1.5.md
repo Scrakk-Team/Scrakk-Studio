@@ -729,9 +729,7 @@ published are not edited. The file goes per version:
   a secondary `.vsix` conversion action and a status line with an icon. The
   global context menu has a wider, calmer surface, aligned icon/check gutter,
   refined separators, danger tokens instead of a hardcoded red, and the same
-  chevron/check SVGs as the rest of the UI. The market publish form follows:
-  provider select with the shared chevron, dashed image upload tiles and SVG
-  remove buttons.
+  chevron/check SVGs as the rest of the UI.
 - **The Legal section follows the About layout.** The three documents were
   full-width bordered boxes stacked in a column, which read like form fields and
   left a big empty block. They are now **capsule links in a row** (the same

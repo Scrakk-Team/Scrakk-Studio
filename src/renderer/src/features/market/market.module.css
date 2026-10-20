@@ -499,26 +499,6 @@
   resize: vertical;
 }
 
-.selectWrap {
-  position: relative;
-  min-width: 0;
-}
-
-.selectWrap .select {
-  appearance: none;
-  padding-right: 28px;
-  cursor: pointer;
-}
-
-.selectChevron {
-  position: absolute;
-  right: 9px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-}
-
 .row {
   display: flex;
   gap: var(--space-2);
@@ -532,37 +512,7 @@
 .images {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.uploadTile {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 80px;
-  height: 80px;
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
-  color: var(--color-text-muted);
-  font-size: 10px;
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
-}
-
-.uploadTile:hover {
-  border-color: var(--color-accent);
-  background: var(--color-hover);
-  color: var(--color-text);
-}
-
-.uploadTile svg {
-  color: var(--color-text-secondary);
+  gap: 6px;
 }
 
 .image {
@@ -592,7 +542,7 @@
   border: none;
   border-radius: var(--radius-capsule);
   background: color-mix(in srgb, var(--color-danger) 85%, transparent);
-  color: var(--color-on-danger, #fff);
+  color: #fff;
   cursor: pointer;
 }
 
