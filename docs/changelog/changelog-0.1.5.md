@@ -118,6 +118,18 @@ published are not edited. The file goes per version:
   The icon is now `assets/scrakk-studio-b.png` — tracked, and the same image the
   window paints — used by all three platforms.
 
+### Window (UI)
+- **The whole window can no longer be zoomed (Ctrl+= / Ctrl+- / Ctrl+0 / Ctrl+wheel).**
+  The renderer guard was already there, but Electron's **default application
+  menu** carried the `zoomIn`/`zoomOut`/`resetZoom` roles, and those accelerators
+  are handled by Chromium **outside the DOM**: no `preventDefault()` in the page
+  could stop them. The app now runs with **no application menu** (it has its own
+  in the titlebar), the pinch-zoom is pinned to 1:1 and `zoom-changed`
+  (Ctrl+wheel) is cancelled at the origin, so the page zoom never changes — and
+  the level Chromium saves per origin in the profile can no longer come back.
+  The app's own zoom (editor canvas, terminal, node view) is untouched: it is
+  handled by the engine, not by the page.
+
 ### Status bar (UI)
 - **The notifications popover now uses the workspaces pagination.** The list was
   already split into pages of five, but the pager sat in a sticky footer with text
