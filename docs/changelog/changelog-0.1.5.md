@@ -331,6 +331,10 @@ published are not edited. The file goes per version:
   combination (Esc cancels, Del clears), **reset** it to the factory combo, and
   pick a **keymap** (Scrakk / VS Code / JetBrains). Rebinds are persisted on top
   of the preset, so switching presets does not throw them away.
+- The Shortcuts section reuses the IDE's own controls (the same `SegmentedTabs`
+  as Appearance for the keymap, the sticky search from Servers, flat rows) and
+  the command titles come **translated** from the registry (`msg()`), never the
+  raw i18n key.
 - **Import from VS Code.** Pick your `keybindings.json` (JSONC) and the section
   shows a **preview before writing anything**: how many map to a Scrakk command,
   how many have no equivalent, and how many are conditioned by `when`. Only the
@@ -649,6 +653,11 @@ published are not edited. The file goes per version:
   shape — avatars, dots — not a corner).
 
 ### Settings (UI)
+- **The theme list keeps its place.** The theme grid is its own scroller
+  (`.browser`), so the modal's scroll-to-top on section change left it at the top:
+  you picked a theme, went back in, and landed on the first card instead of on
+  your theme. The list now centers the **active theme** the first time it renders
+  (and after re-entering the section), and choosing a theme no longer moves it.
 - **The tools list is now horizontal and grouped by collapsible category.**
   Settings → Tools used to be a single vertical column of full-width rows, one
   per tool, under a flat category label — with dozens of tools (and the ones
