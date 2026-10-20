@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { loadTips } from '../src/renderer/src/features/layout/panels/WelcomePanel/tips'
+import { msg } from '../src/renderer/src/core/i18n'
 
 function catalogValue(lang: 'es' | 'en', key: string): string | undefined {
   const dir = join(process.cwd(), 'src/shared/i18n/catalogs', lang)
@@ -43,6 +44,15 @@ describe('tips de la bienvenida', () => {
         expect(catalogValue('es', key), `es: ${key}`).toBeTruthy()
         expect(catalogValue('en', key), `en: ${key}`).toBeTruthy()
       }
+    }
+  })
+
+  it('las claves resuelven en el runtime (índice de catálogos generado)', () => {
+    // No basta con que el JSON exista: `catalogs/index.ts` es generado y si el
+    // área no está importada, `t()` devuelve la CLAVE cruda en pantalla.
+    for (const tip of tips) {
+      expect(msg(tip.title), tip.title).not.toBe(tip.title)
+      expect(msg(tip.description), tip.description).not.toBe(tip.description)
     }
   })
 

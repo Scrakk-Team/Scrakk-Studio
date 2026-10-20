@@ -34,6 +34,7 @@ import settingsEs from './es/settings.json'
 import socialEs from './es/social.json'
 import statusbarEs from './es/statusbar.json'
 import titlebarEs from './es/titlebar.json'
+import welcomeEs from './es/welcome.json'
 import activitybarEn from './en/activitybar.json'
 import appEn from './en/app.json'
 import appearanceEn from './en/appearance.json'
@@ -58,10 +59,11 @@ import settingsEn from './en/settings.json'
 import socialEn from './en/social.json'
 import statusbarEn from './en/statusbar.json'
 import titlebarEn from './en/titlebar.json'
+import welcomeEn from './en/welcome.json'
 
-export const esCatalog = { ...activitybarEs, ...appEs, ...appearanceEs, ...chatEs, ...commonEs, ...coreEs, ...explorerEs, ...extensionviewsEs, ...featuresEs, ...gitEs, ...greetingsEs, ...layoutEs, ...mainEs, ...marketEs, ...miscEs, ...modalsEs, ...onboardingEs, ...paletteEs, ...providersEs, ...servicesEs, ...settingsEs, ...socialEs, ...statusbarEs, ...titlebarEs }
+export const esCatalog = { ...activitybarEs, ...appEs, ...appearanceEs, ...chatEs, ...commonEs, ...coreEs, ...explorerEs, ...extensionviewsEs, ...featuresEs, ...gitEs, ...greetingsEs, ...layoutEs, ...mainEs, ...marketEs, ...miscEs, ...modalsEs, ...onboardingEs, ...paletteEs, ...providersEs, ...servicesEs, ...settingsEs, ...socialEs, ...statusbarEs, ...titlebarEs, ...welcomeEs }
 
-export const enCatalog = { ...activitybarEn, ...appEn, ...appearanceEn, ...chatEn, ...commonEn, ...coreEn, ...explorerEn, ...extensionviewsEn, ...featuresEn, ...gitEn, ...greetingsEn, ...layoutEn, ...mainEn, ...marketEn, ...miscEn, ...modalsEn, ...onboardingEn, ...paletteEn, ...providersEn, ...servicesEn, ...settingsEn, ...socialEn, ...statusbarEn, ...titlebarEn }
+export const enCatalog = { ...activitybarEn, ...appEn, ...appearanceEn, ...chatEn, ...commonEn, ...coreEn, ...explorerEn, ...extensionviewsEn, ...featuresEn, ...gitEn, ...greetingsEn, ...layoutEn, ...mainEn, ...marketEn, ...miscEn, ...modalsEn, ...onboardingEn, ...paletteEn, ...providersEn, ...servicesEn, ...settingsEn, ...socialEn, ...statusbarEn, ...titlebarEn, ...welcomeEn }
 
 export const catalogs = { es: esCatalog, en: enCatalog } as const
 
