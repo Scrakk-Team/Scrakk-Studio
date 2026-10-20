@@ -712,6 +712,12 @@ published are not edited. The file goes per version:
   shape — avatars, dots — not a corner).
 
 ### Settings (UI)
+- **The Legal section follows the About layout.** The three documents were
+  full-width bordered boxes stacked in a column, which read like form fields and
+  left a big empty block. They are now **capsule links in a row** (the same
+  `--color-hover`/`--color-active` chips as the About buttons), with the
+  document version as the muted meta line under the description — same
+  typography, spacing and hover as *Acerca de*.
 - **The Terminal section is no longer in Settings.** The terminal font selector
   was its only content and it is gone from the navigation (hidden like
   Performance: the code and the persisted font stay, so the terminal keeps
