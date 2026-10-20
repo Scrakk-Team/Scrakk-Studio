@@ -279,16 +279,18 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.13`). The Storm background used to be a dark red sky with
-  two glow blobs; it is now a layered scene — blood moon with craters, drifting
-  cloud banks, rain, bats (the same silhouette the event uses, with the body
+  (`halloween-themes@1.4.14`). The Storm background used to be a dark red sky with
+  two glow blobs; it is now a layered scene — pale blue-white moon with craters and a small halo, drifting cloud banks,
+  rain, bats (the same silhouette the event uses, with the body
   clipped so flapping does not leave a static copy behind), a haunted house, a chapel, a small cemetery on the
   hillside (fence, crypt, solid tilted stones and crosses), cool fog and rising embers.
-  The single jack-o'-lantern sits on the ground to the right of the big tree, orange and shaded — projected ground shadow, radial
+  The fog is a seamless band that always covers the ground and keeps drifting
+  right. The single jack-o'-lantern sits on the ridge beside the big tree,
+  orange and shaded — projected ground shadow, radial
   body shading and a stem shadow — with light only in its eyes and mouth. The
   house and chapel windows are unlit (no halo), and a near foreground ridge
-  covers the bottom of the buildings so they sit on the hill instead of
-  floating. The
+  covers the bottom of the buildings and trees so they sit behind the hill
+  instead of floating. The
   event no longer opens the red accent `stage.fog` that painted those two blobs
   over the scene (the background has its own cool fog). It also forces the pack's
   **Halloween Glass** theme: a transparent base with low-alpha glass surfaces and
