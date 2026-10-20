@@ -22,3 +22,5 @@ export {
 } from './layout'
 export type { ActivityBarButton, ActivityBarSide } from './types'
 export type { ButtonSide } from './layout'
+export { consumeDragClick, startButtonDrag } from './buttonDrag'
+export { DragGhost } from './DragGhost'

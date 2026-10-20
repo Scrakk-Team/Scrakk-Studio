@@ -15,7 +15,7 @@
  * instalarse o quitarse extensiones.
  */
 
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { preloadPanel, useLayout } from '@features/layout'
 import { ExtensionRegistry } from '@services/extensions'
 import { sanitizeSvgIcon } from '@services/extensions/svgIcon'
@@ -27,36 +27,19 @@ import {
 import { evaluateWhen } from '@services/extensions/when'
 import { bindTabsDockedContext } from '@features/tabs'
 import type { ActivityBarButton, ActivityBarSide } from './types'
-import {
-  getOrderedButtons,
-  moveButton,
-  restoreButtonLayout,
-  snapshotButtonLayout,
-  subscribeToButtonLayout,
-  allActivityButtons
-} from './layout'
+import { getOrderedButtons, subscribeToButtonLayout } from './layout'
+import { consumeDragClick, startButtonDrag } from './buttonDrag'
+import { DragGhost } from './DragGhost'
 import { getActivityBadge, subscribeToActivityBadges } from './badges'
 import styles from './ActivityBar.module.css'
 
 import { t } from '@core/i18n'
-/** Umbral en px antes de promover a drag (un click simple no dragea). */
-const DRAG_THRESHOLD = 6
 
 export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
   const { slots, toggleSlotPanel } = useLayout()
   const [version, setVersion] = useState(0)
   // Fantasma que sigue al cursor durante el drag (null = sin drag).
   const [ghost, setGhost] = useState<{ id: string; x: number; y: number } | null>(null)
-  const buttonEls = useRef(new Map<string, HTMLButtonElement>())
-  const dragRef = useRef<{
-    id: string
-    startX: number
-    startY: number
-    dragging: boolean
-    snapshot: string
-  } | null>(null)
-  // Click tras drag: se suprime una vez (el pointerup precede al click).
-  const suppressClickRef = useRef(false)
 
   // Re-render cuando se instalan/remueven extensiones (botones de runtime).
   useEffect(() => {
@@ -87,105 +70,13 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
     [side, version]
   )
 
-  function cleanupDragListeners(): void {
-    window.removeEventListener('pointermove', onDragMove)
-    window.removeEventListener('pointerup', onDragUp)
-    window.removeEventListener('pointercancel', onDragUp)
-    window.removeEventListener('keydown', onDragKey, true)
-    document.body.style.cursor = ''
-  }
-
-  function endDrag(restore: boolean): void {
-    const drag = dragRef.current
-    dragRef.current = null
-    cleanupDragListeners()
-    if (restore && drag) restoreButtonLayout(drag.snapshot)
-    setGhost(null)
-  }
-
-  /** Índice de inserción bajo el cursor en una barra (por mitades). */
-  function indexAt(bar: HTMLElement, y: number, skipId: string): number {
-    let index = 0
-    for (const [, el] of buttonEls.current) {
-      if (!bar.contains(el)) continue
-      const id = el.dataset.buttonId
-      if (!id || id === skipId) continue
-      const rect = el.getBoundingClientRect()
-      if (rect.height <= 0) continue
-      if (y > rect.top + rect.height / 2) index++
-      else break
-    }
-    return index
-  }
-
-  /** Índice de inserción en un ToolDock horizontal (por mitades de X). */
-  function toolDockIndexAt(dock: HTMLElement, x: number, skipId: string): number {
-    const btns = Array.from(dock.querySelectorAll<HTMLElement>('[data-button-id]'))
-    let index = 0
-    for (const el of btns) {
-      const id = el.dataset.buttonId
-      if (!id || id === skipId) continue
-      const rect = el.getBoundingClientRect()
-      if (rect.width <= 0) continue
-      if (x > rect.left + rect.width / 2) index++
-      else break
-    }
-    return index
-  }
-
-  function onDragMove(event: PointerEvent): void {
-    const drag = dragRef.current
-    if (!drag) return
-    const dx = event.clientX - drag.startX
-    const dy = event.clientY - drag.startY
-    if (!drag.dragging) {
-      if (Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return
-      drag.dragging = true
-      suppressClickRef.current = true
-      document.body.style.cursor = 'grabbing'
-    }
-    setGhost({ id: drag.id, x: event.clientX, y: event.clientY })
-    // Reorden EN VIVO: la lista se mueve con el cursor (estilo VS Code).
-    const under = document.elementFromPoint(event.clientX, event.clientY)
-    // Drop sobre un ToolDock: el botón se mueve a la ubicación 'toolDock'
-    // (el índice lo calcula el dock por X; -1 = soltar al final).
-    const dock = under?.closest?.('[data-tool-dock]') as HTMLElement | null
-    if (dock) {
-      moveButton(drag.id, 'toolDock', toolDockIndexAt(dock, event.clientX, drag.id))
-      return
-    }
-    const bar = under?.closest?.('nav[data-side]') as HTMLElement | null
-    if (!bar) return
-    const toSide = bar.dataset.side === 'right' ? 'right' : 'left'
-    moveButton(drag.id, toSide as ActivityBarSide, indexAt(bar, event.clientY, drag.id))
-  }
-
-  function onDragUp(): void {
-    if (dragRef.current?.dragging) suppressClickRef.current = true
-    endDrag(false)
-  }
-
-  function onDragKey(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && dragRef.current) {
-      event.preventDefault()
-      suppressClickRef.current = true
-      endDrag(true)
-    }
-  }
-
+  /** Arranca el drag del botón (el controlador compartido mueve el layout). */
   function onButtonPointerDown(event: React.PointerEvent, id: string): void {
-    if (event.button !== 0) return
-    dragRef.current = {
-      id,
-      startX: event.clientX,
-      startY: event.clientY,
-      dragging: false,
-      snapshot: snapshotButtonLayout()
-    }
-    window.addEventListener('pointermove', onDragMove)
-    window.addEventListener('pointerup', onDragUp)
-    window.addEventListener('pointercancel', onDragUp)
-    window.addEventListener('keydown', onDragKey, true)
+    startButtonDrag(event, id, {
+      onStart: (draggedId) => setGhost({ id: draggedId, x: event.clientX, y: event.clientY }),
+      onMove: (x, y) => setGhost((current) => (current ? { ...current, x, y } : { id, x, y })),
+      onEnd: () => setGhost(null)
+    })
   }
 
   return (
@@ -202,10 +93,6 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
         return (
           <button
             key={button.id}
-            ref={(el) => {
-              if (el) buttonEls.current.set(button.id, el)
-              else buttonEls.current.delete(button.id)
-            }}
             type="button"
             data-button-id={button.id}
             className={[styles.button, active ? styles.active : null, isGhost ? styles.dragging : null]
@@ -223,10 +110,8 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
               onButtonPointerDown(event, button.id)
             }}
             onClick={() => {
-              if (suppressClickRef.current) {
-                suppressClickRef.current = false
-                return
-              }
+              // El click que dispara el pointerup del drag no abre el panel.
+              if (consumeDragClick(button.id)) return
               toggleSlotPanel(side, button.panelId)
             }}
           >
@@ -243,25 +128,5 @@ export function ActivityBar({ side }: { side: ActivityBarSide }): JSX.Element {
       })}
       {ghost ? <DragGhost id={ghost.id} x={ghost.x} y={ghost.y} /> : null}
     </nav>
-  )
-}
-
-/** Fantasma que sigue al cursor (mismo icono, sin interactividad). */
-function DragGhost({ id, x, y }: { id: string; x: number; y: number }): JSX.Element {
-  const button = allActivityButtons().find((candidate) => candidate.id === id)
-  return (
-    <div
-      className={styles.ghost}
-      style={{ left: x, top: y }}
-      aria-hidden="true"
-    >
-      {button ? (
-        typeof button.icon === 'string' ? (
-          <span className={styles.svg} dangerouslySetInnerHTML={{ __html: sanitizeSvgIcon(button.icon) ?? '' }} />
-        ) : (
-          <button.icon size={20} />
-        )
-      ) : null}
-    </div>
   )
 }

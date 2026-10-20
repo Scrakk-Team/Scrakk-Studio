@@ -139,26 +139,4 @@
   pointer-events: none;
 }
 
-/* Fantasma del drag: sigue al cursor, sin interactividad. */
-.ghost {
-  position: fixed;
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-  color: var(--color-text);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  opacity: 0.95;
-}
-
-.ghost svg {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
+/* El fantasma del drag vive en DragGhost (portal al body). */

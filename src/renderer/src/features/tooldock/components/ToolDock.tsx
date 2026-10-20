@@ -26,10 +26,11 @@ import { createPortal } from 'react-dom'
 import { ProductIcon } from '@services/productIcons/components'
 import { PanelFrame } from '@features/layout'
 import {
+  consumeDragClick,
+  DragGhost,
   getToolDockedButtons,
-  moveButton,
-  subscribeToButtonLayout,
-  type ButtonSide
+  startButtonDrag,
+  subscribeToButtonLayout
 } from '@features/activitybar'
 import { toggleSlotPanel } from '@features/layout'
 import { commandRegistry } from '@services/commands'
@@ -55,6 +56,8 @@ export function ToolDock(): JSX.Element | null {
   const [itemsVersion, setItemsVersion] = useState(0)
   const [layoutVersion, setLayoutVersion] = useState(0)
   const [dragId, setDragId] = useState<string | null>(null)
+  // Posición del fantasma que sigue al cursor (null = sin drag).
+  const [ghostPos, setGhostPos] = useState<{ x: number; y: number } | null>(null)
 
   // Items del registry y botones dockeados: versiones para re-render.
   useEffect(() => subscribeToToolDockItems(() => setItemsVersion((v) => v + 1)), [])
@@ -109,48 +112,23 @@ export function ToolDock(): JSX.Element | null {
   )
   const activePanelItem = activeItem?.kind === 'item' ? activeItem.item : null
 
-  // ── Drag de botones dockeados (mismo sistema que la ActivityBar) ────────
+  // ── Drag de botones dockeados (mismo controlador que la ActivityBar) ────
   const handleButtonPointerDown = (event: React.PointerEvent, entry: DockEntry): void => {
-    if (event.button !== 0 || entry.kind !== 'activity') return
+    // Los items del dock (outline, timeline…) no se mueven: solo los botones
+    // que vinieron de una ActivityBar.
+    if (entry.kind !== 'activity') return
     const id = entry.button.id
-    let started = false
-    const startX = event.clientX
-    const startY = event.clientY
-
-    const onMove = (moveEvent: PointerEvent): void => {
-      const dx = moveEvent.clientX - startX
-      const dy = moveEvent.clientY - startY
-      if (!started && Math.abs(dx) + Math.abs(dy) < 6) return
-      if (!started) {
-        started = true
+    startButtonDrag(event, id, {
+      onStart: () => {
         setDragId(id)
-        document.body.style.cursor = 'grabbing'
+        setGhostPos({ x: event.clientX, y: event.clientY })
+      },
+      onMove: (x, y) => setGhostPos({ x, y }),
+      onEnd: () => {
+        setDragId(null)
+        setGhostPos(null)
       }
-      const under = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY)
-      // Volver a una barra lateral (índice por mitades verticales).
-      const bar = under?.closest?.('nav[data-side]') as HTMLElement | null
-      if (bar) {
-        const side = (bar.dataset.side === 'right' ? 'right' : 'left') as ButtonSide
-        moveButton(id, side, activityBarIndexAt(bar, moveEvent.clientY, id))
-        return
-      }
-      // Reorden dentro del dock (índice por mitades horizontales).
-      const dock = under?.closest?.('[data-tool-dock]') as HTMLElement | null
-      if (dock) {
-        moveButton(id, 'toolDock', dockIndexAt(dock, moveEvent.clientX, id))
-      }
-    }
-
-    const onUp = (): void => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-      document.body.style.cursor = ''
-      setDragId(null)
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('pointercancel', onUp)
+    })
   }
 
   const [liveHeight, setLiveHeight] = useState<number | null>(null)
@@ -336,6 +314,8 @@ export function ToolDock(): JSX.Element | null {
                 .join(' ')}
               onPointerDown={(event) => handleButtonPointerDown(event, entry)}
               onClick={() => {
+                // El click que dispara el pointerup del drag no activa el panel.
+                if (consumeDragClick(id)) return
                 if (entry.kind === 'activity') {
                   // Igual que la ActivityBar: activa el panel que declara.
                   toggleSlotPanel(entry.button.target, entry.button.panelId)
@@ -349,36 +329,9 @@ export function ToolDock(): JSX.Element | null {
           )
         })}
       </div>
+      {dragId && ghostPos ? <DragGhost id={dragId} x={ghostPos.x} y={ghostPos.y} /> : null}
     </div>
   )
-}
-
-function activityBarIndexAt(bar: HTMLElement, y: number, skipId: string): number {
-  const btns = Array.from(bar.querySelectorAll<HTMLElement>('[data-button-id]'))
-  let index = 0
-  for (const el of btns) {
-    const id = el.dataset.buttonId
-    if (!id || id === skipId) continue
-    const rect = el.getBoundingClientRect()
-    if (rect.height <= 0) continue
-    if (y > rect.top + rect.height / 2) index++
-    else break
-  }
-  return index
-}
-
-function dockIndexAt(dock: HTMLElement, x: number, skipId: string): number {
-  const btns = Array.from(dock.querySelectorAll<HTMLElement>('[data-button-id]'))
-  let index = 0
-  for (const el of btns) {
-    const id = el.dataset.buttonId
-    if (!id || id === skipId) continue
-    const rect = el.getBoundingClientRect()
-    if (rect.width <= 0) continue
-    if (x > rect.left + rect.width / 2) index++
-    else break
-  }
-  return index
 }
 
 function ButtonIcon({ entry }: { entry: DockEntry }): JSX.Element {

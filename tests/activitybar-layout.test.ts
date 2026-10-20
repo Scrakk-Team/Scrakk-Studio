@@ -19,6 +19,7 @@ vi.mock('@services/extensions', () => ({
 
 import {
   getOrderedButtons,
+  getToolDockedButtons,
   buttonPosition,
   moveButton,
   resetButtonLayout,
@@ -134,5 +135,36 @@ describe('activitybar layout — moveButton', () => {
   it('restore inválido no rompe', () => {
     restoreButtonLayout('{{{')
     expect(getOrderedButtons('left')).toHaveLength(6)
+  })
+})
+
+describe('activitybar layout — drag entre barra y ToolDock', () => {
+  it('mueve el ÚLTIMO icono de una barra al dock (y lo saca de la barra)', () => {
+    const left = getOrderedButtons('left')
+    const last = left[left.length - 1]
+    moveButton(last.id, 'toolDock', 0)
+    expect(getOrderedButtons('left').map((b) => b.id)).not.toContain(last.id)
+    expect(getToolDockedButtons().map((b) => b.id)).toEqual([last.id])
+    expect(buttonPosition(last.id)).toEqual({ side: 'toolDock', index: 0 })
+  })
+
+  it('devuelve el ÚLTIMO botón del dock a la barra', () => {
+    moveButton('extensions', 'toolDock', 0)
+    moveButton('tabs', 'toolDock', 1)
+    const dock = getToolDockedButtons()
+    const last = dock[dock.length - 1]
+    moveButton(last.id, 'left', 99)
+    expect(getOrderedButtons('left').map((b) => b.id).at(-1)).toBe(last.id)
+    expect(getToolDockedButtons().map((b) => b.id)).not.toContain(last.id)
+    expect(buttonPosition(last.id)?.side).toBe('left')
+  })
+
+  it('restore del drag devuelve el botón del dock a su barra', () => {
+    const snap = snapshotButtonLayout()
+    moveButton('extensions', 'toolDock', 0)
+    expect(getToolDockedButtons()).toHaveLength(1)
+    restoreButtonLayout(snap)
+    expect(getToolDockedButtons()).toHaveLength(0)
+    expect(getOrderedButtons('left').map((b) => b.id)).toContain('extensions')
   })
 })
