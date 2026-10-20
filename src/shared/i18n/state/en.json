@@ -12427,6 +12427,166 @@
       "needsReview": false,
       "at": "2026-10-20T00:43:43.390871Z",
       "approvedAt": "2026-10-20T00:43:43.390871Z"
+    },
+    "welcome.tip.save.title": {
+      "src": "b1370691d0459e90",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.save.description": {
+      "src": "86262e89a03f2ba9",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.palette.title": {
+      "src": "5b63975b7d828550",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.palette.description": {
+      "src": "96d65c255c29aee3",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.shortcuts.title": {
+      "src": "86c5153b81b3934d",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.shortcuts.description": {
+      "src": "b01f89f1afdd71fa",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.terminal.title": {
+      "src": "3344b2c21d93c5ad",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.terminal.description": {
+      "src": "644f298e36ec0dad",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.new-terminal.title": {
+      "src": "85ee13190161f188",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.new-terminal.description": {
+      "src": "dde2a0dd28716296",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.chat.title": {
+      "src": "86bd1441dcdeab10",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.chat.description": {
+      "src": "c61ebca8bc6c2244",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.explorer.title": {
+      "src": "d5120059860db4c9",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.explorer.description": {
+      "src": "943255efd1fa4dca",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.split.title": {
+      "src": "010829e073915510",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.split.description": {
+      "src": "110b1fda28af6276",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.problems.title": {
+      "src": "0be6d932cc6827be",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.problems.description": {
+      "src": "0538a0c5521c30ed",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.themes.title": {
+      "src": "90ba937d741137ed",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
+    },
+    "welcome.tip.themes.description": {
+      "src": "eb7df0674388f747",
+      "area": "welcome",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T02:37:55.082902Z",
+      "approvedAt": "2026-10-20T02:37:55.082902Z"
     }
   },
   "version": 1

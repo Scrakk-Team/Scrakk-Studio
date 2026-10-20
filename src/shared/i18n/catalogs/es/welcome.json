@@ -1,0 +1,22 @@
+{
+  "welcome.tip.save.title": "Guardar el archivo activo",
+  "welcome.tip.save.description": "Se guarda con su encoding y fin de línea. El atajo se puede cambiar en Ajustes → Atajos.",
+  "welcome.tip.palette.title": "Paleta de comandos",
+  "welcome.tip.palette.description": "Todo lo que el IDE puede hacer, buscando por nombre. También desde el menú ☰ de la barra superior.",
+  "welcome.tip.shortcuts.title": "Atajos a tu manera",
+  "welcome.tip.shortcuts.description": "En Ajustes → Atajos elegís el esquema (Scrakk, VS Code o JetBrains) o importás tu keybindings.json.",
+  "welcome.tip.terminal.title": "Terminal integrada",
+  "welcome.tip.terminal.description": "Abre la terminal del proyecto sin salir del editor; arrastrá entre terminales para unirlas en el lienzo.",
+  "welcome.tip.new-terminal.title": "Nueva terminal",
+  "welcome.tip.new-terminal.description": "Sumá otra terminal al lienzo y cambiá de una a otra sin perder el archivo que estás editando.",
+  "welcome.tip.chat.title": "Chat con la IA",
+  "welcome.tip.chat.description": "Preguntá por el archivo abierto. Las herramientas (buscar, editar, dibujar en un lienzo) son comandos más.",
+  "welcome.tip.explorer.title": "Explorador",
+  "welcome.tip.explorer.description": "Archivos del workspace: crear, renombrar y borrar con el clic derecho, con multi-selección.",
+  "welcome.tip.split.title": "Dividir el editor",
+  "welcome.tip.split.description": "Arrastrá una pestaña al borde del área de edición para trabajar con dos archivos lado a lado.",
+  "welcome.tip.problems.title": "Problemas y diagnósticos",
+  "welcome.tip.problems.description": "Los errores del LSP agrupados por archivo, actualizados mientras escribís.",
+  "welcome.tip.themes.title": "Tema claro u oscuro",
+  "welcome.tip.themes.description": "Cambiá entre claro y oscuro al instante; en Ajustes → Apariencia están todos, incluidos los de la tienda."
+}

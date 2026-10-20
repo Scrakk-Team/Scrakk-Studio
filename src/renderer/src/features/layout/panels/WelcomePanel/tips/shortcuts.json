@@ -1,0 +1,7 @@
+{
+  "id": "shortcuts",
+  "title": "welcome.tip.shortcuts.title",
+  "description": "welcome.tip.shortcuts.description",
+  "order": 30,
+  "command": "app.openSettings"
+}

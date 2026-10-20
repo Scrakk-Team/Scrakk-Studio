@@ -14,8 +14,15 @@
 
 export interface TipDef {
   id: string
+  /** Clave i18n (`welcome.tip.<id>.title`), NO el texto. */
   title: string
+  /** Clave i18n (`welcome.tip.<id>.description`), NO el texto. */
   description: string
+  /**
+   * Comando del IDE relacionado. El atajo NO se escribe en el consejo: se lee
+   * del registry al pintar, así sigue al keymap activo (VS Code/JetBrains/…).
+   */
+  command?: string
   order?: number
 }
 
@@ -42,6 +49,9 @@ export function parseTipDefinition(raw: unknown, source: string): TipDef | null 
     id: r.id.trim(),
     title: r.title.trim(),
     description: r.description.trim()
+  }
+  if (typeof r.command === 'string' && r.command.trim()) {
+    tip.command = r.command.trim()
   }
   if (typeof r.order === 'number' && Number.isFinite(r.order)) {
     tip.order = r.order

@@ -1,0 +1,7 @@
+{
+  "id": "new-terminal",
+  "title": "welcome.tip.new-terminal.title",
+  "description": "welcome.tip.new-terminal.description",
+  "order": 45,
+  "command": "terminal.new"
+}

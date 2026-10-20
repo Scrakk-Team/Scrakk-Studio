@@ -11,7 +11,9 @@ import type { ReleaseInfo } from '@shared/updates'
 import { loadTips } from "./tips";
 import { loadAnnouncement, parseLatestEntry, changelogHasNews, markChangelogSeen, pickAnnouncement, type WelcomeAnnouncement } from "./changelog";
 import { createNewFile, openFilesViaDialog, openFolderViaDialog } from "@features/explorer";
-import { t } from '@core/i18n'
+import { t, type MessageKey } from '@core/i18n'
+import { commandRegistry } from '@services/commands'
+import { formatCombo } from '@services/shortcuts'
 import "./WelcomePanel.css";
 
 /** Consejos desde `tips/*.json` (agregar JSON = agregar consejo). */
@@ -278,14 +280,23 @@ export function WelcomePanel({
                 className="tips-track"
                 style={{ transform: `translateX(-${currentTipIndex * 100}%)` }}
               >
-                {TIPS.map((tip) => (
-                  <div key={tip.id} className="tip-card">
-                    <div className="tip-content">
-                      <h3 className="tip-title">{tip.title}</h3>
-                      <p className="tip-description">{tip.description}</p>
+                {TIPS.map((tip) => {
+                  // El atajo sale del COMANDO (registry), no del texto: si el
+                  // usuario cambia de keymap, el consejo muestra el combo real.
+                  const command = tip.command ? commandRegistry.get(tip.command) : null
+                  const combo = command?.keybinding ? formatCombo(command.keybinding) : null
+                  return (
+                    <div key={tip.id} className="tip-card">
+                      <div className="tip-content">
+                        <h3 className="tip-title">
+                          {t(tip.title as MessageKey)}
+                          {combo ? <span className="tip-combo">{combo}</span> : null}
+                        </h3>
+                        <p className="tip-description">{t(tip.description as MessageKey)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>

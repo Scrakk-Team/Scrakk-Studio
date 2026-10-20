@@ -1,0 +1,7 @@
+{
+  "id": "themes",
+  "title": "welcome.tip.themes.title",
+  "description": "welcome.tip.themes.description",
+  "order": 90,
+  "command": "theme.cycle"
+}

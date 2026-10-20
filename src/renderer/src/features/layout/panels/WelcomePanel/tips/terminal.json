@@ -1,6 +1,7 @@
 {
   "id": "terminal",
-  "title": "Ctrl+J muestra/oculta la terminal",
-  "description": "Ejecuta comandos sin salir del editor. Soporta múltiples terminales simultáneas.",
-  "order": 70
+  "title": "welcome.tip.terminal.title",
+  "description": "welcome.tip.terminal.description",
+  "order": 40,
+  "command": "terminal.toggle"
 }

@@ -1,6 +1,7 @@
 {
   "id": "explorer",
-  "title": "Usa Ctrl+B para mostrar/ocultar el explorador",
-  "description": "Gana más espacio para tu código ocultando el panel lateral cuando no lo necesites.",
-  "order": 60
+  "title": "welcome.tip.explorer.title",
+  "description": "welcome.tip.explorer.description",
+  "order": 60,
+  "command": "layout.toggleExplorer"
 }

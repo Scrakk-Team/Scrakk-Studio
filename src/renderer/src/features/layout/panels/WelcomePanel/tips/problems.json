@@ -1,0 +1,7 @@
+{
+  "id": "problems",
+  "title": "welcome.tip.problems.title",
+  "description": "welcome.tip.problems.description",
+  "order": 80,
+  "command": "layout.toggleProblems"
+}

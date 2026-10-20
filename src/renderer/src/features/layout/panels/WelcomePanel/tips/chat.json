@@ -1,0 +1,7 @@
+{
+  "id": "chat",
+  "title": "welcome.tip.chat.title",
+  "description": "welcome.tip.chat.description",
+  "order": 50,
+  "command": "layout.toggleChat"
+}

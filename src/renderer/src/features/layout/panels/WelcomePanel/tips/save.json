@@ -1,6 +1,7 @@
 {
   "id": "save",
-  "title": "Usa Ctrl+S para guardar",
-  "description": "Guarda el archivo activo del editor al instante sin ir al menú.",
-  "order": 10
+  "title": "welcome.tip.save.title",
+  "description": "welcome.tip.save.description",
+  "order": 10,
+  "command": "file.save"
 }
