@@ -279,7 +279,7 @@ published are not edited. The file goes per version:
   typography. A font file now gets its own `@font-face` written for it, and a
   stylesheet (Google Fonts `/css2?…`) keeps working.
 - **Halloween Themes now ships the Halloween Night event**
-  (`halloween-themes@1.4.14`). The Storm background used to be a dark red sky with
+  (`halloween-themes@1.4.15`). The Storm background used to be a dark red sky with
   two glow blobs; it is now a layered scene — pale blue-white moon with craters and a small halo, drifting cloud banks,
   rain, bats (the same silhouette the event uses, with the body
   clipped so flapping does not leave a static copy behind), a haunted house, a chapel, a small cemetery on the
@@ -297,9 +297,9 @@ published are not edited. The file goes per version:
   a cool accent, so the scene shows through the whole UI. The theme itself
   declares the Storm scene as its `background` overlay **and sets
   `glass: false`**, so selecting **Halloween Glass** manually brings the
-  background without the blur. Lightning strikes still come from the top but
-  land at a visibly random X (12–36 % to either side of the anchor), and the
-  permanent center bolt is gone, so a click no longer draws two bolts. A strike
+  background without the blur. Lightning now falls on its own every 6–15 seconds at a random X/Y instead of
+  being triggered by clicks; event-timed strikes still work. Bolts always enter
+  from the top, and the permanent center bolt is gone. A strike
   briefly lights the scene, and the soft layers render at half resolution so the
   full-screen effect stays cheap.
 
