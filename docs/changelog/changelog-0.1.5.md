@@ -440,10 +440,11 @@ published are not edited. The file goes per version:
 
 ### Extension store
 - **The store search and publish form now follow the Settings language.** The
-  search uses the same 40 px filled field as the Appearance theme search; the
-  provider picker is a Settings-style selector backed by the existing global
-  ContextMenu (not a native select); the form inputs are 36 px. The global
-  chevrons, settings selectors and context-menu styles are untouched.
+  search and every field inside the publish/install form use the same 40 px
+  filled, borderless field as the Appearance theme search. The provider picker
+  is a Settings-style selector backed by the existing global ContextMenu (not a
+  native select). The global chevrons, settings selectors and context-menu
+  styles are untouched.
 - **A repository can now host several extensions, each with its own version.**
   The store resolved `owner/repo` → *the latest release* → the `.sef`; with a
   catalogue repository (one folder per extension, one release per extension
