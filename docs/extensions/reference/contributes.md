@@ -262,6 +262,31 @@ duplicate name.
 
 Guide: [AI tools](../guides/tools.md).
 
+## keybindings
+
+Keyboard shortcuts contributed by the package. `command` is an IDE command id —
+the extension's own palette command (`<extId>:<id>`) or one from the Extension
+Host — and `key` is a combination or a **chord** (`ctrl+k ctrl+s`).
+
+```json
+{
+  "keybindings": [
+    { "command": "acme.deploy", "key": "ctrl+shift+d" },
+    { "command": "acme.deployAll", "key": "ctrl+k ctrl+d" }
+  ]
+}
+```
+
+| Field | Required | Note |
+|---|---|---|
+| `command` | yes | Command id: palette (`<extId>:<id>`) or the extension's host command |
+| `key` | yes | `ctrl+alt+x`, `f5`, `ctrl+k ctrl+s` (chord) |
+| `when` | — | **Not supported**: the entry is skipped (our shortcuts have no context scope) |
+
+Shortcuts run in the same engine as the IDE's own: pressing one runs the command
+in the palette, and falls back to the Extension Host for extensions with a
+`runtime`. Windows/Linux combos only (no macOS).
+
 ## skills
 
 Skills (Agent Skills standard): each entry points to a `SKILL.md` in the package.

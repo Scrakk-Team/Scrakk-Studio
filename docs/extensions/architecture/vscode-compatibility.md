@@ -40,7 +40,8 @@ The resulting `id` is `vscode-<publisher>.<name>` (sanitized).
 | `main` (Node code) | supported | Extension Host (`runtime`) |
 | `snippets`, `semanticTokenScopes`, `configurationDefaults` | partial | `languages` |
 | `commands`, `configuration` | partial | command registry / Settings |
-| `menus`, `keybindings`, `debuggers`, `tasks`, `terminal` | no | — |
+| `keybindings` | partial | `keybindings` (command + key; `when` is skipped) |
+| `menus`, `debuggers`, `tasks`, `terminal` | no | — |
 | `colors`, `icons`, `authentication`, `customEditors`, `notebooks` | no | — |
 | `chat*`, `languageModel*`, `mcpServerDefinitionProviders` | no | — |
 | `browser` (web extension) | no | the host does not run web extensions yet |
@@ -82,8 +83,9 @@ skipped and keep working with the converter they were born with.
 
 ## Real limits
 
-- There is **no** `menus`/`keybindings`: a VS Code extension that depends on a
-  context menu will not see it.
+- There is **no** `menus`: a VS Code extension that depends on a context menu
+  will not see it. `keybindings` do translate (command + key or chord), but
+  `when` conditions are skipped: our shortcuts have no context scope yet.
 - The `vscode.extensions` namespace is a **stub**: extensions cannot query each
   other.
 - `applyEdit`/`TextEditor.edit` are **not** there: an extension that edits the

@@ -305,6 +305,23 @@ published are not edited. The file goes per version:
   boot; commands that do not exist yet are reported (`missing`), never faked.
   Windows/Linux only (no macOS): no `meta`/`⌘`, and no chords — the engine still
   matches a single combo per event, so presets pick a chord-free equivalent.
+- **Settings → Shortcuts.** A new section lists every command with its effective
+  combo (from `listKeybindings()`), lets you **rebind** one by capturing the next
+  combination (Esc cancels, Del clears), **reset** it to the factory combo, and
+  pick a **keymap** (Scrakk / VS Code / JetBrains). Rebinds are persisted on top
+  of the preset, so switching presets does not throw them away.
+- **Import from VS Code.** Pick your `keybindings.json` (JSONC) and the section
+  shows a **preview before writing anything**: how many map to a Scrakk command,
+  how many have no equivalent, and how many are conditioned by `when`. Only the
+  translatable ones are applied (combinations and chords; macOS and negative
+  bindings are reported, never half-applied).
+- **Extensions can contribute keybindings** (`contributes.keybindings`): a
+  command plus a key or chord. The shortcut runs in the same engine as the IDE's
+  own and executes the palette command, falling back to the Extension Host for
+  extensions with a `runtime`. `when` is not supported (skipped with a notice).
+  The VSIX translator maps VS Code's `contributes.keybindings` to that kind, the
+  compatibility table now reports it as supported, and the SEF CLI (0.1.6)
+  validates it.
 - **The titlebar menu now runs commands instead of local handlers.** Every item
   that has a command takes its **label, its combo and its action from the
   registry** (`file.open`, `workspace.openFolder`, `file.save`, `file.saveAll`,

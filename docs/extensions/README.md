@@ -28,7 +28,7 @@ And **two kinds** depending on whether it runs code:
 | | **Declarative SEF** | **SEF with code** |
 |---|---|---|
 | Where the UI comes from | the package bundle (React) | the **Extension Host**: the extension runs in its own process and serves content over IPC |
-| Contribution kinds | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `languages`, `lspServers`, `encodings`, `fileHandlers`, `notifications`, `events`, `tools`, `skills` | `views` (+ `runtime` in the manifest) |
+| Contribution kinds | `panels`, `activityBar`, `centerTabs`, `themes`, `fileIcons`, `productIcons`, `languages`, `lspServers`, `encodings`, `fileHandlers`, `notifications`, `events`, `tools`, `skills`, `keybindings` | `views` (+ `runtime` in the manifest) |
 | Needs Node? | no | yes |
 
 The declarative kind **does not run your code**. The kind with code **does**, so
