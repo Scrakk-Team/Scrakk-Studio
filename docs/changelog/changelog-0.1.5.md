@@ -216,6 +216,32 @@ published are not edited. The file goes per version:
   **shapes** — avatars, the presence/resize dots and the tip pills — keep their
   form on purpose.
 
+### Activity bar & ToolDock (drag & drop)
+- **A button dropped on the dock can no longer stay in the source bar.** The
+  move used to be applied only from `pointermove`, so a fast drag that released
+  over the dock (or a bar) without an intermediate move at that exact spot left
+  the button in the bar while the pointer was already over the target. The drop
+  is now resolved again from the **release point**, and if the button is released
+  outside the bars the layout from the start of the drag is restored — a button
+  never ends up in a place that is not visible ("lost in the void").
+- **Both drags share one controller** (`features/activitybar/buttonDrag.ts`).
+  The ActivityBar and the ToolDock had two copies of the same logic that
+  disagreed on where the indices came from (the bar read a ref map in mount
+  order instead of the DOM), so dropping the last button could land somewhere
+  else than the cursor indicated. Indices now come from the DOM in document
+  order for both, and the dock drag gets the same floating ghost as the bar.
+- **The ghost is portaled to `document.body`.** It used to be a child of the
+  `<nav>`; a theme with `backdrop-filter` (glass themes) makes the bar the
+  containing block for `position: fixed`, so the ghost was clipped or displaced.
+  A drag that lost its `pointerup` (released outside the window, window lost
+  focus) kept moving buttons on hover with no mouse button pressed: a
+  `pointermove` with no button down, `blur` and `pointercancel` now close it.
+- **The click that ends a drag is suppressed per button** (short time window)
+  instead of a sticky flag. When the dragged button moved to the other bar it
+  unmounted without consuming the flag, so the **next** click on any bar button
+  was swallowed; the dock's drag did not suppress it at all, so releasing a drag
+  toggled the panel under the cursor.
+
 ### Extensions
 - **Declarative extensions can now add palette commands and answer AI tools.**
   Until now the only path to run an extension's code was the Extension Host, so
