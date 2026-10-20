@@ -756,6 +756,10 @@ published are not edited. The file goes per version:
   the same key the badge uses, so it appears exactly once per version. It only
   fires when the packaged changelog matches `__APP_VERSION__`: a changelog written
   ahead of the release does not pop up as an update.
+- **And a palette command to open it any time.** `Ver el changelog` (Help
+  category) is registered through the normal command API, with an **i18n key** as
+  its title so it is translated like every other command, and it opens the exact
+  same modal — the content still comes from the packaged `changelog-*.md`.
 - **The minimap is OFF by default.** It shipped on, so a fresh install (or any
   profile that never touched the switch) opened the editor with the right edge
   already taken by a minimap nobody asked for. `getMinimapVisible()` now returns

@@ -112,6 +112,22 @@
       "at": "2026-09-25T17:45:21.709Z",
       "approvedAt": "2026-09-25T17:45:46.190Z"
     },
+    "app.categoria.ayuda": {
+      "src": "32b40035b08043ae",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:00:00.000Z",
+      "approvedAt": "2026-10-20T00:00:00.000Z"
+    },
+    "app.changelog.ver": {
+      "src": "f66d6b3f7088914d",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:00:00.000Z",
+      "approvedAt": "2026-10-20T00:00:00.000Z"
+    },
     "app.changelog.cerrar": {
       "src": "3f3f7d88e05abb17",
       "area": "app",

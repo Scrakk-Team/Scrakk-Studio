@@ -10,6 +10,8 @@
   "app.app.language.servers": "app.language.servers",
   "app.boom.intencional.esto.es.una": "Boom intencional: esto es una prueba del boundary global",
   "app.capturar.el.editor.png": "Capturar el editor (PNG)",
+  "app.categoria.ayuda": "Ayuda",
+  "app.changelog.ver": "Ver el changelog",
   "app.cerrar.archivo.activo": "Cerrar archivo activo",
   "app.changelog.cerrar": "Entendido",
   "app.changelog.lead": "Esto es todo lo que cambió en esta versión.",

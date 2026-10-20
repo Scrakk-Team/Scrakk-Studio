@@ -42,6 +42,23 @@ describe('cuándo se abre', () => {
   })
 })
 
+describe('comando de paleta', () => {
+  const commands = read('src/renderer/src/features/changelog/commands.ts')
+
+  it('se registra por el API de comandos, con título i18n (no hardcodeado)', () => {
+    expect(commands).toContain("from '@services/commands'")
+    expect(commands).toContain('commandRegistry.register({')
+    // El título es una CLAVE: la paleta la resuelve al renderizar.
+    expect(commands).toContain("title: 'app.changelog.ver'")
+    expect(commands).toContain("category: t('app.categoria.ayuda')")
+  })
+
+  it('abre el MISMO modal y App lo registra', () => {
+    expect(commands).toContain('openChangelogModal()')
+    expect(read(APP)).toContain('registerChangelogCommands()')
+  })
+})
+
 describe('qué muestra', () => {
   const src = read(MODAL)
 

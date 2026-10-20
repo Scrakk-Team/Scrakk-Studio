@@ -10,6 +10,8 @@
   "app.app.language.servers": "app.language.servers",
   "app.boom.intencional.esto.es.una": "Intentional crash: this is a test of the global boundary",
   "app.capturar.el.editor.png": "Screenshot of the editor (PNG)",
+  "app.categoria.ayuda": "Help",
+  "app.changelog.ver": "View changelog",
   "app.cerrar.archivo.activo": "Close active file",
   "app.changelog.cerrar": "Got it",
   "app.changelog.lead": "Everything that changed in this version.",

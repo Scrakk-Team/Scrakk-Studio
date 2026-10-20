@@ -11,3 +11,8 @@ export {
   resetChangelogModalForTests
 } from './ChangelogModal'
 export type { ChangelogModalProps } from './ChangelogModal'
+export {
+  CHANGELOG_COMMAND_ID,
+  registerChangelogCommands,
+  resetChangelogCommandsForTests
+} from './commands'

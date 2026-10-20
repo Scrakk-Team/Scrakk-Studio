@@ -9,7 +9,7 @@ import { ChatsProvider, ToolConfirmationModal, registerChatCommands } from '@fea
 import {
   ProvidersProvider
 } from '@features/providers'
-import { maybeShowChangelogOnBoot } from '@features/changelog'
+import { maybeShowChangelogOnBoot, registerChangelogCommands } from '@features/changelog'
 import {
   LayoutProvider,
   PanelLayout,
@@ -233,6 +233,11 @@ export function App() {
   // Comandos con barra del chat con IA (`/variants`, …).
   useEffect(() => {
     registerChatCommands()
+  }, [])
+
+  // Comando de paleta para abrir el changelog a mano ("Ver el changelog").
+  useEffect(() => {
+    registerChangelogCommands()
   }, [])
 
   // Modos propios (`.scrakk/modes.json`) y luego las reglas de permisos
