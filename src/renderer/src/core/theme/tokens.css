@@ -11,6 +11,39 @@
    del sistema de extensiones (services/extensions/builtin/themes).
    ========================================================================== */
 
+/*
+ * Radios REGISTRADOS (no sólo variables): un `@property` con `syntax` vuelve la
+ * custom property ANIMABLE. Así, al cambiar de tema el valor se INTERPOLA y todo
+ * el chrome que usa `var(--radius-*)` sigue la animación en vivo (ver la
+ * `transition` de `:root.theme-animate`). Sin el registro, las variables saltan
+ * de golpe porque las custom properties no tienen tipo y no son interpolables.
+ */
+@property --radius-panel {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 12px;
+}
+@property --radius-md {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 12px;
+}
+@property --radius-sm {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 8px;
+}
+@property --radius-xs {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 4px;
+}
+@property --radius-input {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 10px;
+}
+
 :root {
   /* Radios — estética cápsula */
   --radius-capsule: 9999px;
@@ -53,4 +86,19 @@
 
   /* Geometría de ventana (38 debe coincidir con TITLEBAR_HEIGHT en el main) */
   --titlebar-height: 38px;
+}
+
+/*
+ * Al CAMBIAR de tema, el radio se anima en vivo (no salta). La clase la pone
+ * `logic.ts` recién DESPUÉS del primer pintado: el tema inicial no se anima
+ * (evita el morph de arranque desde los radios por defecto). Sólo se animan los
+ * radios; los colores siguen cambiando de golpe.
+ */
+:root.theme-animate {
+  transition:
+    --radius-panel var(--duration-base) var(--ease-out),
+    --radius-md var(--duration-base) var(--ease-out),
+    --radius-sm var(--duration-base) var(--ease-out),
+    --radius-xs var(--duration-base) var(--ease-out),
+    --radius-input var(--duration-base) var(--ease-out);
 }

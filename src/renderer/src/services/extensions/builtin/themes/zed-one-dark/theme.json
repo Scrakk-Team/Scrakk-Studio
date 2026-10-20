@@ -1,6 +1,13 @@
 {
   "name": "Zed One Dark",
   "type": "dark",
+  "radius": {
+    "panel": "5px",
+    "md": "5px",
+    "input": "4px",
+    "sm": "4px",
+    "xs": "3px"
+  },
   "colors": {
     "bg": "#282c33",
     "surface": "#2f343e",
