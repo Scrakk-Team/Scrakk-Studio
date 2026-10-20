@@ -653,6 +653,13 @@ published are not edited. The file goes per version:
   shape — avatars, dots — not a corner).
 
 ### Settings (UI)
+- **The Terminal section is no longer in Settings.** The terminal font selector
+  was its only content and it is gone from the navigation (hidden like
+  Performance: the code and the persisted font stay, so the terminal keeps
+  working; the entry just isn't reachable).
+- **The Shortcuts and Providers search fields use the theme search pattern**
+  (no border, filled over the background). The old outer strip and the
+  `focus-within` border read as a cut-off background / heavy outline.
 - **The theme list keeps its place.** The theme grid is its own scroller
   (`.browser`), so the modal's scroll-to-top on section change left it at the top:
   you picked a theme, went back in, and landed on the first card instead of on
