@@ -50,6 +50,12 @@ class CommandRegistryClass {
       console.warn(`[commands] "${command.id}" ya registrado — ignorado`)
       return () => undefined
     }
+    // Re-registro: primero se da de baja el atajo VIEJO. Sin esto, cambiar el
+    // `keybinding` en runtime (keymaps/rebind) dejaba el combo anterior
+    // registrado y disparando para siempre (atajo huérfano).
+    if (this.commands.has(command.id)) {
+      shortcuts.unregister(`command:${command.id}`)
+    }
     this.commands.set(command.id, command)
 
     // Shortcut REAL: cada comando con keybinding queda registrado en el

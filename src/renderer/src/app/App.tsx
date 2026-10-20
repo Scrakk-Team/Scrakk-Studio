@@ -14,7 +14,9 @@ import {
   PanelLayout,
   LayoutShortcuts,
   LayoutCommandsBridge,
-  CenterFileTabsSync
+  CenterFileTabsSync,
+  openNewTerminalTab,
+  toggleSlotPanel
 } from '@features/layout'
 import { DragGhost, SplitOverlay } from '@features/dnd'
 import { FileViewHeaderBridge } from '@features/fileHandlers/FileViewHeaderBridge'
@@ -34,13 +36,13 @@ import { loadPermissionSettings } from '@services/ai/policy/permissionSettings'
 import { loadModeSettings } from '@services/ai/policy/modeSettings'
 import { loadAgentSettings } from '@services/ai/agents'
 import { commandRegistry, type Command } from '@services/commands'
-import { setWorkspaceRoot } from '@features/explorer'
+import { createNewFile, openFilesViaDialog, setWorkspaceRoot } from '@features/explorer'
 import { getEditorFiles, requestCloseFile } from '@features/editor'
 import { getEditorCursor } from '@features/editor/cursorBus'
 import { notify } from '@services/notifications'
 import { registerTokenInspectorCommand } from '@features/editor/inspect'
 import { captureEditorScreenshot } from '@features/editor/screenshot'
-import { saveActiveFile } from '@features/editor/save'
+import { saveActiveFile, saveFileByPath } from '@features/editor/save'
 import { expandSelectionFromTree } from '@features/editor/treeNavigation'
 import {
   goToDefinitionTarget,
@@ -51,6 +53,8 @@ import {
   setMinimapVisibleEverywhere
 } from '@features/editor/engines/innerta/InnertaEngine'
 import { api } from '@services/api'
+import { restorePersistedKeymap } from '@services/keybindings'
+import { recordWorkspace } from '@services/workspaces'
 
 /**
  * Los proveedores ya no usan modal: abren Ajustes → Chat → Proveedores.
@@ -74,7 +78,11 @@ const APP_COMMANDS: Command[] = [
     category: 'Workspace',
     run: async () => {
       const res = await api.fs.pickFolder()
-      if (res.success && res.path) setWorkspaceRoot(res.path)
+      if (res.success && res.path) {
+        // Igual que el `+` del widget de workspaces: registra en el historial.
+        recordWorkspace(res.path)
+        setWorkspaceRoot(res.path)
+      }
     }
   },
   {
@@ -100,6 +108,80 @@ const APP_COMMANDS: Command[] = [
     keybinding: 'mod+s',
     run: () => {
       void saveActiveFile()
+    }
+  },
+  {
+    id: 'file.new',
+    get title() { return t('explorer.nuevo.archivo') },
+    category: 'Archivo',
+    keybinding: 'mod+n',
+    run: () => {
+      void createNewFile()
+    }
+  },
+  {
+    id: 'file.open',
+    get title() { return t('menu.file.openFile') },
+    category: 'Archivo',
+    keybinding: 'mod+o',
+    run: () => {
+      void openFilesViaDialog()
+    }
+  },
+  {
+    id: 'file.saveAll',
+    get title() { return t('app.guardar.todos') },
+    category: 'Archivo',
+    keybinding: 'mod+alt+s',
+    run: () => {
+      // Guarda los abiertos con SU encoding/EOL; sin dirty-check propio: el
+      // escritor ya compara revisión (ver `saveFileByPath`).
+      for (const file of getEditorFiles().openFiles) void saveFileByPath(file.path)
+    }
+  },
+  {
+    id: 'terminal.toggle',
+    get title() { return t('titlebar.terminal') },
+    category: 'Terminal',
+    keybinding: 'mod+`',
+    run: () => {
+      toggleSlotPanel('bottom', 'innerta-terminal')
+    }
+  },
+  {
+    id: 'terminal.new',
+    get title() { return t('layout.crear.terminal') },
+    category: 'Terminal',
+    keybinding: 'mod+shift+`',
+    run: () => {
+      openNewTerminalTab('bottom')
+    }
+  },
+  {
+    id: 'layout.toggleSearch',
+    get title() { return t('layout.panel.search') },
+    category: 'Paneles',
+    keybinding: 'mod+shift+f',
+    run: () => {
+      toggleSlotPanel('left', 'search')
+    }
+  },
+  {
+    id: 'layout.toggleProblems',
+    get title() { return t('layout.panel.problems') },
+    category: 'Paneles',
+    keybinding: 'mod+shift+m',
+    run: () => {
+      toggleSlotPanel('bottom', 'problems')
+    }
+  },
+  {
+    id: 'layout.toggleExtensions',
+    get title() { return t('layout.panel.extensions') },
+    category: 'Paneles',
+    keybinding: 'mod+shift+x',
+    run: () => {
+      toggleSlotPanel('left', 'extensions')
     }
   },
   {
@@ -186,6 +268,9 @@ export function App() {
     const unsubs = APP_COMMANDS.map((command) =>
       commandRegistry.register(command, { allowOverwrite: true })
     )
+    // Keymap elegido (Scrakk / VS Code / JetBrains). Va DESPUÉS del registro:
+    // re-registra los comandos con el combo del preset persistido.
+    restorePersistedKeymap()
     const handler = (event: Event): void => {
       const section = (event as CustomEvent<{ section?: SettingsSectionId }>).detail?.section
       setSettingsSection(section)
@@ -197,9 +282,9 @@ export function App() {
     // Pasa por la guardia dirty: no se tira un buffer con cambios callando.
     const unsubClose = commandRegistry.register({
       id: 'editor.closeActiveFile',
-      title: 'app.cerrar.archivo.activo',
+      title: 'menu.file.closeFile',
       category: 'Editor',
-      keybinding: 'mod+alt+w',
+      keybinding: 'mod+w',
       run: () => {
         const { activePath } = getEditorFiles()
         if (activePath) requestCloseFile(activePath)

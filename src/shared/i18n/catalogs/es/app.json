@@ -17,5 +17,6 @@
   "app.language.servers": "Language Servers",
   "app.paleta.de.comandos": "Paleta de comandos",
   "app.refrescar.explorador": "Refrescar explorador",
-  "app.sin.definicion.en.el.cursor": "Sin definición en el cursor."
+  "app.sin.definicion.en.el.cursor": "Sin definición en el cursor.",
+  "app.guardar.todos": "Guardar todos los archivos"
 }

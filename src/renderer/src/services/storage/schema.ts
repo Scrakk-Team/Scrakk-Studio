@@ -58,7 +58,10 @@ export const STORAGE_KEYS = {
   TELEMETRY_ASKED_AT: 'telemetry.askedAt',
 
   /** Idioma de la interfaz ('system' sigue al SO). Default: system. */
-  I18N_LOCALE: 'i18n.locale'
+  I18N_LOCALE: 'i18n.locale',
+
+  /** Keymap elegido (Scrakk / VS Code / JetBrains): re-mapea los comandos. */
+  KEYMAP_PRESET: 'keymap.preset'
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

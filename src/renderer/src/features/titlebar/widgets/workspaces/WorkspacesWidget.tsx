@@ -20,10 +20,10 @@ import {
   type AnchoredRect
 } from '@services/modals'
 import { WorkspacesHistoryPanel } from './WorkspacesHistoryPanel'
+import { runCommand } from '@services/commands'
 import styles from './WorkspacesWidget.module.css'
 
 import { t } from '@core/i18n'
-import { api } from '@services/api'
 /** Key del popover de workspaces en el registry de modales (para toggle). */
 const WORKSPACES_POPOVER_KEY = 'workspaces-history'
 
@@ -81,12 +81,11 @@ export function WorkspacesWidget(): JSX.Element {
     })
   }, [])
 
-  const addWorkspace = useCallback(async (): Promise<void> => {
-    const res = await api.fs.pickFolder()
-    if (res.success && res.path) {
-      recordWorkspace(res.path)
-      setWorkspaceRoot(res.path)
-    }
+  // El "+" no duplica la lógica: ejecuta el comando `workspace.openFolder`
+  // (que ya registra en el historial y setea la raíz). Así también respeta su
+  // atajo y aparece en la paleta.
+  const addWorkspace = useCallback((): void => {
+    runCommand('workspace.openFolder')
   }, [])
 
   const goTo = useCallback((path: string | null): void => {
@@ -138,7 +137,7 @@ export function WorkspacesWidget(): JSX.Element {
           className={styles.nav}
           aria-label={t('titlebar.agregar.workspace')}
           title={t('titlebar.agregar.workspace')}
-          onClick={() => void addWorkspace()}
+          onClick={addWorkspace}
         >
           <ProductIcon id="plus" size={13} />
         </button>

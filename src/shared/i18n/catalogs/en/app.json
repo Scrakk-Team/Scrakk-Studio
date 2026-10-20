@@ -17,5 +17,6 @@
   "app.language.servers": "Language Servers",
   "app.paleta.de.comandos": "Command Palette",
   "app.refrescar.explorador": "Refresh browser",
-  "app.sin.definicion.en.el.cursor": "No definition at the cursor"
+  "app.sin.definicion.en.el.cursor": "No definition at the cursor",
+  "app.guardar.todos": "Save all files"
 }

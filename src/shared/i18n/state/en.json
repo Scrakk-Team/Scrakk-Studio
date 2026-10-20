@@ -12291,6 +12291,14 @@
       "needsReview": false,
       "at": "2026-09-25T17:29:59.149Z",
       "approvedAt": "2026-09-25T17:32:07.888Z"
+    },
+    "app.guardar.todos": {
+      "src": "ce7804c0fee48690",
+      "area": "app",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-20T00:09:59.205142Z",
+      "approvedAt": "2026-10-20T00:09:59.205142Z"
     }
   },
   "version": 1

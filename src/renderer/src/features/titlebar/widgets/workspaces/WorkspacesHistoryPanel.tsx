@@ -12,10 +12,10 @@ import {
   recordWorkspace,
   subscribeToWorkspaces
 } from '@services/workspaces'
+import { runCommand } from '@services/commands'
 import styles from './WorkspacesHistoryPanel.module.css'
 
 import { t } from '@core/i18n'
-import { api } from '@services/api'
 interface WorkspacesHistoryPanelProps {
   /** Se llama al navegar (el host cierra el popover). */
   onNavigate?: () => void
@@ -58,13 +58,10 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
     onNavigate?.()
   }
 
-  const addWorkspace = async (): Promise<void> => {
-    const res = await api.fs.pickFolder()
-    if (res.success && res.path) {
-      recordWorkspace(res.path)
-      setWorkspaceRoot(res.path)
-      onNavigate?.()
-    }
+  // Mismo comando que el "+" del widget: una sola implementación.
+  const addWorkspace = (): void => {
+    runCommand('workspace.openFolder')
+    onNavigate?.()
   }
 
   // Paginación (no scroll): `current` ya es el workspace activo, así que la
@@ -139,7 +136,7 @@ export function WorkspacesHistoryPanel({ onNavigate }: WorkspacesHistoryPanelPro
         </div>
       )}
 
-      <button type="button" className={styles.add} onClick={() => void addWorkspace()}>
+      <button type="button" className={styles.add} onClick={addWorkspace}>
         <ProductIcon id="plus" size={12} />
         {t('titlebar.agregar.workspace')}
       </button>

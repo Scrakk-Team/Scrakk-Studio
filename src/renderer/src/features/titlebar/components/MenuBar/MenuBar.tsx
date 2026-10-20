@@ -11,20 +11,21 @@ import {
   type JSX
 } from 'react'
 import { ContextMenu, type ContextMenuItem } from '@ui'
-import { isHistoryViewOpen, setSkillsViewOpen, subscribeToHistoryView, toggleHistoryView, useLayout } from '@features/layout'
-import { getEditorFiles, performEditorEdit, requestCloseFile, type EditorEditAction } from '@features/editor'
-import { openFilesViaDialog, openFolderViaDialog } from '@features/explorer'
+import { isHistoryViewOpen, subscribeToHistoryView, useLayout } from '@features/layout'
+import { performEditorEdit, type EditorEditAction } from '@features/editor'
 import { SCRAKK_WEBSITE } from '@shared/links'
 import { useTheme } from '@core/theme/ThemeProvider'
 import styles from './MenuBar.module.css'
 
-import { t, useLocale } from '@core/i18n'
+import { msg, t, useLocale } from '@core/i18n'
 import { api } from '@services/api'
+import { commandRegistry, runCommand } from '@services/commands'
+import { formatCombo } from '@services/shortcuts'
 type MenuId = 'file' | 'edit' | 'view' | 'help'
 
 const MENU_IDS: MenuId[] = ['file', 'edit', 'view', 'help']
 
-function runCommand(command: string): void {
+function execDomCommand(command: string): void {
   try {
     document.execCommand(command)
   } catch {
@@ -51,8 +52,8 @@ const DOM_COMMAND: Record<EditorEditAction, string> = {
  * vía portal y alineados a cada botón.
  */
 export function MenuBar(): JSX.Element {
-  const { theme, toggleTheme } = useTheme()
-  const { slots, toggleSlotPanel, openPanelTab } = useLayout()
+  const { theme } = useTheme()
+  const { slots } = useLayout()
 
   // El historial ya no es un panel: es una vista dentro del chat. El menú
   // Ver necesita su estado para el check, así que se suscribe al store.
@@ -96,17 +97,35 @@ export function MenuBar(): JSX.Element {
   // nada con el editor.
   const editAction = useCallback((action: EditorEditAction): void => {
     if (!focusWasEditable.current && performEditorEdit(action)) return
-    runCommand(DOM_COMMAND[action])
+    execDomCommand(DOM_COMMAND[action])
   }, [])
 
-  // ── Acciones del menú Archivo ────────────────────────────────────────────
-  // Salen de `@features/explorer` (mismas que la bienvenida): antes estaban
-  // duplicadas acá y allá.
-  const closeActiveFile = useCallback((): void => {
-    const { activePath } = getEditorFiles()
-    // Guardia dirty: ofrece Guardar/Cerrar sin guardar antes de tirar el buffer.
-    if (activePath) requestCloseFile(activePath)
-  }, [])
+  /**
+   * Un ítem de menú que LEE el comando: título, combo y handler salen del
+   * registry (una sola fuente de verdad). Nada de etiquetas ni combos a mano.
+   * `registryVersion` refresca cuando cambia el keymap o se registra un comando.
+   */
+  const [registryVersion, setRegistryVersion] = useState(0)
+  useEffect(() => commandRegistry.subscribe(() => setRegistryVersion((v) => v + 1)), [])
+
+  const commandItem = useCallback(
+    (
+      id: string,
+      extra: Omit<ContextMenuItem, 'label' | 'onClick' | 'shortcut'> & { label?: string } = {}
+    ): ContextMenuItem => {
+      const command = commandRegistry.get(id)
+      const item: ContextMenuItem = {
+        ...extra,
+        label: extra.label ?? (command ? msg(command.title) : id),
+        onClick: () => runCommand(id)
+      }
+      if (command?.keybinding) item.shortcut = formatCombo(command.keybinding)
+      return item
+    },
+    // registryVersion: recalcula label/shortcut cuando cambian los comandos.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [registryVersion]
+  )
 
   const locale = useLocale()
   const menuDefinitions = useMemo<Record<MenuId, { label: string; items: ContextMenuItem[] }>>(() => {
@@ -114,22 +133,13 @@ export function MenuBar(): JSX.Element {
       file: {
         label: t('menu.file'),
         items: [
-          {
-            label: t('menu.file.openFile'),
-            shortcut: 'Ctrl+O',
-            onClick: () => void openFilesViaDialog()
-          },
-          {
-            label: t('menu.file.openFolder'),
-            shortcut: 'Ctrl+Shift+O',
-            onClick: () => void openFolderViaDialog()
-          },
-          {
-            label: t('menu.file.closeFile'),
-            shortcut: 'Ctrl+W',
-            separatorBefore: true,
-            onClick: closeActiveFile
-          },
+          commandItem('file.new'),
+          commandItem('file.open'),
+          commandItem('workspace.openFolder'),
+          commandItem('file.save', { separatorBefore: true }),
+          commandItem('file.saveAll'),
+          commandItem('editor.closeActiveFile', { separatorBefore: true }),
+          // Cerra ventana la maneja el SO (Alt+F4): no es un comando nuestro.
           {
             label: t('menu.file.closeWindow'),
             shortcut: 'Alt+F4',
@@ -178,31 +188,20 @@ export function MenuBar(): JSX.Element {
       view: {
         label: t('menu.view'),
         items: [
-          {
-            label: theme === 'dark' ? t('menu.view.lightMode') : t('menu.view.darkMode'),
-            onClick: toggleTheme
-          },
-          {
-            label: t('menu.view.chatPanel'),
+          // La etiqueta sigue al tema (Modo oscuro/claro), pero la ACCIÓN y el
+          // combo son del comando `theme.cycle`.
+          commandItem('theme.cycle', {
+            label: theme === 'dark' ? t('menu.view.lightMode') : t('menu.view.darkMode')
+          }),
+          commandItem('layout.toggleChat', {
             checked: slots.right === 'chat',
-            separatorBefore: true,
-            onClick: () => toggleSlotPanel('right', 'chat')
-          },
-          {
-            label: t('menu.view.chatHistory'),
-            checked: historyOpen,
-            onClick: () => {
-              openPanelTab('right', 'chat')
-              // Abrir historial cierra la vista de skills (comparten el panel).
-              setSkillsViewOpen(false)
-              toggleHistoryView()
-            }
-          },
-          {
-            label: t('menu.view.explorerPanel'),
-            checked: slots.left === 'explorer',
-            onClick: () => toggleSlotPanel('left', 'explorer')
-          }
+            separatorBefore: true
+          }),
+          commandItem('layout.toggleHistory', { checked: historyOpen }),
+          commandItem('layout.toggleExplorer', { checked: slots.left === 'explorer' }),
+          commandItem('layout.toggleSearch', { checked: slots.left === 'search' }),
+          commandItem('layout.toggleProblems', { checked: slots.bottom === 'problems' }),
+          commandItem('layout.toggleExtensions', { checked: slots.left === 'extensions' })
         ]
       },
       help: {
@@ -216,19 +215,7 @@ export function MenuBar(): JSX.Element {
         ]
       }
     }
-  }, [
-    locale,
-    theme,
-    toggleTheme,
-    slots,
-    toggleSlotPanel,
-    openPanelTab,
-    historyOpen,
-    openFilesViaDialog,
-    openFolderViaDialog,
-    closeActiveFile,
-    editAction
-  ])
+  }, [locale, theme, slots, historyOpen, editAction, commandItem])
 
   // Menú del hamburger: cada opción de la titlebar es un SUBMENÚ con sus items
   // reales (los mismos dropdowns de antes), más Terminal.
@@ -238,13 +225,10 @@ export function MenuBar(): JSX.Element {
         label: menuDefinitions[id].label,
         submenu: menuDefinitions[id].items
       })),
-      {
-        label: t('titlebar.terminal'),
-        separatorBefore: true,
-        onClick: () => toggleSlotPanel('bottom', 'innerta-terminal')
-      }
+      commandItem('terminal.toggle', { separatorBefore: true }),
+      commandItem('terminal.new')
     ],
-    [menuDefinitions, toggleSlotPanel]
+    [menuDefinitions, commandItem]
   )
 
   return (

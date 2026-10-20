@@ -145,6 +145,22 @@ export function persistLocalePreference(preference: LocalePreference): void {
   lsSet(STORAGE_KEYS.I18N_LOCALE, JSON.stringify(preference))
 }
 
+// ── Keymap ──────────────────────────────────────────────────────────────────
+
+/** Preset de keymap persistido (`scrakk` si no hay nada válido). */
+export function getPersistedKeymapPreset(): string {
+  try {
+    const raw = lsGet(STORAGE_KEYS.KEYMAP_PRESET)
+    return typeof raw === 'string' && raw.length > 0 ? raw : 'scrakk'
+  } catch {
+    return 'scrakk'
+  }
+}
+
+export function persistKeymapPreset(preset: string): void {
+  lsSet(STORAGE_KEYS.KEYMAP_PRESET, preset)
+}
+
 // ── Chat (sesiones + activa) ────────────────────────────────────────────────
 
 function isValidChatSessions(value: unknown): value is ChatSessionsData {
