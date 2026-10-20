@@ -12,32 +12,37 @@ import { describe, it, expect } from 'vitest'
 import * as path from 'node:path'
 import { kolargrepDirs, nativeSearchDirs } from '../src/main/search/nativePaths'
 
-const HERE = '/opt/scrakk/resources/app.asar/out/main'
-const CWD = '/home/dev/clon-malicioso'
+/** Se arma con separadores nativos: en Windows `app.asar\\` es `app.asar\`. */
+const ROOT = path.resolve('/opt/scrakk/resources')
+const ASAR = path.join(ROOT, 'app.asar')
+const HERE = path.join(ASAR, 'out', 'main')
+const UNPACKED = path.join(ROOT, 'app.asar.unpacked', 'out', 'main')
+const CWD = path.resolve('/home/dev/clon-malicioso')
 
 describe('nativeSearchDirs', () => {
   it('busca en el checkout de la app y en app.asar.unpacked', () => {
     const dirs = nativeSearchDirs(HERE)
-    expect(dirs).toContain(path.resolve('/opt/scrakk/resources/app.asar.unpacked/out/main'))
-    expect(dirs).toContain(path.resolve(HERE, '../../native/search'))
+    expect(dirs).toContain(UNPACKED)
+    expect(dirs).toContain(path.join(HERE, '../../native/search'))
   })
 
   it('solo deriva rutas de __dirname (no del cwd del proceso)', () => {
     const dirs = nativeSearchDirs(HERE)
-    expect(dirs).not.toContain(path.resolve(CWD, 'native/search'))
-    expect(dirs.every((dir) => dir.startsWith(path.resolve('/opt/scrakk/resources/app.asar')))).toBe(true)
+    expect(dirs).not.toContain(path.join(CWD, 'native/search'))
+    expect(dirs.every((dir) => dir.startsWith(ASAR))).toBe(true)
   })
 })
 
 describe('kolargrepDirs', () => {
   it('incluye resourcesPath y el checkout de desarrollo', () => {
-    const dirs = kolargrepDirs(HERE, '/opt/scrakk/resources')
-    expect(dirs[0]).toBe(path.resolve('/opt/scrakk/resources'))
-    expect(dirs).toContain(path.resolve(HERE, '../../native/kolargrep/target/release'))
+    const dirs = kolargrepDirs(HERE, ROOT)
+    // Tal cual: no se resuelve ni se normaliza (es lo que recibe Electron).
+    expect(dirs[0]).toBe(ROOT)
+    expect(dirs).toContain(path.join(HERE, '../../native/kolargrep/target/release'))
   })
 
   it('solo deriva rutas de __dirname y resourcesPath', () => {
-    const dirs = kolargrepDirs(HERE, '/opt/scrakk/resources')
-    expect(dirs).not.toContain(path.resolve(CWD, 'native/kolargrep/target/release'))
+    const dirs = kolargrepDirs(HERE, ROOT)
+    expect(dirs).not.toContain(path.join(CWD, 'native/kolargrep/target/release'))
   })
 })
