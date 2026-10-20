@@ -296,6 +296,33 @@ published are not edited. The file goes per version:
   the friends list, friend requests, search results, the chat header, the message
   header, the profile card, your own profile and the account switcher.
 
+### Keyboard shortcuts
+- **Keymaps with presets, applied over the command registry.** `services/keybindings`
+  re-registers the commands with the combos of the chosen preset — **Scrakk**,
+  **VS Code** (`Ctrl+W` close, `` Ctrl+` `` terminal, `Ctrl+Shift+F/M/X` panels,
+  `Ctrl+Shift+G` git…) or **JetBrains** (`Alt+F1`-family, `Alt+F12` terminal,
+  `Ctrl+Shift+A` search-everywhere…). The preset is persisted and re-applied on
+  boot; commands that do not exist yet are reported (`missing`), never faked.
+  Windows/Linux only (no macOS): no `meta`/`⌘`, and no chords — the engine still
+  matches a single combo per event, so presets pick a chord-free equivalent.
+- **The titlebar menu now runs commands instead of local handlers.** Every item
+  that has a command takes its **label, its combo and its action from the
+  registry** (`file.open`, `workspace.openFolder`, `file.save`, `file.saveAll`,
+  `editor.closeActiveFile`, `theme.cycle`, `layout.toggle*`, `terminal.toggle`,
+  `terminal.new`, …). What used to be a cosmetic label (`Ctrl+O`, `Ctrl+W`,
+  `Ctrl+Shift+O`) is a real, rebindable shortcut now, and the menu reflects the
+  active keymap as it changes.
+- **New commands**: new file (`Ctrl+N`), open file (`Ctrl+O`), save all
+  (`Ctrl+Alt+S`), terminal toggle (`` Ctrl+` ``) and new terminal
+  (`` Ctrl+Shift+` ``), search/problems/extensions panels (`Ctrl+Shift+F/M/X`).
+  `editor.closeActiveFile` moved to `Ctrl+W` (it was `Ctrl+Alt+W`).
+- **The workspaces “+” runs `workspace.openFolder`** instead of duplicating the
+  pick-folder + record-history logic in two widgets.
+- **Fixed: re-registering a command left its old shortcut alive.** With
+  `allowOverwrite`, the previous `command:<id>` shortcut stayed registered, so
+  rebinding a keymap left the old combo firing forever. The registry now
+  unregisters it before registering the new one.
+
 ### Extension store
 - **A repository can now host several extensions, each with its own version.**
   The store resolved `owner/repo` → *the latest release* → the `.sef`; with a
