@@ -443,7 +443,10 @@ published are not edited. The file goes per version:
   search and every field inside the publish/install form use the same 40 px
   filled, borderless field as the Appearance theme search. The provider picker
   is a Settings-style selector backed by the existing global ContextMenu (not a
-  native select). The global chevrons, settings selectors and context-menu
+  native select). The form follows the Git panel's calm layout: fields sit in
+  **Information / Repository / Metadata / Media** zones, labels are sentence
+  case (no uppercase), rows wrap in the narrow panel, and the icon/screenshots
+  share a media row. The global chevrons, settings selectors and context-menu
   styles are untouched.
 - **A repository can now host several extensions, each with its own version.**
   The store resolved `owner/repo` → *the latest release* → the `.sef`; with a

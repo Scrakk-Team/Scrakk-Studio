@@ -72,15 +72,18 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
 
   return (
     <div className={styles.form}>
-      <label className={styles.field}>
-        <span className={styles.label}>{t('market.form.nombre')}</span>
-        <input className={styles.input} value={name} onChange={(e) => setName(e.target.value)} />
-      </label>
+      <div className={styles.zone}>{t('market.form.zone.info')}</div>
+      <div className={styles.row}>
+        <label className={styles.field}>
+          <span className={styles.label}>{t('market.form.nombre')}</span>
+          <input className={styles.input} value={name} onChange={(e) => setName(e.target.value)} />
+        </label>
 
-      <label className={styles.field}>
-        <span className={styles.label}>{t('market.form.resumen')}</span>
-        <input className={styles.input} value={summary} onChange={(e) => setSummary(e.target.value)} />
-      </label>
+        <label className={styles.field}>
+          <span className={styles.label}>{t('market.form.resumen')}</span>
+          <input className={styles.input} value={summary} onChange={(e) => setSummary(e.target.value)} />
+        </label>
+      </div>
 
       <label className={styles.field}>
         <span className={styles.label}>{t('market.form.descripcion')}</span>
@@ -91,6 +94,7 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
         />
       </label>
 
+      <div className={styles.zone}>{t('market.form.zone.repo')}</div>
       <div className={styles.row}>
         <div className={styles.field}>
           <span className={styles.label}>{t('market.form.repo')}</span>
@@ -147,6 +151,7 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
         />
       </label>
 
+      <div className={styles.zone}>{t('market.form.zone.meta')}</div>
       <div className={styles.row}>
         <label className={styles.field}>
           <span className={styles.label}>{t('market.form.categorias')}</span>
@@ -168,29 +173,31 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
         <input className={styles.input} value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
       </label>
 
-      <div className={styles.field}>
-        <span className={styles.label}>{t('market.form.icono')}</span>
-        <div className={styles.images}>
-          {iconUrl ? (
-            <div className={styles.image}>
-              <img src={iconUrl} alt="" />
-              <button type="button" className={styles.imageRemove} onClick={() => setIconUrl('')}>
-                ×
-              </button>
-            </div>
-          ) : null}
-          <label className={styles.ghost}>
-            <ProductIcon id="plus" size={13} />
-            {t('market.form.subir')}
-            <input
-              type="file"
-              accept="image/*"
-              className={styles.hidden}
-              onChange={(e) => void pickImage(e, setIconUrl)}
-            />
-          </label>
+      <div className={styles.zone}>{t('market.form.zone.media')}</div>
+      <div className={styles.mediaRow}>
+        <div className={styles.field}>
+          <span className={styles.label}>{t('market.form.icono')}</span>
+          <div className={styles.images}>
+            {iconUrl ? (
+              <div className={styles.image}>
+                <img src={iconUrl} alt="" />
+                <button type="button" className={styles.imageRemove} onClick={() => setIconUrl('')}>
+                  ×
+                </button>
+              </div>
+            ) : null}
+            <label className={styles.ghost}>
+              <ProductIcon id="plus" size={13} />
+              {t('market.form.subir')}
+              <input
+                type="file"
+                accept="image/*"
+                className={styles.hidden}
+                onChange={(e) => void pickImage(e, setIconUrl)}
+              />
+            </label>
+          </div>
         </div>
-      </div>
 
       <div className={styles.field}>
         <span className={styles.label}>
@@ -223,6 +230,7 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
               />
             </label>
           ) : null}
+        </div>
         </div>
       </div>
 

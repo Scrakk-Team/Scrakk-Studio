@@ -62,5 +62,9 @@
   "market.ver.repo": "Ver repositorio",
   "market.verificado": "Verificado",
   "market.versiones": "Versiones",
-  "market.valoraciones": "Valoraciones"
+  "market.valoraciones": "Valoraciones",
+  "market.form.zone.info": "Información",
+  "market.form.zone.repo": "Repositorio",
+  "market.form.zone.meta": "Metadatos",
+  "market.form.zone.media": "Recursos"
 }
