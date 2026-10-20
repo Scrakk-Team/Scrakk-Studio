@@ -5,7 +5,7 @@
 /**
  * Tabs acopladas al panel (store de `features/tabs/dock.ts`).
  *
- * El modo se expone como comando `tabs.toggleDocked` (Ctrl+Alt+D por defecto);
+ * El modo se expone como comando `tabs.toggleDocked` (Ctrl+Alt+P por defecto;
  * acá se fija el contrato del store que ese comando usa: cambio idempotente,
  * notificación a los suscriptores y persistencia (cuando hay storage).
  */

@@ -67,7 +67,9 @@ export function LayoutCommandsBridge(): JSX.Element | null {
         return isTabsDocked() ? t('layout.tabs.arriba') : t('layout.tabs.al.panel')
       },
       category: 'Paneles',
-      keybinding: 'mod+alt+d',
+      // Ctrl+Alt+D es "Mostrar el escritorio" en GNOME/Ubuntu: el atajo nunca
+      // llega a la app. Ctrl+Alt+P (Panel) no choca con el escritorio.
+      keybinding: 'mod+alt+p',
       run: () => {
         if (isTabsDocked()) {
           setTabsDocked(false)
