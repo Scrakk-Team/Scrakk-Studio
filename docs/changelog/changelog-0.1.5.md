@@ -440,8 +440,8 @@ published are not edited. The file goes per version:
 
 ### Extension store
 - **The store search and publish form now follow the Settings language.** The
-  search and every field inside the publish/install form use the same 40 px
-  filled, borderless field as the Appearance theme search, always painted with
+  search matches the Appearance theme search field. Every field inside the
+  publish/install form is a 40 px filled, borderless field, always painted with
   `--color-surface` and with no focus/hover transition. The provider picker
   is a Settings-style selector backed by the existing global ContextMenu (not a
   native select). The form follows the Git panel's calm layout: fields sit in
