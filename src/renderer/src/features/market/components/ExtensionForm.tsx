@@ -5,6 +5,7 @@
 import { useState, type ChangeEvent, type JSX } from 'react'
 import { ProductIcon } from '@services/productIcons/components'
 import { MARKET_MAX_SCREENSHOTS, type MarketExtension, type RepoProvider } from '@shared/market'
+import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { useMarket } from '../state/MarketContext'
 import styles from '../market.module.css'
 
@@ -91,17 +92,40 @@ export function ExtensionForm({ initial, onDone }: ExtensionFormProps): JSX.Elem
       </label>
 
       <div className={styles.row}>
-        <label className={styles.field}>
+        <div className={styles.field}>
           <span className={styles.label}>{t('market.form.repo')}</span>
-          <select
+          <button
+            type="button"
             className={styles.select}
-            value={provider}
-            onChange={(e) => setProvider(e.target.value as RepoProvider)}
+            aria-haspopup="menu"
+            aria-label={t('market.form.repo')}
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect()
+              showContextMenu(rect.left, rect.bottom, [
+                {
+                  label: 'GitHub',
+                  checked: provider === 'github',
+                  onClick: () => setProvider('github')
+                },
+                {
+                  label: 'GitLab',
+                  checked: provider === 'gitlab',
+                  onClick: () => setProvider('gitlab')
+                }
+              ])
+            }}
           >
-            <option value="github">GitHub</option>
-            <option value="gitlab">GitLab</option>
-          </select>
-        </label>
+            <span className={styles.selectLabel}>
+              {provider === 'github' ? 'GitHub' : 'GitLab'}
+            </span>
+            <ProductIcon
+              id="chevron-down"
+              size={12}
+              className={styles.selectChevron}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
         <label className={styles.field}>
           <span className={styles.label}>{t('market.form.repo')}</span>
           <input

@@ -25,23 +25,18 @@
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
 }
 
+/* Mismo patrón que el buscador de temas de Apariencia: 40 px, relleno,
+   radio md y sin borde; el foco no agrega un outline ajeno al tema. */
 .searchRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 8px;
-  /* Idem: el input usa el borde de chrome (35%), no el pleno. */
-  border: 1px solid color-mix(in srgb, var(--color-border) 35%, transparent);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
   color: var(--color-text-muted);
-}
-
-.searchRow:focus-within {
-  /* El foco de los inputs del IDE se marca con --color-border-strong, no con
-     el acento (que brillaba más que cualquier otro borde). */
-  border-color: var(--color-border-strong);
 }
 
 .searchRow input {
@@ -53,6 +48,10 @@
   font-family: inherit;
   font-size: var(--text-sm);
   outline: none;
+}
+
+.searchRow input::placeholder {
+  color: var(--color-text-muted);
 }
 
 .tabs {
@@ -478,7 +477,6 @@
 .textarea,
 .select {
   width: 100%;
-  padding: 6px 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
   background: var(--color-surface-raised);
@@ -486,17 +484,53 @@
   font-family: inherit;
   font-size: var(--text-sm);
   outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
 }
 
-.input:focus,
-.textarea:focus,
-.select:focus {
-  border-color: var(--color-accent);
+.input {
+  height: 36px;
+  padding: 0 var(--space-3);
 }
 
 .textarea {
   min-height: 72px;
+  padding: var(--space-2) var(--space-3);
   resize: vertical;
+}
+
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  text-align: left;
+  cursor: pointer;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.select:hover,
+.select[aria-expanded='true'] {
+  background: var(--color-surface);
+}
+
+.selectLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectChevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
 }
 
 .row {
