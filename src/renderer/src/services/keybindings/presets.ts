@@ -13,9 +13,8 @@
  *
  * Reglas de esta tabla:
  *  - Solo `win`/`linux` (Scrakk no soporta macOS): nada de `meta`/`⌘`.
- *  - Sin chords: el motor matchea un combo por evento (`ctrl+k ctrl+s` no existe).
- *    Cuando el preset original usa una secuencia se elige el equivalente de UN
- *    combo y se anota en `note`.
+ *  - Los chords SÍ están soportados: se escriben con un espacio
+ *    (`ctrl+k ctrl+s`). Se usa el chord original de la IDE cuando existe.
  *  - `key: null` = dejar el comando sin atajo (la IDE original no tiene uno
  *    razonable que no sea un chord).
  *  - Si un comando no existe (todavía), `applyKeymap` lo reporta en `missing`.
@@ -72,11 +71,11 @@ export const KEYMAP_PRESETS: Record<KeymapPresetId, KeymapPreset> = {
       { command: 'palette.open', key: 'mod+shift+p' },
       { command: 'file.new', key: 'mod+n' },
       { command: 'file.open', key: 'mod+o' },
-      // VS Code: Ctrl+K Ctrl+O (chord) → equivalente de un combo.
-      { command: 'workspace.openFolder', key: 'mod+shift+o', note: 'Ctrl+K Ctrl+O es un chord' },
+      // Chord real de VS Code (el motor ya soporta secuencias).
+      { command: 'workspace.openFolder', key: 'ctrl+k ctrl+o' },
       { command: 'file.save', key: 'mod+s' },
-      // VS Code: Ctrl+K S (chord).
-      { command: 'file.saveAll', key: 'mod+alt+s', note: 'Ctrl+K S es un chord' },
+      // Chord real de VS Code.
+      { command: 'file.saveAll', key: 'ctrl+k s' },
       { command: 'editor.closeActiveFile', key: 'mod+w' },
       { command: 'terminal.toggle', key: 'mod+`' },
       { command: 'terminal.new', key: 'mod+shift+`' },

@@ -21,7 +21,9 @@ import { KEYMAP_PRESETS, applyKeymap, resetKeymap, listKeybindings } from '../sr
 const COMMANDS = [
   { id: 'file.save', title: 'Guardar archivo', category: 'Archivo', keybinding: 'mod+s' },
   { id: 'editor.closeActiveFile', title: 'Cerrar archivo', category: 'Editor', keybinding: 'mod+w' },
-  { id: 'terminal.toggle', title: 'Terminal', category: 'Terminal', keybinding: 'mod+`' }
+  { id: 'terminal.toggle', title: 'Terminal', category: 'Terminal', keybinding: 'mod+`' },
+  { id: 'file.saveAll', title: 'Guardar todos', category: 'Archivo', keybinding: 'mod+alt+s' },
+  { id: 'workspace.openFolder', title: 'Abrir carpeta', category: 'Workspace', keybinding: 'mod+shift+o' }
 ]
 
 function registerSamples(): void {
@@ -70,7 +72,10 @@ describe('keymaps — presets', () => {
 
   it('reporta los comandos que todavía no existen, sin inventarlos', () => {
     const result = applyKeymap('vscode', { persist: false })
-    expect(result.applied).toBe(COMMANDS.length)
+    const existing = KEYMAP_PRESETS.vscode.bindings.filter((binding) =>
+      commandRegistry.get(binding.command)
+    ).length
+    expect(result.applied).toBe(existing)
     expect(result.missing).toContain('layout.toggleExplorer')
     expect(commandRegistry.get('layout.toggleExplorer')).toBeNull()
   })
@@ -83,15 +88,22 @@ describe('keymaps — presets', () => {
     expect(comboOf('file.save')).toBe('mod+s')
   })
 
-  it('los presets no usan macOS ni chords', () => {
+  it('los presets no usan macOS (el resto es combinación o chord)', () => {
     for (const preset of Object.values(KEYMAP_PRESETS)) {
       for (const binding of preset.bindings) {
         if (!binding.key) continue
         expect(binding.key).not.toMatch(/\b(meta|cmd|command)\b/)
-        // Un chord se escribe con espacio ('ctrl+k ctrl+s'); el motor no lo soporta.
-        expect(binding.key).not.toMatch(/\s/)
       }
     }
+  })
+
+  it('el preset de VS Code usa sus chords reales', () => {
+    applyKeymap('vscode', { persist: false })
+    expect(comboOf('file.saveAll')).toBe('ctrl+k s')
+    expect(comboOf('workspace.openFolder')).toBe('ctrl+k ctrl+o')
+    // El display de un chord separa las dos partes.
+    const rows = listKeybindings()
+    expect(rows.find((row) => row.command === 'file.saveAll')?.display).toBe('Ctrl+K S')
   })
 
   it('listKeybindings refleja el estado efectivo (con display)', () => {
