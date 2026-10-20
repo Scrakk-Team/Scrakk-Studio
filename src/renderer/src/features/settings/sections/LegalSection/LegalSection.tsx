@@ -25,6 +25,7 @@ export function LegalSection(): JSX.Element {
   return (
     <div className={styles.legal}>
       <p className={styles.intro}>{t('settings.legal.descripcion')}</p>
+      <p className={styles.version}>{t('settings.legal.version', { version: LEGAL_VERSION })}</p>
       <ul className={styles.links}>
         {LINKS.map((link) => (
           <li key={link.href}>
@@ -34,7 +35,6 @@ export function LegalSection(): JSX.Element {
           </li>
         ))}
       </ul>
-      <p className={styles.version}>{t('settings.legal.version', { version: LEGAL_VERSION })}</p>
     </div>
   )
 }
