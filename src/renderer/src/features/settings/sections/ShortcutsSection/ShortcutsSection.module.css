@@ -146,17 +146,25 @@
   flex-shrink: 0;
 }
 
-/* Combo: código plano, sin pastilla (como los chips de Servidores). */
+/* Combo: MISMA apariencia que el chip de los 3 botones del WelcomePage
+   (`.action-badge`): 9px, muted, fondo del botón, borde sólo abajo. */
 .combo {
-  padding: 0;
-  background: none;
-  color: var(--color-text-secondary);
-  font-family: ui-monospace, 'SF Mono', Consolas, monospace;
-  font-size: 11px;
+  padding: 1px 5px;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+  border-radius: var(--radius-xs);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .comboCapturing {
   color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
 }
 
 /* ── Aviso de importación (mismo aire que el bloque de fuente de Apariencia) ─ */
