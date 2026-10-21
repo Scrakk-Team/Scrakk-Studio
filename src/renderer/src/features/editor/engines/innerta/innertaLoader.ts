@@ -371,11 +371,14 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
       const ptr = _raw._GetInnertaColorTokensJson() as number
       return (_raw.UTF8ToString as (p: number) => string)(ptr)
     },
-    /** Escribe el color en el token, respetando su formato original. */
+    /**
+     * Escribe el color en el literal, respetando su formato original. El
+     * motor re-parsea el literal en el texto vivo (el span cacheado quedó
+     * viejo con la vista previa en vivo).
+     */
     applyColorToken(
       line: number,
       colStart: number,
-      colEnd: number,
       r: number,
       g: number,
       b: number,
@@ -383,8 +386,8 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
     ) {
       if (typeof _raw._ApplyInnertaColorToken !== 'function') return false
       return (_raw._ApplyInnertaColorToken as (
-        l: number, cs: number, ce: number, r: number, g: number, b: number, a: number
-      ) => number)(line, colStart, colEnd, r, g, b, a) === 1
+        l: number, cs: number, r: number, g: number, b: number, a: number
+      ) => number)(line, colStart, r, g, b, a) === 1
     },
     getRevision() {
       if (typeof _raw._GetInnertaRevision !== 'function') return 0
@@ -948,11 +951,14 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
       const ptr = _raw._GetInnertaColorTokensJson() as number
       return (_raw.UTF8ToString as (p: number) => string)(ptr)
     },
-    /** Escribe el color en el token, respetando su formato original. */
+    /**
+     * Escribe el color en el literal, respetando su formato original. El
+     * motor re-parsea el literal en el texto vivo (el span cacheado quedó
+     * viejo con la vista previa en vivo).
+     */
     applyColorToken(
       line: number,
       colStart: number,
-      colEnd: number,
       r: number,
       g: number,
       b: number,
@@ -960,8 +966,8 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
     ) {
       if (typeof _raw._ApplyInnertaColorToken !== 'function') return false
       return (_raw._ApplyInnertaColorToken as (
-        l: number, cs: number, ce: number, r: number, g: number, b: number, a: number
-      ) => number)(line, colStart, colEnd, r, g, b, a) === 1
+        l: number, cs: number, r: number, g: number, b: number, a: number
+      ) => number)(line, colStart, r, g, b, a) === 1
     },
     getRevision() {
       if (typeof _raw._GetInnertaRevision !== 'function') return 0

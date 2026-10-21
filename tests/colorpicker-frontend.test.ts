@@ -87,6 +87,18 @@ describe('el frontend dibuja los cuadraditos y el panel', () => {
     expect(layer).toContain('onApply')
   })
 
+  it('el color se escribe EN VIVO mientras se arrastra', () => {
+    const layer = read(LAYER)
+    expect(layer).toContain('onChange={scheduleWrite}')
+    expect(layer).toContain('requestAnimationFrame')
+    expect(layer).toContain('flushWrite')
+  })
+
+  it('cancelar deja el texto como estaba', () => {
+    const layer = read(LAYER)
+    expect(layer).toContain('flushWrite(picker.color)')
+  })
+
   it('la capa está montada en la tab del editor', () => {
     const view = read(VIEW)
     expect(view).toContain('ColorSwatchLayer')

@@ -61,6 +61,14 @@ published are not edited. The file goes per version:
   wrote nothing — the colour moved in the panel and the hex in the text never
   did. The mapping is now explicit, and a real test (not a source scan) pins it
   with the exact JSON the engine produces.
+- **And the text changes while you drag.** The picker writes the colour into
+  the buffer as you move — the saturation/value square, the hue bar, the alpha
+  bar — instead of waiting for **Aplicar**: the literal in the code follows
+  the pointer in real time. **Cancelar** puts the original colour back.
+  Because the text changes while the pointer moves, the engine re-reads the
+  literal from the live text on every write (the cached span was already one
+  character short by then: `#fff` had become `#ffffff`), and the writes are
+  throttled to one per frame so dragging stays smooth.
 
 ### Tooltips (UI)
 - **A tooltip stays put while the pointer is on it.** The hover an LSP sends —

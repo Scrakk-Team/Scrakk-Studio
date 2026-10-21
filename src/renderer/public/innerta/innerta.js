@@ -8709,7 +8709,7 @@ function assignWasmExports(wasmExports) {
   _GetInnertaHighlightSource = Module['_GetInnertaHighlightSource'] = createExportWrapper('GetInnertaHighlightSource', wasmExports['GetInnertaHighlightSource'], 0);
   _GetInnertaSelectedText = Module['_GetInnertaSelectedText'] = createExportWrapper('GetInnertaSelectedText', wasmExports['GetInnertaSelectedText'], 0);
   _GetInnertaColorTokensJson = Module['_GetInnertaColorTokensJson'] = createExportWrapper('GetInnertaColorTokensJson', wasmExports['GetInnertaColorTokensJson'], 0);
-  _ApplyInnertaColorToken = Module['_ApplyInnertaColorToken'] = createExportWrapper('ApplyInnertaColorToken', wasmExports['ApplyInnertaColorToken'], 7);
+  _ApplyInnertaColorToken = Module['_ApplyInnertaColorToken'] = createExportWrapper('ApplyInnertaColorToken', wasmExports['ApplyInnertaColorToken'], 6);
   _GetInnertaText = Module['_GetInnertaText'] = createExportWrapper('GetInnertaText', wasmExports['GetInnertaText'], 0);
   _GetInnertaRevision = Module['_GetInnertaRevision'] = createExportWrapper('GetInnertaRevision', wasmExports['GetInnertaRevision'], 0);
   _SetInnertaCleanRevision = Module['_SetInnertaCleanRevision'] = createExportWrapper('SetInnertaCleanRevision', wasmExports['SetInnertaCleanRevision'], 1);

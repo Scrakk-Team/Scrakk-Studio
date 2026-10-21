@@ -175,11 +175,13 @@ export interface InnertaModule {
    * está cada color.
    */
   getColorTokensJson?(): string
-  /** WASM: escribe el color en el token, respetando su formato original. */
+  /**
+   * WASM: escribe el color en el literal, respetando su formato original.
+   * El motor re-parsea el literal en el texto vivo.
+   */
   applyColorToken?(
     line: number,
     colStart: number,
-    colEnd: number,
     r: number,
     g: number,
     b: number,
@@ -998,18 +1000,17 @@ export class InnertaEngine implements EditorEngine {
     )
   }
 
-  /** Escribe un color en un token del buffer (lo llama el color picker). */
+  /** Escribe un color en un literal del buffer (lo llama el color picker). */
   applyColorToken(
     line: number,
     colStart: number,
-    colEnd: number,
     r: number,
     g: number,
     b: number,
     a: number
   ): boolean {
     try {
-      return this.module?.applyColorToken?.(line, colStart, colEnd, r, g, b, a) ?? false
+      return this.module?.applyColorToken?.(line, colStart, r, g, b, a) ?? false
     } catch {
       return false
     }

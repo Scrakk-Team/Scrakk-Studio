@@ -11,7 +11,7 @@
  * pone la piel encima: el cuadradito (igual que el nativo) y el panel.
  */
 
-import { useEffect, useState, type JSX, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState, type JSX, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { getOrCreatePaneEngine } from '../engine'
 import { ColorPickerPanel } from './ColorPickerPanel'
@@ -93,20 +93,69 @@ export function ColorSwatchLayer({ filePath, paneId }: ColorSwatchLayerProps): J
     })
   }
 
-  const apply = (color: Rgba): void => {
+  /**
+   * Escribe el color en el texto. Se llama en VIVO mientras se arrastra (el
+   * texto tiene que cambiar mientras movés el puntero, no al confirmar), y
+   * también al confirmar o al cancelar (este último restaura el color
+   * original).
+   */
+  const writeColor = (color: Rgba): void => {
     if (!picker) return
     const engine = getOrCreatePaneEngine(paneId)
     engine.applyColorToken?.(
       picker.token.line,
       picker.token.colStart,
-      picker.token.colEnd,
       color.r,
       color.g,
       color.b,
       color.a
     )
+  }
+
+  // La vista previa escribe como mucho una vez por frame: arrastrar el SV
+  // square manda decenas de eventos por segundo y cada escritura toca el
+  // buffer.
+  const pendingRef = useRef<Rgba | null>(null)
+  const frameRef = useRef(0)
+
+  const scheduleWrite = (color: Rgba): void => {
+    pendingRef.current = color
+    if (frameRef.current) return
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = 0
+      const pending = pendingRef.current
+      pendingRef.current = null
+      if (pending) writeColor(pending)
+    })
+  }
+
+  const flushWrite = (color: Rgba): void => {
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current)
+      frameRef.current = 0
+    }
+    pendingRef.current = null
+    writeColor(color)
+  }
+
+  const confirm = (color: Rgba): void => {
+    flushWrite(color)
     setPicker(null)
   }
+
+  /** Cancelar deja el texto como estaba: se escribe el color original. */
+  const cancel = (): void => {
+    if (picker) flushWrite(picker.color)
+    setPicker(null)
+  }
+
+  // El panel se cierra → se suelta el frame pendiente.
+  useEffect(
+    () => () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current)
+    },
+    []
+  )
 
   // El panel va al body: el editor vive dentro de un panel con overflow y el
   // panel del picker puede caer fuera de él.
@@ -117,9 +166,9 @@ export function ColorSwatchLayer({ filePath, paneId }: ColorSwatchLayerProps): J
             color={picker.color}
             left={Math.min(picker.x + 8, window.innerWidth - 226 - 8)}
             top={Math.min(picker.y + 8, window.innerHeight - 336 - 8)}
-            onChange={() => undefined}
-            onApply={apply}
-            onCancel={() => setPicker(null)}
+            onChange={scheduleWrite}
+            onApply={confirm}
+            onCancel={cancel}
           />
         </div>,
         document.body
