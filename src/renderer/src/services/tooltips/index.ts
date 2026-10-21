@@ -9,7 +9,7 @@
  * statusbar, paneles) y expuesto a extensiones vía ctx.api.tooltips.
  */
 
-import { TooltipHost, hideGlobalTooltip, showGlobalTooltip } from './TooltipHost'
+import { TooltipHost, hideGlobalTooltip, hideGlobalTooltipForce, showGlobalTooltip } from './TooltipHost'
 import type { TooltipRequest } from './TooltipHost'
 
 export { TooltipHost }
@@ -20,6 +20,15 @@ export function showTooltip(request: TooltipRequest): void {
   showGlobalTooltip(request)
 }
 
+/**
+ * Oculta el tooltip. Si el puntero está ENCIMA de él, NO se oculta: se queda
+ * quieto para que puedas leerlo (o copiar texto de un hover de LSP).
+ */
 export function hideTooltip(): void {
   hideGlobalTooltip()
+}
+
+/** Oculta el tooltip aunque el puntero esté encima (scroll, click). */
+export function hideTooltipForce(): void {
+  hideGlobalTooltipForce()
 }

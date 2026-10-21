@@ -30,6 +30,12 @@
   overflow-y: auto;
 }
 
+/* Cuando no entra ARRIBA del puntero, va DEBAJO (lo decide el host con el
+   alto real). Sin esto el translateY(-100%) lo mandaba fuera de la pantalla. */
+.tooltipBelow {
+  transform: translateY(0);
+}
+
 /* Compactación del Markdown del chat dentro del tooltip: sin los márgenes
    de burbuja, paddings y fonts más chicos. Solo afecta DENTRO del tooltip. */
 .tooltipMarkdown > div > * {

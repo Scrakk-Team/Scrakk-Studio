@@ -28,7 +28,7 @@
 import type { InnertaModule } from './InnertaEngine'
 import { getInnertaRawModule } from './innertaLoader'
 import { diagnosticHoverText, diagnosticsAt, hoverContentsToText, lspGoToDefinition, lspHover } from '@services/lsp'
-import { showTooltip, hideTooltip } from '@services/tooltips'
+import { showTooltip, hideTooltip, hideTooltipForce } from '@services/tooltips'
 import { setDecorations, themeColor } from '@services/decorations'
 import { openEditorContextMenu } from './editorContextMenu'
 import { setEditorCursor } from '../../cursorBus'
@@ -269,7 +269,9 @@ export function attachHostBridge(
 
   const hideNow = (): void => {
     clearTimers()
-    hideTooltip()
+    // Forzado: si el puntero estuviera encima del tooltip, un click lo saca
+    // igual (el click es una acción, no "me voy para otro lado").
+    hideTooltipForce()
   }
 
   const showTooltipFor = (line: number, col: number, clientX: number, clientY: number): void => {

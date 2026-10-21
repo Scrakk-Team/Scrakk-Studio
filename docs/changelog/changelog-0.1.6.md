@@ -42,6 +42,17 @@ published are not edited. The file goes per version:
   metrics are re-synced with it, so the rows stay aligned instead of keeping
   the previous font's height.
 
+### Tooltips (UI)
+- **A tooltip stays put while the pointer is on it.** The hover an LSP sends —
+  the diagnostics under the cursor, the type of a symbol, the documentation of a
+  function — is content to **read**, and often to copy from. Moving the pointer
+  onto it used to kill it: the editor had already lost the pointer (it was over
+  the tooltip, not over the code), so the hover timer fired and the tooltip
+  disappeared while you were still reading it. The tooltip is now **pinned**
+  while the pointer is on top of it: it stays until the pointer leaves it, or
+  until you click or scroll. It is also placed **beside** the pointer instead
+  of under it, and it flips below when there is no room above.
+
 ### Website (scrakk.art)
 - **The download button takes you to the GitHub releases page.** It used to
   resolve the right asset for your OS and start the download on the spot —
