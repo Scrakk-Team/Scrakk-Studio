@@ -12891,6 +12891,46 @@
       "needsReview": false,
       "at": "2026-10-20T18:14:46.375Z",
       "approvedAt": "2026-10-20T18:14:46.375Z"
+    },
+    "settings.con.que.shell.se.abre": {
+      "src": "877fa9c8568b099a",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T11:54:21.135Z",
+      "approvedAt": "2026-10-21T11:54:21.135Z"
+    },
+    "settings.el.cambio.aplica.a.las.nuevas": {
+      "src": "bf404e36c0468877",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T11:54:21.135Z",
+      "approvedAt": "2026-10-21T11:54:21.135Z"
+    },
+    "settings.personalizada": {
+      "src": "e64610056f16c8e7",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T11:54:21.135Z",
+      "approvedAt": "2026-10-21T11:54:21.135Z"
+    },
+    "settings.ruta.del.ejecutable": {
+      "src": "1318be9b33d60ac9",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T11:54:21.135Z",
+      "approvedAt": "2026-10-21T11:54:21.135Z"
+    },
+    "settings.shell.de.la.terminal": {
+      "src": "bf15e00d13a8d9a3",
+      "area": "settings",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T11:54:21.135Z",
+      "approvedAt": "2026-10-21T11:54:21.135Z"
     }
   },
   "version": 1

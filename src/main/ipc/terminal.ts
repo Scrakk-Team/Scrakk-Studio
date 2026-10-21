@@ -8,9 +8,10 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { execSync } from 'child_process'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalShellInfo } from '@shared/terminal'
 import { changeDirCommand } from '@shared/shell-cd'
 import { childEnv } from '../env'
+import { listShellCandidates, resolveShell, systemShellProbe } from '../terminal/shellResolver'
 import {
   listMonoFamilies,
   readFontStack,
@@ -29,6 +30,20 @@ interface PtyProc {
   onExit: (cb: (code: number) => void) => void
 }
 
+/**
+ * Una PTY viva.
+ *
+ * La shell con la que se abrió se guarda a partir del commit que arregla el
+ * `cd` por familia: el `cd /d "…"` de cmd.exe no existe en PowerShell.
+ */
+interface PtyProc {
+  write: (d: string) => void
+  resize: (cols: number, rows: number) => void
+  kill: (sig?: string) => void
+  onData: (cb: (data: string) => void) => void
+  onExit: (cb: (code: number) => void) => void
+}
+
 const terms = new Map<string, PtyProc>()
 
 /** Entero positivo o el fallback (node-pty rechaza 0/NaN al crear o resized). */
@@ -37,26 +52,15 @@ function positiveInt(value: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback
 }
 
-function getShell(shell?: string): string {
-  // Windows no tiene `/bin/*`. El renderer manda el nombre POSIX ('bash') por
-  // compatibilidad con Linux: acá se ignora y se usa el shell del sistema
-  // (ComSpec → cmd.exe). Una ruta explícita (con separador) se respeta tal cual.
-  if (process.platform === 'win32') {
-    if (shell && /[/\\]/.test(shell)) return shell
-    return process.env.ComSpec || process.env.COMSPEC || 'cmd.exe'
-  }
-  if (shell && shell.startsWith('/')) return shell
-  if (shell === 'zsh') return '/bin/zsh'
-  if (shell === 'bash' || !shell) return process.env.SHELL || '/bin/bash'
-  return shell
-}
-
 export function registerTerminalIpc(): void {
   ipcMain.handle(TERMINAL_IPC.create, async (event, req: TerminalCreateRequest) => {
     const { id, shell, cwd, cols, rows } = req
     if (!id) return { success: false, error: t('main.missing.id') }
     if (terms.has(id)) return { success: true }
-    const sh = getShell(shell)
+    // La shell sale de la elección del usuario o, si no hay, de la que usa el
+    // sistema (Windows Terminal → su perfil por defecto; si no, pwsh/powershell/
+    // cmd). Ver `../terminal/shellResolver`.
+    const sh = resolveShell(systemShellProbe(), shell)
     const work = cwd || os.homedir()
     // La vista puede medir 0×0 (canvas sin layout todavía): node-pty exige
     // positivos, así que se cae a 80×24.
@@ -66,7 +70,7 @@ export function registerTerminalIpc(): void {
     // Sin secretos del main: un `env` en la terminal no debe ver R2/tokens.
     const cleanEnv = childEnv()
     delete cleanEnv.npm_config_prefix
-    const proc = pty.spawn(sh, [], {
+    const proc = pty.spawn(sh.path, sh.args, {
       name: 'xterm-256color',
       cwd: work,
       env: {
@@ -129,6 +133,21 @@ export function registerTerminalIpc(): void {
     if (proc) {
       proc.kill()
       terms.delete(req.id)
+    }
+  })
+
+  /**
+   * Shells que hay en el sistema y cuál se detectaría por defecto.
+   *
+   * Sólo se listan las que EXISTEN: cada candidata sale de un archivo real
+   * (un perfil de Windows Terminal, el PATH o una ruta conocida).
+   */
+  ipcMain.handle(TERMINAL_IPC.listShells, async (): Promise<TerminalShellInfo> => {
+    try {
+      return listShellCandidates(systemShellProbe())
+    } catch {
+      const fallback = resolveShell(systemShellProbe())
+      return { detected: fallback, candidates: [fallback] }
     }
   })
 

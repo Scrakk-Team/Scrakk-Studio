@@ -56,6 +56,36 @@ matches your real terminal:
 - **Settings → Terminal**: pick the family (or leave it on the system default);
   the choice is persisted (`scrakk-terminal-font`) and re-applied live.
 
+## The shell (the program that runs inside)
+
+The PTY needs a program to run. Which one is decided in the main process
+(`src/main/terminal/shellResolver.ts`), in this order:
+
+1. **The choice in Settings → Terminal** — wins over everything.
+2. **Windows Terminal**: if it is the user's default terminal, its **default
+   profile** is the shell they want to see. It is read from
+   `HKCU\Console\%%Startup` (`DelegationConsole`) and, from there, from the
+   Windows Terminal `settings.json` (`defaultProfile` → profile → `commandline`).
+3. **The fallback**: `pwsh.exe` → `powershell.exe` → `cmd.exe`, the first one
+   in the `PATH`.
+
+On Linux and macOS nothing changes: the `SHELL` of the environment, or
+`/bin/bash`.
+
+The dropdown in Settings only offers the shells that **exist** on the machine:
+they come from the Windows Terminal profiles, the `PATH` and the usual install
+locations. There is also a free-text field for a path that is not listed.
+
+Two details that cost a whole debugging session:
+
+- The **App Execution Aliases** of `WindowsApps` (`…\Microsoft\WindowsApps\pwsh.exe`)
+  cannot be `stat`ed — Node gets `EACCES` — so `fs.existsSync` says they are
+  not there. They are: that is how the Store version of PowerShell is
+  installed, and it leaves nothing in `Program Files`. The resolver treats
+  `EACCES`/`EPERM` as "it exists".
+- The Windows Terminal `settings.json` is **JSONC**: it accepts comments and
+  trailing commas, so it cannot be parsed with `JSON.parse` as is.
+
 ## The node view (terminal canvas)
 
 The bottom strip has a **"view nodes"** button that swaps the terminal for an
@@ -72,7 +102,8 @@ session is a **node**:
 ## Limits
 
 - The terminal is a **PTY renderer**, not a shell manager: no split panes inside
-  one terminal, no built-in profiles beyond the system shell.
+  one terminal. The shell is the system one — or the one chosen in
+  Settings → Terminal — but there are no editable profiles.
 - Font metrics come from the system; if none can be resolved, the engine falls
   back to its bundled faces.
 - The node view is a **view** of the sessions, not a separate terminal system.

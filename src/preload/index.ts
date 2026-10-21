@@ -74,7 +74,7 @@ import {
   type ReadEncodedRequest,
   type WriteEncodedRequest
 } from '@shared/encodings'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalFontFile } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalFontFile, type TerminalShellInfo } from '@shared/terminal'
 import { GIT_IPC, type GitApi } from '@shared/git'
 import {
   EXTENSIONS_IPC,
@@ -453,7 +453,8 @@ const api: WindowApi = {
       ipcRenderer.invoke(TERMINAL_IPC.getSystemFont) as Promise<{
         family: string
         px: number
-      } | null>
+      } | null>,
+    listShells: () => ipcRenderer.invoke(TERMINAL_IPC.listShells) as Promise<TerminalShellInfo>
   },
   git: {
     version: () => ipcRenderer.invoke(GIT_IPC.version),
