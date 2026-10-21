@@ -40,7 +40,18 @@ describe('tooltip: quieto bajo el puntero', () => {
 
   it('hay un hide forzado para scroll/click', () => {
     expect(src).toContain('HIDE_FORCE_EVENT')
-    expect(src).toContain("window.addEventListener('scroll', onForceHide, true)")
+    expect(src).toContain("window.addEventListener('scroll', onScroll, true)")
+  })
+
+  it('scrollear DENTRO del tooltip no lo mata', () => {
+    // El scroll no burbujea: el listener va en capture, así que sin mirar el
+    // target el scroll interno del tooltip lo mataba.
+    expect(src).toContain('ref.current?.contains(target)')
+  })
+
+  it('la rueda sobre el tooltip no scrollea el editor', () => {
+    expect(src).toContain("addEventListener('wheel'")
+    expect(src).toContain('event.stopPropagation()')
   })
 
   it('el tooltip se pone AL LADO del puntero, no debajo', () => {

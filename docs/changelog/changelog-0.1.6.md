@@ -52,6 +52,12 @@ published are not edited. The file goes per version:
   while the pointer is on top of it: it stays until the pointer leaves it, or
   until you click or scroll. It is also placed **beside** the pointer instead
   of under it, and it flips below when there is no room above.
+- **Scrolling a long tooltip no throws it away.** The scroll listener was in
+  capture mode (scroll events do not bubble), so the tooltip's own scroll was
+  read as "the page scrolled" and killed the hover — and, with the tooltip
+  gone, the wheel went on to scroll the editor underneath. A scroll that starts
+  inside the tooltip is now ignored, and the wheel over the tooltip no longer
+  reaches the editor.
 
 ### Website (scrakk.art)
 - **The download button takes you to the GitHub releases page.** It used to

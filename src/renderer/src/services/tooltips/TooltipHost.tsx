@@ -85,18 +85,38 @@ export function TooltipHost(): JSX.Element | null {
       clearHideTimer()
       setTooltip(null)
     }
+    // Scrollear DENTRO del tooltip NO lo mata: un hover largo (tablas, código)
+    // se lee scrolleándolo. El listener va en capture (el scroll no burbujea),
+    // así que hay que mirar DÓNDE nació el evento.
+    const onScroll = (event: Event): void => {
+      const target = event.target as Node | null
+      if (target && ref.current?.contains(target)) return
+      onForceHide()
+    }
     window.addEventListener(SHOW_EVENT, onShow)
     window.addEventListener(HIDE_EVENT, onHide)
     window.addEventListener(HIDE_FORCE_EVENT, onForceHide)
-    window.addEventListener('scroll', onForceHide, true)
+    window.addEventListener('scroll', onScroll, true)
     return () => {
       window.removeEventListener(SHOW_EVENT, onShow)
       window.removeEventListener(HIDE_EVENT, onHide)
       window.removeEventListener(HIDE_FORCE_EVENT, onForceHide)
-      window.removeEventListener('scroll', onForceHide, true)
+      window.removeEventListener('scroll', onScroll, true)
       clearHideTimer()
     }
   }, [])
+
+  // La rueda sobre el tooltip es del tooltip: no debe scrollear el editor ni
+  // la página. El tooltip tiene su propio scroll (los hovers largos se leen).
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onWheel = (event: WheelEvent): void => {
+      event.stopPropagation()
+    }
+    el.addEventListener('wheel', onWheel, { passive: true })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [tooltip])
 
   // ¿Entra arriba o debajo del puntero? Se decide con el alto REAL (el
   // markdown puede medir 320px): si arriba no entra, va abajo.
