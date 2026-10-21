@@ -8,7 +8,7 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { execSync } from 'child_process'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalShellInfo } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalShellInfo, type ShellFamily } from '@shared/terminal'
 import { changeDirCommand } from '@shared/shell-cd'
 import { childEnv } from '../env'
 import { listShellCandidates, resolveShell, systemShellProbe } from '../terminal/shellResolver'
@@ -31,20 +31,17 @@ interface PtyProc {
 }
 
 /**
- * Una PTY viva.
+ * Una PTY viva y la shell con la que se abrió.
  *
- * La shell con la que se abrió se guarda a partir del commit que arregla el
- * `cd` por familia: el `cd /d "…"` de cmd.exe no existe en PowerShell.
+ * La shell se guarda porque el `cd` de reubicar depende de SU sintaxis: el
+ * `cd /d "…"` de cmd.exe no existe en PowerShell.
  */
-interface PtyProc {
-  write: (d: string) => void
-  resize: (cols: number, rows: number) => void
-  kill: (sig?: string) => void
-  onData: (cb: (data: string) => void) => void
-  onExit: (cb: (code: number) => void) => void
+interface PtyEntry {
+  proc: PtyProc
+  shell: { path: string; args: string[]; family: ShellFamily }
 }
 
-const terms = new Map<string, PtyProc>()
+const terms = new Map<string, PtyEntry>()
 
 /** Entero positivo o el fallback (node-pty rechaza 0/NaN al crear o resized). */
 function positiveInt(value: unknown, fallback: number): number {
@@ -89,7 +86,7 @@ export function registerTerminalIpc(): void {
       ...(process.platform === 'win32' ? { useConpty: true, useConptyDll: true } : {})
     }) as unknown as PtyProc
 
-    terms.set(id, proc)
+    terms.set(id, { proc, shell: sh })
     const win = BrowserWindow.fromWebContents(event.sender)
     const sendData = (data: string): void => {
       win?.webContents.send(TERMINAL_IPC.onData, { id, data })
@@ -107,31 +104,33 @@ export function registerTerminalIpc(): void {
   })
 
   ipcMain.handle(TERMINAL_IPC.write, async (_event, req: TerminalWriteRequest) => {
-    const proc = terms.get(req.id)
-    if (proc) proc.write(req.data)
+    const entry = terms.get(req.id)
+    if (entry) entry.proc.write(req.data)
   })
 
   ipcMain.handle(TERMINAL_IPC.cd, async (_event, req: TerminalCdRequest) => {
-    const proc = terms.get(req.id)
-    if (!proc || !req.path) return
-    const command = changeDirCommand(req.path, process.platform)
-    if (command) proc.write(command)
+    const entry = terms.get(req.id)
+    if (!entry || !req.path) return
+    // El `cd` lo arma la MAIN según la shell de esa PTY (cmd.exe, PowerShell o
+    // POSIX): el mismo `cd /d "…"` no es válido en PowerShell.
+    const command = changeDirCommand(req.path, process.platform, entry.shell.family)
+    if (command) entry.proc.write(command)
   })
 
   ipcMain.handle(TERMINAL_IPC.resize, async (_event, req: TerminalResizeRequest) => {
-    const proc = terms.get(req.id)
-    if (!proc) return
+    const entry = terms.get(req.id)
+    if (!entry) return
     // La vista emite resize antes de tener tamaño: node-pty tira
     // "resizing must be done using positive cols and rows". Se ignora.
     const cols = positiveInt(req.cols, 0)
     const rows = positiveInt(req.rows, 0)
-    if (cols > 0 && rows > 0) proc.resize(cols, rows)
+    if (cols > 0 && rows > 0) entry.proc.resize(cols, rows)
   })
 
   ipcMain.handle(TERMINAL_IPC.destroy, async (_event, req: TerminalDestroyRequest) => {
-    const proc = terms.get(req.id)
-    if (proc) {
-      proc.kill()
+    const entry = terms.get(req.id)
+    if (entry) {
+      entry.proc.kill()
       terms.delete(req.id)
     }
   })

@@ -86,6 +86,27 @@ Two details that cost a whole debugging session:
 - The Windows Terminal `settings.json` is **JSONC**: it accepts comments and
   trailing commas, so it cannot be parsed with `JSON.parse` as is.
 
+### Moving the shell to another directory
+
+When the workspace changes, the terminal is **not** recreated (the history and
+the background processes survive): a `cd` is written to the PTY. That command
+depends on the shell, because each one has its own syntax:
+
+| Shell | Command |
+|---|---|
+| `cmd.exe` | `cd /d "C:\path"` |
+| PowerShell | `Set-Location -LiteralPath 'C:\path'` |
+| POSIX | `cd -- '/path'` |
+
+`cd /d "…"` —the cmd.exe form— **is not valid in PowerShell**: `/d` is taken as
+a positional argument and the command fails with *"A positional parameter
+cannot be found that accepts argument"*. In cmd.exe a path with `&`, `|` or `%`
+is rejected instead of escaped: there is no safe way to quote it there. In
+PowerShell the single quotes make those characters literal, so they are allowed.
+
+A POSIX shell on Windows (Git Bash) receives the path in its MSYS form
+(`/c/Users/dev`), which is how that runtime mounts the drive.
+
 ## The node view (terminal canvas)
 
 The bottom strip has a **"view nodes"** button that swaps the terminal for an
