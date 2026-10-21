@@ -15,7 +15,7 @@ published are not edited. The file goes per version:
 
 ---
 
-## 0.1.6 — The editor's grid, from the first frame
+## 0.1.6 — A correct grid, a real colour picker and quiet tooltips
 
 ### Editor (Innerta)
 - **The editor's cell metrics were wrong until you touched the zoom.** The
