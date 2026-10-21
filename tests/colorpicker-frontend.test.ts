@@ -15,6 +15,7 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { parseColorTokens } from '../src/renderer/src/features/editor/colorpicker/types'
 
 const read = (rel: string): string =>
   readFileSync(new URL(`../${rel}`, import.meta.url), 'utf8')
@@ -98,5 +99,51 @@ describe('la matemática de color', () => {
     expect(math).toContain('export function rgbaToHsva')
     expect(math).toContain('export function hsvaToRgba')
     expect(math).toContain('export function parseHex')
+  })
+})
+
+describe('el JSON del motor se mapea a los tokens', () => {
+  // El JSON del motor usa claves cortas (l, cs, ce, f). Si el frontend las
+  // lee con el nombre largo, el apply recibe `undefined` y el color NUNCA se
+  // escribe en el texto: de hecho pasaba.
+  const json = JSON.stringify([
+    {
+      l: 12,
+      cs: 4,
+      ce: 11,
+      x: 120.5,
+      y: 40,
+      w: 11,
+      h: 11,
+      r: 1,
+      g: 0.5,
+      b: 0,
+      a: 0.8,
+      f: 2,
+      raw: '#ff8000'
+    }
+  ])
+
+  it('mapea cada campo', () => {
+    const [token] = parseColorTokens(json)
+    expect(token.line).toBe(12)
+    expect(token.colStart).toBe(4)
+    expect(token.colEnd).toBe(11)
+    expect(token.x).toBe(120.5)
+    expect(token.y).toBe(40)
+    expect(token.w).toBe(11)
+    expect(token.h).toBe(11)
+    expect(token.r).toBe(1)
+    expect(token.g).toBe(0.5)
+    expect(token.b).toBe(0)
+    expect(token.a).toBe(0.8)
+    expect(token.format).toBe(2)
+    expect(token.raw).toBe('#ff8000')
+  })
+
+  it('un JSON roto no rompe nada', () => {
+    expect(parseColorTokens('')).toEqual([])
+    expect(parseColorTokens('no es json')).toEqual([])
+    expect(parseColorTokens('{"a":1}')).toEqual([])
   })
 })

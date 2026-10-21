@@ -108,13 +108,51 @@ export const PICKER_H =
   PICKER.btnH +
   PICKER.panelPad
 
-/** Convierte el JSON del motor en tokens (con tolerate a fallos: si no, lista vacía). */
+/**
+ * Lo que devuelve el motor: claves cortas (el JSON viaja por el WASM y cada
+ * byte cuenta).
+ *
+ * OJO: el mapeo de estas claves al tipo `ColorTokenInfo` es el.parseColorTokens.
+ * Leerlas con el nombre largo directamente rompía el apply (llegaba undefined
+ * al motor y el color no se escribía).
+ */
+interface RawColorToken {
+  l: number
+  cs: number
+  ce: number
+  x: number
+  y: number
+  w: number
+  h: number
+  r: number
+  g: number
+  b: number
+  a: number
+  f: number
+  raw: string
+}
+
+/** Convierte el JSON del motor en tokens (con tolerancia a fallos: si no, lista vacía). */
 export function parseColorTokens(json: string): ColorTokenInfo[] {
   if (!json) return []
   try {
     const raw = JSON.parse(json) as unknown
     if (!Array.isArray(raw)) return []
-    return raw as ColorTokenInfo[]
+    return (raw as RawColorToken[]).map((token) => ({
+      line: token.l,
+      colStart: token.cs,
+      colEnd: token.ce,
+      x: token.x,
+      y: token.y,
+      w: token.w,
+      h: token.h,
+      r: token.r,
+      g: token.g,
+      b: token.b,
+      a: token.a,
+      format: token.f,
+      raw: token.raw ?? ''
+    }))
   } catch {
     return []
   }
