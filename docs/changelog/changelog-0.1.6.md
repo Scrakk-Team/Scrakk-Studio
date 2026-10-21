@@ -54,6 +54,13 @@ published are not edited. The file goes per version:
   own: parsing the literal, knowing its format and writing the colour back
   into the buffer — so an `rgb()` stays an `rgb()` and a `#RRGGBB` stays a
   `#RRGGBB`.
+- **And it writes the colour.** The engine publishes the literals with short
+  keys (`l`, `cs`, `ce`, `f`) and the frontend was reading them with the long
+  ones, so every field arrived as `undefined`: the panel opened on a `NaN`
+  colour and **Apply** sent `undefined` to the engine, which found no token and
+  wrote nothing — the colour moved in the panel and the hex in the text never
+  did. The mapping is now explicit, and a real test (not a source scan) pins it
+  with the exact JSON the engine produces.
 
 ### Tooltips (UI)
 - **A tooltip stays put while the pointer is on it.** The hover an LSP sends —
@@ -93,3 +100,7 @@ published are not edited. The file goes per version:
 - **New engine test target (`InnertaMetricsTests`).** It pins the two
   regressions above: the cell metrics must follow the font atlas, and the
   gutter must leave room for the line numbers.
+- **The colour picker is tested with the data, not with the source.** The JSON
+  the engine publishes is parsed in a test, with the exact shape the engine
+  emits: a source-shape check cannot tell that a field is arriving as
+  `undefined` — which is exactly how the colour stopped reaching the text.
