@@ -162,12 +162,27 @@ export function MessageComposer({
     return () => window.removeEventListener('pointerdown', onDown)
   }, [showEmoji])
 
-  useEffect(() => {
+  const fitHeight = (): void => {
     const el = textareaRef.current
     if (!el) return
     el.style.height = 'auto'
     el.style.height = `${Math.min(el.scrollHeight, 140)}px`
-  }, [value])
+  }
+
+  useEffect(fitHeight, [value])
+
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return undefined
+    let lastWidth = el.clientWidth
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth === lastWidth) return
+      lastWidth = el.clientWidth
+      fitHeight()
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const sendTyping = (typing: boolean) => {
     if (lastTyping.current === typing) return
