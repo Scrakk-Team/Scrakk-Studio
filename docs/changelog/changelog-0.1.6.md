@@ -42,6 +42,19 @@ published are not edited. The file goes per version:
   metrics are re-synced with it, so the rows stay aligned instead of keeping
   the previous font's height.
 
+### Editor (color picker)
+- **The color picker is the frontend's now.** The engine used to paint the
+  little colour square next to every colour literal **and** the whole picker
+  panel on its own canvas. Now the engine only publishes *where* each literal
+  is (with its rectangle) and the frontend puts the skin on top: the square,
+  and the panel — the saturation/value square, the hue bar, the alpha bar, the
+  preview, the hex field and the buttons — with the **same measurements as
+  before**, but as DOM: it uses the app's theme, it scales with the UI and it
+  can be restyled without touching C++. The engine keeps what is really its
+  own: parsing the literal, knowing its format and writing the colour back
+  into the buffer — so an `rgb()` stays an `rgb()` and a `#RRGGBB` stays a
+  `#RRGGBB`.
+
 ### Tooltips (UI)
 - **A tooltip stays put while the pointer is on it.** The hover an LSP sends —
   the diagnostics under the cursor, the type of a symbol, the documentation of a

@@ -1640,6 +1640,30 @@
       "at": "2026-09-25T17:29:42.630Z",
       "approvedAt": "2026-09-25T17:32:07.886Z"
     },
+    "features.colorpicker.aplicar": {
+      "src": "3a04898a6b8b6e0f",
+      "area": "features",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T00:00:00.000Z",
+      "approvedAt": "2026-10-21T00:00:00.000Z"
+    },
+    "features.colorpicker.cancelar": {
+      "src": "bb9dbb406dcbd524",
+      "area": "features",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T00:00:00.000Z",
+      "approvedAt": "2026-10-21T00:00:00.000Z"
+    },
+    "features.colorpicker.titulo": {
+      "src": "6b73191a0a4b6742",
+      "area": "features",
+      "machine": false,
+      "needsReview": false,
+      "at": "2026-10-21T00:00:00.000Z",
+      "approvedAt": "2026-10-21T00:00:00.000Z"
+    },
     "features.esquema": {
       "src": "cd99483a6458457d",
       "area": "features",

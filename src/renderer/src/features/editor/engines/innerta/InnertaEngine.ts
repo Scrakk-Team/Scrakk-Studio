@@ -4,6 +4,7 @@
 
 import type { EditorEngine, EditorEngineId } from '../../engine'
 import { getInnertaModule, createIsolatedInnertaModule } from './innertaLoader'
+import { COLOR_TOKENS_EVENT } from '../../colorpicker/types'
 import { wireInnertaInput, type InnertaInputHandle } from './innertaInput'
 import { applyInnertaTheme, listenThemeChanges } from './innertaTheme'
 import { attachHostBridge, type InnertaBridge } from './hostBridge'
@@ -166,6 +167,24 @@ export interface InnertaModule {
   getSelectedText?(): string
   /** WASM: contenido completo del buffer (para guardar desde el host). */
   getText?(): string
+  /**
+   * WASM: literales de color VISIBLES con su rect en pantalla (JSON).
+   *
+   * La UI del color picker la dibuja el FRONTEND (el cuadradito al lado del
+   * literal y el panel): el motor no pinta nada de eso, sólo publica dónde
+   * está cada color.
+   */
+  getColorTokensJson?(): string
+  /** WASM: escribe el color en el token, respetando su formato original. */
+  applyColorToken?(
+    line: number,
+    colStart: number,
+    colEnd: number,
+    r: number,
+    g: number,
+    b: number,
+    a: number
+  ): boolean
   /**
    * WASM: contador monótono de mutaciones del buffer (fuente de verdad del
    * dirty del flujo de guardado). undefined en builds viejos del WASM.
@@ -343,6 +362,8 @@ export class InnertaEngine implements EditorEngine {
   private isReadOnly = false
   /** Path de ESTE engine (setPath del bridge lo espeja). */
   private currentPath: string | null = null
+  /** Último JSON de tokens de color publicado (para no repetir el evento). */
+  private lastColorTokensJson = ''
   private ready = false
   private pending: PendingRequest[] = []
   /** Sesiones de archivo que viven en ESTE módulo (ids = paths). */
@@ -437,6 +458,7 @@ export class InnertaEngine implements EditorEngine {
         const loop = (): void => {
           if (!this.module) return
           this.module.frame()
+          this.publishColorTokens()
           this.raf = requestAnimationFrame(loop)
         }
         this.raf = requestAnimationFrame(loop)
@@ -601,6 +623,7 @@ export class InnertaEngine implements EditorEngine {
           const loop = (): void => {
             if (!this.module) return
             this.module.frame()
+            this.publishColorTokens()
             this.raf = requestAnimationFrame(loop)
           }
           // StrictMode puede correr este .then dos veces: un solo loop vivo.
@@ -952,6 +975,46 @@ export class InnertaEngine implements EditorEngine {
    * Texto completo del buffer (guardar / snapshots LRU de sesiones).
    * `undefined` si el módulo aún no cargó o ya se destruyó.
    */
+  /**
+   * Publica los literales de color que el motor detectó (con su rect en
+   * pantalla). Los dibuja el frontend: el motor ya no pinta los cuadraditos
+   * ni el panel del picker.
+   */
+  private publishColorTokens(): void {
+    const mod = this.module
+    if (!mod?.getColorTokensJson) return
+    let json = '[]'
+    try {
+      json = mod.getColorTokensJson()
+    } catch {
+      return
+    }
+    if (json === this.lastColorTokensJson) return
+    this.lastColorTokensJson = json
+    window.dispatchEvent(
+      new CustomEvent(COLOR_TOKENS_EVENT, {
+        detail: { path: this.currentPath ?? '', json }
+      })
+    )
+  }
+
+  /** Escribe un color en un token del buffer (lo llama el color picker). */
+  applyColorToken(
+    line: number,
+    colStart: number,
+    colEnd: number,
+    r: number,
+    g: number,
+    b: number,
+    a: number
+  ): boolean {
+    try {
+      return this.module?.applyColorToken?.(line, colStart, colEnd, r, g, b, a) ?? false
+    } catch {
+      return false
+    }
+  }
+
   getText(): string | undefined {
     try {
       return this.module?.getText?.()

@@ -1,0 +1,204 @@
+/*
+ * Copyright 2026 Scrakk Studio
+ * SPDX-License-Identifier: Apache-2.0
+ * Licencia completa en LICENSE (Apache License 2.0).
+ */
+
+/*
+ * Panel del color picker (frontend). Mismo layout que el nativo del motor:
+ * SV 180, gap 10, hue 16, alfa 14, preview 28, hex 26, botones 28, pad 10.
+ */
+
+.panel {
+  position: fixed;
+  z-index: 500;
+  display: grid;
+  grid-template-columns: 180px 16px;
+  grid-template-rows: 180px 14px 28px 26px 28px;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 10px;
+  background: var(--color-surface-raised, #1e1e1e);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.24),
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    0 18px 48px rgba(0, 0, 0, 0.22);
+  color: var(--color-text, #d4d4d4);
+  font-size: var(--text-xs);
+  user-select: none;
+}
+
+/* ── SV square ─────────────────────────────────────────────────────────── */
+
+.sv {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(to top, #000, rgba(0, 0, 0, 0)),
+    linear-gradient(to right, #fff, var(--hue, #f00));
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.svCursor {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.svCursorCore {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Barra de tono ────────────────────────────────────────────────────── */
+
+.hue {
+  position: relative;
+  width: 16px;
+  height: 180px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    to bottom,
+    #f00 0%,
+    #ff0 16.66%,
+    #0f0 33.33%,
+    #0ff 50%,
+    #00f 66.66%,
+    #f0f 83.33%,
+    #f00 100%
+  );
+  cursor: pointer;
+  touch-action: none;
+}
+
+.hueCursor {
+  position: absolute;
+  left: -2px;
+  width: 20px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* ── Barra de alfa ────────────────────────────────────────────────────── */
+
+.alpha {
+  position: relative;
+  grid-column: 1 / 3;
+  width: 206px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #fff;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0), var(--color, #f00)),
+    repeating-conic-gradient(#a3a3a3 0 25%, #e0e0e0 0 50%);
+  background-size: 100% 100%, 6px 6px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.alphaCursor {
+  position: absolute;
+  top: -2px;
+  width: 6px;
+  height: 18px;
+  margin-left: -3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* ── Preview + hex ─────────────────────────────────────────────────────── */
+
+.previewRow {
+  grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+}
+
+.previewSwatch {
+  width: 48px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hexLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs);
+  color: var(--color-text, #d4d4d4);
+  user-select: text;
+}
+
+/* ── Campo hex ────────────────────────────────────────────────────────── */
+
+.hexField {
+  grid-column: 1 / 3;
+  width: 206px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-surface-raised, #1e1e1e) 85%, #000);
+  color: var(--color-text, #d4d4d4);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs);
+  outline: none;
+}
+
+.hexField:focus {
+  border-color: var(--color-accent, #3794ff);
+}
+
+/* ── Botones ──────────────────────────────────────────────────────────── */
+
+.buttons {
+  grid-column: 1 / 3;
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  flex: 1;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text, #d4d4d4);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.primary {
+  border-color: var(--color-accent, #3794ff);
+  background: color-mix(in srgb, var(--color-accent, #3794ff) 85%, transparent);
+  color: var(--color-on-accent, #fff);
+}
+
+.primary:hover {
+  background: var(--color-accent, #3794ff);
+}

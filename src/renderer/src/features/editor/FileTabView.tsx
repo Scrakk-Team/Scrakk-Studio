@@ -5,6 +5,7 @@
 import { useEffect, useRef, type JSX } from 'react'
 import { getFileSession } from './fileSession'
 import { useFileViewDispatcher } from './FileViewDispatcher'
+import { ColorSwatchLayer } from './colorpicker'
 
 interface FileTabViewProps {
   /** Ruta del archivo que muestra la tab. */
@@ -55,7 +56,13 @@ export function FileTabView({ filePath, stripId }: FileTabViewProps): JSX.Elemen
           display: viewing ? 'none' : 'flex',
           position: 'relative'
         }}
-      />
+      >
+        {/* La capa de color (los cuadraditos al lado de cada literal) la
+            dibuja el frontend: el motor sólo publica dónde está cada color. */}
+        {!viewing ? (
+          <ColorSwatchLayer filePath={filePath} paneId={stripId ?? 'center'} />
+        ) : null}
+      </div>
       {viewing ? node : null}
     </>
   )
