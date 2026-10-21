@@ -47,4 +47,23 @@ describe('OscTitleParser', () => {
     expect(p.push('\x1b]0;\x07')).toBe('')
     expect(p.value).toBe('')
   })
+
+  it('ignora la ruta del ejecutable que manda PowerShell', () => {
+    const p = new OscTitleParser()
+    // PowerShell manda la ruta de SU BINARIO al arrancar: no es un título.
+    expect(p.push('\x1b]0;C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.7.0_x64__8wekyb3d8bbwe\\pwsh.exe\x07')).toBeNull()
+    expect(p.value).toBe('')
+  })
+
+  it('después de la ruta del ejecutable, un título de verdad se aplica', () => {
+    const p = new OscTitleParser()
+    p.push('\x1b]0;C:\\Windows\\System32\\cmd.exe\x07')
+    expect(p.push('\x1b]0;proyecto\x07')).toBe('proyecto')
+  })
+
+  it('un cwd sigue siendo un título válido', () => {
+    const p = new OscTitleParser()
+    expect(p.push('\x1b]0;C:\\Users\\dev\\proyecto\x07')).toBe('C:\\Users\\dev\\proyecto')
+    expect(p.push('\x1b]0;/home/dev/proyecto\x07')).toBe('/home/dev/proyecto')
+  })
 })
