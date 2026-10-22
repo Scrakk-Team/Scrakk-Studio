@@ -43,16 +43,18 @@ published are not edited. The file goes per version:
   the previous font's height.
 
 ### Editor (selection)
-- **The selection is rounded, not chamfered.** Selecting across lines used to
-  look *diagonal*: the painter rounded **every** corner of the selection's
-  outline, and at each line break the radius is limited to half the shortest
-  side of the step — so the two little rounds ate the step and left a diagonal
-  cut. Now only the two **outer** corners are rounded (where the selection
-  starts and where it ends) and the line breaks stay square, so the shape reads
-  as a rounded selection instead of a sawtooth. The corners also got a bigger
-  radius (4px → 6px): at a 23px row the old one was barely a round and looked
-  like a chamfer. The same painter serves the editor and the terminal, so both
-  are fixed.
+- **The selection's corners are real arcs again.** They were cut in a
+  **diagonal**: the selection is one polygon, and the triangulation (ear
+  clipping) *ate the curves* — it clipped the arc's points as if they were
+  ears, so every rounded corner ended up drawn as the straight **chord**
+  between the arc's ends. A chord across a 4px arc is a diagonal cut, which is
+  exactly what it looked like. The shape is now drawn in two pieces: the
+  **core** (the polygon with the corners cut by their chords, tessellated) plus
+  the **caps** (one per convex corner: the strip between the chord and the
+  arc), so the arc is drawn whole and the GPU antialiases it. The selection
+  keeps its original look — same radius, same segments, every corner rounded —
+  only the broken tessellation is gone. The inner corners (where the selection
+  jumps from one line to the next) stay square, like in any editor.
 
 ### Editor (color picker)
 - **The color picker is the frontend's now.** The engine used to paint the
@@ -124,3 +126,7 @@ published are not edited. The file goes per version:
   the engine publishes is parsed in a test, with the exact shape the engine
   emits: a source-shape check cannot tell that a field is arriving as
   `undefined` — which is exactly how the colour stopped reaching the text.
+- **The editor's selection can be rasterised without a GPU.** The shape of the
+  selection (the outline, the rounding and the triangulation) moved to pure
+  functions, so a native test draws it to an image: when a corner looked
+  "diagonal" it was guesswork until there was a picture of it.
