@@ -84,6 +84,52 @@ published are not edited. The file goes per version:
   character short by then: `#fff` had become `#ffffff`), and the writes are
   throttled to one per frame so dragging stays smooth.
 
+### Terminal (Windows)
+- **The terminal opens the shell you actually use.** It always came up as
+  `cmd.exe`: the shell was resolved from `ComSpec`, which is the legacy command
+  processor and never points at PowerShell, and the `shell` field of the create
+  request was never sent by the renderer. The shell is now resolved from the
+  system, in this order: the choice in **Settings → Terminal**, otherwise the
+  **default profile of Windows Terminal** (when it is the default terminal),
+  otherwise `pwsh.exe` → `powershell.exe` → `cmd.exe`, the first one in the
+  `PATH`. On POSIX nothing changes (`$SHELL`).
+- **The `cd` of a workspace change speaks the shell's language.** Changing the
+  workspace does not recreate the terminal — it writes a `cd` to the PTY — and
+  that command was cmd.exe's syntax (`cd /d "…"`), which PowerShell rejects
+  (*"A positional parameter cannot be found that accepts argument"*). The main
+  process now keeps the family of the shell each PTY was opened with:
+
+  | Shell | Command |
+  |---|---|
+  | `cmd.exe` | `cd /d "C:\path"` |
+  | PowerShell | `Set-Location -LiteralPath 'C:\path'` |
+  | POSIX | `cd -- '/path'` |
+
+  In cmd.exe a path with `&`, `|`, `^` or `%` is still **rejected** instead of
+  escaped (there is no safe quoting there); in PowerShell the single quotes make
+  those characters literal, so only the quote itself is escaped (doubled). A
+  POSIX shell on Windows (Git Bash) gets the MSYS form (`/c/Users/dev`), and a
+  shell whose syntax is unknown gets **no** `cd` instead of a wrong one.
+- **The console font is read again on Windows.** The registry query went
+  through `cmd.exe` with the key escaped wrong (`HKCU\\Console` is not a valid
+  key name), so every call failed and printed *"ERROR: Invalid key name"* in the
+  console on every launch: the family and the size were never really read.
+- **The tab title is not the path of the shell.** PowerShell announces its own
+  binary in the OSC 0 title when it starts, and the tab took it literally (a
+  long path instead of the program name). The parser now ignores a title that
+  is the path of an executable; a real title (`vim`, `lazygit`, the cwd) is
+  untouched.
+- **Settings → Terminal is navigable again.** The section was hidden when the
+  font picker was its only content; it now carries the **shell picker** (auto,
+  the shells detected on the machine and a free-text path), which is where you
+  choose the shell a new terminal opens with.
+
+### Social (UI)
+- **The composer goes back to its compact height when the panel grows.** The
+  textarea only refit itself when the text changed, so opening the panel at its
+  minimum width and widening it afterwards left the field stuck at the taller
+  two-line height. A `ResizeObserver` now refits it when its width changes.
+
 ### Tooltips (UI)
 - **A tooltip stays put while the pointer is on it.** The hover an LSP sends —
   the diagnostics under the cursor, the type of a symbol, the documentation of a
