@@ -46,6 +46,11 @@ Package convention: if you omit `path`, `themes/<id>.json` is expected
     { "scope": ["comment"], "foreground": "#6b7280", "fontStyle": "italic" },
     { "scope": "keyword", "foreground": "#c586c0" }
   ],
+  "ansi": {
+    "black": "#000000",
+    "red": "#cd3131",
+    "white": "#e5e5e5"
+  },
   "flat": true,
   "fonts": { "ui": { "family": "Inter", "source": "https://…/inter.woff2" } },
   "background": { "type": "image", "image": "https://…/bg.jpg", "imageOpacity": 0.3, "imageBlur": "6px" }
@@ -77,6 +82,41 @@ Also:
 
 TextMate-style syntax colors: `[{ scope, foreground?, fontStyle? }]`. `scope` is a
 string or a list.
+
+## ANSI palette (terminal)
+
+The terminal resolves `\e[30m`…`\e[97m` through a 16-color palette. A theme can
+set it in **two places**:
+
+```json
+// theme.json (inline)
+{ "ansi": { "black": "#000000", "red": "#cd3131" } }
+```
+
+```json
+// ansi.json, next to theme.json (same object, no wrapper)
+{ "black": "#0a0a0a", "red": "#cf222e", "brightWhite": "#24292f" }
+```
+
+Slots, in engine order: `black`, `red`, `green`, `yellow`, `blue`, `magenta`,
+`cyan`, `white`, `brightBlack`, `brightRed`, `brightGreen`, `brightYellow`,
+`brightBlue`, `brightMagenta`, `brightCyan`, `brightWhite`. They are the VS Code
+`terminal.ansi*` keys without the prefix, so imported VS Code themes carry their
+palette automatically.
+
+Rules:
+
+- Values must be **concrete colors** (`#hex`, `rgb()`, `rgba()`); `var(--token)`
+  and `transparent` are rejected because the engine receives an integer RGB. The
+  alpha component is ignored (a terminal cell is opaque).
+- If both the file and the inline object exist, **ansi.json wins slot by slot**.
+- A theme that defines no palette **inherits the one from the base theme of its
+  type** (`scrakk-night` for dark, `scrakk-day` for light), slot by slot.
+- A light theme should darken `white`/`brightWhite`: on a light background a
+  `#ffffff` "white" is invisible. The light base maps them to `#6e7781` /
+  `#24292f`.
+- The palette is also emitted as CSS variables (`--ansi-red`,
+  `--ansi-bright-white`, …) so any UI can paint with the same colors.
 
 ## Other fields
 
