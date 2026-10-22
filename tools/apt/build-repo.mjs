@@ -157,5 +157,3 @@ execFileSync('gpg', gpgArgs2, { stdio: 'inherit' });
 try { execFileSync('rm', [keyFile]); } catch {}
 
 console.log('build-repo: OK —', versions.length, 'version(es):', versions.join(', '));
-EOF
-echo "created"
