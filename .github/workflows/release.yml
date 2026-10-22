@@ -222,6 +222,12 @@ jobs:
         with:
           node-version: 24
 
+      - name: Descargar artefacto linux (para hashes del .deb)
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: linux
+          path: linux-artifact
+
       - name: Resolver versión
         id: v
         shell: bash
@@ -251,7 +257,9 @@ jobs:
             echo "::warning::falta APT_GPG_PRIVATE_KEY; se omite la firma del repo apt"
             exit 0
           fi
-          node ../src/tools/apt/build-repo.mjs --versions versions.txt --out .
+          DEB="$(ls ../linux-artifact/*.deb | head -1)"
+          echo "deb: $DEB"
+          node ../src/tools/apt/build-repo.mjs --versions versions.txt --out . --deb "$DEB"
 
       - name: Publicar en Cloudflare Pages (apt.scrakk.art)
         uses: cloudflare/pages-action@v1

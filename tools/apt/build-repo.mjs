@@ -39,6 +39,7 @@ function arg(name) {
 }
 const versionsFile = arg('--versions') || 'versions.txt';
 const outDir = arg('--out') || '.';
+const debPath = arg('--deb'); // ruta al .deb (opcional, para calcular hashes reales)
 
 const versions = readFileSync(versionsFile, 'utf8')
   .split(/\r?\n/)
@@ -58,11 +59,23 @@ mkdirSync(poolDir, { recursive: true });
 // ── 1. Generar Packages ────────────────────────────────────────────────────
 const entries = versions.map((v) => {
   const filename = `pool/main/s/scrakk-studio/Scrakk-Studio-${v}.deb`;
-  // Tamaño y hashes del .deb no están disponibles localmente (vive en GitHub).
-  // apt solo necesita Filename + Size + los hashes para verificar la descarga;
-  // como no los tenemos, los dejamos como 0/placeholder y confiamos en HTTPS.
-  // (apt valida la firma del repo, no el hash del .deb, cuando no está presente.)
-  return [
+
+  // Si se pasa --deb, calcular Size + hashes reales. Si no, omitir esos
+  // campos (apt entonces no verifica el hash del .deb, pero sí la firma del
+  // repo). Para CI siempre se pasa --deb.
+  let sizeLine = '';
+  let md5Line = '';
+  let sha1Line = '';
+  let sha256Line = '';
+  if (debPath && existsSync(debPath)) {
+    const buf = readFileSync(debPath);
+    sizeLine = 'Size: ' + buf.length;
+    md5Line = 'MD5sum: ' + createHash('md5').update(buf).digest('hex');
+    sha1Line = 'SHA1: ' + createHash('sha1').update(buf).digest('hex');
+    sha256Line = 'SHA256: ' + createHash('sha256').update(buf).digest('hex');
+  }
+
+  const lines = [
     'Package: scrakk-studio',
     'Version: ' + v,
     'Architecture: amd64',
@@ -71,13 +84,14 @@ const entries = versions.map((v) => {
     'Depends: libnss3, libatk1.0-0, libatk-bridge2.0-0, libcups2, libdrm2, libgtk-3-0, libxkbcommon0, libxcomposite1, libxdamage1, libxrandr2, libgbm1, libasound2, libpango-1.0-0, libcairo2, libx11-6, libxext6, libxfixes3, libxss1, libglib2.0-0',
     'Homepage: https://scrakk.art',
     'Description: Scrakk Studio - IDE for chat, code and agents',
-    'Filename: ' + filename,
-    'Size: 0',
-    'MD5sum: ' + '0'.repeat(32),
-    'SHA1: ' + '0'.repeat(40),
-    'SHA256: ' + '0'.repeat(64),
-    ''
-  ].join('\n');
+    'Filename: ' + filename
+  ];
+  if (sizeLine) lines.push(sizeLine);
+  if (md5Line) lines.push(md5Line);
+  if (sha1Line) lines.push(sha1Line);
+  if (sha256Line) lines.push(sha256Line);
+  lines.push('');
+  return lines.join('\n');
 });
 
 const packagesContent = entries.join('\n') + '\n';
