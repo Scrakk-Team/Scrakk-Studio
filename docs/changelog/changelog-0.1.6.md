@@ -70,6 +70,18 @@ published are not edited. The file goes per version:
   character short by then: `#fff` had become `#ffffff`), and the writes are
   throttled to one per frame so dragging stays smooth.
 
+### Command palette (UI)
+- **The shortcuts look like the welcome page's badges.** Every command in the
+  palette (and in its tooltip) was showing its keybinding as a **keycap**: a
+  boxed chip with a full border, a filled background and 10px text — the same
+  shape as a physical key, which read as a *button* inside a list of commands.
+  They now use the **same badge as the welcome page** (`.tip-combo` /
+  `.action-badge`): no full border, only a hairline underneath, transparent
+  fill, 9px text with a little letter-spacing and the muted colour, and the
+  smallest radius. The shortcut sits quietly at the end of the row instead of
+  competing with the command's own title, and the palette, the welcome tips and
+  the action cards finally speak the same visual language.
+
 ### Terminal (Windows)
 - **The terminal opens the shell you actually use.** It always came up as
   `cmd.exe`: the shell was resolved from `ComSpec`, which is the legacy command
@@ -158,7 +170,3 @@ published are not edited. The file goes per version:
   the engine publishes is parsed in a test, with the exact shape the engine
   emits: a source-shape check cannot tell that a field is arriving as
   `undefined` — which is exactly how the colour stopped reaching the text.
-- **The editor's selection can be rasterised without a GPU.** The shape of the
-  selection (the outline, the rounding and the triangulation) moved to pure
-  functions, so a native test draws it to an image: when a corner looked
-  "diagonal" it was guesswork until there was a picture of it.
