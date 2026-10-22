@@ -27,6 +27,11 @@
   "market.form.screenshots": "Screenshots (max {max})",
   "market.form.subir": "Upload image",
   "market.form.video": "Video link (preview)",
+  "market.form.zone.info": "Information",
+  "market.form.zone.media": "Media",
+  "market.form.zone.meta": "Metadata",
+  "market.form.zone.repo": "Repository",
+  "market.guardado.en.revision": "Saved. It stays in review: it shows up in the store once approved.",
   "market.guardando": "Saving…",
   "market.guardar": "Save",
   "market.imagen.grande": "The image is too large (max 2 MB).",
@@ -43,7 +48,6 @@
   "market.permisos": "Permissions",
   "market.permisos.nota": "Read from the manifest on install.",
   "market.publicar": "Submit for review",
-  "market.guardado.en.revision": "Saved. It stays in review: it shows up in the store once approved.",
   "market.rate.enviar": "Submit",
   "market.rate.titulo": "Rate",
   "market.repo.invalido": "The repo link is not valid.",
@@ -62,9 +66,5 @@
   "market.valoraciones": "Ratings",
   "market.ver.repo": "View repository",
   "market.verificado": "Verified",
-  "market.versiones": "Versions",
-  "market.form.zone.info": "Information",
-  "market.form.zone.repo": "Repository",
-  "market.form.zone.meta": "Metadata",
-  "market.form.zone.media": "Media"
+  "market.versiones": "Versions"
 }
