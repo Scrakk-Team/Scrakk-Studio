@@ -122,6 +122,33 @@ published are not edited. The file goes per version:
   the shells detected on the machine and a free-text path), which is where you
   choose the shell a new terminal opens with.
 
+### Themes (ANSI palette)
+- **The terminal palette belongs to the theme, not to the engine.** The sixteen
+  ANSI colors (`\e[31m`, `\e[97m`, the 256-color cube's first sixteen …) were a
+  fixed table inside the engine, tuned for a dark background. On a light theme
+  that meant `white` was `#e5e5e5` and `bright white` was `#ffffff` on a `#e3e3e3`
+  background: **invisible** — programs that print in white (prompts, `git diff`,
+  `\e[37m`) looked like they were missing chunks. The palette is now a theme
+  token, so switching themes switches the terminal palette with it.
+- **Two ways to write it, on purpose.** A theme can carry the palette inline
+  (`"ansi": { "red": "#cd3131" }` in `theme.json`) or in an **`ansi.json` next to
+  the theme JSON** (same object, no wrapper) — the file wins slot by slot when
+  both exist, and keeps a long palette out of the main file. No new manifest
+  field: the file is found by convention, for built-in themes and for installed
+  `.sef` packs alike.
+- **Partial palettes inherit.** A theme that defines no `ansi` takes the one from
+  the base of its type (`scrakk-night` for dark, `scrakk-day` for light) slot by
+  slot, the same rule the colors already followed. `scrakk-day` ships the light
+  palette (`white` and `bright white` are `#6e7781` and `#24292f`, as in GitHub
+  Light), and `scrakk-night` pins the previous dark values, so dark themes look
+  exactly as before.
+- **VS Code themes keep their terminal colors.** The importer now maps
+  `terminal.ansiBlack` … `terminal.ansiBrightWhite` to the new `ansi` block: an
+  imported theme brings its own palette instead of silently falling back.
+- **The palette is also a CSS variable** (`--ansi-red`, `--ansi-bright-white`,
+  …), so UI that has to paint a color the terminal would paint does not keep a
+  second, drifting copy.
+
 ### Social (UI)
 - **The composer goes back to its compact height when the panel grows.** The
   textarea only refit itself when the text changed, so opening the panel at its
