@@ -1,0 +1,8 @@
+/dists/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+/scrakk-studio.gpg
+  Cache-Control: public, max-age=86400
+
+/scrakk-studio.asc
+  Cache-Control: public, max-age=86400
