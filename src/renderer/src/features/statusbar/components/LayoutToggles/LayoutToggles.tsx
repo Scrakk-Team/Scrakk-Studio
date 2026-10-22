@@ -18,8 +18,9 @@
 import { type ComponentType, type JSX } from 'react'
 import { productIcon } from '@services/productIcons/components'
 import { CenterPanelViewIcon } from '@ui'
-import { useLayout } from '@features/layout'
+import { useLayout, getLastPanelForSlot } from '@features/layout'
 import type { SlotId } from '@features/layout'
+import { getOrderedButtons } from '@features/activitybar'
 import styles from './LayoutToggles.module.css'
 
 import { t } from '@core/i18n'
@@ -76,6 +77,26 @@ const DEFAULT_PANELS: Record<SlotId, string> = {
   bottom: 'innerta-terminal'
 }
 
+/**
+ * Panel que se reabre en un slot: el último que el usuario tuvo abierto ahí
+ * (si su botón de la ActivityBar sigue en ese lado, para seguir los movimientos
+ * de botones entre barras), si no el primer botón de la ActivityBar de ese
+ * lado, y como último recurso el default hardcodeado.
+ */
+function defaultPanelForSlot(slot: SlotId): string {
+  if (slot === 'center') return 'welcome'
+  if (slot === 'bottom') return 'innerta-terminal'
+  const side = slot as 'left' | 'right'
+  const remembered = getLastPanelForSlot(slot)
+  const buttons = getOrderedButtons(side)
+  if (remembered && buttons.some((b) => b.panelId === remembered)) {
+    return remembered
+  }
+  const first = buttons[0]
+  if (first?.panelId) return first.panelId
+  return DEFAULT_PANELS[slot]
+}
+
 export function LayoutToggles(): JSX.Element {
   const { isSlotOpen, setSlotPanel, toggleSlotPanel } = useLayout()
 
@@ -111,7 +132,7 @@ export function LayoutToggles(): JSX.Element {
     if (isSlotOpen(slot)) {
       setSlotPanel(slot, null)
     } else {
-      toggleSlotPanel(slot, DEFAULT_PANELS[slot] as never)
+      toggleSlotPanel(slot, defaultPanelForSlot(slot) as never)
     }
   }
 }

@@ -130,10 +130,62 @@ export function closePanelTabEverywhere(panelId: PanelId): void {
   }
 }
 
+// ── Último panel abierto por slot ─────────────────────────────────────────
+// Se usa para que el toggle de visibilidad de la statusbar reabra el panel
+// que el usuario tenía, en vez de uno hardcodeado (explorer a la izq / chat a
+// la derecha) que deja de tener sentido cuando se mueven los botones de la
+// ActivityBar entre barras.
+const LAST_PANEL_KEY = 'scrakk-studio:last-panel-per-slot'
+const lastPanelPerSlot: Record<SlotId, PanelId | null> = {
+  left: null,
+  center: null,
+  right: null,
+  bottom: null
+}
+
+function loadLastPanelPerSlot(): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const raw = localStorage.getItem(LAST_PANEL_KEY)
+    if (!raw) return
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    if (!parsed || typeof parsed !== 'object') return
+    for (const slot of ['left', 'center', 'right', 'bottom'] as SlotId[]) {
+      const v = parsed[slot]
+      if (typeof v === 'string') lastPanelPerSlot[slot] = v
+    }
+  } catch {
+    // JSON corrupto: se arranca sin historial.
+  }
+}
+
+function persistLastPanelPerSlot(): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(LAST_PANEL_KEY, JSON.stringify(lastPanelPerSlot))
+  } catch {
+    // Sin storage: queda en memoria.
+  }
+}
+
+function rememberLastPanel(slot: SlotId, panelId: PanelId): void {
+  lastPanelPerSlot[slot] = panelId
+  persistLastPanelPerSlot()
+}
+
+loadLastPanelPerSlot()
+
+export function getLastPanelForSlot(slot: SlotId): PanelId | null {
+  return lastPanelPerSlot[slot] ?? null
+}
+
 /** Spawnea (o activa) la tab de un panel en un slot. Es la API que usan las
  * acciones: botones, comandos y extensiones abren un panel como tab.
  */
 export function openPanelTab(slot: SlotId, panelId: PanelId): void {
+  // Recordar el último panel de este slot: el LayoutToggles lo reabre con él
+  // (en vez del default hardcodeado por lado).
+  rememberLastPanel(slot, panelId)
   if (panelId === TERMINAL_PANEL_ID) {
     openTerminalTab(slot)
     return
@@ -411,6 +463,7 @@ export function syncEditorFileOrderFromCenter(): void {
  * laterales = abrir el panel (append multi-tab). null = ocultar el slot.
  */
 export function setSlotPanel(slot: SlotId, panelId: PanelId | null): void {
+  if (panelId !== null) rememberLastPanel(slot, panelId)
   if (slot === 'center') {
     if (panelId === null) {
       hideCenter()
@@ -491,6 +544,7 @@ function closeTabAndHideIfLast(stripId: StripId, tab: TabSpec): void {
  * una sesión por tocar la activity bar.
  */
 function swapActivePanel(slot: SlotId, panelId: PanelId): boolean {
+  rememberLastPanel(slot, panelId)
   for (const stripId of splitTreeStore.leavesOf(slot)) {
     const strip = tabsStore.getStrip(stripId)
     if (!strip?.activeId) continue

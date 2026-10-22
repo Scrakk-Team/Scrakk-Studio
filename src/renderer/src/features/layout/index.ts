@@ -56,6 +56,7 @@ export {
   closeTabSmart,
   activateTabSmart,
   toggleSlotPanel,
-  reconcileFileTabs
+  reconcileFileTabs,
+  getLastPanelForSlot
 } from './actions'
 export { SLOT_IDS } from './persistence'
