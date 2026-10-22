@@ -194,6 +194,16 @@ published are not edited. The file goes per version:
   inside the tooltip is now ignored, and the wheel over the tooltip no longer
   reaches the editor.
 
+### Installation (Linux)
+- **Scrakk Studio is now an APT package.** Debian/Ubuntu users can add the
+  signed repository at `apt.scrakk.art` and install with `apt install
+  scrakk-studio`; updates then arrive through `apt upgrade` like any other
+  package. The repository is hosted on Cloudflare Pages (the indices are a few
+  KB; the `.deb` is served from GitHub Releases, so nothing is stored in R2
+  and the 25 MB per-file limit of Pages is never hit) and signed with a
+  dedicated GPG key. The `.deb` declares its runtime dependencies
+  (`libnss3`, `libgtk-3-0`, …) so a clean Ubuntu installs everything it needs.
+
 ### Website (scrakk.art)
 - **The download button takes you to the GitHub releases page.** It used to
   resolve the right asset for your OS and start the download on the spot —

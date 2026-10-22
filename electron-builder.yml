@@ -20,6 +20,8 @@
 appId: art.scrakk.studio
 productName: Scrakk Studio
 copyright: Copyright © Scrakk
+author: Scrakk Studio <founder@scrakk.art>
+homepage: https://scrakk.art
 
 # Auto-update (electron-updater). Con esto electron-builder escribe
 # `app-update.yml` en resources (el provider que lee el updater) y genera los
@@ -143,6 +145,32 @@ linux:
   icon: assets/scrakk-studio-b.png
   # Asocia las ventanas al .desktop (WM_CLASS) en Linux.
   syncDesktopName: true
+  # Dependencias de runtime de Electron en Debian/Ubuntu.
+  depends:
+    - libnss3
+    - libatk1.0-0
+    - libatk-bridge2.0-0
+    - libcups2
+    - libdrm2
+    - libgtk-3-0
+    - libxkbcommon0
+    - libxcomposite1
+    - libxdamage1
+    - libxrandr2
+    - libgbm1
+    - libasound2
+    - libpango-1.0-0
+    - libcairo2
+    - libx11-6
+    - libxext6
+    - libxfixes3
+    - libxss1
+    - libglib2.0-0
+  deb:
+    # Nombre del paquete en dpkg/apt: `apt install scrakk-studio`.
+    packageName: scrakk-studio
+    section: utils
+    priority: optional
 
 win:
   target:

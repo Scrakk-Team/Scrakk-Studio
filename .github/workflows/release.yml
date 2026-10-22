@@ -201,3 +201,77 @@ jobs:
             exit 1
           fi
           echo "release ${VERSION} registrada en Supabase ($STATUS)"
+
+  publish-apt:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: apt-repo
+          path: apt-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: src
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      - name: Resolver versión
+        id: v
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "apt: v$VERSION"
+
+      - name: Agregar versión a versions.txt
+        shell: bash
+        working-directory: apt-repo
+        run: |
+          touch versions.txt
+          if ! grep -qx "${{ steps.v.outputs.version }}" versions.txt; then
+            echo "${{ steps.v.outputs.version }}" >> versions.txt
+          fi
+          cat versions.txt
+
+      - name: Generar repositorio APT
+        shell: bash
+        working-directory: apt-repo
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          if [ -z "$APT_GPG_PRIVATE_KEY" ]; then
+            echo "::warning::falta APT_GPG_PRIVATE_KEY; se omite la firma del repo apt"
+            exit 0
+          fi
+          node ../src/tools/apt/build-repo.mjs --versions versions.txt --out .
+
+      - name: Publicar en Cloudflare Pages (apt.scrakk.art)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: eaa65e50775620523cf9a829e7b465a5
+          projectName: scrakk-apt
+          directory: apt-repo
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit y push a apt-repo (historial)
+        shell: bash
+        working-directory: apt-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "sin cambios; nada que commitear"
+            exit 0
+          fi
+          git commit -m "apt: Scrakk Studio ${{ steps.v.outputs.version }}"
+          git push origin apt-repo

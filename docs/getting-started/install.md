@@ -31,6 +31,32 @@ chmod +x Scrakk-Studio-*.AppImage
 ./Scrakk-Studio-*.AppImage            # portable, self-updating
 
 sudo apt install ./Scrakk-Studio-*.deb   # or double-click in your package manager
+
+### From the APT repository (recommended on Debian/Ubuntu)
+
+Scrakk Studio publishes a signed APT repository at `apt.scrakk.art`. Once
+configured, updates arrive through the system package manager (`apt upgrade`),
+the same way as any other package:
+
+```bash
+# 1. Import the signing key.
+curl -fsSL https://apt.scrakk.art/scrakk-studio.gpg \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/scrakk-studio.gpg
+
+# 2. Add the repository.
+echo 'deb [signed-by=/etc/apt/keyrings/scrakk-studio.gpg] https://apt.scrakk.art stable main' \
+  | sudo tee /etc/apt/sources.list.d/scrakk-studio.list
+
+# 3. Install.
+sudo apt update
+sudo apt install scrakk-studio
+```
+
+The repository is signed with the key `founder@scrakk.art`
+(fingerprint `B8AB7DFD9AE9BC2C11D0BF0018B46DA7A6BBEB3D`); verify it against
+the one published at <https://github.com/Scrakk-Team/Scrakk-Studio>. The
+`.deb` itself is served from GitHub Releases (the repository only stores the
+indices), so downloads are not rate-limited.
 ```
 
 Only the **AppImage** self-updates through `electron-updater`. On `deb`,
