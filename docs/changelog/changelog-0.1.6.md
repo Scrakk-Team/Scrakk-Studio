@@ -42,6 +42,18 @@ published are not edited. The file goes per version:
   metrics are re-synced with it, so the rows stay aligned instead of keeping
   the previous font's height.
 
+### Editor (selection)
+- **The selection is rounded, not chamfered.** Selecting across lines used to
+  look *diagonal*: the painter rounded **every** corner of the selection's
+  outline, and at each line break the radius is limited to half the shortest
+  side of the step — so the two little rounds ate the step and left a diagonal
+  cut. Now only the two **outer** corners are rounded (where the selection
+  starts and where it ends) and the line breaks stay square, so the shape reads
+  as a rounded selection instead of a sawtooth. The corners also got a bigger
+  radius (4px → 6px): at a 23px row the old one was barely a round and looked
+  like a chamfer. The same painter serves the editor and the terminal, so both
+  are fixed.
+
 ### Editor (color picker)
 - **The color picker is the frontend's now.** The engine used to paint the
   little colour square next to every colour literal **and** the whole picker
