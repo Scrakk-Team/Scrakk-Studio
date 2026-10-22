@@ -263,6 +263,11 @@ export interface InnertaModule {
   setIndentGuideColor(color: number): void
   setTokenColor(tokenTypeId: number, color: number): void
   /**
+   * Paleta ANSI de la terminal (0..15 = negro … bright white). Opcional: un
+   * build del motor anterior a este export no la tiene y se ignora.
+   */
+  setAnsiColor?(index: number, color: number): void
+  /**
    * Tokens de color resueltos por el host (delta LSP) y fuente de resaltado
    * (0 = sólo tree-sitter embebido, 1 = sólo host, 2 = mixto).
    *

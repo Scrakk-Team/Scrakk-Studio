@@ -101,6 +101,38 @@ export interface ThemeColors {
   statusBarBg?: string
 }
 
+/**
+ * Paleta ANSI de la terminal. Los nombres son los de VS Code
+ * (`terminal.ansiBlack` → `black`), sin el prefijo.
+ *
+ * Puede venir en el propio `theme.json` (`ansi: { … }`) o en un `ansi.json`
+ * hermano del theme.json — mismo objeto, sin envoltorio. Si vienen los dos, el
+ * archivo gana slot por slot (es el lugar dedicado a la paleta).
+ */
+export const THEME_ANSI_SLOTS = [
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'white',
+  'brightBlack',
+  'brightRed',
+  'brightGreen',
+  'brightYellow',
+  'brightBlue',
+  'brightMagenta',
+  'brightCyan',
+  'brightWhite'
+] as const
+
+export type ThemeAnsiSlot = (typeof THEME_ANSI_SLOTS)[number]
+
+/** Mapa parcial: un tema puede definir solo los slots que le interesan. */
+export type ThemeAnsi = Partial<Record<ThemeAnsiSlot, string>>
+
 /** TokenColor estilo TextMate (VS Code). */
 export interface ThemeToken {
   scope: string | string[]
@@ -130,6 +162,8 @@ export interface ThemeDefinition {
   colors: ThemeColors
   components?: Record<string, unknown>
   tokenColors?: ThemeToken[]
+  /** Paleta ANSI de la terminal (inline; ver también `ansi.json`). */
+  ansi?: ThemeAnsi
   /** True = chrome de un solo color (temas flat): las barras le ponen borde. */
   flat?: boolean
   /** Esquinas del chrome: 'rect' | 'round' | mapa por slot. */
@@ -443,6 +477,33 @@ export function normalizeThemeRadius(raw: unknown): ThemeRadius | undefined {
   return Object.keys(out).length > 0 ? out : undefined
 }
 
+/**
+ * Valida la paleta ANSI. Igual que el resto: tolerante, descarta slots
+ * inválidos y conserva los válidos.
+ *
+ * `var(--token)` y `transparent` NO se aceptan: el motor recibe un entero
+ * RGB (no CSS), así que un valor no resoluble terminaría en blanco. Solo
+ * colores concretos (hex/rgb/rgba; el alfa se ignora porque la celda ANSI es
+ * opaca y el fondo lo pone la celda).
+ */
+export function normalizeThemeAnsi(raw: unknown): ThemeAnsi | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined
+  const r = raw as Record<string, unknown>
+  const out: ThemeAnsi = {}
+  for (const slot of THEME_ANSI_SLOTS) {
+    const value = r[slot]
+    if (value === undefined || value === null) continue
+    const text = typeof value === 'string' ? value.trim() : ''
+    const isPlain = !/^var\(/i.test(text) && text.toLowerCase() !== 'transparent'
+    if (!isCssColor(text) || !isPlain) {
+      console.warn(`[extensions/themes] ansi.${slot} inválido (color concreto, sin var()):`, value)
+      continue
+    }
+    out[slot] = text
+  }
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
 /** Valida el bloque `fonts` (v1: solo slot ui). */
 export function normalizeThemeFonts(raw: unknown): ThemeFonts | undefined {
   if (!raw || typeof raw !== 'object') return undefined
@@ -518,6 +579,7 @@ export function normalizeThemeDefinition(raw: unknown): ThemeDefinition | null {
         ? (r.components as Record<string, unknown>)
         : undefined,
     tokenColors,
+    ansi: normalizeThemeAnsi(r.ansi),
     flat: r.flat === true ? true : undefined,
     radius: normalizeThemeRadius(r.radius),
     fonts: normalizeThemeFonts(r.fonts)

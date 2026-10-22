@@ -598,6 +598,11 @@ function wrap(raw: Record<string, unknown>): InnertaModule {
     setTokenColor(tokenTypeId, color) {
       _raw._SetInnertaTokenColor(tokenTypeId, color)
     },
+    setAnsiColor(index, color) {
+      // Export opcional: un wasm viejo simplemente no lo tiene.
+      if (typeof _raw._SetInnertaAnsiColor !== 'function') return
+      _raw._SetInnertaAnsiColor(index, color)
+    },
     /**
      * Zoom: tamaño de fuente del motor (ver `SetInnertaFontSize`).
      *
@@ -1177,6 +1182,11 @@ function wrapIsolated(raw: Record<string, unknown>, canvas: HTMLCanvasElement): 
     },
     setTokenColor(tokenTypeId, color) {
       _raw._SetInnertaTokenColor(tokenTypeId, color)
+    },
+    setAnsiColor(index, color) {
+      // Export opcional: un wasm viejo simplemente no lo tiene.
+      if (typeof _raw._SetInnertaAnsiColor !== 'function') return
+      _raw._SetInnertaAnsiColor(index, color)
     },
     /**
      * Zoom: tamaño de fuente del motor (ver `SetInnertaFontSize`).

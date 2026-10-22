@@ -317,6 +317,44 @@ function mapColors(
   return out
 }
 
+/** Slots ANSI del schema SEF, en el orden del índice del motor. */
+const ANSI_SLOTS = [
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'white',
+  'brightBlack',
+  'brightRed',
+  'brightGreen',
+  'brightYellow',
+  'brightBlue',
+  'brightMagenta',
+  'brightCyan',
+  'brightWhite'
+] as const
+
+/**
+ * `terminal.ansi*` del workbench de VS Code → bloque `ansi` del tema SEF.
+ *
+ * Casi todo tema de VS Code define su paleta; sin este mapeo el pack importado
+ * perdía los colores de la terminal y caía a la paleta del tema base.
+ */
+function mapAnsi(
+  raw: Record<string, string | undefined>
+): Record<string, string> | undefined {
+  const out: Record<string, string> = {}
+  for (const slot of ANSI_SLOTS) {
+    const key = `terminal.ansi${slot.charAt(0).toUpperCase()}${slot.slice(1)}`
+    const value = pick(raw, key)
+    if (value) out[slot] = value
+  }
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
 function mapTokenColors(raw: unknown): Array<{ scope: string | string[]; foreground?: string; fontStyle?: string }> | undefined {
   if (!Array.isArray(raw)) return undefined
   const out: Array<{ scope: string | string[]; foreground?: string; fontStyle?: string }> = []
@@ -372,10 +410,12 @@ export function translateColorThemes(
     const sefId = slugify(`${opts.extensionId}-${base}`).slice(0, 80)
     const name = theme.label || base
 
+    const ansi = mapAnsi(colors)
     const definition: Record<string, unknown> = { name, type, colors: sefColors }
     // Flag flat: las barras le ponen borde (--chrome-border) porque su fondo
     // es idéntico al del chrome y sin él se funden.
     if (flat) definition.flat = true
+    if (ansi) definition.ansi = ansi
     if (tokenColors) definition.tokenColors = tokenColors
 
     const assetPath = `themes/${sefId}.json`

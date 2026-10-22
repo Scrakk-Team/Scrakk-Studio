@@ -18,6 +18,7 @@
  */
 
 import type {
+  ThemeAnsi,
   ThemeBackground,
   ThemeColors,
   ThemeDefinition,
@@ -25,7 +26,7 @@ import type {
   ThemeRadius,
   ThemeRadiusMap
 } from './schema'
-import { THEME_RADIUS_SLOTS, normalizeRadiusValue } from './schema'
+import { THEME_ANSI_SLOTS, THEME_RADIUS_SLOTS, normalizeRadiusValue } from './schema'
 import {
   loadStoredActive,
   saveStoredActive,
@@ -44,6 +45,8 @@ export interface RegisteredThemeEntry {
 const STYLE_ID = 'sef-theme-overrides'
 /** Key que consume el puente Innerta para los tokenColors. */
 const TOKENS_KEY = 'scrakk-active-theme-tokens'
+/** Key que consume el puente Innerta para la paleta ANSI (terminal). */
+const ANSI_KEY = 'scrakk-active-theme-ansi'
 /** Radio del glassmorphism automático (solo temas con imagen de fondo). */
 const GLASS_BLUR_PX = 16
 /** <link> de la fuente remota del tema activo. */
@@ -181,6 +184,22 @@ export function resolveThemeColors(def: ThemeDefinition): ThemeColors {
 }
 
 /**
+ * Paleta ANSI efectiva: la del tema SOBRE la del tema base de su tipo.
+ *
+ * Un tema claro convertido que no define `ansi` hereda la paleta clara de
+ * `scrakk-day`; sin esto la terminal seguiría usando los blancos invisibles del
+ * default del motor. Slot por slot, no se reemplaza el objeto entero.
+ */
+export function resolveThemeAnsi(def: ThemeDefinition): ThemeAnsi | undefined {
+  const baseId = def.type === 'light' ? DEFAULT_LIGHT_THEME_ID : DEFAULT_THEME_ID
+  const base = themes.get(baseId)
+  const baseAnsi = base && base.definition !== def ? base.definition.ansi : undefined
+  if (!def.ansi) return baseAnsi
+  if (!baseAnsi) return def.ansi
+  return { ...baseAnsi, ...def.ansi }
+}
+
+/**
  * Fonts efectivas: las del tema (la base casi nunca trae). Pura.
  */
 export function resolveThemeFonts(def: ThemeDefinition): ThemeFonts | undefined {
@@ -288,6 +307,16 @@ function buildCssVars(def: ThemeDefinition): string {
       )
     } else {
       push(`blur(${GLASS_BLUR_PX}px) saturate(150%)`, '--glass-blur')
+    }
+  }
+  // Paleta ANSI como vars CSS: la terminal la recibe por el puente Innerta,
+  // pero la UI (previews, leyendas, chips de color) pinta con las MISMAS vars,
+  // así no hay dos paletas viviendo en paralelo.
+  const ansi = resolveThemeAnsi(def)
+  if (ansi) {
+    for (const slot of THEME_ANSI_SLOTS) {
+      const kebab = slot.replace(/[A-Z]/g, (ch) => `-${ch.toLowerCase()}`)
+      push(ansi[slot], `--ansi-${kebab}`)
     }
   }
   // Fuente UI del tema (v1: solo UI, no editor/terminal).
@@ -508,6 +537,18 @@ export function activateTheme(id: string): boolean {
     // Sin almacenamiento: los tokenColors no llegan a Innerta esta sesión.
   }
 
+  // Paleta ANSI resuelta (con herencia del base) para el puente de la terminal.
+  try {
+    const ansi = resolveThemeAnsi(def)
+    if (ansi && Object.keys(ansi).length > 0) {
+      localStorage.setItem(ANSI_KEY, JSON.stringify(ansi))
+    } else {
+      localStorage.removeItem(ANSI_KEY)
+    }
+  } catch {
+    // Sin almacenamiento: la terminal queda con la paleta del motor.
+  }
+
   activeId = id
   saveStoredActive({ id, extensionId: entry.extensionId })
   window.dispatchEvent(new CustomEvent('theme-changed', { detail: { themeId: id } }))
@@ -536,6 +577,7 @@ function deactivate(): void {
   delete document.documentElement.dataset.theme
   try {
     localStorage.removeItem(TOKENS_KEY)
+    localStorage.removeItem(ANSI_KEY)
   } catch {
     // no-op
   }

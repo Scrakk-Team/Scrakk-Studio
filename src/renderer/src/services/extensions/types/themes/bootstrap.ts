@@ -16,6 +16,7 @@
  */
 
 import { normalizeThemeDefinition } from './schema'
+import { builtinAnsiDefinition, mergeAnsiFile } from './ansiJson'
 import { loadStoredActive } from './store'
 import { registerTheme, activateTheme, getActiveThemeId, DEFAULT_THEME_ID } from './logic'
 
@@ -38,8 +39,10 @@ function builtinRawDefinition(extensionId: string): unknown | null {
 /** Registra y activa un tema builtin sincrónicamente. Devuelve true si aplicó. */
 function applyBuiltin(extensionId: string, id: string = extensionId): boolean {
   const raw = builtinRawDefinition(extensionId)
-  const definition = normalizeThemeDefinition(raw)
-  if (!definition) return false
+  const normalized = normalizeThemeDefinition(raw)
+  if (!normalized) return false
+  // El primer paint también lleva la paleta ANSI del pack (ansi.json hermano).
+  const definition = mergeAnsiFile(normalized, builtinAnsiDefinition(extensionId))
 
   registerTheme({
     id,

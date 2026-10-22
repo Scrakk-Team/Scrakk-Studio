@@ -14,6 +14,34 @@ import type { InnertaModule } from './InnertaEngine'
  */
 
 const TOKEN_STORAGE_KEY = 'scrakk-active-theme-tokens'
+/** Paleta ANSI del tema activo (la persiste el theme-applier). */
+const ANSI_STORAGE_KEY = 'scrakk-active-theme-ansi'
+
+/**
+ * Orden EXACTO del índice del motor (0..15). No reordenar: el slot `n` de esta
+ * lista es el `n` de `SetInnertaAnsiColor`.
+ */
+export const ANSI_SLOTS = [
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'white',
+  'brightBlack',
+  'brightRed',
+  'brightGreen',
+  'brightYellow',
+  'brightBlue',
+  'brightMagenta',
+  'brightCyan',
+  'brightWhite'
+] as const
+
+/** Paleta tal como la guarda el theme-applier: slot → color CSS. */
+export type ThemeAnsi = Partial<Record<(typeof ANSI_SLOTS)[number], string>>
 
 /** TokenColor tal como lo guarda theme-applier (VS Code-style). */
 export interface ThemeToken {
@@ -158,6 +186,33 @@ export function readActiveThemeTokens(): ThemeToken[] | undefined {
   }
 }
 
+/** Paleta ANSI del tema ACTIVO (undefined si el tema no define ninguna). */
+export function readActiveThemeAnsi(): ThemeAnsi | undefined {
+  try {
+    const raw = localStorage.getItem(ANSI_STORAGE_KEY)
+    if (!raw) return undefined
+    const parsed: unknown = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? (parsed as ThemeAnsi) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Paleta ANSI → [[índice del motor, color], …]. Solo los slots presentes: un
+ * tema parcial deja el resto con la paleta del motor (o la que ya tenía).
+ */
+export function resolveAnsiSlots(ansi: ThemeAnsi | undefined): Array<[number, number]> {
+  if (!ansi) return []
+  const out: Array<[number, number]> = []
+  ANSI_SLOTS.forEach((slot, index) => {
+    const value = ansi[slot]
+    if (typeof value !== 'string') return
+    out.push([index, colorToRgba(value)])
+  })
+  return out
+}
+
 /**
  * Aplica el theme activo de Scrakk al módulo Innerta ya listo.
  * Se llama al conectar el engine y ante cada evento 'theme-changed'.
@@ -212,6 +267,12 @@ export function applyInnertaTheme(module: InnertaModule): void {
 
   for (const [slot, color] of resolveTokenSlots(readActiveThemeTokens())) {
     module.setTokenColor(slot, color)
+  }
+
+  // Paleta ANSI de la terminal. Sin esto el motor usa la suya (pensada para
+  // fondo oscuro) y en un tema claro los blancos SGR quedan invisibles.
+  for (const [index, color] of resolveAnsiSlots(readActiveThemeAnsi())) {
+    module.setAnsiColor?.(index, color)
   }
 }
 

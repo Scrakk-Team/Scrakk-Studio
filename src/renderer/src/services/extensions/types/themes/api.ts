@@ -25,6 +25,7 @@ import {
   unregisterTheme,
   reactivateIfStored
 } from './logic'
+import { builtinAnsiDefinition, mergeAnsiFile, siblingAnsiPath } from './ansiJson'
 
 /**
  * Temas builtin: JSONs embebidos por Vite en build-time.
@@ -58,9 +59,12 @@ export const themesHandler: AnyExtensionTypeHandler = {
     ctx: ExtensionTypeContext
   ): Promise<RegisteredThemeRef | null> {
     let rawDefinition: unknown = null
+    /** `ansi.json` hermano del theme.json (opcional, ver ansiJson.ts). */
+    let rawAnsi: unknown = null
 
     if (ctx.isBuiltin) {
       rawDefinition = builtinRawDefinition(ctx.extensionId)
+      rawAnsi = builtinAnsiDefinition(ctx.extensionId)
       if (rawDefinition === null) {
         console.warn(
           `[extensions/themes] builtin "${ctx.extensionId}" sin theme.json (¿builtin/themes/${ctx.extensionId}/theme.json?)`
@@ -78,13 +82,25 @@ export const themesHandler: AnyExtensionTypeHandler = {
           )
         }
       }
+      const ansiContent = await ctx.readFile(siblingAnsiPath(contribution.path))
+      if (ansiContent !== null) {
+        try {
+          rawAnsi = JSON.parse(ansiContent)
+        } catch (error) {
+          console.warn(
+            `[extensions/themes] "${contribution.id}" ansi.json inválido, se ignora:`,
+            error
+          )
+        }
+      }
     }
 
-    const definition = normalizeThemeDefinition(rawDefinition)
-    if (!definition) {
+    const normalized = normalizeThemeDefinition(rawDefinition)
+    if (!normalized) {
       console.warn(`[extensions/themes] tema "${contribution.id}" sin definición válida`)
       return null
     }
+    const definition = mergeAnsiFile(normalized, rawAnsi)
 
     registerTheme({
       id: contribution.id,
