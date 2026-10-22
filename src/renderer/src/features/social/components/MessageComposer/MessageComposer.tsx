@@ -3,6 +3,7 @@
 // Licencia completa en LICENSE (Apache License 2.0).
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -162,15 +163,22 @@ export function MessageComposer({
     return () => window.removeEventListener('pointerdown', onDown)
   }, [showEmoji])
 
-  const fitHeight = (): void => {
+  // Ajusta el alto del textarea al contenido (tope 140px). Es estable para
+  // poder usarla en los dos efectos que la necesitan.
+  const fitHeight = useCallback((): void => {
     const el = textareaRef.current
     if (!el) return
     el.style.height = 'auto'
     el.style.height = `${Math.min(el.scrollHeight, 140)}px`
-  }
+  }, [])
 
-  useEffect(fitHeight, [value])
+  useEffect(() => {
+    fitHeight()
+  }, [value, fitHeight])
 
+  // El alto también depende del ANCHO: al agrandar el panel, el placeholder
+  // deja de ocupar dos líneas y el textarea tiene que volver a su alto
+  // compacto (si no, se queda con el alto que tenía al ancho mínimo).
   useEffect(() => {
     const el = textareaRef.current
     if (!el || typeof ResizeObserver === 'undefined') return undefined
@@ -182,7 +190,7 @@ export function MessageComposer({
     })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+  }, [fitHeight])
 
   const sendTyping = (typing: boolean) => {
     if (lastTyping.current === typing) return
