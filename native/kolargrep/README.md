@@ -812,7 +812,7 @@ exit code determined by the search alone. Suppress the message with
    builds one in the background (batches of 1,024 files, split sooner by byte
    budgets); clients scan until complete coverage is published, including when
    resuming a partial index;
-   after the initial build, pending changes are auto-saved when 5,000 content mutations accumulate by default, or on the first periodic check at least 10 minutes after startup or the last successful save. Multiple clients connect simultaneously;
+   after the initial build, pending changes are auto-saved when 5,000 content mutations accumulate by default, or on the first periodic check at least 10 minutes after startup or the last successful save. Multiple clients connect simultaneously;
 
    searches use read locks for zero contention.
 
