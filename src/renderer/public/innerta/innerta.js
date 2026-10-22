@@ -8399,8 +8399,8 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('wasmBinary');
 }
 var ASM_CONSTS = {
-  3527908: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } },  
- 3528058: ($0, $1, $2, $3) => { if (Module._innertaOnEvent) { try { Module._innertaOnEvent($0, $1, $2, $3); } catch (e) {} } }
+  3527892: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } },  
+ 3528042: ($0, $1, $2, $3) => { if (Module._innertaOnEvent) { try { Module._innertaOnEvent($0, $1, $2, $3); } catch (e) {} } }
 };
 
 // Imports from the Wasm binary.
@@ -8418,6 +8418,7 @@ var _SetInnertaTheme = Module['_SetInnertaTheme'] = makeInvalidEarlyAccess('_Set
 var _SetInnertaOverlayHoles = Module['_SetInnertaOverlayHoles'] = makeInvalidEarlyAccess('_SetInnertaOverlayHoles');
 var _SetInnertaDimRegions = Module['_SetInnertaDimRegions'] = makeInvalidEarlyAccess('_SetInnertaDimRegions');
 var _SetInnertaTokenColor = Module['_SetInnertaTokenColor'] = makeInvalidEarlyAccess('_SetInnertaTokenColor');
+var _SetInnertaAnsiColor = Module['_SetInnertaAnsiColor'] = makeInvalidEarlyAccess('_SetInnertaAnsiColor');
 var _SetInnertaFocus = Module['_SetInnertaFocus'] = makeInvalidEarlyAccess('_SetInnertaFocus');
 var _InnertaEnsureVisible = Module['_InnertaEnsureVisible'] = makeInvalidEarlyAccess('_InnertaEnsureVisible');
 var _SetInnertaFoldingRanges = Module['_SetInnertaFoldingRanges'] = makeInvalidEarlyAccess('_SetInnertaFoldingRanges');
@@ -8546,6 +8547,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['SetInnertaOverlayHoles'] != 'undefined', 'missing Wasm export: SetInnertaOverlayHoles');
   assert(typeof wasmExports['SetInnertaDimRegions'] != 'undefined', 'missing Wasm export: SetInnertaDimRegions');
   assert(typeof wasmExports['SetInnertaTokenColor'] != 'undefined', 'missing Wasm export: SetInnertaTokenColor');
+  assert(typeof wasmExports['SetInnertaAnsiColor'] != 'undefined', 'missing Wasm export: SetInnertaAnsiColor');
   assert(typeof wasmExports['SetInnertaFocus'] != 'undefined', 'missing Wasm export: SetInnertaFocus');
   assert(typeof wasmExports['InnertaEnsureVisible'] != 'undefined', 'missing Wasm export: InnertaEnsureVisible');
   assert(typeof wasmExports['SetInnertaFoldingRanges'] != 'undefined', 'missing Wasm export: SetInnertaFoldingRanges');
@@ -8670,6 +8672,7 @@ function assignWasmExports(wasmExports) {
   _SetInnertaOverlayHoles = Module['_SetInnertaOverlayHoles'] = createExportWrapper('SetInnertaOverlayHoles', wasmExports['SetInnertaOverlayHoles'], 2);
   _SetInnertaDimRegions = Module['_SetInnertaDimRegions'] = createExportWrapper('SetInnertaDimRegions', wasmExports['SetInnertaDimRegions'], 2);
   _SetInnertaTokenColor = Module['_SetInnertaTokenColor'] = createExportWrapper('SetInnertaTokenColor', wasmExports['SetInnertaTokenColor'], 2);
+  _SetInnertaAnsiColor = Module['_SetInnertaAnsiColor'] = createExportWrapper('SetInnertaAnsiColor', wasmExports['SetInnertaAnsiColor'], 2);
   _SetInnertaFocus = Module['_SetInnertaFocus'] = createExportWrapper('SetInnertaFocus', wasmExports['SetInnertaFocus'], 1);
   _InnertaEnsureVisible = Module['_InnertaEnsureVisible'] = createExportWrapper('InnertaEnsureVisible', wasmExports['InnertaEnsureVisible'], 0);
   _SetInnertaFoldingRanges = Module['_SetInnertaFoldingRanges'] = createExportWrapper('SetInnertaFoldingRanges', wasmExports['SetInnertaFoldingRanges'], 2);
