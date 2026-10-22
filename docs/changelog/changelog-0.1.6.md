@@ -42,24 +42,6 @@ published are not edited. The file goes per version:
   metrics are re-synced with it, so the rows stay aligned instead of keeping
   the previous font's height.
 
-### Editor (selection)
-- **The selection's corners are real arcs again.** They were cut in a
-  **diagonal**: the selection is one polygon, and the triangulation (ear
-  clipping) *ate the curves* — it clipped the arc's points as if they were
-  ears, so every rounded corner ended up drawn as the straight **chord**
-  between the arc's ends. A chord across a 4px arc is a diagonal cut, which is
-  exactly what it looked like. The shape is now drawn in two pieces: the
-  **core** (the polygon with the corners cut by their chords, tessellated) plus
-  the **caps** (one per convex corner: the strip between the chord and the
-  arc), so the arc is drawn whole and the GPU antialiases it. The selection
-  keeps its original look — same radius, same segments, every corner rounded —
-  only the broken tessellation is gone.
-- **The concave corners (the inner ones, where the selection jumps from one
-  line to the next) are now rounded too**, not just the convex ones. The arc
-  bulges into the notch and the cap fills it, so those corners no longer look
-  diagonal. Radius lowered to 6px as requested (it still fits in half a 23px
-  row). The same painter serves the editor and the terminal, so both are fixed.
-
 ### Editor (color picker)
 - **The color picker is the frontend's now.** The engine used to paint the
   little colour square next to every colour literal **and** the whole picker
