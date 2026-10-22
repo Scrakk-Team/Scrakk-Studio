@@ -14,9 +14,14 @@
  * Acá se puede FORZAR cualquiera de los dos. Del shell sólo se ofrecen las que
  * EXISTEN en la máquina: las detecta el main (perfiles de Windows Terminal, el
  * PATH y las rutas conocidas).
+ *
+ * La UI sigue el lenguaje del resto de Ajustes (Apariencia, Servidores): una
+ * superficie única con filas planas, controles sin caja y el menú contextual
+ * global para elegir — nada de <select> nativos, que traen el contorno y el
+ * desplegable del sistema operativo.
  */
 
-import { useCallback, useEffect, useState, type JSX } from 'react'
+import { useCallback, useEffect, useState, type JSX, type MouseEvent } from 'react'
 import type { TerminalShellInfo } from '@shared/terminal'
 import {
   getTerminalFontFamily,
@@ -27,12 +32,12 @@ import {
   setTerminalShellChoice,
   TERMINAL_FONT_SETTING_KEY
 } from '@services/innerta/terminalSession'
+import { ProductIcon } from '@services/productIcons/components'
+import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
+import { TerminalPreview } from './TerminalPreview'
 import styles from './TerminalSection.module.css'
 
 import { t } from '@core/i18n'
-
-/** Valor del <select> para "ruta a mano". */
-const CUSTOM = '__custom__'
 
 export function TerminalSection(): JSX.Element {
   const [family, setFamily] = useState<string>(() => getTerminalFontFamily())
@@ -41,6 +46,8 @@ export function TerminalSection(): JSX.Element {
   const [shells, setShells] = useState<TerminalShellInfo | null>(null)
   const [customPath, setCustomPath] = useState<string>(() => getTerminalShellChoice())
   const [customOpen, setCustomOpen] = useState(false)
+  /** Fuerza recrear la previa cuando cambia la shell (el PTY no lo hace solo). */
+  const [previewEpoch, setPreviewEpoch] = useState(0)
 
   useEffect(() => {
     let alive = true
@@ -79,88 +86,165 @@ export function TerminalSection(): JSX.Element {
   const detected = shells?.detected
   // La elección guardada puede ser una ruta a mano: no está en las candidatas.
   const isKnown = candidates.some((entry) => entry.id === shell)
+  const knownShell = candidates.find((entry) => entry.id === shell)
+
+  const fontLabel = family || t('settings.fuente.del.sistema')
+  const shellLabel = customOpen
+    ? customPath.trim() || t('settings.personalizada')
+    : shell === ''
+      ? `${t('settings.automatico')}${detected ? ` · ${detected.label}` : ''}`
+      : (knownShell?.label ?? shell)
+
+  /** Menú de fuentes: la del sistema + todas las monoespaciadas detectadas. */
+  const openFontMenu = (event: MouseEvent<HTMLButtonElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    showContextMenu(rect.left, rect.bottom, [
+      {
+        label: t('settings.fuente.del.sistema'),
+        sublabel: t('settings.la.fuente.con.la.que.se.dibuja'),
+        checked: family === '',
+        onClick: () => handleFamily('')
+      },
+      ...families.map((name, index) => ({
+        label: name,
+        checked: family === name,
+        separatorBefore: index === 0,
+        onClick: () => handleFamily(name)
+      }))
+    ])
+  }
+
+  /** Menú de shells: automático, las detectadas y la ruta a mano. */
+  const openShellMenu = (event: MouseEvent<HTMLButtonElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    showContextMenu(rect.left, rect.bottom, [
+      {
+        label: t('settings.automatico'),
+        ...(detected ? { sublabel: detected.label } : {}),
+        checked: !customOpen && shell === '',
+        onClick: () => {
+          setCustomOpen(false)
+          handleShell('')
+          setPreviewEpoch((value) => value + 1)
+        }
+      },
+      ...candidates.map((entry, index) => ({
+        label: entry.label,
+        sublabel: entry.path,
+        checked: !customOpen && shell === entry.id,
+        separatorBefore: index === 0,
+        onClick: () => {
+          setCustomOpen(false)
+          handleShell(entry.id)
+          setPreviewEpoch((value) => value + 1)
+        }
+      })),
+      // Elección guardada que ya no está entre las detectadas (ruta antigua).
+      ...(shell !== '' && !isKnown
+        ? [
+            {
+              label: shell,
+              sublabel: t('settings.personalizada'),
+              checked: !customOpen,
+              onClick: () => {
+                setCustomOpen(false)
+                handleShell(shell)
+                setPreviewEpoch((value) => value + 1)
+              }
+            }
+          ]
+        : []),
+      {
+        label: t('settings.personalizada'),
+        checked: customOpen,
+        separatorBefore: true,
+        onClick: () => {
+          setCustomOpen(true)
+          handleShell(customPath)
+        }
+      }
+    ])
+  }
 
   return (
     <div className={styles.section}>
-      <div className={styles.headerText}>
+      <header className={styles.head}>
         <h3>{t('settings.terminal')}</h3>
         <p>{t('settings.opciones.de.la.terminal')}</p>
-      </div>
+      </header>
 
-      <div className={styles.row}>
-        <div className={styles.rowInfo}>
-          <span className={styles.rowName}>{t('settings.fuente.de.la.terminal')}</span>
-          <span className={styles.rowMeta}>{t('settings.la.fuente.con.la.que.se.dibuja')}</span>
-        </div>
-        <select
-          className={styles.select}
-          value={family}
-          onChange={(event) => handleFamily(event.target.value)}
-          aria-label={t('settings.fuente.de.la.terminal')}
-        >
-          <option value="">{t('settings.fuente.del.sistema')}</option>
-          {families.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <TerminalPreview epoch={previewEpoch} />
 
-      <div className={styles.row}>
-        <div className={styles.rowInfo}>
-          <span className={styles.rowName}>{t('settings.shell.de.la.terminal')}</span>
-          <span className={styles.rowMeta}>{t('settings.con.que.shell.se.abre')}</span>
-        </div>
-        <select
-          className={styles.select}
-          value={customOpen ? CUSTOM : shell}
-          onChange={(event) => {
-            const value = event.target.value
-            if (value === CUSTOM) {
-              setCustomOpen(true)
-              return
-            }
-            setCustomOpen(false)
-            handleShell(value)
-          }}
-          aria-label={t('settings.shell.de.la.terminal')}
-        >
-          <option value="">
-            {t('settings.automatico')}
-            {detected ? ` · ${detected.label}` : ''}
-          </option>
-          {candidates.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.label}
-            </option>
-          ))}
-          {shell !== '' && !isKnown && (
-            <option value={shell}>{shell}</option>
-          )}
-          <option value={CUSTOM}>{t('settings.personalizada')}</option>
-        </select>
-      </div>
-
-      {customOpen && (
-        <div className={styles.row}>
-          <div className={styles.rowInfo}>
-            <span className={styles.rowName}>{t('settings.ruta.del.ejecutable')}</span>
-            <span className={styles.rowMeta}>{t('settings.el.cambio.aplica.a.las.nuevas')}</span>
+      <div className={styles.listWrap}>
+        <div className={styles.list}>
+          <div className={styles.row}>
+            <div className={styles.rowInfo}>
+              <span className={styles.rowName}>{t('settings.fuente.de.la.terminal')}</span>
+              <span className={styles.rowMeta}>{t('settings.la.fuente.con.la.que.se.dibuja')}</span>
+            </div>
+            <button
+              type="button"
+              className={styles.control}
+              aria-haspopup="menu"
+              aria-label={t('settings.fuente.de.la.terminal')}
+              onClick={openFontMenu}
+            >
+              <span className={styles.controlValue}>{fontLabel}</span>
+              <ProductIcon
+                id="chevron-down"
+                size={12}
+                className={styles.controlChevron}
+                aria-hidden="true"
+              />
+            </button>
           </div>
-          <input
-            className={styles.input}
-            value={customPath}
-            placeholder="pwsh.exe"
-            spellCheck={false}
-            onChange={(event) => {
-              setCustomPath(event.target.value)
-              handleShell(event.target.value)
-            }}
-            aria-label={t('settings.ruta.del.ejecutable')}
-          />
+
+          <div className={styles.row}>
+            <div className={styles.rowInfo}>
+              <span className={styles.rowName}>{t('settings.shell.de.la.terminal')}</span>
+              <span className={styles.rowMeta}>{t('settings.con.que.shell.se.abre')}</span>
+            </div>
+            <button
+              type="button"
+              className={styles.control}
+              aria-haspopup="menu"
+              aria-label={t('settings.shell.de.la.terminal')}
+              onClick={openShellMenu}
+            >
+              <span className={styles.controlValue}>{shellLabel}</span>
+              <ProductIcon
+                id="chevron-down"
+                size={12}
+                className={styles.controlChevron}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+
+          {customOpen ? (
+            <div className={styles.row}>
+              <div className={styles.rowInfo}>
+                <span className={styles.rowName}>{t('settings.ruta.del.ejecutable')}</span>
+                <span className={styles.rowMeta}>
+                  {t('settings.el.cambio.aplica.a.las.nuevas')}
+                </span>
+              </div>
+              <input
+                className={styles.input}
+                value={customPath}
+                placeholder="pwsh.exe"
+                spellCheck={false}
+                autoFocus
+                onChange={(event) => {
+                  setCustomPath(event.target.value)
+                  handleShell(event.target.value)
+                }}
+                aria-label={t('settings.ruta.del.ejecutable')}
+              />
+            </div>
+          ) : null}
         </div>
-      )}
+      </div>
     </div>
   )
 }

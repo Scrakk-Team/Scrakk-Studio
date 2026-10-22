@@ -82,6 +82,28 @@ published are not edited. The file goes per version:
   competing with the command's own title, and the palette, the welcome tips and
   the action cards finally speak the same visual language.
 
+### Terminal (settings)
+- **The section is a real terminal, not a drawing of one.** The static mock
+  preview (a coloured prompt painted with the chosen font) is gone: Settings
+  now mounts a **live Innerta session in terminal mode** — the same session the
+  terminal tabs use, with a real PTY — so what you see is the actual engine,
+  the actual shell and the actual prompt. Choosing another font retypes it
+  **live** (the session's font is reloaded in place), and the preview is
+  destroyed when you leave the section, so no shell is left running in the
+  background. The embedded session is created with `autoFocus: false`; the
+  terminal of a tab still takes the focus, but the preview does not steal it
+  from the settings navigation.
+- **The selectors lost their box.** Both pickers were native `<select>`s: a
+  bordered control with the operating system's own dropdown, which looked
+  nothing like the rest of Settings. They are now flat rows (the same surface
+  and hover as **Apariencia** and **Servidores LSP**) with a text value and a
+  **ProductIcon chevron** (so the icon theme can override it), and the choice
+  opens the app's **global context menu** — checks, sublabels with the
+  executable path and separators included. No borders, no native popup.
+- Switching the shell restarts the preview (a PTY keeps the shell it was born
+  with); typing a custom path does not restart it on every keystroke — that
+  change still applies to new terminals, as the row's hint says.
+
 ### Terminal (Windows)
 - **The terminal opens the shell you actually use.** It always came up as
   `cmd.exe`: the shell was resolved from `ComSpec`, which is the legacy command

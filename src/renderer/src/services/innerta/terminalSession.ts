@@ -322,9 +322,18 @@ class TerminalSessionImpl implements LiveSession {
   private starting: Promise<void> | null = null
   private disposed = false
 
-  constructor(id: string) {
+  /**
+   * `autoFocus` (default true): al arrancar, el canvas toma el foco.
+   * Las terminales de una tab lo quieren; una vista EMBEBIDA (la previa de
+   * Ajustes, que comparte modal con inputs y navegación) NO debe robar el
+   * foco al montarse.
+   */
+  private readonly autoFocus: boolean
+
+  constructor(id: string, options?: { autoFocus?: boolean }) {
     this.id = id
     this.ptyId = `pty-${id}`
+    this.autoFocus = options?.autoFocus ?? true
   }
 
   attach(host: HTMLElement): void {
@@ -373,7 +382,7 @@ class TerminalSessionImpl implements LiveSession {
       return
     }
     this.view = view
-    this.view.focus()
+    if (this.autoFocus) this.view.focus()
 
     // El RO interno de la vista observa el host de CREACIÓN; como la sesión
     // se re-parentea entre slots, lo desconectamos y manejamos el resize por
@@ -953,10 +962,13 @@ class TerminalSessionImpl implements LiveSession {
 const sessions = new Map<string, TerminalSessionImpl>()
 
 /** Sesión viva de terminal por id (se crea la primera vez que se pide). */
-export function getTerminalSession(id: string): LiveSession {
+export function getTerminalSession(
+  id: string,
+  options?: { autoFocus?: boolean }
+): LiveSession {
   let session = sessions.get(id)
   if (!session) {
-    session = new TerminalSessionImpl(id)
+    session = new TerminalSessionImpl(id, options)
     sessions.set(id, session)
   }
   return session

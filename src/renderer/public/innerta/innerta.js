@@ -8399,8 +8399,8 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('wasmBinary');
 }
 var ASM_CONSTS = {
-  3527892: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } },  
- 3528042: ($0, $1, $2, $3) => { if (Module._innertaOnEvent) { try { Module._innertaOnEvent($0, $1, $2, $3); } catch (e) {} } }
+  3528564: ($0) => { var txt = UTF8ToString($0); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function(){}); } },  
+ 3528714: ($0, $1, $2, $3) => { if (Module._innertaOnEvent) { try { Module._innertaOnEvent($0, $1, $2, $3); } catch (e) {} } }
 };
 
 // Imports from the Wasm binary.
