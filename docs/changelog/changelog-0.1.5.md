@@ -201,6 +201,14 @@ published are not edited. The file goes per version:
   accent tinted background (and `aria-selected`), so the label was redundant.
 
 ### Panels (UI)
+- **The statusbar slot toggle reopens the panel that was there.** Clicking the
+  left/right slot button to reopen a closed slot always opened the hardcoded
+  default (`explorer` on the left, `chat` on the right), ignoring both the
+  panel that was open before closing it and any buttons the user had moved
+  between bars: move Explorer to the right bar and reopen the left slot and it
+  still opened Explorer on the left. The slot now remembers the last panel it
+  held (persisted), and falls back to the first ActivityBar button currently on
+  that side, so it follows the buttons the user moved.
 - **The resize handle converts instead of switching.** On hover it shows the
   three dots; pressing used to swap them for the line in a single frame. The dots
   now **stretch and merge into the line** (~150ms) and go back to dots on release,
