@@ -22,6 +22,7 @@ import { applyInnertaTheme, listenThemeChanges } from '@features/editor/engines/
 import type { ContextMenuItem } from '@ui'
 import { showContextMenu } from '@features/editor/engines/innerta/menuHost'
 import { OscTitleParser } from './oscTitle'
+import type { TerminalShellInfo } from '@shared/terminal'
 
 import { t } from '@core/i18n'
 import { api } from '@services/api'
@@ -59,6 +60,8 @@ interface TerminalApi {
   } | null>
   /** Fuente y TAMAÑO de la terminal por defecto del sistema. */
   getSystemFont?: () => Promise<{ family: string; px: number } | null>
+  /** Shells detectadas en el sistema (selector de Ajustes). */
+  listShells?: () => Promise<TerminalShellInfo>
 }
 
 /**
@@ -119,6 +122,54 @@ export async function listMonoFontFamilies(): Promise<string[]> {
     return await api.listMonoFonts()
   } catch {
     return []
+  }
+}
+
+/**
+ * Shell elegida en Ajustes para la terminal.
+ *
+ * Vacío = la del sistema (en Windows: el perfil por defecto de Windows
+ * Terminal; si no hay, `pwsh`/`powershell`/`cmd`). Se guarda la ELECCIÓN; la
+ * resolución la hace el main, en caliente.
+ */
+export const TERMINAL_SHELL_SETTING_KEY = 'scrakk-terminal-shell'
+
+/** Shell elegida ('' = la del sistema). */
+export function getTerminalShellChoice(): string {
+  try {
+    return localStorage.getItem(TERMINAL_SHELL_SETTING_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Guarda la shell elegida.
+ *
+ * Aplica a las terminales NUEVAS: una PTY viva ya tiene su proceso, cambiarla
+ * en caliente implicaría matarla y perder el historial.
+ */
+export function setTerminalShellChoice(choice: string): void {
+  try {
+    localStorage.setItem(TERMINAL_SHELL_SETTING_KEY, choice)
+  } catch {
+    // Sin storage: sólo aplica en runtime.
+  }
+}
+
+/**
+ * Shells que hay en el sistema y cuál se detectaría por defecto.
+ *
+ * Las detecta el main: son las que EXISTEN de verdad (perfiles de Windows
+ * Terminal, el PATH, rutas conocidas).
+ */
+export async function listTerminalShells(): Promise<TerminalShellInfo | null> {
+  const api = getTerminalApi()
+  if (!api?.listShells) return null
+  try {
+    return await api.listShells()
+  } catch {
+    return null
   }
 }
 
@@ -366,7 +417,10 @@ class TerminalSessionImpl implements LiveSession {
     // cwd = proyecto abierto (si hay); si no, el main cae a HOME.
     const cwd = readWorkspaceRoot()
     const { cols, rows } = this.getRealDims()
-    void api.create({ id: this.ptyId, cwd, cols, rows })
+    // `shell` vacío = que el main detecte la del sistema; con valor, es la
+    // elección de Ajustes (ruta o ejecutable).
+    const shell = getTerminalShellChoice()
+    void api.create({ id: this.ptyId, cwd, cols, rows, shell: shell || undefined })
     view.resize(cols, rows)
     this.unsubData = api.onData((payload) => {
       if (payload.id !== this.ptyId) return

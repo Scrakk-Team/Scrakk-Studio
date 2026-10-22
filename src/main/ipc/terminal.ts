@@ -8,9 +8,10 @@ import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { execSync } from 'child_process'
-import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest } from '@shared/terminal'
+import { TERMINAL_IPC, type TerminalCreateRequest, type TerminalCdRequest, type TerminalWriteRequest, type TerminalResizeRequest, type TerminalDestroyRequest, type TerminalShellInfo, type ShellFamily } from '@shared/terminal'
 import { changeDirCommand } from '@shared/shell-cd'
 import { childEnv } from '../env'
+import { listShellCandidates, resolveShell, systemShellProbe } from '../terminal/shellResolver'
 import {
   listMonoFamilies,
   readFontStack,
@@ -29,7 +30,18 @@ interface PtyProc {
   onExit: (cb: (code: number) => void) => void
 }
 
-const terms = new Map<string, PtyProc>()
+/**
+ * Una PTY viva y la shell con la que se abrió.
+ *
+ * La shell se guarda porque el `cd` de reubicar depende de SU sintaxis: el
+ * `cd /d "…"` de cmd.exe no existe en PowerShell.
+ */
+interface PtyEntry {
+  proc: PtyProc
+  shell: { path: string; args: string[]; family: ShellFamily }
+}
+
+const terms = new Map<string, PtyEntry>()
 
 /** Entero positivo o el fallback (node-pty rechaza 0/NaN al crear o resized). */
 function positiveInt(value: unknown, fallback: number): number {
@@ -37,26 +49,15 @@ function positiveInt(value: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback
 }
 
-function getShell(shell?: string): string {
-  // Windows no tiene `/bin/*`. El renderer manda el nombre POSIX ('bash') por
-  // compatibilidad con Linux: acá se ignora y se usa el shell del sistema
-  // (ComSpec → cmd.exe). Una ruta explícita (con separador) se respeta tal cual.
-  if (process.platform === 'win32') {
-    if (shell && /[/\\]/.test(shell)) return shell
-    return process.env.ComSpec || process.env.COMSPEC || 'cmd.exe'
-  }
-  if (shell && shell.startsWith('/')) return shell
-  if (shell === 'zsh') return '/bin/zsh'
-  if (shell === 'bash' || !shell) return process.env.SHELL || '/bin/bash'
-  return shell
-}
-
 export function registerTerminalIpc(): void {
   ipcMain.handle(TERMINAL_IPC.create, async (event, req: TerminalCreateRequest) => {
     const { id, shell, cwd, cols, rows } = req
     if (!id) return { success: false, error: t('main.missing.id') }
     if (terms.has(id)) return { success: true }
-    const sh = getShell(shell)
+    // La shell sale de la elección del usuario o, si no hay, de la que usa el
+    // sistema (Windows Terminal → su perfil por defecto; si no, pwsh/powershell/
+    // cmd). Ver `../terminal/shellResolver`.
+    const sh = resolveShell(systemShellProbe(), shell)
     const work = cwd || os.homedir()
     // La vista puede medir 0×0 (canvas sin layout todavía): node-pty exige
     // positivos, así que se cae a 80×24.
@@ -66,7 +67,7 @@ export function registerTerminalIpc(): void {
     // Sin secretos del main: un `env` en la terminal no debe ver R2/tokens.
     const cleanEnv = childEnv()
     delete cleanEnv.npm_config_prefix
-    const proc = pty.spawn(sh, [], {
+    const proc = pty.spawn(sh.path, sh.args, {
       name: 'xterm-256color',
       cwd: work,
       env: {
@@ -85,7 +86,7 @@ export function registerTerminalIpc(): void {
       ...(process.platform === 'win32' ? { useConpty: true, useConptyDll: true } : {})
     }) as unknown as PtyProc
 
-    terms.set(id, proc)
+    terms.set(id, { proc, shell: sh })
     const win = BrowserWindow.fromWebContents(event.sender)
     const sendData = (data: string): void => {
       win?.webContents.send(TERMINAL_IPC.onData, { id, data })
@@ -103,32 +104,49 @@ export function registerTerminalIpc(): void {
   })
 
   ipcMain.handle(TERMINAL_IPC.write, async (_event, req: TerminalWriteRequest) => {
-    const proc = terms.get(req.id)
-    if (proc) proc.write(req.data)
+    const entry = terms.get(req.id)
+    if (entry) entry.proc.write(req.data)
   })
 
   ipcMain.handle(TERMINAL_IPC.cd, async (_event, req: TerminalCdRequest) => {
-    const proc = terms.get(req.id)
-    if (!proc || !req.path) return
-    const command = changeDirCommand(req.path, process.platform)
-    if (command) proc.write(command)
+    const entry = terms.get(req.id)
+    if (!entry || !req.path) return
+    // El `cd` lo arma la MAIN según la shell de esa PTY (cmd.exe, PowerShell o
+    // POSIX): el mismo `cd /d "…"` no es válido en PowerShell.
+    const command = changeDirCommand(req.path, process.platform, entry.shell.family)
+    if (command) entry.proc.write(command)
   })
 
   ipcMain.handle(TERMINAL_IPC.resize, async (_event, req: TerminalResizeRequest) => {
-    const proc = terms.get(req.id)
-    if (!proc) return
+    const entry = terms.get(req.id)
+    if (!entry) return
     // La vista emite resize antes de tener tamaño: node-pty tira
     // "resizing must be done using positive cols and rows". Se ignora.
     const cols = positiveInt(req.cols, 0)
     const rows = positiveInt(req.rows, 0)
-    if (cols > 0 && rows > 0) proc.resize(cols, rows)
+    if (cols > 0 && rows > 0) entry.proc.resize(cols, rows)
   })
 
   ipcMain.handle(TERMINAL_IPC.destroy, async (_event, req: TerminalDestroyRequest) => {
-    const proc = terms.get(req.id)
-    if (proc) {
-      proc.kill()
+    const entry = terms.get(req.id)
+    if (entry) {
+      entry.proc.kill()
       terms.delete(req.id)
+    }
+  })
+
+  /**
+   * Shells que hay en el sistema y cuál se detectaría por defecto.
+   *
+   * Sólo se listan las que EXISTEN: cada candidata sale de un archivo real
+   * (un perfil de Windows Terminal, el PATH o una ruta conocida).
+   */
+  ipcMain.handle(TERMINAL_IPC.listShells, async (): Promise<TerminalShellInfo> => {
+    try {
+      return listShellCandidates(systemShellProbe())
+    } catch {
+      const fallback = resolveShell(systemShellProbe())
+      return { detected: fallback, candidates: [fallback] }
     }
   })
 

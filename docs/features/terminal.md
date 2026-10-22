@@ -56,6 +56,57 @@ matches your real terminal:
 - **Settings → Terminal**: pick the family (or leave it on the system default);
   the choice is persisted (`scrakk-terminal-font`) and re-applied live.
 
+## The shell (the program that runs inside)
+
+The PTY needs a program to run. Which one is decided in the main process
+(`src/main/terminal/shellResolver.ts`), in this order:
+
+1. **The choice in Settings → Terminal** — wins over everything.
+2. **Windows Terminal**: if it is the user's default terminal, its **default
+   profile** is the shell they want to see. It is read from
+   `HKCU\Console\%%Startup` (`DelegationConsole`) and, from there, from the
+   Windows Terminal `settings.json` (`defaultProfile` → profile → `commandline`).
+3. **The fallback**: `pwsh.exe` → `powershell.exe` → `cmd.exe`, the first one
+   in the `PATH`.
+
+On Linux and macOS nothing changes: the `SHELL` of the environment, or
+`/bin/bash`.
+
+The dropdown in Settings only offers the shells that **exist** on the machine:
+they come from the Windows Terminal profiles, the `PATH` and the usual install
+locations. There is also a free-text field for a path that is not listed.
+
+Two details that cost a whole debugging session:
+
+- The **App Execution Aliases** of `WindowsApps` (`…\Microsoft\WindowsApps\pwsh.exe`)
+  cannot be `stat`ed — Node gets `EACCES` — so `fs.existsSync` says they are
+  not there. They are: that is how the Store version of PowerShell is
+  installed, and it leaves nothing in `Program Files`. The resolver treats
+  `EACCES`/`EPERM` as "it exists".
+- The Windows Terminal `settings.json` is **JSONC**: it accepts comments and
+  trailing commas, so it cannot be parsed with `JSON.parse` as is.
+
+### Moving the shell to another directory
+
+When the workspace changes, the terminal is **not** recreated (the history and
+the background processes survive): a `cd` is written to the PTY. That command
+depends on the shell, because each one has its own syntax:
+
+| Shell | Command |
+|---|---|
+| `cmd.exe` | `cd /d "C:\path"` |
+| PowerShell | `Set-Location -LiteralPath 'C:\path'` |
+| POSIX | `cd -- '/path'` |
+
+`cd /d "…"` —the cmd.exe form— **is not valid in PowerShell**: `/d` is taken as
+a positional argument and the command fails with *"A positional parameter
+cannot be found that accepts argument"*. In cmd.exe a path with `&`, `|` or `%`
+is rejected instead of escaped: there is no safe way to quote it there. In
+PowerShell the single quotes make those characters literal, so they are allowed.
+
+A POSIX shell on Windows (Git Bash) receives the path in its MSYS form
+(`/c/Users/dev`), which is how that runtime mounts the drive.
+
 ## The node view (terminal canvas)
 
 The bottom strip has a **"view nodes"** button that swaps the terminal for an
@@ -72,7 +123,8 @@ session is a **node**:
 ## Limits
 
 - The terminal is a **PTY renderer**, not a shell manager: no split panes inside
-  one terminal, no built-in profiles beyond the system shell.
+  one terminal. The shell is the system one — or the one chosen in
+  Settings → Terminal — but there are no editable profiles.
 - Font metrics come from the system; if none can be resolved, the engine falls
   back to its bundled faces.
 - The node view is a **view** of the sessions, not a separate terminal system.

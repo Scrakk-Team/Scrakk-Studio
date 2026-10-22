@@ -11,6 +11,8 @@ export const TERMINAL_IPC = {
   cd: 'terminal:cd',
   onData: 'terminal:on-data',
   onExit: 'terminal:on-exit',
+  /** Shells detectadas en el sistema (para el selector de Ajustes). */
+  listShells: 'terminal:list-shells',
   getMonoFont: 'terminal:get-mono-font',
   /**
    * Cadena de fuentes de la terminal: la primaria y sus reemplazos, EN ORDEN,
@@ -42,6 +44,43 @@ export type TerminalDestroyRequest = { id: string }
 
 export type TerminalDataPayload = { id: string; data: string }
 export type TerminalExitPayload = { id: string; exitCode: number }
+
+/**
+ * Familia de una shell: define CÓMO se reubica (el comando `cd`) y cómo se
+ * etiqueta en Ajustes.
+ *
+ * - `cmd`: `cmd.exe` — `cd /d "…"`
+ * - `powershell`: `powershell.exe` / `pwsh.exe` — `Set-Location -LiteralPath '…'`
+ * - `posix`: bash/zsh/fish — `cd -- '…'`
+ * - `other`: una shell de la que NO se conoce la sintaxis (WSL, fish exotic…):
+ *   no se le manda ningún `cd`, antes que mandarle uno equivocado.
+ */
+export type ShellFamily = 'cmd' | 'powershell' | 'posix' | 'other'
+
+/** De dónde salió la shell que se usa (para el diagnóstico y los tests). */
+export type ShellSource = 'setting' | 'windows-terminal' | 'fallback' | 'posix'
+
+/** Una shell que se puede lanzar en una PTY. */
+export interface TerminalShellCandidate {
+  /** Identificador estable: la ruta del ejecutable. */
+  id: string
+  /** Nombre legible ("PowerShell 7", "Command Prompt"…). */
+  label: string
+  /** Ruta o comando del ejecutable. */
+  path: string
+  /** Argumentos con los que se lanza. */
+  args: string[]
+  /** Familia: define el `cd` y cómo se reubica. */
+  family: ShellFamily
+}
+
+/** Lo que necesita el selector de Ajustes para armar sus opciones. */
+export interface TerminalShellInfo {
+  /** La shell que se usaría con la configuración actual (la elegida o la detectada). */
+  detected: TerminalShellCandidate
+  /** Todas las candidatas del sistema, la detectada primero. */
+  candidates: TerminalShellCandidate[]
+}
 
 /** Una fuente de la cadena de la terminal, con sus bytes ya leídos. */
 export type TerminalFontFile = {
@@ -103,4 +142,11 @@ export interface TerminalApi {
    * `null` si no se pudo resolver.
    */
   getSystemFont: () => Promise<{ family: string; px: number } | null>
+  /**
+   * Shells que hay en el sistema y cuál se detectaría por defecto.
+   *
+   * En Windows la detección mira la terminal por defecto del usuario (Windows
+   * Terminal → su perfil por defecto) y, si no hay, `pwsh`/`powershell`/`cmd`.
+   */
+  listShells: () => Promise<TerminalShellInfo>
 }

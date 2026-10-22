@@ -70,3 +70,21 @@
   outline: 2px solid var(--color-accent, var(--color-text));
   outline-offset: 1px;
 }
+
+.input {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 55%;
+  padding: 6px var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised, var(--color-surface));
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--text-xs);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-accent, var(--color-text));
+  outline-offset: 1px;
+}

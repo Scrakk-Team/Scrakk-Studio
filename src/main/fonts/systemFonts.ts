@@ -24,7 +24,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import { execSync } from 'child_process'
+import { execSync, execFileSync } from 'child_process'
 import type { TerminalFontFile } from '@shared/terminal'
 
 /**
@@ -136,21 +136,42 @@ export function windowsConsoleEmPx(cellHeight: number, scaleFactor: number): num
   return Math.min(22, Math.max(10, em))
 }
 
+/**
+ * Lee un valor del registro de Windows.
+ *
+ * **Sin shell**: `execSync` pasa la línea por `cmd.exe`, y ahí la clave
+ * `HKCU\\Console` llegaba a `reg` con la barra de más → *"ERROR: Invalid key
+ * name. Type "REG QUERY /?" for usage."* — que además se imprimía en la
+ * consola, porque `execSync` hereda el stderr. Con `execFileSync` no hay shell
+ * que toque la clave, y el stderr se descarta: si la clave no existe, `reg`
+ * escribe el error y sale con 1.
+ */
+function regQuery(key: string, value: string): string {
+  try {
+    return execFileSync('reg', ['query', key, '/v', value], {
+      encoding: 'utf-8',
+      timeout: 3000,
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'ignore']
+    })
+  } catch {
+    // La clave o el valor no existen: no hay fuente del sistema que leer.
+    return ''
+  }
+}
+
 export function resolveSystemTerminalFont(scaleFactor = 1): SystemTerminalFont | null {
   if (process.platform === 'win32') {
     try {
       let face = ''
       let cellHeight = 16
-      const out = execSync('reg query "HKCU\\\\Console" /v FaceName', {
-        encoding: 'utf-8',
-        timeout: 3000
-      })
+      const out = regQuery('HKCU\\Console', 'FaceName')
       const faceMatch = /FaceName\s+REG_SZ\s+(.+)/.exec(out)
       if (faceMatch) face = faceMatch[1].trim()
-      const sizeOut = execSync('reg query "HKCU\\\\Console" /v FontSize', {
-        encoding: 'utf-8',
-        timeout: 3000
-      })
+      // `__DefaultTTFont__` NO es una familia: es el centinela de conhost para
+      // "la fuente por defecto". Como nombre de familia no existe.
+      if (!face || face === '__DefaultTTFont__') face = ''
+      const sizeOut = regQuery('HKCU\\Console', 'FontSize')
       // DWORD 0x00HH00WW: el alto en píxeles va en la palabra alta.
       const hex = /FontSize\s+REG_DWORD\s+0x([0-9a-fA-F]+)/.exec(sizeOut)
       if (hex) {

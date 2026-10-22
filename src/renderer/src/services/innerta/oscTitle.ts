@@ -13,6 +13,28 @@
  * Parser INCREMENTAL: un chunk del PTY corta las secuencias donde quiere, así que
  * el tramo incompleto se guarda hasta el próximo chunk.
  */
+
+/** Extensiones de ejecutable: un "título" que termina en una es una ruta de programa. */
+const EXECUTABLE_EXTENSION = /\.(exe|cmd|bat|com)$/i
+
+/**
+ * ¿El "título" es en realidad la ruta de un ejecutable?
+ *
+ * PowerShell manda la ruta de su propio binario al arrancar (con la Store,
+ * `C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.7.0_x64__…\pwsh.exe`).
+ * No es un título: es el programa. Sin este filtro la tab de la terminal queda
+ * con una ruta larga en lugar de decir "Terminal".
+ *
+ * Un título de verdad (el cwd de bash, "vim", "lazygit") no es una ruta de
+ * ejecutable: los cwd terminan en carpeta, no en `.exe`.
+ */
+function isExecutablePath(title: string): boolean {
+  const value = title.trim()
+  if (!value) return false
+  if (!value.includes('/') && !value.includes('\\')) return false
+  return EXECUTABLE_EXTENSION.test(value)
+}
+
 export class OscTitleParser {
   private pending = ''
   private title = ''
@@ -56,6 +78,9 @@ export class OscTitleParser {
         const code = body.slice(0, semi)
         if (code === '0' || code === '2') {
           const value = body.slice(semi + 1)
+          // La ruta de un ejecutable no es un título: se ignora y se sigue con
+          // el que hubiera (o con el nombre por defecto de la tab).
+          if (isExecutablePath(value)) continue
           if (value !== this.title) {
             this.title = value
             changed = true
